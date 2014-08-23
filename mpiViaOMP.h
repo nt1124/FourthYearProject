@@ -335,7 +335,7 @@ int blockingSingleSend(int receiverID, long int* commChannels, long int data, in
 
 	*(commChannels + index) = data;
 	
-	//while( *(commChannels + index) != -1 )	{}
+	while( *(commChannels + index) != -1 )	{}
 	
 	return 1;
 }
