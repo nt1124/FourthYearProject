@@ -28,7 +28,7 @@ union customReps
 } customReps;
 
 
-long int* convertAngledToInt(angledRep input)
+long int* convertAngledToIntArray(angledRep input)
 {
 	long int* toReturn = calloc(4, sizeof(long int));
 
@@ -41,7 +41,7 @@ long int* convertAngledToInt(angledRep input)
 }
 
 
-long int* convertSquareToInt(squareRep input, long int numParties)
+long int* convertSquareToIntArray(squareRep input, long int numParties)
 {
 	long int* toReturn = calloc(2 + numParties, sizeof(long int));
 	int i;
@@ -56,6 +56,25 @@ long int* convertSquareToInt(squareRep input, long int numParties)
 	}
 
 	return toReturn;
+}
+
+
+struct angledRep addAngledRep(struct angledRep inputA, struct angledRep inputB)
+{
+	struct angledRep output;
+
+	output -> delta = inputA -> delta + inputB -> delta;
+	output -> alpha_i = inputA -> alpha_i + inputB -> alpha_i;
+	output -> gamma_alpha_i = inputA -> gamma_alpha_i + inputB -> gamma_alpha_i;
+
+	return output;
+}
+
+
+void addConstantToAngledRep(long int constInput, struct angledRep angledInput)
+{
+	angledInput -> delta 	= angledInput -> delta - constInput;
+	angledInput -> alpha_i 	= angledInput -> alpha_i + constInput;
 }
 
 
