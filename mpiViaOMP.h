@@ -9,7 +9,7 @@
 #include <string.h>
 
 
-const int numParties = 4;
+const int numParties = 2;
 
 
 int blockingMultiSend(int receiverID, long int* commChannels, long int* data, int blockSize);
@@ -442,6 +442,13 @@ int blockingDiffBroadcast(long int* commChannels, long int** data, int blockSize
 
 	return 1;
 }
+
+
+int openToAll()
+{
+
+}
+
 
 void initRandom()
 {
