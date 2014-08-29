@@ -45,5 +45,6 @@ int main(int argc, char **argv)
 	{
 		printf("Error: Only one argument expected\n");
 	}
+
 	return 0;
 }
