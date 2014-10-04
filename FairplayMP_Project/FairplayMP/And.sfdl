@@ -1,0 +1,17 @@
+/*
+ * Compute AND of two byte 
+ */
+program And {
+	const N=8;
+	type Byte = Int<N>;
+	type PlayerInput = Byte;
+	type PlayerOutput = Byte;
+	
+	type Player = struct{PlayerInput input, PlayerOutput output};
+
+	function void main(Player[2] players)
+	{
+           players[0].output = (players[0].input && players[1].input);
+           players[1].output = (players[0].input && players[1].input);
+	}
+}

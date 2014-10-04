@@ -1,0 +1,16 @@
+#!/bin/bash
+
+CURRENT_DIR=`dirname $0`
+cd ${CURRENT_DIR}
+
+if [ -n "${JAVA_HOME}" ]; then
+	JAVA=${JAVA_HOME}/bin/java
+else
+	JAVA=java
+fi
+
+CLASSPATH=../jars/SFE.jar:../jars/log4j-1.2beta3.jar
+RUNDIR_ARG=-Drundir=${CURRENT_DIR}/
+
+${JAVA} -ea -classpath ${CLASSPATH} ${RUNDIR_ARG} SFE.BOAL.Alice $*
+
