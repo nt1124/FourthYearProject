@@ -1,34 +1,28 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 
-typedef struct wire
-{
-	int W_ID;
-	int wireValue;
-	char inputOrOutput;
-} wire;
 
 typedef struct gate
 {
-	int G_ID;
 	int numInputs;
 	int *inputIDs;
 
 	int outputTableSize;
 	int *outputTable;
-	int outputValue;
 } gate;
 
 
 typedef struct gateOrWire
 {
-	union
-	{
-		struct gate gate_data;
-		struct wire wire_data;
-	};
+	int G_ID;
+	char typeTag;	// G = Gate, W = wire
+	char wireValue;
+	char outputFlag;
+
+	struct gate *gate_data;
 } gateOrWire;
 
 
@@ -36,8 +30,7 @@ void printGate(struct gate *input)
 {
 	int i;
 
-	printf("Table ID  = %d\n", input -> G_ID);
-	printf("numInputs = %d\n", input -> numInputs);
+	printf("NumInputs = %d\n", input -> numInputs);
 
 	printf("[ %d", *((input -> inputIDs)) );
 	for(i = 1; i < input -> numInputs; i ++)
@@ -54,15 +47,19 @@ void printGate(struct gate *input)
 	printf(" ]\n\n");
 }
 
-struct wire* constructWire(int idNum, char inputOrOutput)
+
+void printGateOrWire(struct gateOrWire *input)
 {
-	struct wire *newInput = calloc(1, sizeof(struct wire));
-
-	newInput -> W_ID = idNum;
-	newInput -> wireValue = 0;
-	newInput -> inputOrOutput = inputOrOutput;
-
-	return newInput;
+	if( 'W' == input -> typeTag )
+	{
+		printf("Wire ID  = %d\n", input -> G_ID);
+	}
+	else if( 'G' == input -> typeTag )
+	{
+		printf("Gate ID  = %d\n", input -> G_ID);
+		printGate( input -> gate_data );
+	}
+	printf("Value = %d\n", input -> wireValue);
 }
 
 
@@ -109,10 +106,9 @@ int *parseInputTable(char* line, int tableSize, int *strIndex)
 }
 
 
-struct gate *processGate(char* line, int id, int strIndex)
+struct gate *processGate(char* line, int strIndex)
 {
 	struct gate* toReturn = calloc(1, sizeof(struct gate));
-	toReturn -> G_ID= id;
 	int tempIndex, outputTableSize = 1;
 
 	while( line[++ strIndex] != ' ' ) {}
@@ -131,42 +127,93 @@ struct gate *processGate(char* line, int id, int strIndex)
 	toReturn -> outputTable = parseOutputTable(line, outputTableSize, &strIndex);
 	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
 
-	//printGate(toReturn);
+	return toReturn;
+}
+
+
+struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex)
+{
+	struct gateOrWire *toReturn = calloc(1, sizeof(struct gateOrWire));
+
+	toReturn -> G_ID = idNum;
+	if( 'i' == line[*strIndex] )
+	{
+		toReturn -> typeTag = 'W';
+		toReturn -> wireValue = rand() % 2;
+	}
+	else
+	{
+		toReturn -> typeTag = 'G';
+		if('o' == line[*strIndex])
+		{
+			toReturn -> outputFlag = 1;
+			while( line[*strIndex] != ' ' )
+			{
+				*strIndex = *strIndex + 1;
+			}
+		}
+		toReturn -> gate_data = processGate(line, *strIndex);
+	}
 
 	return toReturn;
 }
 
 
-void processLine(char *line)
+struct gateOrWire *processLine(char *line)
 {
 	int strIndex = 0, idNum;
 
 	while( line[strIndex] != ' ' )
-	{ strIndex ++; }
+	{
+		if( '/' == line[strIndex] )
+			return NULL;
+		strIndex ++;
+	}
 
 	char *idString = (char*) calloc(strIndex + 1, sizeof(char));
 	strncpy(idString, line, strIndex);
 	idNum = atoi(idString);
 
 	while( line[strIndex] == ' ' )
-	{ strIndex ++; }
+	{
+		if( '/' == line[strIndex] )
+			return NULL;
+		strIndex ++;
+	}
 
-	if( 'i' == line[strIndex] )
-	{
-		struct wire *newInput = constructWire(idNum, line[strIndex]);
-	}
-	else
-	{
-		if('o' == line[strIndex])
-		{
-			while( line[strIndex] == ' ' )
-			{ strIndex ++; }
-		}
-		processGate(line, idNum, strIndex);
-	}
+	return processGateOrWire(line, idNum, &strIndex);
 }
 
-int count_lines_of_file(char * filepath) {
+
+struct gateOrWire **readInCircuit(char* filepath, int numGates)
+{
+	int gateIndex = 0;
+	struct gateOrWire *tempGateOrWire;
+	struct gateOrWire **circuit = calloc(numGates, sizeof(struct gateOrWire));
+
+	FILE *file = fopen ( filepath, "r" );
+	if ( file != NULL )
+	{
+		char line [ 512 ]; /* or other suitable maximum line size */
+		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		{
+			tempGateOrWire = processLine(line);
+			if( NULL != tempGateOrWire )
+			{
+				*(circuit + gateIndex) = tempGateOrWire;
+				//printGateOrWire( tempGateOrWire );
+				gateIndex ++;
+			}
+		}
+		fclose ( file );
+	}
+
+	return circuit;
+}
+
+
+int count_lines_of_file(char * filepath)
+{
     FILE *file = fopen ( filepath, "r" );
     int line_count = 0;
 
@@ -183,29 +230,51 @@ int count_lines_of_file(char * filepath) {
 		fclose ( file );
 		return line_count;
 	}
+
     return -1;
 }
 
-void readInCircuit(char* filepath)
+
+void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 {
-	FILE *file = fopen ( filepath, "r" );
-	if ( file != NULL )
+	int i, j, tempIndex, numInputs;
+	char outputTableIndex, tempValue;
+	struct gate *currentGate;
+
+	for(i = 0; i < numGates; i ++)
 	{
-		char line [ 512 ]; /* or other suitable maximum line size */
-		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		if( 'G' == inputCircuit[i] -> typeTag )
 		{
-			processLine(line);
-		   //fputs ( line, stdout ); /* write the line */
+			outputTableIndex = 0;
+			currentGate = inputCircuit[i] -> gate_data;
+			numInputs = currentGate -> numInputs;
+
+			for(j = 0; j < numInputs; j ++)
+			{
+				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
+				outputTableIndex <<= 1;
+				outputTableIndex += inputCircuit[tempIndex] -> wireValue;
+
+				inputCircuit[i] -> wireValue = currentGate -> outputTable[outputTableIndex];
+			}
 		}
-		fclose ( file );
+
+		if( 1 == inputCircuit[i] -> outputFlag )
+		{
+			printf("Id: %d has value %d.\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> wireValue);
+		}
 	}
 }
 
 
 int main()
 {
-	printf("Num of Lines: %ld\n", count_lines_of_file("Billionaires.txt.Opt.circuit"));
-	readInCircuit("Billionaires.txt.Opt.circuit");
+	int numGates = count_lines_of_file("Median.sfdl.Opt.circuit");
+	printf("Num of Lines: %d\n", numGates);
+	srand( time(NULL) );
 
-	return 0;	
+	struct gateOrWire **inputCircuit = readInCircuit("Median.sfdl.Opt.circuit", numGates);
+	runCircuit( inputCircuit, numGates );
+
+	return 0;
 }

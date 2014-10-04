@@ -9,7 +9,7 @@
 // 	
 // 	type Player = struct{PlayerInput input, PlayerOutput output};
 // 
-// 	function void main(Player[2] players)
+// 	function void main(Player[2] players, Byte temp)
 // 	{
 //            players[0].output = (players[0].input && players[1].input);
 //            players[1].output = (players[0].input && players[1].input);
