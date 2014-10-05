@@ -267,14 +267,48 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 }
 
 
-int main()
+void readFormatFile( char *filepath)
 {
-	int numGates = count_lines_of_file("Median.sfdl.Opt.circuit");
-	printf("Num of Lines: %d\n", numGates);
-	srand( time(NULL) );
+    FILE *file = fopen ( filepath, "r" );
+    int line_count = 0;
 
-	struct gateOrWire **inputCircuit = readInCircuit("Median.sfdl.Opt.circuit", numGates);
-	runCircuit( inputCircuit, numGates );
+	if ( file != NULL )
+	{
+		char line [ 512 ]; /* or other suitable maximum line size */
+		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		{
+			if( 'B' == line[0] )
+			{
+				//We have a Bob thingy!	
+			}
+			else if( 'A' == line[0] )
+			{
+				// We have an Alice thingy!
+			}
+		}
+		fclose ( file );
+	}
+}
+
+
+int main(int argc, char *argv[])
+{
+	if( 2 != argc )
+	{
+		char *circuitFilepath = argv[1];
+		char *formatFilepath = argv[2];
+
+		int numGates = count_lines_of_file(circuitFilepath);
+		printf("Num of Lines: %d\n", numGates);
+		srand( time(NULL) );
+
+		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+		runCircuit( inputCircuit, numGates );
+	}
+	else
+	{
+		printf("Circuit and Format file names required  %d\n", argc);
+	}
 
 	return 0;
 }
