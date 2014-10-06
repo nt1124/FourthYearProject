@@ -55,6 +55,8 @@ int main(int argc, char *argv[])
 
 		runCircuit( inputCircuit, numGates );
 		printAllOutput(inputCircuit, numGates);
+
+		printf("Size of long^2: %d\n", sizeof(unsigned long long));
 	}
 	else
 	{

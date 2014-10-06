@@ -6,8 +6,9 @@ typedef struct outputRow
 {
 	struct outputRow* zeroPointer;
 	struct outputRow* onePointer;
+	
 	int outputValue;
-};
+} outputRow;
 
 
 typedef struct gate
