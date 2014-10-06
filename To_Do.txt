@@ -1,7 +1,7 @@
 	To Do
 
-	- Take inputs and put them to the circuit.
-	- Read said inputs from file.
+	+ Take inputs and put them to the circuit.
+	+ Read said inputs from file.
 	- Read circuit from socket connection.
 	- Read inputs from socket connection.
 	- Run circuit taken from socket connection.

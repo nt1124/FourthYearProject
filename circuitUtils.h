@@ -2,6 +2,14 @@
 #define	CIRCUIT_UTILS
 
 
+typedef struct outputRow
+{
+	struct outputRow* zeroPointer;
+	struct outputRow* onePointer;
+	int outputValue;
+};
+
+
 typedef struct gate
 {
 	int numInputs;
