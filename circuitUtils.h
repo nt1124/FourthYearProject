@@ -7,7 +7,7 @@ typedef struct outputRow
 	struct outputRow* zeroPointer;
 	struct outputRow* onePointer;
 	
-	int outputValue;
+	unsigned char outputValue[16];
 } outputRow;
 
 

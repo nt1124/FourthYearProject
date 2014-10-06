@@ -50,13 +50,13 @@ int main(int argc, char *argv[])
 		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 		struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
 
-		readInputDetailsFile( "And.alice.input", inputCircuit );
-		readInputDetailsFile( "And.bob.input", inputCircuit );
+		char tempAlice[] = "And.alice.input";
+		char tempBob[] = "And.bob.input";
+		readInputDetailsFile( tempAlice, inputCircuit );
+		readInputDetailsFile( tempBob, inputCircuit );
 
 		runCircuit( inputCircuit, numGates );
 		printAllOutput(inputCircuit, numGates);
-
-		printf("Size of long^2: %d\n", sizeof(unsigned long long));
 	}
 	else
 	{

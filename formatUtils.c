@@ -43,7 +43,7 @@ int countWires(char* line, int strIndex)
 
 struct formatItem *readFormatLine(char *line)
 {
-	struct formatItem *toReturn = calloc(1, sizeof(struct formatItem));
+	struct formatItem *toReturn = (struct formatItem*) calloc(1, sizeof(struct formatItem));
 	int strIndex = 0;
 
 	toReturn -> owner = line[0];
@@ -63,7 +63,7 @@ struct formatItem **readFormatFile( char *filepath, int numInputOutputs)
 	FILE *file = fopen ( filepath, "r" );
 	int line_count = 0, formatIndex = 0;
 
-	struct formatItem **formatList = calloc(numInputOutputs, sizeof(struct formatList*));
+	struct formatItem **formatList = (struct formatItem**) calloc(numInputOutputs, sizeof(struct formatList*));
 	struct formatItem *formatItem;
 
 	if ( file != NULL )

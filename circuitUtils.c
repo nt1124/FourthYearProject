@@ -1,6 +1,7 @@
 #include "circuitUtils.h"
 #include "formatUtils.c"
 
+
 void printGate(struct gate *input)
 {
 	int i;
@@ -56,7 +57,7 @@ void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 
 struct gate *processGate(char* line, int strIndex)
 {
-	struct gate* toReturn = calloc(1, sizeof(struct gate));
+	struct gate* toReturn = (struct gate*) calloc(1, sizeof(struct gate));
 	int tempIndex, outputTableSize = 1;
 
 	while( line[++ strIndex] != ' ' ) {}
@@ -64,7 +65,7 @@ struct gate *processGate(char* line, int strIndex)
 	tempIndex = ++ strIndex;
 	while( line[strIndex] != ' ' ) { strIndex ++;}
 
-	char *tempString = calloc((strIndex - tempIndex + 1), sizeof(char));
+	char *tempString = (char*) calloc((strIndex - tempIndex + 1), sizeof(char));
 	strncpy(tempString, line + tempIndex, (strIndex - tempIndex));
 	toReturn -> numInputs = atoi(tempString);
 
@@ -81,7 +82,7 @@ struct gate *processGate(char* line, int strIndex)
 
 struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex)
 {
-	struct gateOrWire *toReturn = calloc(1, sizeof(struct gateOrWire));
+	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
 	toReturn -> G_ID = idNum;
 	if( 'i' == line[*strIndex] )
@@ -137,7 +138,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 {
 	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
-	struct gateOrWire **circuit = calloc(numGates, sizeof(struct gateOrWire*));
+	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 
 	FILE *file = fopen ( filepath, "r" );
 	if ( file != NULL )
@@ -186,7 +187,7 @@ int count_lines_of_file(char * filepath)
 void readInputLines(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
-	char *curCharStr = calloc( 2, sizeof(char) );
+	char *curCharStr = (char*) calloc( 2, sizeof(char) );
 
 	while( ' ' != line[strIndex++] ){}
 
