@@ -1,0 +1,9 @@
+	To Do
+
+	- Take inputs and put them to the circuit.
+	- Read said inputs from file.
+	- Read circuit from socket connection.
+	- Read inputs from socket connection.
+	- Run circuit taken from socket connection.
+	- Alter circuit to run on AES sized input/output.
+	- Struct for rows of output table.
