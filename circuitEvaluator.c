@@ -4,45 +4,8 @@
 #include <time.h>
 
 #include "circuitUtils.c"
-#include <openssl/aes.h>
-static const unsigned char key[] = {
-  	0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-    0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+#include "cryptoUtil.c"
 
-void aesTest()
-{
-    int i;
-    unsigned char text[]="hello world!";
-    unsigned char * enc_out = malloc(80*sizeof(char)); 
-    unsigned char * dec_out = malloc(80*sizeof(char));
-
-    AES_KEY enc_key, dec_key;
-
-    AES_set_encrypt_key(key, 128, &enc_key);
-    AES_encrypt(text, enc_out, &enc_key);  
-
-
-    AES_set_decrypt_key(key,128,&dec_key);
-    AES_decrypt(enc_out, dec_out, &dec_key);
-
-
-    printf("Original:\t");
-    for(i=0;*(text+i)!=0x00;i++)
-        printf("%X ",*(text+i));
-
-    printf("\nEncrypted:\t");
-    for(i=0;*(enc_out+i)!=0x00;i++)
-        printf("%X ",*(enc_out+i));
-
-    printf("\nDecrypted:\t");
-    for(i=0;*(dec_out+i)!=0x00;i++)
-        printf("%X ",*(dec_out+i));
-    printf("\n");
-
-    free(enc_out);
-    free(dec_out);
-
-}
 
 
 void runCircuit( struct gateOrWire **inputCircuit, int numGates )
@@ -96,7 +59,8 @@ int main(int argc, char *argv[])
 		runCircuit( inputCircuit, numGates );
 		printAllOutput(inputCircuit, numGates);
 
-		aesTest();
+		//aesTest();
+    	//sha256Digest("123456781234567812345678", 24);
 	}
 	else
 	{
