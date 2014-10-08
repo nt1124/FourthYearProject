@@ -1,0 +1,757 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+  0.00      0.00     0.00       16     0.00     0.00  processGate
+  0.00      0.00     0.00        2     0.00     0.00  count_lines_of_file
+  0.00      0.00     0.00        2     0.00     0.00  readInputDetailsFile
+  0.00      0.00     0.00        1     0.00     0.00  readFormatFile
+  0.00      0.00     0.00        1     0.00     0.00  readInCircuit
+  0.00      0.00     0.00        1     0.00     0.00  runCircuit
+  0.00      0.00     0.00        1     0.00     0.00  testElgamal
+  0.00      0.00     0.00                             AES_decrypt
+  0.00      0.00     0.00                             AES_encrypt
+  0.00      0.00     0.00                             AES_set_decrypt_key
+  0.00      0.00     0.00                             AES_set_encrypt_key
+  0.00      0.00     0.00                             BN_CTX_end
+  0.00      0.00     0.00                             BN_CTX_init
+  0.00      0.00     0.00                             BN_CTX_new
+  0.00      0.00     0.00                             BN_bn2dec
+  0.00      0.00     0.00                             BN_free
+  0.00      0.00     0.00                             BN_generate_prime
+  0.00      0.00     0.00                             BN_mod_exp
+  0.00      0.00     0.00                             BN_mod_inverse
+  0.00      0.00     0.00                             BN_mod_mul
+  0.00      0.00     0.00                             BN_new
+  0.00      0.00     0.00                             BN_num_bits
+  0.00      0.00     0.00                             BN_rand_range
+  0.00      0.00     0.00                             DllMain@12
+  0.00      0.00     0.00                             GetModuleHandleA@4
+  0.00      0.00     0.00                             SHA256_Final
+  0.00      0.00     0.00                             SHA256_Init
+  0.00      0.00     0.00                             SHA256_Update
+  0.00      0.00     0.00                             WinMainCRTStartup
+  0.00      0.00     0.00                             __CTOR_LIST__
+  0.00      0.00     0.00                             __DTOR_LIST__
+  0.00      0.00     0.00                             __dllMain
+  0.00      0.00     0.00                             __errno
+  0.00      0.00     0.00                             __gcc_deregister_frame
+  0.00      0.00     0.00                             __gcc_register_frame
+  0.00      0.00     0.00                             __getreent
+  0.00      0.00     0.00                             __main
+  0.00      0.00     0.00                             __udivdi3
+  0.00      0.00     0.00                             _cygwin_crt0_common@8
+  0.00      0.00     0.00                             _cygwin_dll_entry@12
+  0.00      0.00     0.00                             _cygwin_noncygwin_dll_entry@12
+  0.00      0.00     0.00                             _fentry__
+  0.00      0.00     0.00                             _mcleanup
+  0.00      0.00     0.00                             _mcount_private
+  0.00      0.00     0.00                             _monstartup
+  0.00      0.00     0.00                             _pei386_runtime_relocator
+  0.00      0.00     0.00                             aesTest
+  0.00      0.00     0.00                             atexit
+  0.00      0.00     0.00                             atoi
+  0.00      0.00     0.00                             calloc
+  0.00      0.00     0.00                             close
+  0.00      0.00     0.00                             closeBignumContext
+  0.00      0.00     0.00                             countWires
+  0.00      0.00     0.00                             cygwin_attach_dll
+  0.00      0.00     0.00                             cygwin_crt0
+  0.00      0.00     0.00                             cygwin_detach_dll
+  0.00      0.00     0.00                             cygwin_internal
+  0.00      0.00     0.00                             cygwin_premain0
+  0.00      0.00     0.00                             cygwin_premain1
+  0.00      0.00     0.00                             cygwin_premain2
+  0.00      0.00     0.00                             cygwin_premain3
+  0.00      0.00     0.00                             decElgamal
+  0.00      0.00     0.00                             dll_dllcrt0
+  0.00      0.00     0.00                             enc2009Smart
+  0.00      0.00     0.00                             encElgamal
+  0.00      0.00     0.00                             exit
+  0.00      0.00     0.00                             fclose
+  0.00      0.00     0.00                             fgets
+  0.00      0.00     0.00                             fopen
+  0.00      0.00     0.00                             fprintf
+  0.00      0.00     0.00                             free
+  0.00      0.00     0.00                             fwrite
+  0.00      0.00     0.00                             galois_create_log_tables
+  0.00      0.00     0.00                             galois_create_mult_tables
+  0.00      0.00     0.00                             galois_create_split_w8_tables
+  0.00      0.00     0.00                             galois_get_div_table
+  0.00      0.00     0.00                             galois_get_ilog_table
+  0.00      0.00     0.00                             galois_get_log_table
+  0.00      0.00     0.00                             galois_get_mult_table
+  0.00      0.00     0.00                             galois_ilog
+  0.00      0.00     0.00                             galois_inverse
+  0.00      0.00     0.00                             galois_invert_binary_matrix
+  0.00      0.00     0.00                             galois_log
+  0.00      0.00     0.00                             galois_logtable_divide
+  0.00      0.00     0.00                             galois_logtable_multiply
+  0.00      0.00     0.00                             galois_multtable_divide
+  0.00      0.00     0.00                             galois_multtable_multiply
+  0.00      0.00     0.00                             galois_region_xor
+  0.00      0.00     0.00                             galois_shift_divide
+  0.00      0.00     0.00                             galois_shift_inverse
+  0.00      0.00     0.00                             galois_shift_multiply
+  0.00      0.00     0.00                             galois_single_divide
+  0.00      0.00     0.00                             galois_single_multiply
+  0.00      0.00     0.00                             galois_split_w8_multiply
+  0.00      0.00     0.00                             galois_w08_region_multiply
+  0.00      0.00     0.00                             galois_w16_region_multiply
+  0.00      0.00     0.00                             galois_w32_region_multiply
+  0.00      0.00     0.00                             generateKeyPair
+  0.00      0.00     0.00                             getPrime
+  0.00      0.00     0.00                             get_thrpc
+  0.00      0.00     0.00                             initBignumContext
+  0.00      0.00     0.00                             initPubKey
+  0.00      0.00     0.00                             kdf2009Smart
+  0.00      0.00     0.00                             main
+  0.00      0.00     0.00                             malloc
+  0.00      0.00     0.00                             memset
+  0.00      0.00     0.00                             moncontrol
+  0.00      0.00     0.00                             monstartup
+  0.00      0.00     0.00                             open
+  0.00      0.00     0.00                             parseInputTable
+  0.00      0.00     0.00                             parseOutputTable
+  0.00      0.00     0.00                             perror
+  0.00      0.00     0.00                             posix_memalign
+  0.00      0.00     0.00                             printAllOutput
+  0.00      0.00     0.00                             printFormatItem
+  0.00      0.00     0.00                             printGate
+  0.00      0.00     0.00                             printGateOrWire
+  0.00      0.00     0.00                             print_prime
+  0.00      0.00     0.00                             printf
+  0.00      0.00     0.00                             processGateLine
+  0.00      0.00     0.00                             processGateOrWire
+  0.00      0.00     0.00                             profil
+  0.00      0.00     0.00                             profile_ctl
+  0.00      0.00     0.00                             profthr_func@4
+  0.00      0.00     0.00                             putchar
+  0.00      0.00     0.00                             puts
+  0.00      0.00     0.00                             rand
+  0.00      0.00     0.00                             readFormatLine
+  0.00      0.00     0.00                             readInputLines
+  0.00      0.00     0.00                             realloc
+  0.00      0.00     0.00                             register_frame_ctor
+  0.00      0.00     0.00                             sha256Digest
+  0.00      0.00     0.00                             srand
+  0.00      0.00     0.00                             status
+  0.00      0.00     0.00                             strlen
+  0.00      0.00     0.00                             strncpy
+  0.00      0.00     0.00                             testGalois
+  0.00      0.00     0.00                             time
+  0.00      0.00     0.00                             updateKeyPair
+  0.00      0.00     0.00                             write
+  0.00      0.00     0.00                             etext
+
+ %         the percentage of the total running time of the
+time       program used by this function.
+
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
+
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
+
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
+
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
+
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2014 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
+
+
+granularity: each sample hit covers 4 byte(s) no time propagated
+
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]      0.0    0.00    0.00                 etext [1]
+-----------------------------------------------
+                0.00    0.00      16/16          readInCircuit [6]
+[2]      0.0    0.00    0.00      16         processGate [2]
+-----------------------------------------------
+                0.00    0.00       2/2           main [105]
+[3]      0.0    0.00    0.00       2         count_lines_of_file [3]
+-----------------------------------------------
+                0.00    0.00       2/2           main [105]
+[4]      0.0    0.00    0.00       2         readInputDetailsFile [4]
+-----------------------------------------------
+                0.00    0.00       1/1           main [105]
+[5]      0.0    0.00    0.00       1         readFormatFile [5]
+-----------------------------------------------
+                0.00    0.00       1/1           main [105]
+[6]      0.0    0.00    0.00       1         readInCircuit [6]
+                0.00    0.00      16/16          processGate [2]
+-----------------------------------------------
+                0.00    0.00       1/1           main [105]
+[7]      0.0    0.00    0.00       1         runCircuit [7]
+-----------------------------------------------
+                0.00    0.00       1/1           main [105]
+[8]      0.0    0.00    0.00       1         testElgamal [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[9]      0.0    0.00    0.00                 AES_decrypt [9]
+-----------------------------------------------
+                                                 <spontaneous>
+[10]     0.0    0.00    0.00                 AES_encrypt [10]
+-----------------------------------------------
+                                                 <spontaneous>
+[11]     0.0    0.00    0.00                 AES_set_decrypt_key [11]
+-----------------------------------------------
+                                                 <spontaneous>
+[12]     0.0    0.00    0.00                 AES_set_encrypt_key [12]
+-----------------------------------------------
+                                                 <spontaneous>
+[13]     0.0    0.00    0.00                 BN_CTX_end [13]
+-----------------------------------------------
+                                                 <spontaneous>
+[14]     0.0    0.00    0.00                 BN_CTX_init [14]
+-----------------------------------------------
+                                                 <spontaneous>
+[15]     0.0    0.00    0.00                 BN_CTX_new [15]
+-----------------------------------------------
+                                                 <spontaneous>
+[16]     0.0    0.00    0.00                 BN_bn2dec [16]
+-----------------------------------------------
+                                                 <spontaneous>
+[17]     0.0    0.00    0.00                 BN_free [17]
+-----------------------------------------------
+                                                 <spontaneous>
+[18]     0.0    0.00    0.00                 BN_generate_prime [18]
+-----------------------------------------------
+                                                 <spontaneous>
+[19]     0.0    0.00    0.00                 BN_mod_exp [19]
+-----------------------------------------------
+                                                 <spontaneous>
+[20]     0.0    0.00    0.00                 BN_mod_inverse [20]
+-----------------------------------------------
+                                                 <spontaneous>
+[21]     0.0    0.00    0.00                 BN_mod_mul [21]
+-----------------------------------------------
+                                                 <spontaneous>
+[22]     0.0    0.00    0.00                 BN_new [22]
+-----------------------------------------------
+                                                 <spontaneous>
+[23]     0.0    0.00    0.00                 BN_num_bits [23]
+-----------------------------------------------
+                                                 <spontaneous>
+[24]     0.0    0.00    0.00                 BN_rand_range [24]
+-----------------------------------------------
+                                                 <spontaneous>
+[25]     0.0    0.00    0.00                 DllMain@12 [25]
+-----------------------------------------------
+                                                 <spontaneous>
+[26]     0.0    0.00    0.00                 GetModuleHandleA@4 [26]
+-----------------------------------------------
+                                                 <spontaneous>
+[27]     0.0    0.00    0.00                 SHA256_Final [27]
+-----------------------------------------------
+                                                 <spontaneous>
+[28]     0.0    0.00    0.00                 SHA256_Init [28]
+-----------------------------------------------
+                                                 <spontaneous>
+[29]     0.0    0.00    0.00                 SHA256_Update [29]
+-----------------------------------------------
+                                                 <spontaneous>
+[30]     0.0    0.00    0.00                 WinMainCRTStartup [30]
+-----------------------------------------------
+                                                 <spontaneous>
+[31]     0.0    0.00    0.00                 __CTOR_LIST__ [31]
+-----------------------------------------------
+                                                 <spontaneous>
+[32]     0.0    0.00    0.00                 __DTOR_LIST__ [32]
+-----------------------------------------------
+                                                 <spontaneous>
+[33]     0.0    0.00    0.00                 __dllMain [33]
+-----------------------------------------------
+                                                 <spontaneous>
+[34]     0.0    0.00    0.00                 __errno [34]
+-----------------------------------------------
+                                                 <spontaneous>
+[35]     0.0    0.00    0.00                 __gcc_deregister_frame [35]
+-----------------------------------------------
+                                                 <spontaneous>
+[36]     0.0    0.00    0.00                 __gcc_register_frame [36]
+-----------------------------------------------
+                                                 <spontaneous>
+[37]     0.0    0.00    0.00                 __getreent [37]
+-----------------------------------------------
+                                                 <spontaneous>
+[38]     0.0    0.00    0.00                 __main [38]
+-----------------------------------------------
+                                                 <spontaneous>
+[39]     0.0    0.00    0.00                 __udivdi3 [39]
+-----------------------------------------------
+                                                 <spontaneous>
+[40]     0.0    0.00    0.00                 _cygwin_crt0_common@8 [40]
+-----------------------------------------------
+                                                 <spontaneous>
+[41]     0.0    0.00    0.00                 _cygwin_dll_entry@12 [41]
+-----------------------------------------------
+                                                 <spontaneous>
+[42]     0.0    0.00    0.00                 _cygwin_noncygwin_dll_entry@12 [42]
+-----------------------------------------------
+                                                 <spontaneous>
+[43]     0.0    0.00    0.00                 _fentry__ [43]
+-----------------------------------------------
+                                                 <spontaneous>
+[44]     0.0    0.00    0.00                 _mcleanup [44]
+-----------------------------------------------
+                                                 <spontaneous>
+[45]     0.0    0.00    0.00                 _mcount_private [45]
+-----------------------------------------------
+                                                 <spontaneous>
+[46]     0.0    0.00    0.00                 _monstartup [46]
+-----------------------------------------------
+                                                 <spontaneous>
+[47]     0.0    0.00    0.00                 _pei386_runtime_relocator [47]
+-----------------------------------------------
+                                                 <spontaneous>
+[48]     0.0    0.00    0.00                 aesTest [48]
+-----------------------------------------------
+                                                 <spontaneous>
+[49]     0.0    0.00    0.00                 atexit [49]
+-----------------------------------------------
+                                                 <spontaneous>
+[50]     0.0    0.00    0.00                 atoi [50]
+-----------------------------------------------
+                                                 <spontaneous>
+[51]     0.0    0.00    0.00                 calloc [51]
+-----------------------------------------------
+                                                 <spontaneous>
+[52]     0.0    0.00    0.00                 close [52]
+-----------------------------------------------
+                                                 <spontaneous>
+[53]     0.0    0.00    0.00                 closeBignumContext [53]
+-----------------------------------------------
+                                                 <spontaneous>
+[54]     0.0    0.00    0.00                 countWires [54]
+-----------------------------------------------
+                                                 <spontaneous>
+[55]     0.0    0.00    0.00                 cygwin_attach_dll [55]
+-----------------------------------------------
+                                                 <spontaneous>
+[56]     0.0    0.00    0.00                 cygwin_crt0 [56]
+-----------------------------------------------
+                                                 <spontaneous>
+[57]     0.0    0.00    0.00                 cygwin_detach_dll [57]
+-----------------------------------------------
+                                                 <spontaneous>
+[58]     0.0    0.00    0.00                 cygwin_internal [58]
+-----------------------------------------------
+                                                 <spontaneous>
+[59]     0.0    0.00    0.00                 cygwin_premain0 [59]
+-----------------------------------------------
+                                                 <spontaneous>
+[60]     0.0    0.00    0.00                 cygwin_premain1 [60]
+-----------------------------------------------
+                                                 <spontaneous>
+[61]     0.0    0.00    0.00                 cygwin_premain2 [61]
+-----------------------------------------------
+                                                 <spontaneous>
+[62]     0.0    0.00    0.00                 cygwin_premain3 [62]
+-----------------------------------------------
+                                                 <spontaneous>
+[63]     0.0    0.00    0.00                 decElgamal [63]
+-----------------------------------------------
+                                                 <spontaneous>
+[64]     0.0    0.00    0.00                 dll_dllcrt0 [64]
+-----------------------------------------------
+                                                 <spontaneous>
+[65]     0.0    0.00    0.00                 enc2009Smart [65]
+-----------------------------------------------
+                                                 <spontaneous>
+[66]     0.0    0.00    0.00                 encElgamal [66]
+-----------------------------------------------
+                                                 <spontaneous>
+[67]     0.0    0.00    0.00                 exit [67]
+-----------------------------------------------
+                                                 <spontaneous>
+[68]     0.0    0.00    0.00                 fclose [68]
+-----------------------------------------------
+                                                 <spontaneous>
+[69]     0.0    0.00    0.00                 fgets [69]
+-----------------------------------------------
+                                                 <spontaneous>
+[70]     0.0    0.00    0.00                 fopen [70]
+-----------------------------------------------
+                                                 <spontaneous>
+[71]     0.0    0.00    0.00                 fprintf [71]
+-----------------------------------------------
+                                                 <spontaneous>
+[72]     0.0    0.00    0.00                 free [72]
+-----------------------------------------------
+                                                 <spontaneous>
+[73]     0.0    0.00    0.00                 fwrite [73]
+-----------------------------------------------
+                                                 <spontaneous>
+[74]     0.0    0.00    0.00                 galois_create_log_tables [74]
+-----------------------------------------------
+                                                 <spontaneous>
+[75]     0.0    0.00    0.00                 galois_create_mult_tables [75]
+-----------------------------------------------
+                                                 <spontaneous>
+[76]     0.0    0.00    0.00                 galois_create_split_w8_tables [76]
+-----------------------------------------------
+                                                 <spontaneous>
+[77]     0.0    0.00    0.00                 galois_get_div_table [77]
+-----------------------------------------------
+                                                 <spontaneous>
+[78]     0.0    0.00    0.00                 galois_get_ilog_table [78]
+-----------------------------------------------
+                                                 <spontaneous>
+[79]     0.0    0.00    0.00                 galois_get_log_table [79]
+-----------------------------------------------
+                                                 <spontaneous>
+[80]     0.0    0.00    0.00                 galois_get_mult_table [80]
+-----------------------------------------------
+                                                 <spontaneous>
+[81]     0.0    0.00    0.00                 galois_ilog [81]
+-----------------------------------------------
+                                                 <spontaneous>
+[82]     0.0    0.00    0.00                 galois_inverse [82]
+-----------------------------------------------
+                                                 <spontaneous>
+[83]     0.0    0.00    0.00                 galois_invert_binary_matrix [83]
+-----------------------------------------------
+                                                 <spontaneous>
+[84]     0.0    0.00    0.00                 galois_log [84]
+-----------------------------------------------
+                                                 <spontaneous>
+[85]     0.0    0.00    0.00                 galois_logtable_divide [85]
+-----------------------------------------------
+                                                 <spontaneous>
+[86]     0.0    0.00    0.00                 galois_logtable_multiply [86]
+-----------------------------------------------
+                                                 <spontaneous>
+[87]     0.0    0.00    0.00                 galois_multtable_divide [87]
+-----------------------------------------------
+                                                 <spontaneous>
+[88]     0.0    0.00    0.00                 galois_multtable_multiply [88]
+-----------------------------------------------
+                                                 <spontaneous>
+[89]     0.0    0.00    0.00                 galois_region_xor [89]
+-----------------------------------------------
+                                                 <spontaneous>
+[90]     0.0    0.00    0.00                 galois_shift_divide [90]
+-----------------------------------------------
+                                                 <spontaneous>
+[91]     0.0    0.00    0.00                 galois_shift_inverse [91]
+-----------------------------------------------
+                                                 <spontaneous>
+[92]     0.0    0.00    0.00                 galois_shift_multiply [92]
+-----------------------------------------------
+                                                 <spontaneous>
+[93]     0.0    0.00    0.00                 galois_single_divide [93]
+-----------------------------------------------
+                                                 <spontaneous>
+[94]     0.0    0.00    0.00                 galois_single_multiply [94]
+-----------------------------------------------
+                                                 <spontaneous>
+[95]     0.0    0.00    0.00                 galois_split_w8_multiply [95]
+-----------------------------------------------
+                                                 <spontaneous>
+[96]     0.0    0.00    0.00                 galois_w08_region_multiply [96]
+-----------------------------------------------
+                                                 <spontaneous>
+[97]     0.0    0.00    0.00                 galois_w16_region_multiply [97]
+-----------------------------------------------
+                                                 <spontaneous>
+[98]     0.0    0.00    0.00                 galois_w32_region_multiply [98]
+-----------------------------------------------
+                                                 <spontaneous>
+[99]     0.0    0.00    0.00                 generateKeyPair [99]
+-----------------------------------------------
+                                                 <spontaneous>
+[100]    0.0    0.00    0.00                 getPrime [100]
+-----------------------------------------------
+                                                 <spontaneous>
+[101]    0.0    0.00    0.00                 get_thrpc [101]
+-----------------------------------------------
+                                                 <spontaneous>
+[102]    0.0    0.00    0.00                 initBignumContext [102]
+-----------------------------------------------
+                                                 <spontaneous>
+[103]    0.0    0.00    0.00                 initPubKey [103]
+-----------------------------------------------
+                                                 <spontaneous>
+[104]    0.0    0.00    0.00                 kdf2009Smart [104]
+-----------------------------------------------
+                                                 <spontaneous>
+[105]    0.0    0.00    0.00                 main [105]
+                0.00    0.00       2/2           count_lines_of_file [3]
+                0.00    0.00       2/2           readInputDetailsFile [4]
+                0.00    0.00       1/1           readInCircuit [6]
+                0.00    0.00       1/1           readFormatFile [5]
+                0.00    0.00       1/1           runCircuit [7]
+                0.00    0.00       1/1           testElgamal [8]
+-----------------------------------------------
+                                                 <spontaneous>
+[106]    0.0    0.00    0.00                 malloc [106]
+-----------------------------------------------
+                                                 <spontaneous>
+[108]    0.0    0.00    0.00                 memset [108]
+-----------------------------------------------
+                                                 <spontaneous>
+[109]    0.0    0.00    0.00                 moncontrol [109]
+-----------------------------------------------
+                                                 <spontaneous>
+[110]    0.0    0.00    0.00                 monstartup [110]
+-----------------------------------------------
+                                                 <spontaneous>
+[111]    0.0    0.00    0.00                 open [111]
+-----------------------------------------------
+                                                 <spontaneous>
+[112]    0.0    0.00    0.00                 parseInputTable [112]
+-----------------------------------------------
+                                                 <spontaneous>
+[113]    0.0    0.00    0.00                 parseOutputTable [113]
+-----------------------------------------------
+                                                 <spontaneous>
+[114]    0.0    0.00    0.00                 perror [114]
+-----------------------------------------------
+                                                 <spontaneous>
+[115]    0.0    0.00    0.00                 posix_memalign [115]
+-----------------------------------------------
+                                                 <spontaneous>
+[116]    0.0    0.00    0.00                 printAllOutput [116]
+-----------------------------------------------
+                                                 <spontaneous>
+[117]    0.0    0.00    0.00                 printFormatItem [117]
+-----------------------------------------------
+                                                 <spontaneous>
+[118]    0.0    0.00    0.00                 printGate [118]
+-----------------------------------------------
+                                                 <spontaneous>
+[119]    0.0    0.00    0.00                 printGateOrWire [119]
+-----------------------------------------------
+                                                 <spontaneous>
+[120]    0.0    0.00    0.00                 print_prime [120]
+-----------------------------------------------
+                                                 <spontaneous>
+[121]    0.0    0.00    0.00                 printf [121]
+-----------------------------------------------
+                                                 <spontaneous>
+[122]    0.0    0.00    0.00                 processGateLine [122]
+-----------------------------------------------
+                                                 <spontaneous>
+[123]    0.0    0.00    0.00                 processGateOrWire [123]
+-----------------------------------------------
+                                                 <spontaneous>
+[124]    0.0    0.00    0.00                 profil [124]
+-----------------------------------------------
+                                                 <spontaneous>
+[125]    0.0    0.00    0.00                 profile_ctl [125]
+-----------------------------------------------
+                                                 <spontaneous>
+[126]    0.0    0.00    0.00                 profthr_func@4 [126]
+-----------------------------------------------
+                                                 <spontaneous>
+[127]    0.0    0.00    0.00                 putchar [127]
+-----------------------------------------------
+                                                 <spontaneous>
+[128]    0.0    0.00    0.00                 puts [128]
+-----------------------------------------------
+                                                 <spontaneous>
+[129]    0.0    0.00    0.00                 rand [129]
+-----------------------------------------------
+                                                 <spontaneous>
+[130]    0.0    0.00    0.00                 readFormatLine [130]
+-----------------------------------------------
+                                                 <spontaneous>
+[131]    0.0    0.00    0.00                 readInputLines [131]
+-----------------------------------------------
+                                                 <spontaneous>
+[132]    0.0    0.00    0.00                 realloc [132]
+-----------------------------------------------
+                                                 <spontaneous>
+[133]    0.0    0.00    0.00                 register_frame_ctor [133]
+-----------------------------------------------
+                                                 <spontaneous>
+[134]    0.0    0.00    0.00                 sha256Digest [134]
+-----------------------------------------------
+                                                 <spontaneous>
+[135]    0.0    0.00    0.00                 srand [135]
+-----------------------------------------------
+                                                 <spontaneous>
+[136]    0.0    0.00    0.00                 status [136]
+-----------------------------------------------
+                                                 <spontaneous>
+[137]    0.0    0.00    0.00                 strlen [137]
+-----------------------------------------------
+                                                 <spontaneous>
+[138]    0.0    0.00    0.00                 strncpy [138]
+-----------------------------------------------
+                                                 <spontaneous>
+[139]    0.0    0.00    0.00                 testGalois [139]
+-----------------------------------------------
+                                                 <spontaneous>
+[140]    0.0    0.00    0.00                 time [140]
+-----------------------------------------------
+                                                 <spontaneous>
+[141]    0.0    0.00    0.00                 updateKeyPair [141]
+-----------------------------------------------
+                                                 <spontaneous>
+[142]    0.0    0.00    0.00                 write [142]
+-----------------------------------------------
+
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
+
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
+
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
+
+     self	This is the total amount of time spent in this function.
+
+     children	This is the total amount of time propagated into this
+		function by its children.
+
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
+
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
+
+
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2014 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+   [9] AES_decrypt            [56] cygwin_crt0           [104] kdf2009Smart
+  [10] AES_encrypt            [57] cygwin_detach_dll     [105] main
+  [11] AES_set_decrypt_key    [58] cygwin_internal       [106] malloc
+  [12] AES_set_encrypt_key    [59] cygwin_premain0       (107) mcount
+  [13] BN_CTX_end             [60] cygwin_premain1       [108] memset
+  [14] BN_CTX_init            [61] cygwin_premain2       [109] moncontrol
+  [15] BN_CTX_new             [62] cygwin_premain3       [110] monstartup
+  [16] BN_bn2dec              [63] decElgamal            [111] open
+  [17] BN_free                [64] dll_dllcrt0           [112] parseInputTable
+  [18] BN_generate_prime      [65] enc2009Smart          [113] parseOutputTable
+  [19] BN_mod_exp             [66] encElgamal            [114] perror
+  [20] BN_mod_inverse         [67] exit                  [115] posix_memalign
+  [21] BN_mod_mul             [68] fclose                [116] printAllOutput
+  [22] BN_new                 [69] fgets                 [117] printFormatItem
+  [23] BN_num_bits            [70] fopen                 [118] printGate
+  [24] BN_rand_range          [71] fprintf               [119] printGateOrWire
+  [25] DllMain@12             [72] free                  [120] print_prime
+  [26] GetModuleHandleA@4     [73] fwrite                [121] printf
+  [27] SHA256_Final           [74] galois_create_log_tables [2] processGate
+  [28] SHA256_Init            [75] galois_create_mult_tables [122] processGateLine
+  [29] SHA256_Update          [76] galois_create_split_w8_tables [123] processGateOrWire
+  [30] WinMainCRTStartup      [77] galois_get_div_table  [124] profil
+  [31] __CTOR_LIST__          [78] galois_get_ilog_table [125] profile_ctl
+  [32] __DTOR_LIST__          [79] galois_get_log_table  [126] profthr_func@4 (profil.c)
+  [33] __dllMain (dll_entry.c) [80] galois_get_mult_table [127] putchar
+  [34] __errno                [81] galois_ilog           [128] puts
+  [35] __gcc_deregister_frame [82] galois_inverse        [129] rand
+  [36] __gcc_register_frame   [83] galois_invert_binary_matrix [5] readFormatFile
+  [37] __getreent             [84] galois_log            [130] readFormatLine
+  [38] __main                 [85] galois_logtable_divide  [6] readInCircuit
+  [39] __udivdi3              [86] galois_logtable_multiply [4] readInputDetailsFile
+  [40] _cygwin_crt0_common@8  [87] galois_multtable_divide [131] readInputLines
+  [41] _cygwin_dll_entry@12   [88] galois_multtable_multiply [132] realloc
+  [42] _cygwin_noncygwin_dll_entry@12 [89] galois_region_xor [133] register_frame_ctor
+  [43] _fentry__              [90] galois_shift_divide     [7] runCircuit
+  [44] _mcleanup              [91] galois_shift_inverse  [134] sha256Digest
+  [45] _mcount_private        [92] galois_shift_multiply [135] srand
+  [46] _monstartup            [93] galois_single_divide  [136] status
+  [47] _pei386_runtime_relocator [94] galois_single_multiply [137] strlen
+  [48] aesTest                [95] galois_split_w8_multiply [138] strncpy
+  [49] atexit                 [96] galois_w08_region_multiply [8] testElgamal
+  [50] atoi                   [97] galois_w16_region_multiply [139] testGalois
+  [51] calloc                 [98] galois_w32_region_multiply [140] time
+  [52] close                  [99] generateKeyPair       [141] updateKeyPair
+  [53] closeBignumContext    [100] getPrime              [142] write
+  [54] countWires            [101] get_thrpc (profil.c)    [1] etext
+   [3] count_lines_of_file   [102] initBignumContext
+  [55] cygwin_attach_dll     [103] initPubKey
