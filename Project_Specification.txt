@@ -1,0 +1,17 @@
+Project Specification
+
+Nicholas James Tutte - nt1124
+Maths and Computer Science
+Fourth Year
+
+Supervisor - Prof. Nigel Smart
+
+Description
+
+Secure multi-party computation is a fundamental problem in cryptography.
+In this problem we have a set of parties who distrust one another, yet
+wish to work together to compute a function over inputs they do not wish
+to share with one another.
+
+Over the last 5 years interest in the problem has increased as advances in
+areas of Cryptography 

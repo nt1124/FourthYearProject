@@ -7,7 +7,6 @@
 #include "cryptoUtil.c"
 #include "galois.c"
 
-
 void testGalois()
 {
 	int a = 132;
@@ -68,11 +67,12 @@ int main(int argc, char *argv[])
 		readInputDetailsFile( tempBob, inputCircuit );
 
 		runCircuit( inputCircuit, numGates );
-		printAllOutput(inputCircuit, numGates);
+		// printAllOutput(inputCircuit, numGates);
 
-		testGalois();
-		//aesTest();
-    	//sha256Digest("123456781234567812345678", 24);
+		aesTestGCrypt();
+		// testGalois();
+		// aesTest();
+    	// sha256Digest("123456781234567812345678", 24);
 	}
 	else
 	{
