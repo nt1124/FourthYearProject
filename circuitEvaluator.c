@@ -5,7 +5,18 @@
 
 #include "circuitUtils.c"
 #include "cryptoUtil.c"
+#include "galois.c"
 
+
+void testGalois()
+{
+	int a = 132;
+	int b = 43;
+	int w = 8;
+
+	int output = galois_single_multiply(a, b, w);
+	printf("%d\n", output);
+}
 
 
 void runCircuit( struct gateOrWire **inputCircuit, int numGates )
@@ -59,6 +70,7 @@ int main(int argc, char *argv[])
 		runCircuit( inputCircuit, numGates );
 		printAllOutput(inputCircuit, numGates);
 
+		testGalois();
 		//aesTest();
     	//sha256Digest("123456781234567812345678", 24);
 	}
