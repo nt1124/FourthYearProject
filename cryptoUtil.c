@@ -8,9 +8,9 @@ void aesTest()
 	const unsigned char testKey[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
 									0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
 	int i;
-	unsigned char text[]="hello world!";
-	unsigned char * enc_out = malloc(80*sizeof(char)); 
-	unsigned char * dec_out = malloc(80*sizeof(char));
+	unsigned char text[] = "hello world!";
+	unsigned char * enc_out = malloc(80 * sizeof(char)); 
+	unsigned char * dec_out = malloc(80 * sizeof(char));
 
 	AES_KEY enc_key, dec_key;
 
