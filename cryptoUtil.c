@@ -6,7 +6,7 @@
 
 #define GCRY_CIPHER GCRY_CIPHER_SERPENT128   // Pick the cipher here
 #define GCRY_C_MODE GCRY_CIPHER_MODE_ECB // Pick the cipher mode here
-#define GCRY_CIPHER_ASYM GCRY_CIPHER_SERPENT128   // Pick the cipher here
+#define GCRY_CIPHER_ASYM GCRY_PK_RSA   // Pick the cipher here
 
 void aesTestGCrypt(void)
 {
@@ -128,7 +128,7 @@ void asymTest(void)
     size_t keyLength = gcry_cipher_get_algo_keylen(GCRY_CIPHER_ASYM);
     size_t blkLength = gcry_cipher_get_algo_blklen(GCRY_CIPHER_ASYM);
     char * txtBuffer = "123456789 abcdefghijklmnopqrstuvwzyz ABCDEFGHIJKLMNOPQRSTUVWZYZ";
-    size_t txtLength = strlen(txtBuffer)+1; // string plus termination
+    size_t txtLength = strlen(txtBuffer) + 1; // string plus termination
     char * encBuffer = malloc(txtLength);
     char * outBuffer = malloc(txtLength);
     char * aesSymKey = "one test AES key"; // 16 bytes
@@ -137,35 +137,14 @@ void asymTest(void)
     gcryError = gcry_cipher_open(
         &gcryCipherHd, // gcry_cipher_hd_t *
         GCRY_CIPHER_ASYM,   // int
-        GCRY_C_MODE,   // int
+        GCRY_PK_USAGE_ENCR, // int
         0);            // unsigned int
-    if (gcryError)
-    {
-        printf("gcry_cipher_open failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
     printf("gcry_cipher_open    worked\n");
  
-    gcryError = gcry_cipher_setkey(gcryCipherHd, aesSymKey, keyLength);
-    if (gcryError)
-    {
-        printf("gcry_cipher_setkey failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
+    gcryError = gcry_pk_genkey(gcryCipherHd, aesSymKey, keyLength);
     printf("gcry_cipher_setkey  worked\n");
  
     gcryError = gcry_cipher_setiv(gcryCipherHd, iniVector, blkLength);
-    if (gcryError)
-    {
-        printf("gcry_cipher_setiv failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
     printf("gcry_cipher_setiv   worked\n");
  
     gcryError = gcry_cipher_encrypt(
@@ -174,23 +153,9 @@ void asymTest(void)
         txtLength,    // size_t
         txtBuffer,    // const void *
         txtLength);   // size_t
-    if (gcryError)
-    {
-        printf("gcry_cipher_encrypt failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
     printf("gcry_cipher_encrypt worked\n");
  
     gcryError = gcry_cipher_setiv(gcryCipherHd, iniVector, blkLength);
-    if (gcryError)
-    {
-        printf("gcry_cipher_setiv failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
     printf("gcry_cipher_setiv   worked\n");
  
     gcryError = gcry_cipher_decrypt(
@@ -199,13 +164,6 @@ void asymTest(void)
         txtLength,    // size_t
         encBuffer,    // const void *
         txtLength);   // size_t
-    if (gcryError)
-    {
-        printf("gcry_cipher_decrypt failed:  %s/%s\n",
-               gcry_strsource(gcryError),
-               gcry_strerror(gcryError));
-        return;
-    }
     printf("gcry_cipher_decrypt worked\n");
  
     printf("keyLength = %d\n", keyLength);

@@ -2,8 +2,10 @@
 
 	+ Take inputs and put them to the circuit.
 	+ Read said inputs from file.
-	- Run circuit taken from socket connection.
+	+ Struct for wire key pairs.
 	- Struct for rows of output table.
-	- Struct for wire key pairs.
+	- Obilivious Transfer implemented.
+
 	- Read circuit from socket connection.
 	- Read inputs from socket connection.
+	- Run circuit taken from socket connection.
