@@ -73,9 +73,8 @@ int main(int argc, char *argv[])
 		// testGalois();
 		// aesTest();
     	// sha256Digest("123456781234567812345678", 24);
-    	testElgamal();
-    	// testElgamalBN();
-    	// testRSA();
+    	// testElgamal();
+    	testRSA();
 	}
 	else
 	{
