@@ -1,0 +1,8 @@
+Exception: STATUS_ACCESS_VIOLATION at eip=6F2EDAB1
+eax=00000000 ebx=00000044 ecx=61188D40 edx=00000000 esi=0000000A edi=0028AB44
+ebp=0028AA88 esp=0028AA40 program=C:\Users\Nick\Desktop\Crypto\FourthYearProject\a.out, pid 3240, thread main
+cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
+Stack trace:
+Frame     Function  Args
+0028AA88  6F2EDAB1 (00000000, 0000000A, 00000000, CE465490)
+End of stack trace

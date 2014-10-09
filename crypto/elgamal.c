@@ -1,136 +1,93 @@
-// ----------------------------------------------------------------------------
-// Prime generation code credited to Paolo Ardoino  < paolo.ardoino@gmail.com >
-// ----------------------------------------------------------------------------
+
 
 typedef struct elgamalPubKey
 {
-    BIGNUM *groupSize;
-    BIGNUM *h;
-    BIGNUM *g;
+    mpz_t groupSize;
+    mpz_t h;
+    mpz_t g;
 }elgamalPubKey;
 
-struct elgamalPubKey *initPubKey()
+
+struct elgamalPubKey *initPubKeyElgamal()
 {
     struct elgamalPubKey *pubKey = calloc(1, sizeof(struct elgamalPubKey));
 
-    pubKey -> groupSize = BN_new();
-    pubKey -> h = BN_new();
-    pubKey -> g = BN_new();
-
-    return pubKey;
-}
-
-
-
-void status() {}
-
-
-BN_CTX *initBignumContext()
-{
-    BN_CTX *ctx = BN_CTX_new();
-
-    BN_CTX_init(ctx);
-
-    return ctx;
-}
-
-
-void closeBignumContext(BN_CTX *ctx)
-{
-    BN_CTX_end(ctx);
-}
-
-
-void print_prime(BIGNUM *outputBN)
-{
-    char *prime = (char *)malloc(BN_num_bytes(outputBN));
-    prime = BN_bn2dec(outputBN);
-
-    int i;
-    for(i = 0; i < strlen(prime) && prime[i] == '0'; i++);
-
-    for(; i < strlen(prime); i++)
-    {
-        printf("%c", prime[i]);
-    }
-    printf("\n");
-
-    free(prime);
-}
-
-
-BIGNUM *getPrime(long int num_bits)
-{
-    BIGNUM *outputBN;
-
-    outputBN = BN_new();
-    BN_generate_prime(outputBN, num_bits, 1, NULL, NULL, status, NULL);
-
-    return outputBN;
-}
-
-
-// Returns the private key.
-struct elgamalPubKey *generateKeyPair(BIGNUM *privKey, int num_bits, BN_CTX *ctx)
-{
-    struct elgamalPubKey *pubKey = initPubKey();
-    pubKey -> groupSize = getPrime(num_bits);
-
-    BN_rand_range(pubKey -> g, pubKey -> groupSize);
-    BN_rand_range(privKey, pubKey -> groupSize);
-
-    BN_mod_exp(pubKey -> h, pubKey -> g, privKey, pubKey -> groupSize, ctx);
+    mpz_init(pubKey -> groupSize);
+    mpz_init(pubKey -> g);
+    mpz_init(pubKey -> h);
 
     return pubKey;
 }
 
 
 // Returns the private key.
-void updateKeyPair(struct elgamalPubKey *pubKey, BIGNUM *privKey, int num_bits, BN_CTX *ctx)
+struct elgamalPubKey *generateKeyPair(mpz_t privKey, int num_bits, gmp_randstate_t state)
 {
-    pubKey -> groupSize = getPrime(num_bits);
+    struct elgamalPubKey *pubKey = initPubKeyElgamal();
 
-    BN_rand_range(privKey, pubKey -> groupSize);
-    BN_mod_exp(pubKey -> h, pubKey -> g, privKey, pubKey -> groupSize, ctx);
+    getPrimeGMP(pubKey -> groupSize, state, num_bits);
+
+    mpz_urandomm(pubKey -> g, state, pubKey -> groupSize);
+    mpz_urandomm(privKey, state, pubKey -> groupSize);
+
+    mpz_powm(pubKey -> h, pubKey -> g, privKey, pubKey -> groupSize);
+
+    return pubKey;
 }
 
 
-BIGNUM **encElgamal(BIGNUM *inputMsg, struct elgamalPubKey *pubKey, BN_CTX *ctx)
+void updateKeyPair(struct elgamalPubKey *pubKey, mpz_t privKey, int num_bits, gmp_randstate_t state)
 {
-    BIGNUM **outputCT = calloc(2, sizeof(BIGNUM*));
-    outputCT[0] = BN_new();
-    outputCT[1] = BN_new();
+    getPrimeGMP(pubKey -> groupSize, state, num_bits);
 
-    BIGNUM *ephemeralRand = BN_new();
+    mpz_urandomm(privKey, state, pubKey -> groupSize);
+    mpz_powm(pubKey -> h, pubKey -> g, privKey, pubKey -> groupSize);
+}
+
+
+mpz_t *encElgamal(mpz_t inputMsg, struct elgamalPubKey *pubKey, gmp_randstate_t state)
+{
+    mpz_t *outputCT = calloc(2, sizeof(mpz_t));
+    mpz_t ephemeralRand;
+    
+    mpz_init(outputCT[0]);
+    mpz_init(outputCT[1]);
+    mpz_init(ephemeralRand);
 
     do
     {
-        BN_rand_range(ephemeralRand, pubKey -> groupSize);
-    } while( BN_is_zero(ephemeralRand) );
+        mpz_urandomm(ephemeralRand, state, pubKey -> groupSize);
+    } while(0 == mpz_cmp_ui (ephemeralRand, 0) );
 
-    BN_mod_exp(outputCT[0], pubKey -> g, ephemeralRand, pubKey -> groupSize, ctx);
-    BN_mod_exp(outputCT[1], pubKey -> h, ephemeralRand, pubKey -> groupSize, ctx);
-    BN_mod_mul(outputCT[1], outputCT[1], inputMsg, pubKey -> groupSize, ctx);
+    mpz_powm(outputCT[0], pubKey -> g, ephemeralRand, pubKey -> groupSize);
+    mpz_powm(outputCT[1], pubKey -> h, ephemeralRand, pubKey -> groupSize);
 
-    BN_free(ephemeralRand);
+    mpz_mul(outputCT[1], outputCT[1], inputMsg);
+    mpz_mod(outputCT[1], outputCT[1], pubKey -> groupSize);
+
+    mpz_clear(ephemeralRand);
 
     return outputCT;
 }
 
 
-BIGNUM *decElgamal(BIGNUM **inputCT, BIGNUM *privKey, struct elgamalPubKey *pubKey, BN_CTX *ctx)
+mpz_t *decElgamal(mpz_t *inputCT, mpz_t privKey, struct elgamalPubKey *pubKey)
 {
-    BIGNUM *outputPT = BN_new();
-    BIGNUM *c1PowX = BN_new();
-    BIGNUM *c1PowXInv = BN_new();
+    mpz_t c1PowX, c1PowXInv;
+    mpz_t *outputPT = calloc(1, sizeof(mpz_t));
 
-    BN_mod_exp(c1PowX, inputCT[0], privKey, pubKey -> groupSize, ctx);
-    BN_mod_inverse(c1PowXInv, c1PowX, pubKey -> groupSize, ctx);
+    mpz_init(outputPT[0]);
+    mpz_init(c1PowX);
+    mpz_init(c1PowXInv);
 
-    BN_free(c1PowX);
-    BN_free(c1PowXInv);
-    
-    BN_mod_mul(outputPT, c1PowXInv, inputCT[1], pubKey -> groupSize, ctx);
+    mpz_powm(c1PowX, inputCT[0], privKey, pubKey -> groupSize);
+    mpz_invert(c1PowXInv, c1PowX, pubKey -> groupSize);
+
+    mpz_mul(outputPT[0], c1PowXInv, inputCT[1]);
+    mpz_mod(outputPT[0], outputPT[0], pubKey -> groupSize);
+
+    mpz_clear(c1PowX);
+    mpz_clear(c1PowXInv);
 
     return outputPT;
 }
@@ -140,35 +97,32 @@ void testElgamal()
 {
     const int keySize = 512;
     struct elgamalPubKey *pubKey;
-    BIGNUM *privKey = BN_new();
-    BIGNUM *inputMsg = BN_new();
-    BN_CTX *ctx = initBignumContext();
-
-
-    pubKey = generateKeyPair(privKey, keySize, ctx);
-    BN_rand_range(inputMsg, pubKey -> groupSize);
-
-    BIGNUM **CT;
-    BIGNUM *PT;
+    mpz_t privKey, inputMsg, *PT;
+    mpz_t *CT;
     int i;
+
+    mpz_init(privKey);
+    mpz_init(inputMsg);
+
+    gmp_randstate_t state;
+    unsigned long int seed = time(NULL);
+    gmp_randinit_default(state);
+    gmp_randseed_ui(state, seed);
+
+
+    pubKey = generateKeyPair(privKey, keySize, state);
+    mpz_urandomm(inputMsg, state, pubKey -> groupSize);
 
     for(i = 0; i < 20; i ++)
     {
-        printf("%d\n", i);
-        CT = encElgamal(inputMsg, pubKey, ctx);
-        PT = decElgamal(CT, privKey, pubKey, ctx);
+        CT = encElgamal(inputMsg, pubKey, state);
+        PT = decElgamal(CT, privKey, pubKey);
 
-        updateKeyPair(pubKey, privKey, keySize, ctx);
+        if(0 == mpz_cmp(*PT, inputMsg))
+            printf("Success : %d\n", i);
+        else
+            printf("Fail    : %d\n", i);
+
+        updateKeyPair(pubKey, privKey, keySize, state);
     }
-
-    closeBignumContext(ctx);
 }
-
-
-
-/*
-int messageToGroup(unsigned char *rawMsg, BIGNUM **convertedMsg, struct elgamalPubKey *pubKey)
-{
-
-}
-*/

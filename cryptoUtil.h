@@ -1,7 +1,10 @@
 #ifndef CRYPTO_UTIL
 #define CRYPTO_UTIL
 
+#include "crypto/bnUtil.c"
+#include "crypto/gmpUtils.c"
 #include "crypto/elgamal.c"
+#include "crypto/rsa.c"
 
 
 const int wireKeysLengths = 16;
