@@ -1,13 +1,21 @@
 #include <openssl/aes.h>
 #include <openssl/sha.h>
-#include <openssl/bn.h>
 #include "cryptoUtil.h"
 
 
-void aesTest()
+
+void generateAESKeys(AES_KEY *enc_key, AES_KEY *dec_key)
 {
-	const unsigned char testKey[] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
-									0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff};
+	unsigned char *rawKey = calloc(16, sizeof(unsigned char));
+	RAND_bytes(rawKey, 16);
+
+	AES_set_encrypt_key(rawKey, 128, enc_key);
+	AES_set_decrypt_key(rawKey, 128, dec_key);
+}
+
+
+void testAES()
+{
 	int i;
 	unsigned char text[] = "hello world!";
 	unsigned char * enc_out = malloc(80 * sizeof(char)); 
@@ -15,25 +23,21 @@ void aesTest()
 
 	AES_KEY enc_key, dec_key;
 
-	AES_set_encrypt_key(testKey, 128, &enc_key);
+	generateAESKeys(&enc_key, &dec_key);
 	AES_encrypt(text, enc_out, &enc_key);  
-
-
-	AES_set_decrypt_key(testKey,128,&dec_key);
 	AES_decrypt(enc_out, dec_out, &dec_key);
 
-
 	printf("Original:\t");
-	for(i=0;*(text+i)!=0x00;i++)
-		printf("%X ",*(text+i));
+	for(i = 0; i < 16; i ++)
+		printf("%02X ",*(text+i));
 
 	printf("\nEncrypted:\t");
-	for(i=0;*(enc_out+i)!=0x00;i++)
-		printf("%X ",*(enc_out+i));
+	for(i = 0; i < 16; i ++)
+		printf("%02X ",*(enc_out+i));
 
 	printf("\nDecrypted:\t");
-	for(i=0;*(dec_out+i)!=0x00;i++)
-		printf("%X ",*(dec_out+i));
+	for(i = 0; i < 16; i ++)
+		printf("%02X ",*(dec_out+i));
 	printf("\n");
 
 	free(enc_out);
@@ -41,6 +45,8 @@ void aesTest()
 }
 
 
+
+//Used in the 2009 paper before introduction of AES-NI made AES faster
 unsigned char *sha256Digest(unsigned char* msgStr, int msgLength)
 {
 	SHA256_CTX sha256Ctx;

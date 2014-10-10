@@ -2,13 +2,11 @@
 #define	CIRCUIT_UTILS
 
 
-typedef struct outputRow
+typedef struct bitGarbleKeys
 {
-	struct outputRow* zeroPointer;
-	struct outputRow* onePointer;
-	
-	unsigned char outputValue[16];
-} outputRow;
+	unsigned char key0[16];
+	unsigned char key1[16];
+}bitsGarbleKeys;
 
 
 typedef struct gate
@@ -18,6 +16,7 @@ typedef struct gate
 
 	int outputTableSize;
 	int *outputTable;
+	struct bitsGarbleKeys **inputKeySet;
 } gate;
 
 
@@ -28,6 +27,7 @@ typedef struct gateOrWire
 	char wireValue;
 	char outputFlag;
 
+	struct bitsGarbleKeys *outputGarbleKeys;
 	struct gate *gate_data;
 } gateOrWire;
 

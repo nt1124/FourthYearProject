@@ -2,6 +2,17 @@
 #include "formatUtils.c"
 
 
+struct bitGarbleKeys *generateGarbleKeyPair()
+{
+	struct bitGarbleKeys *toReturn = calloc(1, sizeof(struct bitGarbleKeys));
+
+	RAND_bytes(toReturn -> key0, 16);
+	RAND_bytes(toReturn -> key1, 16);
+
+	return bitGarbleKeys;
+}
+
+
 void printGate(struct gate *input)
 {
 	int i;
@@ -70,8 +81,10 @@ struct gate *processGate(char* line, int strIndex)
 	toReturn -> numInputs = atoi(tempString);
 
 	for(tempIndex = 0; tempIndex < toReturn -> numInputs; tempIndex ++)
+	{
 		outputTableSize *= 2;
-	
+	}
+
 	toReturn -> outputTableSize = outputTableSize;
 	toReturn -> outputTable = parseOutputTable(line, outputTableSize, &strIndex);
 	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
@@ -103,6 +116,7 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex)
 		}
 		toReturn -> gate_data = processGate(line, *strIndex);
 	}
+	toReturn -> outputGarbleKeys = generateGarbleKeyPair();
 
 	return toReturn;
 }
