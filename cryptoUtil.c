@@ -3,8 +3,44 @@
 #include "cryptoUtil.h"
 
 
+unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toEncrypt)
+{
+	AES_KEY enc_key;
+	unsigned char *ciphertext = calloc(80, sizeof(char));
+	int i, k;
 
-void generateAESKeys(AES_KEY *enc_key, AES_KEY *dec_key)
+	AES_set_encrypt_key( keyList[0], 128, &enc_key );
+	AES_encrypt(toEncrypt, ciphertext, &enc_key);
+
+	for(i = 1; i < numKeys; i ++)
+	{
+		AES_set_encrypt_key( keyList[i], 128, &enc_key );
+		AES_encrypt(ciphertext, ciphertext, &enc_key);
+	}
+
+	return ciphertext;
+}
+
+unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toEncrypt)
+{
+	AES_KEY enc_key;
+	unsigned char *ciphertext = calloc(80, sizeof(char));
+	int i, k;
+
+	AES_set_decrypt_key( keyList[0], 128, &enc_key );
+	AES_decrypt(toEncrypt, ciphertext, &enc_key);
+
+	for(i = 1; i < numKeys; i ++)
+	{
+		AES_set_decrypt_key( keyList[i], 128, &enc_key );
+		AES_decrypt(ciphertext, ciphertext, &enc_key);
+	}
+
+	return ciphertext;
+}
+
+
+void generateRandomAESKeys(AES_KEY *enc_key, AES_KEY *dec_key)
 {
 	unsigned char *rawKey = calloc(16, sizeof(unsigned char));
 	RAND_bytes(rawKey, 16);
@@ -18,12 +54,12 @@ void testAES()
 {
 	int i;
 	unsigned char text[] = "hello world!";
-	unsigned char * enc_out = malloc(80 * sizeof(char)); 
-	unsigned char * dec_out = malloc(80 * sizeof(char));
+	unsigned char *enc_out = malloc(80 * sizeof(char)); 
+	unsigned char *dec_out = malloc(80 * sizeof(char));
 
 	AES_KEY enc_key, dec_key;
 
-	generateAESKeys(&enc_key, &dec_key);
+	generateRandomAESKeys(&enc_key, &dec_key);
 	AES_encrypt(text, enc_out, &enc_key);  
 	AES_decrypt(enc_out, dec_out, &dec_key);
 

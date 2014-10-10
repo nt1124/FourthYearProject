@@ -4,36 +4,7 @@
 #include <time.h>
 
 #include "circuitUtils.c"
-#include "cryptoUtil.c"
 
-
-
-
-void runCircuit( struct gateOrWire **inputCircuit, int numGates )
-{
-	int i, j, tempIndex, numInputs;
-	char outputTableIndex, tempValue;
-	struct gate *currentGate;
-
-	for(i = 0; i < numGates; i ++)
-	{
-		if( 'G' == inputCircuit[i] -> typeTag )
-		{
-			outputTableIndex = 0;
-			currentGate = inputCircuit[i] -> gate_data;
-			numInputs = currentGate -> numInputs;
-
-			for(j = 0; j < numInputs; j ++)
-			{
-				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				outputTableIndex <<= 1;
-				outputTableIndex += inputCircuit[tempIndex] -> wireValue;
-
-				inputCircuit[i] -> wireValue = currentGate -> outputTable[outputTableIndex];
-			}
-		}
-	}
-}
 
 
 int main(int argc, char *argv[])
@@ -58,9 +29,9 @@ int main(int argc, char *argv[])
 		readInputDetailsFile( tempBob, inputCircuit );
 
 		runCircuit( inputCircuit, numGates );
-		// printAllOutput(inputCircuit, numGates);
+		printAllOutput(inputCircuit, numGates);
 
-		testAES();
+		// testAES();
     	// sha256Digest("123456781234567812345678", 24);
     	// testElgamal();
     	// testRSA();
