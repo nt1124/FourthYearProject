@@ -14,12 +14,12 @@ struct outputEncRow *recursiveOutputTable(int *outputTable, struct gate *curGate
 		for(j = 0; j < curGate -> numInputs; j ++)
 		{
 			tempBit = (i >> j) & 1;
-			if(NULL == tempRow -> zeroOrOne[tempBit])
+			if(NULL == tempRow -> keyChoice[tempBit])
 			{
-				tempRow -> zeroOrOne[tempBit] = calloc(1, sizeof(struct outputEncRow));
+				tempRow -> keyChoice[tempBit] = calloc(1, sizeof(struct outputEncRow));
 			}
 
-			tempRow = tempRow -> zeroOrOne[tempBit];
+			tempRow = tempRow -> keyChoice[tempBit];
 		}
 
 		tempRow -> outputValue = *(outputTable + i);
@@ -69,4 +69,28 @@ int *parseInputTable(char* line, int tableSize, int *strIndex)
 	}
 
 	return tableToReturn;
+}
+
+
+int count_lines_of_file(char * filepath)
+{
+    FILE *file = fopen ( filepath, "r" );
+    int line_count = 0;
+
+	if ( file != NULL )
+	{
+		char line [ 512 ]; /* or other suitable maximum line size */
+		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		{
+			if( (48 <= line[0] && line[0] < 58) ||
+				( 'A' == line[0] || 'B' == line[0] ) )
+			{
+				line_count ++;	
+			}
+		}
+		fclose ( file );
+		return line_count;
+	}
+
+    return -1;
 }

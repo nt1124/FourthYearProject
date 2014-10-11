@@ -1,6 +1,6 @@
-Exception: STATUS_ACCESS_VIOLATION at eip=6FB514A0
-eax=6FCC860C ebx=00000100 ecx=80000038 edx=00000000 esi=80048BB0 edi=00000000
-ebp=6FB52280 esp=0028A7C0 program=C:\Users\Nick\Desktop\Crypto\FourthYearProject\a.out, pid 5832, thread main
+Exception: STATUS_ACCESS_VIOLATION at eip=6FB542FC
+eax=EC130CCD ebx=0A3A32E0 ecx=00000080 edx=1198F8E1 esi=00000001 edi=0028A860
+ebp=6FB52180 esp=0028A748 program=C:\Users\Nick\Desktop\Crypto\FourthYearProject\a.out, pid 5308, thread main
 cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
 Stack trace:
 Frame     Function  Args

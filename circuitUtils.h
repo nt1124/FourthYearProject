@@ -6,7 +6,7 @@
 
 typedef struct outputEncRow
 {
-	struct outputEncRow *zeroOrOne[2];
+	struct outputEncRow *keyChoice[2];
 
 	unsigned char outputValue;
 	unsigned char *outputEncValue;
@@ -27,6 +27,7 @@ typedef struct gate
 
 	int outputTableSize;
 	struct outputEncRow *outputTreeEnc;
+	unsigned char *outputTable[16];
 
 	struct bitsGarbleKeys **inputKeySet;
 } gate;
@@ -37,8 +38,8 @@ typedef struct gateOrWire
 	int G_ID;
 	char typeTag;		// G = Gate, W = wire
 	char wireValue;
+	unsigned char *wireEncValue;
 	char outputFlag;
-	unsigned char wireEnc[16];
 
 	struct bitsGarbleKeys *outputGarbleKeys;
 	struct gate *gate_data;

@@ -6,8 +6,8 @@
 unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toEncrypt)
 {
 	AES_KEY enc_key;
-	unsigned char *ciphertext = calloc(80, sizeof(char));
-	int i, k;
+	unsigned char *ciphertext = calloc(16, sizeof(char));
+	int i;
 
 	AES_set_encrypt_key( keyList[0], 128, &enc_key );
 	AES_encrypt(toEncrypt, ciphertext, &enc_key);
@@ -21,19 +21,20 @@ unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, const unsig
 	return ciphertext;
 }
 
-unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toEncrypt)
-{
-	AES_KEY enc_key;
-	unsigned char *ciphertext = calloc(80, sizeof(char));
-	int i, k;
 
-	AES_set_decrypt_key( keyList[0], 128, &enc_key );
-	AES_decrypt(toEncrypt, ciphertext, &enc_key);
+unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toDecrypt)
+{
+	AES_KEY dec_key;
+	unsigned char *ciphertext = calloc(16, sizeof(char));
+	int i;
+
+	AES_set_decrypt_key( keyList[numKeys - 1], 128, &dec_key );
+	AES_decrypt(toDecrypt, ciphertext, &dec_key);
 
 	for(i = 1; i < numKeys; i ++)
 	{
-		AES_set_decrypt_key( keyList[i], 128, &enc_key );
-		AES_decrypt(ciphertext, ciphertext, &enc_key);
+		AES_set_decrypt_key( keyList[numKeys - i - 1], 128, &dec_key );
+		AES_decrypt(ciphertext, ciphertext, &dec_key);
 	}
 
 	return ciphertext;

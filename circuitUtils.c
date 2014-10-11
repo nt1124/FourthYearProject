@@ -15,7 +15,7 @@ void recursiveEncryptionTree(struct gateOrWire *curGate)
 		for(j = 0; j < curGate -> gate_data -> numInputs; j ++)
 		{
 			tempBit = (i >> j) & 1;
-			tempRow = tempRow -> zeroOrOne[tempBit];
+			tempRow = tempRow -> keyChoice[tempBit];
 
 			if(0 == tempBit)
 				keyList[j] = curGate -> gate_data -> inputKeySet[j] -> key0;
@@ -23,7 +23,6 @@ void recursiveEncryptionTree(struct gateOrWire *curGate)
 				keyList[j] = curGate -> gate_data -> inputKeySet[j] -> key1;
 		}
 
-		//tempRow -> outputValue = *(outputTable + i);
 		if(0 == tempRow -> outputValue)		
 			tempRow -> outputEncValue = encryptMultiple(keyList, curGate -> gate_data -> numInputs, curGate -> outputGarbleKeys -> key0);
 		else if(1 == tempRow -> outputValue)
@@ -32,7 +31,7 @@ void recursiveEncryptionTree(struct gateOrWire *curGate)
 }
 
 
-void recursiveDecryptionTree(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
+unsigned char *decryptionTree(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	unsigned char *keyList[curGate -> gate_data -> numInputs];
 	struct outputEncRow *tempRow;
@@ -43,7 +42,7 @@ void recursiveDecryptionTree(struct gateOrWire *curGate, struct gateOrWire **inp
 	{
 		tempIndex = curGate -> gate_data -> inputIDs[j];
 		tempBit = inputCircuit[tempIndex] -> wireValue;
-		tempRow = tempRow -> zeroOrOne[tempBit];
+		tempRow = tempRow -> keyChoice[tempBit];
 
 		if(0 == tempBit)
 			keyList[j] = curGate -> gate_data -> inputKeySet[j] -> key0;
@@ -51,11 +50,11 @@ void recursiveDecryptionTree(struct gateOrWire *curGate, struct gateOrWire **inp
 			keyList[j] = curGate -> gate_data -> inputKeySet[j] -> key1;
 	}
 
-	//tempRow -> outputValue = *(outputTable + i);
-	if(0 == tempRow -> outputValue)		
-		tempRow -> outputEncValue = decryptMultiple(keyList, curGate -> gate_data -> numInputs, curGate -> wireEnc);
+	curGate -> wireValue = tempRow -> outputValue;
+	if(0 == tempRow -> outputValue)
+		return decryptMultiple(keyList, curGate -> gate_data -> numInputs, tempRow -> outputEncValue);
 	else if(1 == tempRow -> outputValue)
-		tempRow -> outputEncValue = decryptMultiple(keyList, curGate -> gate_data -> numInputs, curGate -> wireEnc);
+		return decryptMultiple(keyList, curGate -> gate_data -> numInputs, tempRow -> outputEncValue);
 }
 
 
@@ -171,7 +170,6 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 	if( 'i' == line[*strIndex] )
 	{
 		toReturn -> typeTag = 'W';
-		toReturn -> wireValue = rand() % 2;
 	}
 	else
 	{
@@ -245,30 +243,6 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 }
 
 
-int count_lines_of_file(char * filepath)
-{
-    FILE *file = fopen ( filepath, "r" );
-    int line_count = 0;
-
-	if ( file != NULL )
-	{
-		char line [ 512 ]; /* or other suitable maximum line size */
-		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
-		{
-			if( (48 <= line[0] && line[0] < 58) ||
-				( 'A' == line[0] || 'B' == line[0] ) )
-			{
-				line_count ++;	
-			}
-		}
-		fclose ( file );
-		return line_count;
-	}
-
-    return -1;
-}
-
-
 void readInputLines(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
@@ -286,11 +260,15 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 	strIndex ++;
 
 	if( '1' == line[strIndex] )
-		wireValue = 1;
+	{
+		inputCircuit[gateID] -> wireValue = 1;
+		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key1;
+	}
 	else if( '0' == line[strIndex] )
-		wireValue = 0;
-
-	inputCircuit[gateID] -> wireValue = wireValue;
+	{
+		inputCircuit[gateID] -> wireValue = 0;
+		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key0;
+	}
 }
 
 
@@ -329,8 +307,19 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				outputTree = outputTree -> zeroOrOne[inputCircuit[tempIndex] -> wireValue];
+				outputTree = outputTree -> keyChoice[inputCircuit[tempIndex] -> wireValue];
 			}
+
+			inputCircuit[i] -> wireEncValue = decryptionTree(inputCircuit[i], inputCircuit);
+
+			/*
+			if( 0 == strncmp(inputCircuit[i] -> wireEncValue, inputCircuit[i] -> outputGarbleKeys -> key0, 16) )
+				printf(" %d - 0\n", inputCircuit[i] -> G_ID);
+			else if( 0 == strncmp(inputCircuit[i] -> wireEncValue, inputCircuit[i] -> outputGarbleKeys -> key1, 16) )
+				printf(" %d - 1\n", inputCircuit[i] -> G_ID);
+			else
+				printf(" %d - ?\n", inputCircuit[i] -> G_ID);
+			*/
 
 			inputCircuit[i] -> wireValue = outputTree -> outputValue;
 		}
