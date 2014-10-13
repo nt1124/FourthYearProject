@@ -1,5 +1,8 @@
 #include <openssl/aes.h>
+#include <openssl/rand.h>
 #include <openssl/sha.h>
+#include <string.h>
+#include <time.h>
 #include "cryptoUtil.h"
 
 
