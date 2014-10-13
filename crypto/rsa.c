@@ -18,7 +18,7 @@ typedef struct rsaPrivKey
 
 struct rsaPrivKey *initPrivKeyRSA()
 {
-	struct rsaPrivKey *privKey = calloc( 1, sizeof(rsaPrivKey) );
+	struct rsaPrivKey *privKey = (struct rsaPrivKey *) calloc( 1, sizeof(rsaPrivKey) );
 	
 	mpz_init(privKey -> N);
 	mpz_init(privKey -> p);
@@ -33,7 +33,7 @@ struct rsaPrivKey *initPrivKeyRSA()
 
 struct rsaPubKey *initPubKeyRSA()
 {
-	struct rsaPubKey *pubKey = calloc( 1, sizeof(rsaPubKey) );
+	struct rsaPubKey *pubKey = (struct rsaPubKey *)calloc( 1, sizeof(rsaPubKey) );
 	
 	mpz_init(pubKey -> N);
 	mpz_init(pubKey -> e);
@@ -109,7 +109,7 @@ struct rsaPrivKey *updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pu
 
 mpz_t *encRSA(mpz_t inputPT, struct rsaPubKey *pubKey)
 {
-	mpz_t *cipherText = calloc(1, sizeof(mpz_t));
+	mpz_t *cipherText = (mpz_t*) calloc(1, sizeof(mpz_t));
     mpz_init(*cipherText);
 
     mpz_powm(*cipherText, inputPT, pubKey -> e, pubKey -> N);
@@ -120,7 +120,7 @@ mpz_t *encRSA(mpz_t inputPT, struct rsaPubKey *pubKey)
 
 mpz_t *decRSA(mpz_t inputCT, struct rsaPrivKey *privKey)
 {
-	mpz_t *plaintext = calloc(1, sizeof(mpz_t));
+	mpz_t *plaintext = (mpz_t*) calloc(1, sizeof(mpz_t));
     mpz_init(*plaintext);
 
     mpz_powm(*plaintext, inputCT, privKey -> d, privKey -> N);

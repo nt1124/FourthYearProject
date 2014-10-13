@@ -60,7 +60,7 @@ unsigned char *decryptionTree(struct gateOrWire *curGate, struct gateOrWire **in
 
 struct bitsGarbleKeys *generateGarbleKeyPair()
 {
-	struct bitsGarbleKeys *toReturn = calloc(1, sizeof(struct bitsGarbleKeys));
+	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys *)calloc(1, sizeof(struct bitsGarbleKeys));
 
 	RAND_bytes(toReturn -> key0, 16);
 	RAND_bytes(toReturn -> key1, 16);
@@ -71,7 +71,7 @@ struct bitsGarbleKeys *generateGarbleKeyPair()
 
 struct bitsGarbleKeys **getInputGarbleKeys(struct gateOrWire **circuit, int numInputs, int *inputIDs)
 {
-	struct bitsGarbleKeys **inputKeys = calloc(numInputs, sizeof(struct bitsGarbleKeys *));
+	struct bitsGarbleKeys **inputKeys = (struct bitsGarbleKeys **)calloc(numInputs, sizeof(struct bitsGarbleKeys *));
 	int i, gid;
 
 	for(i = 0; i < numInputs; i ++)

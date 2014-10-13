@@ -6,7 +6,7 @@
 unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toEncrypt)
 {
 	AES_KEY enc_key;
-	unsigned char *ciphertext = calloc(16, sizeof(char));
+	unsigned char *ciphertext = (unsigned char*) calloc(16, sizeof(unsigned char));
 	int i;
 
 	AES_set_encrypt_key( keyList[0], 128, &enc_key );
@@ -25,7 +25,7 @@ unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, const unsig
 unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, const unsigned char *toDecrypt)
 {
 	AES_KEY dec_key;
-	unsigned char *ciphertext = calloc(16, sizeof(char));
+	unsigned char *ciphertext = (unsigned char*) calloc(16, sizeof(unsigned char));
 	int i;
 
 	AES_set_decrypt_key( keyList[numKeys - 1], 128, &dec_key );
@@ -43,7 +43,7 @@ unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, const unsig
 
 void generateRandomAESKeys(AES_KEY *enc_key, AES_KEY *dec_key)
 {
-	unsigned char *rawKey = calloc(16, sizeof(unsigned char));
+	unsigned char *rawKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 	RAND_bytes(rawKey, 16);
 
 	AES_set_encrypt_key(rawKey, 128, enc_key);
@@ -55,8 +55,8 @@ void testAES()
 {
 	int i;
 	unsigned char text[] = "hello world!";
-	unsigned char *enc_out = malloc(80 * sizeof(char)); 
-	unsigned char *dec_out = malloc(80 * sizeof(char));
+	unsigned char *enc_out = (unsigned char*) malloc(80 * sizeof(char)); 
+	unsigned char *dec_out = (unsigned char*) malloc(80 * sizeof(char));
 
 	AES_KEY enc_key, dec_key;
 
@@ -88,7 +88,7 @@ unsigned char *sha256Digest(unsigned char* msgStr, int msgLength)
 {
 	SHA256_CTX sha256Ctx;
 	SHA256_Init(&sha256Ctx);
-	unsigned char *msgDigest = calloc(SHA256_DIGEST_LENGTH, sizeof(unsigned char));
+	unsigned char *msgDigest = (unsigned char *) calloc(SHA256_DIGEST_LENGTH, sizeof(unsigned char));
 
 	SHA256_Update(&sha256Ctx, msgStr, msgLength);
 
@@ -102,18 +102,18 @@ unsigned char *kdf2009Smart(unsigned char* key1, unsigned char* key2, unsigned c
 							int keyLength, int msgLength, int saltLength)
 {
 	int i;
-	unsigned char *key1Salt = calloc(keyLength + saltLength, sizeof(unsigned char));
-	unsigned char *key2Salt = calloc(keyLength + saltLength, sizeof(unsigned char));
+	unsigned char *key1Salt = (unsigned char *) calloc(keyLength + saltLength, sizeof(unsigned char));
+	unsigned char *key2Salt = (unsigned char *) calloc(keyLength + saltLength, sizeof(unsigned char));
 	unsigned char *tempMsg1;
 	unsigned char *tempMsg2;
-	unsigned char *output = calloc(msgLength, sizeof(unsigned char));
+	unsigned char *output = (unsigned char *) calloc(msgLength, sizeof(unsigned char));
 
-	strncpy(key1Salt, key1, keyLength);
-	strncpy(key1Salt + keyLength, salt, saltLength);
+	strncpy((char*)key1Salt, (char*)key1, keyLength);
+	strncpy((char*)(key1Salt + keyLength), (char*)salt, saltLength);
 	tempMsg1 = sha256Digest(key1Salt, keyLength + saltLength);
 
-	strncpy(key2Salt, key2, keyLength);
-	strncpy(key2Salt + keyLength, salt, saltLength);
+	strncpy((char*)key2Salt, (char*)key2, keyLength);
+	strncpy((char*)(key2Salt + keyLength), (char*)salt, saltLength);
 	tempMsg2 = sha256Digest(key2Salt, keyLength + saltLength);
 
 	for(i = 0; i < msgLength; i ++)
@@ -127,7 +127,7 @@ unsigned char *enc2009Smart(unsigned char* key1, unsigned char* key2, unsigned c
 							int keyLength, int msgLength, int saltLength)
 {
 	unsigned char *kdfOutput = kdf2009Smart(key1, key2, salt, keyLength, msgLength, saltLength);
-	unsigned char *output = calloc(msgLength, sizeof(unsigned char));
+	unsigned char *output = (unsigned char *) calloc(msgLength, sizeof(unsigned char));
 	int i;
 
 	for(i = 0; i < msgLength; i ++)

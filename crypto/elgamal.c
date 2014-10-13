@@ -10,7 +10,7 @@ typedef struct elgamalPubKey
 
 struct elgamalPubKey *initPubKeyElgamal()
 {
-    struct elgamalPubKey *pubKey = calloc(1, sizeof(struct elgamalPubKey));
+    struct elgamalPubKey *pubKey = (struct elgamalPubKey*) calloc(1, sizeof(struct elgamalPubKey));
 
     mpz_init(pubKey -> groupSize);
     mpz_init(pubKey -> g);
@@ -47,7 +47,7 @@ void updateKeyPair(struct elgamalPubKey *pubKey, mpz_t privKey, int num_bits, gm
 
 mpz_t *encElgamal(mpz_t inputMsg, struct elgamalPubKey *pubKey, gmp_randstate_t state)
 {
-    mpz_t *outputCT = calloc(2, sizeof(mpz_t));
+    mpz_t *outputCT = (mpz_t*) calloc(2, sizeof(mpz_t));
     mpz_t ephemeralRand;
     
     mpz_init(outputCT[0]);
@@ -74,7 +74,7 @@ mpz_t *encElgamal(mpz_t inputMsg, struct elgamalPubKey *pubKey, gmp_randstate_t 
 mpz_t *decElgamal(mpz_t *inputCT, mpz_t privKey, struct elgamalPubKey *pubKey)
 {
     mpz_t c1PowX, c1PowXInv;
-    mpz_t *outputPT = calloc(1, sizeof(mpz_t));
+    mpz_t *outputPT = (mpz_t*) calloc(1, sizeof(mpz_t));
 
     mpz_init(outputPT[0]);
     mpz_init(c1PowX);
