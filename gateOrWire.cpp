@@ -39,6 +39,7 @@ typedef struct gate
 class gateOrWire
 {
 	public:
+		// Members
 		int G_ID;
 		char wireValue;
 		unsigned char *wireEncValue;
@@ -48,10 +49,11 @@ class gateOrWire
 		struct bitsGarbleKeys *outputGarbleKeys;
 		struct gate *gate_data;
 
+		// Methods
 		void recursiveEncryptionTree();
 		void decryptionTree(struct gateOrWire *inputCircuit);
 		void generateGarbleKeyPair();
-		void getInputGarbleKeys(gateOrWire *circuit, int *inputIDs);
+		void getInputGarbleKeys(gateOrWire *circuit);
 		void printGateOrWire();
 		void processGateOrWire(char *line, int idNum, int *strIndex);
 		gateOrWire(char *line, int idNum, int *strIndex, gateOrWire *gateList, int *gateIndex);
@@ -83,46 +85,15 @@ struct gate *processGate(char* line, int strIndex, struct gateOrWire *curGate)
 	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
 	// toReturn -> inputKeySet = getInputGarbleKeys(toReturn -> numInputs, toReturn -> inputIDs);
 	toReturn -> outputTreeEnc = recursiveOutputTable(tableToParse, toReturn);
-	
+
 	return toReturn;
 }
 
-/*
-void gateOrWire::processGateOrWire(char *line, int idNum, int *strIndex)
-{
-	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-	int i;
-
-	G_ID = idNum;
-	generateGarbleKeyPair();
-
-	if( 'i' == line[*strIndex] )
-	{
-		typeTag = 'W';
-	}
-	else
-	{
-		typeTag = 'G';
-		if('o' == line[*strIndex])
-		{
-			toReturn -> outputFlag = 1;
-			while( line[*strIndex] != ' ' )
-			{
-				*strIndex = *strIndex + 1;
-			}
-		}
-
-		//toReturn -> gate_data = processGate(line, *strIndex, circuit, toReturn);
-		gate_data = processGate(line, *strIndex, toReturn);
-		recursiveEncryptionTree();
-	}
-}
-*/
 
 gateOrWire::gateOrWire(char *line, int idNum, int *strIndex, gateOrWire *gateList, int *gateIndex)
 {
-	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	int i;
+	gate_data = (struct gate*) calloc(1, sizeof(struct gate));
 
 	G_ID = idNum;
 	generateGarbleKeyPair();
@@ -136,7 +107,7 @@ gateOrWire::gateOrWire(char *line, int idNum, int *strIndex, gateOrWire *gateLis
 		typeTag = 'G';
 		if('o' == line[*strIndex])
 		{
-			toReturn -> outputFlag = 1;
+			outputFlag = 1;
 			while( line[*strIndex] != ' ' )
 			{
 				*strIndex = *strIndex + 1;
@@ -144,11 +115,9 @@ gateOrWire::gateOrWire(char *line, int idNum, int *strIndex, gateOrWire *gateLis
 		}
 
 		//toReturn -> gate_data = processGate(line, *strIndex, circuit, toReturn);
-		gate_data = processGate(line, *strIndex, toReturn);
-		recursiveEncryptionTree();
+		gate_data = processGate(line, *strIndex, this);
+		// recursiveEncryptionTree();
 	}
-	gateList[*gateIndex] = *this;
-	*gateIndex ++;
 }
 
 
@@ -218,14 +187,14 @@ void gateOrWire::generateGarbleKeyPair()
 }
 
 
-void gateOrWire::getInputGarbleKeys(gateOrWire *inputCircuit, int *inputIDs)
+void gateOrWire::getInputGarbleKeys(gateOrWire *inputCircuit)
 {
 	struct bitsGarbleKeys **inputKeys = (struct bitsGarbleKeys **) calloc(gate_data -> numInputs, sizeof(struct bitsGarbleKeys*));
 	int i, gid;
 
 	for(i = 0; i < gate_data -> numInputs; i ++)
 	{
-		gid = *(inputIDs + i);
+		gid = *( (gate_data -> inputIDs) + i);
 		inputKeys[i] = inputCircuit[gid].outputGarbleKeys;
 	}
 

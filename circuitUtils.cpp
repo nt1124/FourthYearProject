@@ -243,7 +243,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 }
 
 
-void readInputLines(char *line, struct gateOrWire **inputCircuit)
+void readInputLines(char *line, Circuit inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
@@ -261,20 +261,21 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 
 	if( '1' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> wireValue = 1;
-		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key1;
+		inputCircuit -> gateList[gateID] -> wireValue = 1;
+		inputCircuit -> gateList[gateID] -> wireEncValue = inputCircuit -> gateList[gateID] -> outputGarbleKeys -> key1;
 	}
 	else if( '0' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> wireValue = 0;
-		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key0;
+		inputCircuit -> gateList[gateID] -> wireValue = 0;
+		inputCircuit -> gateList[gateID] -> wireEncValue = inputCircuit -> gateList[gateID] -> outputGarbleKeys -> key0;
 	}
 }
 
 
-void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
+void readInputDetailsFile(char *filepath, Circuit inputCircuit)
 {
 	FILE *file = fopen ( filepath, "r" );
+
 	if ( file != NULL )
 	{
 		char line [ 512 ]; /* or other suitable maximum line size */

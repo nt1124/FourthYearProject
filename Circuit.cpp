@@ -11,10 +11,12 @@ class Circuit
 	gateOrWire *gateList;
 	int numGates;
 	void readInCircuit(char* filepath, int numGates);
-	void readInputLines(char *line);
+	void readInputLines(char *line, int skipIndex);
 	void runCircuit();
 	void processGateLine(char *line, int *gateIndex);
-	Circuit(char *filepath);
+	void printAllOutput();
+	void getInputKeys();
+	Circuit(char *filepath, int numGates);
 };
 
 
@@ -41,17 +43,16 @@ void Circuit::processGateLine(char *line, int *gateIndex)
 		strIndex ++;
 	}
 
-	// gateList[*gateIndex] =
-	gateOrWire(line, idNum, &strIndex, gateList, gateIndex);
-	// (*gateIndex) ++;
+	//
+	gateList[*gateIndex] = gateOrWire(line, idNum, &strIndex, gateList, gateIndex);
+	//
+	(*gateIndex) ++;
 }
 
 
 void Circuit::readInCircuit(char* filepath, int numGates)
 {
 	int gateIndex = 0;
-	struct gateOrWire *tempGateOrWire;
-	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 
 	FILE *file = fopen ( filepath, "r" );
 	if ( file != NULL )
@@ -73,12 +74,16 @@ void Circuit::readInCircuit(char* filepath, int numGates)
 }
 
 
-void Circuit::readInputLines(char *line) //, struct gateOrWire **inputCircuit)
+void Circuit::readInputLines(char *line, int skipIndex) //, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
 
-	while( ' ' != line[strIndex++] ){}
+	while( ' ' != *(line + strIndex) )
+	{
+		strIndex ++;
+	}
+	strIndex ++;
 
 	while( ' ' != line[strIndex] )
 	{
@@ -99,38 +104,60 @@ void Circuit::readInputLines(char *line) //, struct gateOrWire **inputCircuit)
 		gateList[gateID].wireValue = 0;
 		gateList[gateID].wireEncValue = gateList[gateID].outputGarbleKeys -> key0;
 	}
+
 }
 
-/*
-void readInputDetailsFile(char *filepath, Circuit inputCircuit)
+
+void readInputDetailsFile(char *filepath, Circuit inputCircuit, int skipIndex)
 {
 	FILE *file = fopen ( filepath, "r" );
+	int i;
+	
 	if ( file != NULL )
 	{
 		char line [ 512 ]; //Or other suitable maximum line size
 		while ( fgets ( line, sizeof line, file ) != NULL )  //Read a line
 		{
-			inputCircuit.readInputLines(line);
+			inputCircuit.readInputLines(line, skipIndex);
 		}
 
 		fclose ( file );
 	}
+
 }
-*/
 
 
-Circuit::Circuit(char *filepath)
+
+void Circuit::getInputKeys()
 {
+	int i, j;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		if('G' == gateList[i].typeTag)
+		{
+			gateList[i].getInputGarbleKeys(gateList);
+		}
+		gateList[i].recursiveEncryptionTree();
+	}
+}
+
+
+Circuit::Circuit(char *filepath, int inputNumGates)
+{
+	int gateIndex = 0;
+	numGates = inputNumGates;
+	gateList = (struct gateOrWire*) calloc(numGates, sizeof(struct gateOrWire*));
 	FILE *file = fopen ( filepath, "r" );
+
 	if ( file != NULL )
 	{
 		char line [ 512 ]; /* or other suitable maximum line size */
 		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
 		{
-			readInputLines(line);
+			processGateLine(line, &gateIndex);
+			// readInputLines(line);
 		}
-
-		fclose ( file );
 	}
 }
 
@@ -161,6 +188,20 @@ void Circuit::runCircuit( )
 
 			gateList[i].decryptionTree(gateList);
 			gateList[i].wireValue = outputTree -> outputValue;
+		}
+	}
+}
+
+
+void Circuit::printAllOutput()
+{
+	int i;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		if( 1 == gateList[i].outputFlag )
+		{
+			printf("Gate %d = %d\n", gateList[i].G_ID, gateList[i].wireValue);
 		}
 	}
 }
