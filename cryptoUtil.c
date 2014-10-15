@@ -111,12 +111,12 @@ unsigned char *kdf2009Smart(unsigned char* key1, unsigned char* key2, unsigned c
 	unsigned char *tempMsg2;
 	unsigned char *output = (unsigned char *) calloc(msgLength, sizeof(unsigned char));
 
-	strncpy( (char*)key1Salt, (char*)key1, keyLength );
-	strncpy( (char*)(key1Salt + keyLength), (char*)salt, saltLength );
+	strncpy((char*)key1Salt, (char*)key1, keyLength);
+	strncpy((char*)(key1Salt + keyLength), (char*)salt, saltLength);
 	tempMsg1 = sha256Digest(key1Salt, keyLength + saltLength);
 
-	strncpy( (char*)key2Salt, (char*)key2, keyLength );
-	strncpy( (char*)(key2Salt + keyLength), (char*)salt, saltLength );
+	strncpy((char*)key2Salt, (char*)key2, keyLength);
+	strncpy((char*)(key2Salt + keyLength), (char*)salt, saltLength);
 	tempMsg2 = sha256Digest(key2Salt, keyLength + saltLength);
 
 	for(i = 0; i < msgLength; i ++)
