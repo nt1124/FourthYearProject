@@ -28,12 +28,15 @@ int main(int argc, char *argv[])
 		char tempAlice[] = "And.alice.input";
 		char tempBob[] = "And.bob.input";
 
+		printf("1 ++++++++++++\n");
 		readInputDetailsFile( tempAlice, inputCircuit, 5 );
 		readInputDetailsFile( tempBob, inputCircuit, 3 );
 
+		/*
 		inputCircuit.getInputKeys();
 		inputCircuit.runCircuit();
 		inputCircuit.printAllOutput();
+		*/
 	}
 	else
 	{

@@ -16,6 +16,7 @@ class Circuit
 	void processGateLine(char *line, int *gateIndex);
 	void printAllOutput();
 	void getInputKeys();
+
 	Circuit(char *filepath, int numGates);
 };
 
@@ -43,9 +44,8 @@ void Circuit::processGateLine(char *line, int *gateIndex)
 		strIndex ++;
 	}
 
-	//
-	gateList[*gateIndex] = gateOrWire(line, idNum, &strIndex, gateList, gateIndex);
-	//
+	// gateList[*gateIndex] = 
+	gateOrWire(line, idNum, &strIndex, gateList, gateIndex);
 	(*gateIndex) ++;
 }
 
@@ -116,7 +116,6 @@ void readInputDetailsFile(char *filepath, Circuit inputCircuit, int skipIndex)
 
 		fclose ( file );
 	}
-
 }
 
 
@@ -143,15 +142,17 @@ Circuit::Circuit(char *filepath, int inputNumGates)
 	gateList = (struct gateOrWire*) calloc(numGates, sizeof(struct gateOrWire*));
 	FILE *file = fopen ( filepath, "r" );
 
-	if ( file != NULL )
+	if(file != NULL)
 	{
-		char line [ 512 ]; /* or other suitable maximum line size */
-		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		char line[512]; /* or other suitable maximum line size */
+		while ( fgets(line, sizeof line, file) != NULL ) /* read a line */
 		{
-			processGateLine(line, &gateIndex);
-			// readInputLines(line);
+				printf("%d >>>>>>>>   %s", sizeof(line), line);
+				processGateLine(line, &gateIndex);
+				// readInputLines(line);
 		}
 	}
+
 }
 
 
