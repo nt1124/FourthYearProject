@@ -60,7 +60,14 @@ void Circuit::readInCircuit(char* filepath, int numGates)
 		char line [ 512 ]; /* or other suitable maximum line size */
 		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
 		{
+
 			processGateLine(line, &gateIndex);
+			// tempGateOrWire = processGateLine(line, circuit);
+			// if( NULL != tempGateOrWire )
+			// {
+			// 	*(circuit + gateIndex) = tempGateOrWire;
+			// 	gateIndex ++;
+			// }
 		}
 		fclose ( file );
 	}

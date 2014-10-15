@@ -3,9 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-// #include "circuitUtils.c"
-#include "Circuit.cpp"
-#include "formatUtils.c"
+#include "circuitUtils.c"
 
 
 
@@ -22,21 +20,21 @@ int main(int argc, char *argv[])
 		int numGates = count_lines_of_file(circuitFilepath);
 		int numInputOutputs = count_lines_of_file(formatFilepath);
 
-		Circuit inputCircuit = Circuit(circuitFilepath, numGates);
+		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 		struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
 
 		char tempAlice[] = "And.alice.input";
 		char tempBob[] = "And.bob.input";
+		readInputDetailsFile( tempAlice, inputCircuit );
+		readInputDetailsFile( tempBob, inputCircuit );
 
-		printf("1 ++++++++++++\n");
-		readInputDetailsFile( tempAlice, inputCircuit, 5 );
-		readInputDetailsFile( tempBob, inputCircuit, 3 );
+		runCircuit( inputCircuit, numGates );
+		printAllOutput(inputCircuit, numGates);
 
-		/*
-		inputCircuit.getInputKeys();
-		inputCircuit.runCircuit();
-		inputCircuit.printAllOutput();
-		*/
+		// testAES();
+    	// sha256Digest("123456781234567812345678", 24);
+    	// testElgamal();
+    	// testRSA();
 	}
 	else
 	{
