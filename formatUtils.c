@@ -1,5 +1,5 @@
-#include "formatUtils.h"
-#include "fileUtils.c"
+// #include "formatUtils.h"
+#include "fileUtils.h"
 
 
 void printFormatItem(struct formatItem *input)

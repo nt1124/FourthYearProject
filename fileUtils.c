@@ -1,6 +1,3 @@
-#include "fileUtils.h"
-
-
 
 struct outputEncRow *recursiveOutputTable(int *outputTable, struct gate *curGate)
 {

@@ -1,23 +1,18 @@
-#ifndef CIRCUIT_UTILS
-#define	CIRCUIT_UTILS
-
-#include "crypto/cryptoUtil.h"
-
-
+/*
 typedef struct outputEncRow
 {
 	struct outputEncRow *keyChoice[2];
 
 	unsigned char outputValue;
 	unsigned char *outputEncValue;
-} outputEncRow;
+}outputEncRow;
 
 
 typedef struct bitsGarbleKeys
 {
 	unsigned char key0[16];
 	unsigned char key1[16];
-} bitsGarbleKeys;
+}bitsGarbleKeys;
 
 
 typedef struct gate
@@ -44,17 +39,4 @@ typedef struct gateOrWire
 	struct bitsGarbleKeys *outputGarbleKeys;
 	struct gate *gate_data;
 } gateOrWire;
-
-
-void printGate(struct gate *input);
-void printGateOrWire(struct gateOrWire *input);
-
-struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit, struct gateOrWire *curGate);
-struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit);
-struct gateOrWire *processGateLine(char *line, struct gateOrWire **circuit);
-struct gateOrWire **readInCircuit(char* filepath, int numGates);
-
-#include "circuitUtils.c"
-
-#endif
-
+*/

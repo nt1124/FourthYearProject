@@ -18,4 +18,6 @@ int countWires(char* line, int strIndex);
 struct formatItem *readFormatLine(char *line);
 struct formatItem **readFormatFile( char *filepath, int numInputOutputs);
 
+#include "formatUtils.c"
+
 #endif

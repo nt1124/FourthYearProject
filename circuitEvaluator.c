@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-#include "circuitUtils.c"
+#include "circuitUtils.h"
 
 
 

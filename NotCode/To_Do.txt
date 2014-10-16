@@ -1,0 +1,13 @@
+	To Do
+
+	+ Take inputs and put them to the circuit.
+	+ Read said inputs from file.
+	+ Struct for wire key pairs.
+	- Struct for rows of output table.
+	- Obilivious Transfer implemented,
+		- RSA semi-honest.
+	- Specification written.
+
+	- Read circuit from socket connection.
+	- Read inputs from socket connection.
+	- Run circuit taken from socket connection.
