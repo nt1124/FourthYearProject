@@ -16,6 +16,7 @@ class Circuit
 	void processGateLine(char *line, int *gateIndex);
 	void printAllOutput();
 	void getInputKeys();
+
 	Circuit(char *filepath, int numGates);
 };
 
@@ -43,9 +44,7 @@ void Circuit::processGateLine(char *line, int *gateIndex)
 		strIndex ++;
 	}
 
-	//
 	gateList[*gateIndex] = gateOrWire(line, idNum, &strIndex, gateList, gateIndex);
-	//
 	(*gateIndex) ++;
 }
 
@@ -62,6 +61,7 @@ void Circuit::readInCircuit(char* filepath, int numGates)
 		{
 			processGateLine(line, &gateIndex);
 		}
+
 		fclose ( file );
 	}
 }
@@ -118,7 +118,6 @@ void readInputDetailsFile(char *filepath, Circuit inputCircuit, int skipIndex)
 	}
 
 }
-
 
 
 void Circuit::getInputKeys()
