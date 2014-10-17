@@ -7,6 +7,26 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
+/*  -+ USING THIS MINI-LIBRARY +-
+
+    -+ SERVER +-
+
+    sockfd = openSock();
+    serv_addr = getSelfAsServer(argv[1]);
+
+    bindAndListenToSock(sockfd, serv_addr);
+    clilen = sizeof(cli_addr);
+    newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
+
+    Then use the sockfd as the Sockets identifier.
+
+
+    -+ CLIENT +-
+
+
+
+*/
+
 
 void error(char *msg)
 {
@@ -26,7 +46,6 @@ int bytesToInteger(char *input)
 
     return output;
 }
-
 
 
 int writeToSock(int sockfd, char *buffer, int bufferLength)
@@ -67,6 +86,28 @@ char *readFromSock(int sockfd)
 }
 
 
+int openSock()
+{
+    int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sockfd < 0)
+    {
+        error("ERROR opening socket");
+    }
+
+    return sockfd;
+}
+
+
+void connectToServer(int *sockfd, struct sockaddr_in serv_addr)
+{
+    if( connect(*sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0 ) 
+    {
+        error("ERROR connecting");
+    }
+}
+
+
 struct sockaddr_in getSelfAsServer(char *portNumChars)
 {
     struct sockaddr_in serv_addr;
@@ -86,7 +127,7 @@ struct sockaddr_in getServerAddrByHostname(char *hostname, int portNum)
     struct sockaddr_in serv_addr;
     struct hostent *server;
 
-    server = gethostbyname(hostname);    
+    server = gethostbyname(hostname);
     if (server == NULL)
     {
         fprintf(stderr, "ERROR, no such host\n");
@@ -115,3 +156,29 @@ struct sockaddr_in getServerAddr(char *ipAddress, int portNum)
 
     return serv_addr;
 }
+
+
+void bindAndListenToSock(int sockfd, struct sockaddr_in serv_addr)
+{
+    if(bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) 
+    {
+        error("ERROR on binding");
+    }
+
+    listen(sockfd, 5);
+}
+
+
+int acceptNextConnectOnSock(int sockfd, struct sockaddr_in *cli_addr, int *clilen)
+{
+    int newsockfd = accept(sockfd, (struct sockaddr*)cli_addr, clilen);
+    if (newsockfd < 0) 
+    {
+        error("ERROR on accept");    
+    }
+
+    return newsockfd;
+}
+
+
+

@@ -24,22 +24,15 @@ int main(int argc, char *argv[])
     }
     
     portNum = atoi(argv[2]);
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) 
-    {
-        error("ERROR opening socket");
-    }
+    sockfd = openSock();
 
     serv_addr = getServerAddr(argv[1], portNum);
-
-    if( connect(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0 ) 
-    {
-        error("ERROR connecting");
-    }
+    connectToServer(&sockfd, serv_addr);
     
     printf("Please enter the message: ");
     bzero(buffer, 256);
     fgets(buffer, 255, stdin);
+
     n = writeToSock(sockfd, buffer, 255);
     if (n < 0)
     {
