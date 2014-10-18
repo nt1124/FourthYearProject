@@ -33,11 +33,7 @@ int main(int argc, char *argv[])
     bzero(buffer, 256);
     fgets(buffer, 255, stdin);
 
-    n = writeToSock(sockfd, buffer, 255);
-    if (n < 0)
-    {
-         error("ERROR writing to socket");
-    }
+    writeToSock(sockfd, buffer, 255);
 
     free(buffer);
     buffer = readFromSock(sockfd);

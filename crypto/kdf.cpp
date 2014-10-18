@@ -19,6 +19,7 @@ void HMAC_CTX_cleanup(HMAC_CTX *ctx);
 void HMAC_cleanup(HMAC_CTX *ctx);
 */
 
+/*
 class KDF
 {
 	private:
@@ -34,45 +35,42 @@ class KDF
 						unsigned char *iv, unsigned int ivLength,
 						unsigned char *intermediateOutBytes, unsigned int intermediateLength);
 };
-
-/*
-result = (unsigned char*)malloc(sizeof(char) * len);
-
-HMAC_CTX ctx;
-HMAC_CTX_init(&ctx);
-
-HMAC_Init_ex(&ctx, key, strlen(key), EVP_sha1(), NULL);
-HMAC_Update(&ctx, (unsigned char*)&data, strlen(data));
-HMAC_Final(&ctx, result, &len);
-HMAC_CTX_cleanup(&ctx);
 */
 
-int KDF::initialise()
+/*
+HMAC_CTX *initialiseHMAC()
 {
 	// The secret key for hashing
 	const char key[] = "012345678";
 	int key_len = 9;
+	HMAC_CTX *ctx;
 	
 	HMAC_CTX_init(ctx);
 	HMAC_Init_ex(ctx, key, key_len, EVP_sha512(), NULL);
+
+	unsigned char *meh = HMAC(EVP_sha512(), key, key_len, const unsigned char *d, int n,
+               				unsigned char *md, unsigned int *md_len);
+
+	return ctx;
 }
 
 
-unsigned char *KDF::computeBlock(unsigned char *currentInBytes, unsigned int curLength,
+unsigned char *computeBlock(HMAC_CTX *ctx, unsigned char *currentInBytes, unsigned int curLength,
 								unsigned char *outputBytes, unsigned int *outputLength)
 {
+
     HMAC_Update(ctx, currentInBytes, curLength);
     HMAC_Final(ctx, outputBytes, outputLength);
 }
 
 
-int KDF::clearup()
+int clearup(HMAC_CTX *ctx)
 {
     HMAC_CTX_cleanup(ctx);
 }
 
-
-void KDF::nextRound(unsigned char *outBytes, unsigned int outLen,
+*/
+void nextRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLen,
 					unsigned char *iv, unsigned int ivLength, 
 					unsigned char *intermediateOutBytes, unsigned int intermediateLength, int hmacLength)
 {
@@ -108,7 +106,7 @@ void KDF::nextRound(unsigned char *outBytes, unsigned int outLen,
 		currentInBytes[currentInBytesLength - 1] = roundIndex & 0x000000FF;
 
 		// Operates the hmac to get the round output 
-		computeBlock(currentInBytes, currentInBytesLength, intermediateOutBytes, &intermediateLength);
+		// computeBlock(ctx, currentInBytes, currentInBytesLength, intermediateOutBytes, &intermediateLength);
 		
 		if(i == rounds)
 		{
@@ -125,9 +123,10 @@ void KDF::nextRound(unsigned char *outBytes, unsigned int outLen,
 }
 
 
-void KDF::firstRound(unsigned char *outBytes, unsigned int outLength,
+void firstRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLength,
 					unsigned char *iv, unsigned int ivLength,
-					unsigned char *intermediateOutBytes, unsigned int intermediateLength)
+					unsigned char *intermediateOutBytes, unsigned int intermediateLength,
+					unsigned char *key, unsigned int keyLength)
 {
 	//round 1
 	unsigned char *firstRoundInput;
@@ -148,49 +147,53 @@ void KDF::firstRound(unsigned char *outBytes, unsigned int outLength,
 	firstRoundInput[firstRoundLength - 1] = 0x01;
 		
 	//first computes the new key. The new key is the result of computing the hmac function.
-	computeBlock(firstRoundInput, firstRoundLength, intermediateOutBytes, &intermediateLength);
+	// computeBlock(ctx, firstRoundInput, firstRoundLength, intermediateOutBytes, &intermediateLength);
+	// HMAC(EVP_sha512(), key, key_len, currentInBytes, curLength, outputBytes, &outputLength);
 	
 	//copies the results to the output array
 	strncpy((char*)intermediateOutBytes, (char*)outBytes, outLength);
 }
 
 
-unsigned char *KDF::deriveKey(unsigned char *entropySource, int inOff, unsigned int inLen, unsigned int outputLen,
-						unsigned char *iv)
+unsigned char *deriveKey(unsigned char *entropySource, int entropySourceLength,
+						unsigned int inOff, unsigned int inLen, unsigned int outputLen,
+						unsigned char *iv, unsigned int ivLength)
 {
+	const char key[] = "012345678";
+	int key_len = 9;
 	//checks that the offset and length are correct
-	if( (inOff > entropySource.length) || (inOff+inLen > entropySource.length) )
-		throw new ArrayIndexOutOfBoundsException("wrong offset for the given input buffer");
+	if( (inOff > entropySourceLength) || (inOff + inLen > entropySourceLength) )
+		exit(1);
 	
 	//Sets the hmac object with a fixed key that was randomly generated once. This is done every time a new derived key is requested otherwise the result of deriving
 	//a key from the same entropy source will be different in subsequent calls to this function (as long as the same instance of HKDF is used). 
-	hmac.setKey(new SecretKeySpec(Hex.decode("606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf"), ""));
+	// hmac.setKey(new SecretKeySpec(Hex.decode("606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf"), ""));
 
-	int hmacLength = hmac.getBlockSize();                           //the size of the output of the hmac.
-	unsigned char *outBytes = (unsigned char*) calloc(outLen, sizeof(unsigned char));	//the output key
-	unsigned char *roundKey = (unsigned char*) calloc(hmacLen, sizeof(unsigned char));	//PRK from the pseudocode
-	unsigned char *intermediateOutBytes = (unsigned char*) calloc(hmacLen, sizeof(unsigned char)); //round result K(i) in the pseudocode
+	unsigned int hmacLength = 512;                           //the size of the output of the hmac.
+	unsigned char *outBytes = (unsigned char*) calloc(outputLen, sizeof(unsigned char));	//the output key
+	unsigned char *roundKey = (unsigned char*) calloc(hmacLength, sizeof(unsigned char));	//PRK from the pseudocode
+	unsigned char *intermediateOutBytes = (unsigned char*) calloc(hmacLength, sizeof(unsigned char)); //round result K(i) in the pseudocode
 	
 	
 	//first computes the new key. The new key is the result of computing the hmac function.
-	hmac.computeBlock(entropySource, 0, entropySource.length, roundKey, 0);
-	computeBlock(currentInBytes, curLength,
-				outputBytes, &outputLength)
+	// computeBlock(ctx,  currentInBytes, curLength, outputBytes, &outputLength);
+
+	HMAC(EVP_sha512(), key, key_len, currentInBytes, curLength, outputBytes, &outputLength);
 	//init the hmac with the new key. From now on this is the key for all the rounds.
 	// hmac.setKey(new SecretKeySpec(roundKey, "HKDF"));
 	
 	//calculates the first round
 	//K(1) = HMAC(PRK,(CTXinfo,1)) [key=PRK, data=(CTXinfo,1)]
 	if (outLen < hmacLength)
-		firstRound(outBytes, outLen, iv, intermediateOutBytes );
+		firstRound( outBytes, outputLen, iv, intermediateOutBytes );
 	else
-		firstRound(outBytes, iv, intermediateOutBytes, hmacLength);
+		firstRound( outBytes, iv, intermediateOutBytes, hmacLength);
 	
 	//calculates the next rounds
 	//FOR i = 2 TO t
 	//K(i) = HMAC(PRK,(K(i-1),CTXinfo,i)) [key=PRK, data=(K(i-1),CTXinfo,i)]
-	nextRounds(iv, ivLength, outBytes, outLen,
-			intermediateOutBytes, intermediateLength, hmacLength);
+	nextRounds( iv, ivLength, outBytes, outputLen,
+			intermediateOutBytes, intermediateLength, hmacLength );
 	
 	//creates the secret key from the generated bytes
 	return outBytes;
@@ -200,9 +203,7 @@ unsigned char *KDF::deriveKey(unsigned char *entropySource, int inOff, unsigned 
 
 int main()
 {
-	KDF tempKDF;
-
-	tempKDF.initialise();
+	// HMAC_CTX *ctx = initialiseHMAC();
 
 	return 0;
 }

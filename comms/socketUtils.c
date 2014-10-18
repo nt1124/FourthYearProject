@@ -23,7 +23,19 @@
 
     -+ CLIENT +-
 
+    sockfd = openSock();
+    
+    serv_addr = getServerAddr(ipAddress, portNum);
+    OR you can get serv_addr with 
+    serv_addr = getServerAddrByHostname(hostname, portNum);
 
+    connectToServer(&sockfd, serv_addr);
+
+    -+ READ/WRITE ON A CONNECTED SOCKET +-
+        Where sockfd is the file descriptor for the open socket.
+
+    writeToSock(sockfd, buffer, bufferLength);
+    char *readFromSocket = readFromSock(sockfd);
 
 */
 
@@ -35,13 +47,27 @@ void error(char *msg)
 }
 
 
-int bytesToInteger(char *input)
+unsigned int bytesToInteger(unsigned char *input)
 {
-    int output = 0, i;
+    unsigned int output = 0, i;
 
     for(i = 0; i < 4; i ++)
     {
-        output += (int)(input[i] & 0xFF);
+        output += ( input[i] & (0x000000FF << 8 * i) );
+    }
+
+    return output;
+}
+
+
+unsigned char *integerToBytes(unsigned int input)
+{
+    unsigned char *output = (unsigned char *) calloc(sizeof(int), sizeof(unsigned char));
+    int i;
+
+    for(i = 0; i < sizeof(int); i ++)
+    {
+        output[i] = (unsigned char)( (input >> (i * 8)) & 0xFF);
     }
 
     return output;
@@ -50,16 +76,16 @@ int bytesToInteger(char *input)
 
 int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
-    int n = 0, m = 0;
+    int n = 0;
+    unsigned char *bufferOfLength = integerToBytes(bufferLength);
 
-    // n = write(sockfd, (char*) bufferLength, sizeof(int));
-    m = write(sockfd, buffer, bufferLength);
-
-    if (n < 0 || m < 0)
-    {
+    n = write(sockfd, (char*) bufferOfLength, sizeof(int));
+    if (n < 0)
         error("ERROR writing to socket");
-        return 0;
-    }
+
+    n = write(sockfd, buffer, bufferLength);
+    if (n < 0)
+        error("ERROR writing to socket");
 
     return 1;
 }
@@ -70,17 +96,19 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
 char *readFromSock(int sockfd)
 {
     char *buffer;
-    char *lengthAsBytes = calloc(4, sizeof(char));
-    int n = 0, m = 0, bufferLength = 255;
+    unsigned char *lengthAsBytes = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
+    int n = 0;
+    unsigned int bufferLength = 255;
 
-    // n = read(sockfd, lengthAsBytes, 4);
-    buffer = calloc(bufferLength + 1, sizeof(char));
-    m = read(sockfd, buffer, bufferLength);    
-    if (n < 0 || m < 0)
-    {
+    n = read(sockfd, (char*)lengthAsBytes, sizeof(int));
+    if (n < 0)
          error("ERROR reading from socket");
-         return NULL;
-    }
+    bufferLength = bytesToInteger(lengthAsBytes);
+
+    buffer = calloc(bufferLength + 1, sizeof(char));
+    n = read(sockfd, buffer, bufferLength);    
+    if (n < 0)
+         error("ERROR reading from socket");
 
     return buffer;
 }
