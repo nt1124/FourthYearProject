@@ -63,21 +63,23 @@ unsigned char *computeBlock(HMAC_CTX *ctx, unsigned char *currentInBytes, unsign
     HMAC_Final(ctx, outputBytes, outputLength);
 }
 
-
 int clearup(HMAC_CTX *ctx)
 {
     HMAC_CTX_cleanup(ctx);
 }
-
 */
-void nextRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLen,
-					unsigned char *iv, unsigned int ivLength, 
-					unsigned char *intermediateOutBytes, unsigned int intermediateLength, int hmacLength)
+
+// private void nextRounds(int outLen, byte[] iv, int hmacLength, byte[] outBytes, byte[] intermediateOutBytes)
+void nextRound(unsigned char *outBytes, unsigned int outLen,
+				unsigned char *iv, unsigned int ivLength, 
+				unsigned char *intermediateOutBytes, unsigned int intermediateLength, int hmacLength,
+				const char *key, unsigned int keyLength)
 {
 	// The smallest number so that  hmacLength * rounds >= outLen
 	int rounds = (int) ceil((float)outLen/(float)hmacLength);
-		
-	int currentInBytesLength;	//the size of the CTXInfo and also the round;
+	int i;		
+	int currentInBytesLength;
+	//the size of the CTXInfo and also the round;
 	
 	if(iv != NULL)
 		currentInBytesLength = hmacLength + ivLength + 1;//the size of the CTXInfo and also the round;
@@ -95,10 +97,10 @@ void nextRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLen,
 		strncpy( (char*)(currentInBytes + hmacLength), (char*)iv, ivLength );
 	}
 	
-	for(int i = 2; i <= rounds; i++)
+	for(i = 2; i <= rounds; i++)
 	{
 		roundIndex = i; //creates the round integer for the data
-		
+
 		// Copies the output of the last results
 		strncpy( (char*)currentInBytes, (char*)intermediateOutBytes, hmacLength );
 			
@@ -106,12 +108,11 @@ void nextRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLen,
 		currentInBytes[currentInBytesLength - 1] = roundIndex & 0x000000FF;
 
 		// Operates the hmac to get the round output 
-		// computeBlock(ctx, currentInBytes, currentInBytesLength, intermediateOutBytes, &intermediateLength);
-		
+		HMAC(EVP_sha512(), key, keyLength, currentInBytes, currentInBytesLength, outBytes, &outputLen);
+
 		if(i == rounds)
 		{
-			// We fill the rest of the array with a portion of the last result.
-			// Copies the results to the output array
+			// We fill the rest of the array with a portion of the last result. Copies the results to the output array
 			strncpy( (char*)(outBytes + hmacLength*(i-1)), (char*)intermediateOutBytes, outLen - hmacLength*(i-1) );
 		}
 		else
@@ -122,13 +123,12 @@ void nextRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLen,
 	}
 }
 
-
-void firstRound(HMAC_CTX *ctx, unsigned char *outBytes, unsigned int outLength,
+// void firstRound(byte[] outBytes, byte[] iv, byte[] intermediateOutBytes, int outLength)
+void firstRound(unsigned char *outBytes, unsigned int outLength,
 					unsigned char *iv, unsigned int ivLength,
 					unsigned char *intermediateOutBytes, unsigned int intermediateLength,
-					unsigned char *key, unsigned int keyLength)
+					const char *key, unsigned int keyLength)
 {
-	//round 1
 	unsigned char *firstRoundInput;
 	unsigned int firstRoundLength;
 
@@ -160,7 +160,7 @@ unsigned char *deriveKey(unsigned char *entropySource, int entropySourceLength,
 						unsigned char *iv, unsigned int ivLength)
 {
 	const char key[] = "012345678";
-	int key_len = 9;
+	unsigned int keyLength = 9;
 	//checks that the offset and length are correct
 	if( (inOff > entropySourceLength) || (inOff + inLen > entropySourceLength) )
 		exit(1);
@@ -170,30 +170,39 @@ unsigned char *deriveKey(unsigned char *entropySource, int entropySourceLength,
 	// hmac.setKey(new SecretKeySpec(Hex.decode("606162636465666768696a6b6c6d6e6f707172737475767778797a7b7c7d7e7f808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9fa0a1a2a3a4a5a6a7a8a9aaabacadaeaf"), ""));
 
 	unsigned int hmacLength = 512;                           //the size of the output of the hmac.
+	unsigned int currentInBytesLength = 512;
 	unsigned char *outBytes = (unsigned char*) calloc(outputLen, sizeof(unsigned char));	//the output key
 	unsigned char *roundKey = (unsigned char*) calloc(hmacLength, sizeof(unsigned char));	//PRK from the pseudocode
 	unsigned char *intermediateOutBytes = (unsigned char*) calloc(hmacLength, sizeof(unsigned char)); //round result K(i) in the pseudocode
+	unsigned char *currentInBytes = (unsigned char*) calloc(currentInBytesLength, sizeof(unsigned char)); 
 	
 	
 	//first computes the new key. The new key is the result of computing the hmac function.
 	// computeBlock(ctx,  currentInBytes, curLength, outputBytes, &outputLength);
 
-	HMAC(EVP_sha512(), key, key_len, currentInBytes, curLength, outputBytes, &outputLength);
+	HMAC(EVP_sha512(), key, keyLength, currentInBytes, currentInBytesLength, outBytes, &outputLen);
 	//init the hmac with the new key. From now on this is the key for all the rounds.
 	// hmac.setKey(new SecretKeySpec(roundKey, "HKDF"));
 	
 	//calculates the first round
 	//K(1) = HMAC(PRK,(CTXinfo,1)) [key=PRK, data=(CTXinfo,1)]
-	if (outLen < hmacLength)
-		firstRound( outBytes, outputLen, iv, intermediateOutBytes );
+
+	/*
+	void firstRound(unsigned char *outBytes, unsigned int outLength,
+					unsigned char *iv, unsigned int ivLength,
+					unsigned char *intermediateOutBytes, unsigned int intermediateLength,
+					unsigned char *key, unsigned int keyLength)
+	*/
+	if (outputLen < hmacLength)
+		firstRound(outBytes, outputLen, iv, ivLength, intermediateOutBytes, outputLen, key, keyLength);
 	else
-		firstRound( outBytes, iv, intermediateOutBytes, hmacLength);
+		firstRound(outBytes, outputLen, iv, ivLength, intermediateOutBytes, hmacLength, key, keyLength);
+	// firstRound( outBytes, iv, intermediateOutBytes, hmacLength);
 	
 	//calculates the next rounds
 	//FOR i = 2 TO t
 	//K(i) = HMAC(PRK,(K(i-1),CTXinfo,i)) [key=PRK, data=(K(i-1),CTXinfo,i)]
-	nextRounds( iv, ivLength, outBytes, outputLen,
-			intermediateOutBytes, intermediateLength, hmacLength );
+	nextRound( iv, ivLength, outBytes, outputLen, intermediateOutBytes, hmacLength, hmacLength, key, keyLength );
 	
 	//creates the secret key from the generated bytes
 	return outBytes;

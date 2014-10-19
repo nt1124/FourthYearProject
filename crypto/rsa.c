@@ -107,6 +107,29 @@ struct rsaPrivKey *updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pu
 }
 
 
+mpz_t *convertBytesToMPZ(unsigned char *input)
+{
+	mpz_t *z;
+	mpz_init(*z);
+
+	// Convert the 1024-bit number 'input' into an mpz_t, with the most significant byte
+	// first and using native endianness within each byte.
+	mpz_import(*z, sizeof(input), 1, sizeof(input[0]), 0, 0, input);
+
+	return z;
+}
+
+
+unsigned char *convertMPZToBytes(mpz_t input, const int keySize)
+{
+	unsigned char *output = (unsigned char*) calloc( (keySize / 8), sizeof(char) );
+
+	mpz_export(output, NULL, 1, mpz_size(input), 0, 0, input);
+
+	return output;
+}
+
+
 mpz_t *encRSA(mpz_t inputPT, struct rsaPubKey *pubKey)
 {
 	mpz_t *cipherText = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -159,4 +182,36 @@ void testRSA()
 
         updateRSAKey(privKey, pubKey, state);
     }
+}
+
+void testByteConvert()
+{
+	struct rsaPrivKey *privKey;
+	struct rsaPubKey *pubKey;
+    mpz_t inputMsg, *PT, *CT;
+    int i;
+
+
+    gmp_randstate_t state;
+    unsigned long int seed = time(NULL);
+    gmp_randinit_default(state);
+    gmp_randseed_ui(state, seed);
+
+	privKey = generatePrivRSAKey(state);
+	pubKey = generatePubRSAKey(privKey);
+    mpz_init(inputMsg);
+    mpz_urandomm(inputMsg, state, pubKey -> N);
+
+    gmp_printf("%Zd\n", inputMsg);
+    unsigned char *tempChars = convertMPZToBytes(inputMsg, 2048);
+	
+	for(i = 0; i < 2048/8; i ++)
+	{
+		printf("%d.", tempChars[i]);
+	}
+	printf("\n");
+
+	mpz_t *tempMPZ = convertBytesToMPZ(tempChars);
+    gmp_printf("%Zd\n", *tempMPZ);
+
 }
