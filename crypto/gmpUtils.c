@@ -21,7 +21,7 @@ void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 }
 
 
-int numberOfBytesNeeds(mpz_t input, int *shift)
+int numberOfHexChars(mpz_t input, int *shift)
 {
 	int sizeInHex = mpz_sizeinbase(input, 16);
 	
@@ -117,7 +117,7 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	// struct mpzAsHex *output = calloc( 1, sizeof(struct mpzAsHex) );
 	// output -> payload = calloc(*inputLength, sizeof(char));
 	int shift = 0;
-	*inputLength = numberOfBytesNeeds(input, &shift);
+	*inputLength = numberOfHexChars(input, &shift);
 
 	char *hexVersion = (char*) calloc(*inputLength, sizeof(char));
 	*(hexVersion) = '0';
