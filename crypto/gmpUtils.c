@@ -11,6 +11,15 @@ typedef struct mpzAsHex
 } mpzAsHex;
 
 
+gmp_randstate_t *seedRandGen()
+{
+    gmp_randstate_t *state = calloc(1, sizeof(gmp_randstate_t));
+    unsigned long int seed = time(NULL);
+    gmp_randinit_default(*state);
+    gmp_randseed_ui(*state, seed);
+
+    return state;
+}
 
 
 void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
@@ -100,14 +109,12 @@ char *convertBytesToHex(unsigned char *input, int inputLength)
 
 void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 {
-	mpz_t temp;
-	mpz_init(temp);
-
 	mpz_init(*z);
+
 	char *hexStr = convertBytesToHex(input, inputLength);
 
 	mpz_set_str (*z, hexStr, 16);
-	mpz_set_str (temp, hexStr, 16);
+	free(hexStr);
 }
 
 

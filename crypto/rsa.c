@@ -1,7 +1,6 @@
 #include "gmpUtils.c"
 
 
-
 typedef struct rsaPubKey
 {
 	mpz_t N;
@@ -92,6 +91,41 @@ struct rsaPubKey *generatePubRSAKey(struct rsaPrivKey *privKey)
 }
 
 
+// Generate a valid RSA public key without conscious knowledge of secret key.
+struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
+{
+	struct rsaPubKey *pubKey;
+
+	pubKey = initPubKeyRSA();
+	mpz_t pMinus1, qMinus1, gcdThetaNE, p, q, thetaN;
+
+	mpz_init(thetaN);	mpz_init(gcdThetaNE);
+	mpz_init(p);		mpz_init(q);
+	mpz_init(pMinus1);	mpz_init(qMinus1);
+
+	getPrimeGMP(p, state, 1023);
+	getPrimeGMP(q, state, 1023);
+
+	mpz_sub_ui(pMinus1, p, 1);
+	mpz_sub_ui(qMinus1, q, 1);
+
+	mpz_mul(pubKey -> N, p, q);
+	mpz_mul(thetaN, pMinus1, qMinus1);
+
+	do
+	{
+		mpz_urandomm(pubKey -> e, state, thetaN);
+		mpz_gcd(gcdThetaNE, pubKey -> e, thetaN);
+    } while( mpz_cmp_ui(gcdThetaNE, 1) );
+
+ 	mpz_clear(thetaN);	mpz_clear(gcdThetaNE);
+	mpz_clear(p);		mpz_clear(q);
+	mpz_clear(pMinus1);	mpz_clear(qMinus1);
+
+    return pubKey;
+}
+
+
 struct rsaPrivKey *updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pubKey, gmp_randstate_t state)
 {
 	mpz_t gcdThetaNE;
@@ -109,6 +143,32 @@ struct rsaPrivKey *updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pu
     mpz_set(pubKey -> e, privKey -> e);
 
     mpz_clear(gcdThetaNE);
+}
+
+
+void pubKeyToBytes(struct rsaPubKey *input, unsigned char *N_Bytes, int *nLength,
+											unsigned char *e_Bytes, int *eLength)
+{
+	N_Bytes = convertMPZToBytes(input -> N, nLength);
+	e_Bytes = convertMPZToBytes(input -> e, eLength);
+}
+
+
+struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, unsigned char *e_Bytes)
+{
+	int nLength = strlen(N_Bytes);
+	int eLength = strlen(e_Bytes);
+	struct rsaPubKey *outputKey = initPubKeyRSA();
+
+	mpz_t *nNum, *eNum;
+
+	convertBytesToMPZ(nNum, N_Bytes, nLength);
+	convertBytesToMPZ(eNum, e_Bytes, eLength);
+
+	mpz_set(outputKey -> N, *nNum);
+	mpz_set(outputKey -> e, *eNum);
+
+	return outputKey;
 }
 
 
