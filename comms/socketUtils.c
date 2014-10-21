@@ -43,7 +43,6 @@
 
 void error(char *msg)
 {
-    printf("WELL THIS SUCKS!\n");
     perror(msg);
     exit(0);
 }
@@ -88,7 +87,6 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
     n = write(sockfd, bufferOfLength, sizeof(int));
     if (n < 0)
         error("ERROR writing to socket");
-    printf("n = %d\n", n);
 
     n = write(sockfd, buffer, bufferLength);
     if (n < 0)
@@ -100,7 +98,7 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
 
 // Need to convert lengthAsBytes to an int.
 // Then calloc memory to hold lengthAsBytes many bytes.
-char *readFromSock(int sockfd)
+char *readFromSock(int sockfd, int *lengthOfOutput)
 {
     char *buffer;
     unsigned char *lengthAsBytes = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
@@ -112,16 +110,15 @@ char *readFromSock(int sockfd)
     if (n < 0)
          error("ERROR reading from socket");
 
-    for(n = 0; n < 4; n ++)
-        printf("%u\n", lengthAsBytes[n]);
-
     bufferLength = bytesToInteger( (unsigned char*) lengthAsBytes);
     buffer = calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);    
     if (n < 0)
          error("ERROR reading from socket");
-    printf("Read this many bytes = %d\n", bufferLength + 1);
+
+     if(NULL != lengthOfOutput)
+        *lengthOfOutput = bufferLength;
 
     return buffer;
 }

@@ -124,14 +124,18 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	// output -> payload = calloc(*inputLength, sizeof(char));
 	int shift = 0;
 	*inputLength = numberOfHexChars(input, &shift);
+	printf("0.... %d\n", *inputLength);
 
 	char *hexVersion = calloc(*inputLength, sizeof(char));
+	printf("1....\n");
 	*(hexVersion) = '0';
+	printf("2....\n");
 
 	mpz_get_str( (hexVersion + shift), -16, input);
 
 	unsigned char *bytesToOutput = calloc( *inputLength  / 2, sizeof(unsigned char));
 	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);
+
 
 	return bytesToOutput;
 }

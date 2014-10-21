@@ -21,30 +21,33 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 	mpz_t *enc0Num, *enc1Num;
 
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
+	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
 	unsigned char *enc0Bytes, *enc1Bytes;
-	int enc0Length, enc1Length;
+	int enc0Length = 0, enc1Length = 0;
 
 	convertBytesToMPZ(input0, input0Bytes, inputLengths);
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
 	// We get PK0, PK1 from receiver here. Receive!
 	printf("Reading PK0 from socket\n");
-	n0Bytes = (unsigned char*) readFromSock(sockfd);
-	e0Bytes = (unsigned char*) readFromSock(sockfd);
-	PK0 = bytesToPubKey(n0Bytes, e0Bytes);
+	n0Bytes = (unsigned char*) readFromSock(sockfd, &n0Length);
+	e0Bytes = (unsigned char*) readFromSock(sockfd, &e0Length);
+	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 
 	printf("Reading PK1 from socket\n");
-	n1Bytes = (unsigned char*) readFromSock(sockfd);
-	e1Bytes = (unsigned char*) readFromSock(sockfd);
-	PK1 = bytesToPubKey(n1Bytes, e1Bytes);
+	n1Bytes = (unsigned char*) readFromSock(sockfd, &n1Length);
+	e1Bytes = (unsigned char*) readFromSock(sockfd, &e1Length);
+	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
 
-	/*
+	printf("Compute encrypted values.\n");
 	enc0Num = encRSA(*input0, PK0);
 	enc1Num = encRSA(*input1, PK1);
 
+	printf("Convert encrypted values to bytes.\n");
 	enc0Bytes = convertMPZToBytes(*enc0Num, &enc0Length);
 	enc1Bytes = convertMPZToBytes(*enc1Num, &enc1Length);
 
+	/*
 	// Send enc0Bytes and enc1Bytes to Receiver
 	writeToSock(sockfd, (char*)enc0Bytes, enc0Length);
 	writeToSock(sockfd, (char*)enc1Bytes, enc1Length);
@@ -64,7 +67,7 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	int encOutputLen;
 	unsigned char *enc0Bytes, *enc1Bytes, *outputBytes;
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
-	int n0Length, e0Length, n1Length, e1Length;
+	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
 
     gmp_randstate_t *state = seedRandGen();
 
@@ -82,11 +85,15 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	}
 
 	// We send PK0, PK1 to sender here.
-	pubKeyToBytes(PK0, n0Bytes, &n0Length, e0Bytes, &e0Length);
+	// pubKeyToBytes(PK0, n0Bytes, &n0Length, e0Bytes, &e0Length);
+	n0Bytes = convertMPZToBytes(PK0 -> N, &n0Length);
+	e0Bytes = convertMPZToBytes(PK0 -> e, &e0Length);
 	writeToSock(sockfd, (char*)n0Bytes, n0Length);
 	writeToSock(sockfd, (char*)e0Bytes, e0Length);
 
-	pubKeyToBytes(PK1, n1Bytes, &n1Length, e1Bytes, &e1Length);
+	// pubKeyToBytes(PK1, n1Bytes, &n1Length, e1Bytes, &e1Length);
+	n1Bytes = convertMPZToBytes(PK1 -> N, &n1Length);
+	e1Bytes = convertMPZToBytes(PK1 -> e, &e1Length);
 	writeToSock(sockfd, (char*)n1Bytes, n1Length);
 	writeToSock(sockfd, (char*)e1Bytes, e1Length);
 
@@ -131,7 +138,6 @@ void testSender_OT_SH_RSA(char *portNumStr)
 
 
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
-
 }
 
 void testReceiver_OT_SH_RSA(char *portNumStr)
@@ -149,9 +155,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     clilen = sizeof(cli_addr);
     newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
-
     receiverOT_SH_RSA(newsockfd, 0, &bufferLength);
-
 }
 
 
@@ -159,7 +163,6 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
 int main(int argc, char *argv[])
 {
 	int mode = atoi(argv[1]);
-	printf("0 = Sender  :  Else Receiver\n");
 
 	if(0 == mode)
 	{
