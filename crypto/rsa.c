@@ -165,9 +165,6 @@ void pubKeyToBytes(struct rsaPubKey *input, unsigned char *N_Bytes, int *nLength
 struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, int nLength,
 								unsigned char *e_Bytes, int eLength)
 {
-	printf("Length of N = %d\n", nLength);
-	printf("Length of e = %d\n", eLength);
-
 	struct rsaPubKey *outputKey = initPubKeyRSA();
 
 	mpz_t *nNum = calloc(1, sizeof(mpz_t));

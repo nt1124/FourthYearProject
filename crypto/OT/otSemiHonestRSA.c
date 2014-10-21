@@ -8,6 +8,7 @@ virtual int 	transfer() = 0;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "../rsa.c"
 #include "../../comms/socketUtils.c"
 
@@ -28,6 +29,7 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 	convertBytesToMPZ(input0, input0Bytes, inputLengths);
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
+
 	// We get PK0, PK1 from receiver here. Receive!
 	printf("Reading PK0 from socket\n");
 	n0Bytes = (unsigned char*) readFromSock(sockfd, &n0Length);
@@ -47,15 +49,45 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 	enc0Bytes = convertMPZToBytes(*enc0Num, &enc0Length);
 	enc1Bytes = convertMPZToBytes(*enc1Num, &enc1Length);
 
-	/*
 	// Send enc0Bytes and enc1Bytes to Receiver
 	writeToSock(sockfd, (char*)enc0Bytes, enc0Length);
 	writeToSock(sockfd, (char*)enc1Bytes, enc1Length);
-	*/
 }
 
 
+int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
+{
+    unsigned char input0[17] = "1111111111111111\0";
+    mpz_t *inputInt = calloc(1, sizeof(mpz_t));
+    mpz_t *encInt = calloc(1, sizeof(mpz_t));
+    mpz_t *decInt = calloc(1, sizeof(mpz_t));
+    unsigned char *outputBytes1, *outputBytes2;
+    int tempInt1, tempInt2;
 
+    printf("1.......\n");
+    convertBytesToMPZ(inputInt, input0, 16);
+	gmp_printf("%Zd\n", *inputInt);
+    encInt = encRSA(*inputInt, PK);
+    decInt = decRSA(*encInt, SK);
+
+    printf("2.......\n");
+    outputBytes2 = convertMPZToBytes(*inputInt, &tempInt2);
+    printf("3.......\n");
+    outputBytes1 = convertMPZToBytes(*decInt, &tempInt1);
+
+    if(16 == tempInt1)
+    	if(strncmp(outputBytes1, input0, tempInt1) == 0)
+    		return 1;
+
+    int i;
+    printf("%d = %d\n", 16, tempInt1);
+    for(i = 0; i < tempInt1; i ++)
+    {    	
+    	printf("%u + %u + %u\n", input0[i], outputBytes1[i], outputBytes2[i]);
+    }
+
+    return 0;
+}
 
 
 unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
@@ -63,8 +95,8 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	struct rsaPubKey *PK0, *PK1;
 	struct rsaPrivKey *SKi;
 
-	mpz_t *outputNum, *tempEncNum;
-	int encOutputLen;
+	mpz_t *outputNum, *tempEncNum = calloc(1, sizeof(mpz_t));
+	int enc0Length, enc1Length;
 	unsigned char *enc0Bytes, *enc1Bytes, *outputBytes;
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
 	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
@@ -76,11 +108,13 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	if(0 == inputBit)
 	{
 		PK0 = generatePubRSAKey(SKi);
+		// printf("%d\n", testEncDec(PK0, SKi) );
 		PK1 = generateDudPubRSAKey(*state);
 	}
 	else
 	{
 		PK1 = generatePubRSAKey(SKi);
+		// printf("%d\n", testEncDec(PK1, SKi) );
 		PK0 = generateDudPubRSAKey(*state);
 	}
 
@@ -98,24 +132,20 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	writeToSock(sockfd, (char*)e1Bytes, e1Length);
 
 	// receive enc0Bytes and enc1Bytes from Receiver
-	// enc0Bytes = (unsigned char*) readFromSock(sockfd);
-	// enc1Bytes = (unsigned char*) readFromSock(sockfd);
+	enc0Bytes = (unsigned char*) readFromSock(sockfd, &enc0Length);
+	enc1Bytes = (unsigned char*) readFromSock(sockfd, &enc1Length);
 
-	/*
 	if(0 == inputBit)
 	{
-		encOutputLen = strlen(enc0Bytes);
-		convertBytesToMPZ(tempEncNum, enc0Bytes, encOutputLen);
+		convertBytesToMPZ(tempEncNum, enc0Bytes, enc0Length);
 	}
 	else
 	{
-		encOutputLen = strlen(enc1Bytes);
-		convertBytesToMPZ(tempEncNum, enc1Bytes, encOutputLen);
+		convertBytesToMPZ(tempEncNum, enc1Bytes, enc1Length);
 	}
 
 	outputNum = decRSA(*tempEncNum, SKi);
-	convertMPZToBytes(*outputNum, outputLength);
-	*/
+	outputBytes = convertMPZToBytes(*outputNum, outputLength);
 
 	return outputBytes;
 }
@@ -136,9 +166,10 @@ void testSender_OT_SH_RSA(char *portNumStr)
     unsigned char input0[16] = "1111111111111111";
     unsigned char input1[16] = "2222222222222222";
 
-
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
+
+
 
 void testReceiver_OT_SH_RSA(char *portNumStr)
 {
@@ -146,7 +177,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     int sockfd, newsockfd, clilen;
     struct sockaddr_in serv_addr, cli_addr;
     unsigned char *buffer;
-    int bufferLength = 0;
+    int bufferLength = 0, i;
 
     sockfd = openSock();
     serv_addr = getSelfAsServer(portNumStr);
@@ -155,7 +186,12 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     clilen = sizeof(cli_addr);
     newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
-    receiverOT_SH_RSA(newsockfd, 0, &bufferLength);
+    buffer = receiverOT_SH_RSA(newsockfd, 0, &bufferLength);
+    
+    for(i = 0; i < bufferLength; i ++)
+    {
+    	printf("%u.", buffer[i]);
+    }
 }
 
 

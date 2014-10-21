@@ -56,10 +56,6 @@ int convertHexCharToInt(char inputChar)
 	{
 		returnValue = (int)inputChar - 55;
 	}
-	else if((int)inputChar <= 102)
-	{
-		returnValue = (int)inputChar - 87;
-	}
 
 	return returnValue;
 }
@@ -75,8 +71,8 @@ void convertHexStringToBytes(unsigned char* outputStr, char* inputStr, int lengt
 		// ls = Less Significant, ms = Most Significant
 		lsNibble = convertHexCharToInt(inputStr[i + 1]);
 		msNibble = convertHexCharToInt(inputStr[i]);
+
 		*(outputStr + j) = 16 * msNibble + lsNibble;
-		// printf("%d - %d - %d\n", *(outputStr + j), msNibble, lsNibble);
 		j ++;
 	}
 }
@@ -112,28 +108,23 @@ void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 	mpz_init(*z);
 
 	char *hexStr = convertBytesToHex(input, inputLength);
-	mpz_set_str (*z, hexStr, 16);
+	mpz_set_str(*z, hexStr, 16);
 	free(hexStr);
 }
 
 
 unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 {
-
-	// struct mpzAsHex *output = calloc( 1, sizeof(struct mpzAsHex) );
-	// output -> payload = calloc(*inputLength, sizeof(char));
 	int shift = 0;
 	*inputLength = numberOfHexChars(input, &shift);
-	printf("0.... %d\n", *inputLength);
 
+	unsigned char *bytesToOutput = calloc( *inputLength, sizeof(unsigned char));
 	char *hexVersion = calloc(*inputLength, sizeof(char));
-	printf("1....\n");
+
 	*(hexVersion) = '0';
-	printf("2....\n");
 
 	mpz_get_str( (hexVersion + shift), -16, input);
 
-	unsigned char *bytesToOutput = calloc( *inputLength  / 2, sizeof(unsigned char));
 	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);
 
 
