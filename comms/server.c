@@ -14,7 +14,7 @@
 
 int main(int argc, char *argv[])
 {
-    int sockfd, newsockfd, portno, clilen;
+    int sockfd, newsockfd, clilen;
     char *buffer;
     struct sockaddr_in serv_addr, cli_addr;
 

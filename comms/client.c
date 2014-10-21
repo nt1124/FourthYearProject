@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
 {
     int sockfd, portNum, n;
     struct sockaddr_in serv_addr;
-    char *buffer = calloc(256, sizeof(char));
+    char *buffer = calloc(257, sizeof(char));
 
     if (argc < 3)
     {
@@ -30,10 +30,10 @@ int main(int argc, char *argv[])
     connectToServer(&sockfd, serv_addr);
     
     printf("Please enter the message: ");
-    bzero(buffer, 256);
-    fgets(buffer, 255, stdin);
+    bzero(buffer, 257);
+    fgets(buffer, 256, stdin);
 
-    writeToSock(sockfd, buffer, 255);
+    writeToSock(sockfd, buffer, 256);
 
     free(buffer);
     buffer = readFromSock(sockfd);

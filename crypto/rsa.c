@@ -97,20 +97,24 @@ struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
 	struct rsaPubKey *pubKey;
 
 	pubKey = initPubKeyRSA();
-	mpz_t pMinus1, qMinus1, gcdThetaNE, p, q, thetaN;
+	mpz_t pFactorMinus1, qFactorMinus1;
+	mpz_t gcdThetaNE, pFactor, qFactor, thetaN;
 
-	mpz_init(thetaN);	mpz_init(gcdThetaNE);
-	mpz_init(p);		mpz_init(q);
-	mpz_init(pMinus1);	mpz_init(qMinus1);
+	mpz_init(thetaN);
+	mpz_init(gcdThetaNE);
+	mpz_init(pFactor);
+	mpz_init(qFactor);
+	mpz_init(pFactorMinus1);
+	mpz_init(qFactorMinus1);
 
-	getPrimeGMP(p, state, 1023);
-	getPrimeGMP(q, state, 1023);
+	getPrimeGMP(pFactor, state, 1023);
+	getPrimeGMP(qFactor, state, 1023);
 
-	mpz_sub_ui(pMinus1, p, 1);
-	mpz_sub_ui(qMinus1, q, 1);
+	mpz_sub_ui(pFactorMinus1, pFactor, 1);
+	mpz_sub_ui(qFactorMinus1, qFactor, 1);
 
-	mpz_mul(pubKey -> N, p, q);
-	mpz_mul(thetaN, pMinus1, qMinus1);
+	mpz_mul(pubKey -> N, pFactor, qFactor);
+	mpz_mul(thetaN, pFactorMinus1, qFactorMinus1);
 
 	do
 	{
@@ -118,9 +122,13 @@ struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
 		mpz_gcd(gcdThetaNE, pubKey -> e, thetaN);
     } while( mpz_cmp_ui(gcdThetaNE, 1) );
 
- 	mpz_clear(thetaN);	mpz_clear(gcdThetaNE);
-	mpz_clear(p);		mpz_clear(q);
-	mpz_clear(pMinus1);	mpz_clear(qMinus1);
+
+ 	mpz_clear(thetaN);
+ 	mpz_clear(gcdThetaNE);
+	// mpz_clear(pFactorMinus1);
+	// mpz_clear(qFactorMinus1);
+	// mpz_clear(pFactor);
+	mpz_clear(qFactor);
 
     return pubKey;
 }
@@ -158,6 +166,10 @@ struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, unsigned char *e_Bytes)
 {
 	int nLength = strlen(N_Bytes);
 	int eLength = strlen(e_Bytes);
+
+	printf("Length of N = %d\n", nLength);
+	printf("Length of e = %d\n", eLength);
+
 	struct rsaPubKey *outputKey = initPubKeyRSA();
 
 	mpz_t *nNum, *eNum;

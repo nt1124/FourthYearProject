@@ -33,7 +33,7 @@ void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 int numberOfHexChars(mpz_t input, int *shift)
 {
 	int sizeInHex = mpz_sizeinbase(input, 16);
-	
+
 	if( 1 == sizeInHex % 2)
 	{
 		sizeInHex ++;
@@ -112,7 +112,6 @@ void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 	mpz_init(*z);
 
 	char *hexStr = convertBytesToHex(input, inputLength);
-
 	mpz_set_str (*z, hexStr, 16);
 	free(hexStr);
 }
@@ -126,14 +125,13 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	int shift = 0;
 	*inputLength = numberOfHexChars(input, &shift);
 
-	char *hexVersion = (char*) calloc(*inputLength, sizeof(char));
+	char *hexVersion = calloc(*inputLength, sizeof(char));
 	*(hexVersion) = '0';
 
 	mpz_get_str( (hexVersion + shift), -16, input);
 
 	unsigned char *bytesToOutput = calloc( *inputLength  / 2, sizeof(unsigned char));
-	convertHexStringToBytes(bytesToOutput, hexVersion, 2 * *inputLength);
-
+	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);
 
 	return bytesToOutput;
 }

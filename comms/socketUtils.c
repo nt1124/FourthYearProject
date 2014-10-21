@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include <string.h>
 
 #include <sys/types.h>
@@ -42,32 +43,35 @@
 
 void error(char *msg)
 {
+    printf("WELL THIS SUCKS!\n");
     perror(msg);
     exit(0);
 }
 
 
-unsigned int bytesToInteger(unsigned char *input)
+int bytesToInteger(unsigned char *input)
 {
-    unsigned int output = 0, i;
+    int output = 0, i;
 
-    for(i = 0; i < 4; i ++)
+    for(i = 0; i < sizeof(int); i ++)
     {
-        output += ( input[i] & (0x000000FF << 8 * i) );
+        output += (input[i] << (8 * i));
     }
 
     return output;
 }
 
 
-unsigned char *integerToBytes(unsigned int input)
+unsigned char *integerToBytes(int input)
 {
     unsigned char *output = (unsigned char *) calloc(sizeof(int), sizeof(unsigned char));
     int i;
+    int localInput = input;
 
     for(i = 0; i < sizeof(int); i ++)
     {
-        output[i] = (unsigned char)( (input >> (i * 8)) & 0xFF);
+        output[i] = (unsigned char) localInput & 0x000000FF;
+        localInput >>= 8;
     }
 
     return output;
@@ -77,11 +81,14 @@ unsigned char *integerToBytes(unsigned int input)
 int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
-    unsigned char *bufferOfLength = integerToBytes(bufferLength);
+    unsigned char *bufferOfLength = (unsigned char*) calloc(sizeof(int) + 1, sizeof(char));
 
-    n = write(sockfd, (char*) bufferOfLength, sizeof(int));
+    bufferOfLength = integerToBytes(bufferLength);
+
+    n = write(sockfd, bufferOfLength, sizeof(int));
     if (n < 0)
         error("ERROR writing to socket");
+    printf("n = %d\n", n);
 
     n = write(sockfd, buffer, bufferLength);
     if (n < 0)
@@ -100,15 +107,21 @@ char *readFromSock(int sockfd)
     int n = 0;
     unsigned int bufferLength = 255;
 
-    n = read(sockfd, (char*)lengthAsBytes, sizeof(int));
+
+    n = read(sockfd, lengthAsBytes, sizeof(int));
     if (n < 0)
          error("ERROR reading from socket");
-    bufferLength = bytesToInteger(lengthAsBytes);
 
+    for(n = 0; n < 4; n ++)
+        printf("%u\n", lengthAsBytes[n]);
+
+    bufferLength = bytesToInteger( (unsigned char*) lengthAsBytes);
     buffer = calloc(bufferLength + 1, sizeof(char));
+
     n = read(sockfd, buffer, bufferLength);    
     if (n < 0)
          error("ERROR reading from socket");
+    printf("Read this many bytes = %d\n", bufferLength + 1);
 
     return buffer;
 }
