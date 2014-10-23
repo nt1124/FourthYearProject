@@ -2,8 +2,12 @@
 #define __AES_H
 
 // #include "Networking/data.h"
+// REMEMBER TO USE -maes
 
 typedef unsigned int  uint;
+typedef unsigned char octet;
+
+#include "aes.cpp"
 
 #define AES_BLK_SIZE 16
 

@@ -103,6 +103,7 @@ char *convertBytesToHex(unsigned char *input, int inputLength)
 }
 
 
+// We assume that memory for *z has already been calloc-ed
 void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 {
 	mpz_init(*z);
@@ -111,6 +112,7 @@ void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 	mpz_set_str(*z, hexStr, 16);
 	free(hexStr);
 }
+
 
 
 unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)

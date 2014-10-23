@@ -1,5 +1,6 @@
-#include "aes.c"
+#include "aes.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 
 int aesTesting()
@@ -17,7 +18,7 @@ int aesTesting()
 	octet* tempMsg = new octet[16];
 	//encode_length( tempMsg, intMessage);
 
-	uint* RK = new uint[44];
+	unsigned int *RK = new uint[44];
 	octet* C = new octet[16];
 
 	for(int i = 0; i < 16; i ++)

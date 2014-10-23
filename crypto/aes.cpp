@@ -1,6 +1,4 @@
 
-#include "aes.h"
-
 
 /**********************
  *      C Version     *
@@ -408,89 +406,89 @@ uint RC[] ={ 0x00000001, 0x00000002, 0x00000004, 0x00000008,
 
 void aes_schedule( int nb, int nr, octet* k, uint* RK ) 
 {
-  for( int i = 0; i < nb; i++ ) 
-  {
-    U8_TO_U32_LE( RK[ i ], k, 4 * i );
-  }
-
-  for( int i = nb, j = 0; i < (4 * (nr + 1)); i++ )
-  {
-    uint t = RK[ i -  1 ];
-    uint p = RK[ i - nb ];
-
-    if ( ( i % nb ) == 0 )
+    for( int i = 0; i < nb; i++ ) 
     {
-      t = RC[ j++ ] ^ ( T4[ ( t >>  8 ) & 0xFF ] & 0x000000FF ) ^
-                      ( T4[ ( t >> 16 ) & 0xFF ] & 0x0000FF00 ) ^
-                      ( T4[ ( t >> 24 ) & 0xFF ] & 0x00FF0000 ) ^
-                      ( T4[ ( t >>  0 ) & 0xFF ] & 0xFF000000 ) ;
+        U8_TO_U32_LE( RK[ i ], k, 4 * i );
     }
-    else if( ( ( i % nb ) == 4 ) && ( nb == 8 ) )
+
+    for( int i = nb, j = 0; i < (4 * (nr + 1)); i++ )
     {
-      t =             ( T4[ ( t >>  0 ) & 0xFF ] & 0x000000FF ) ^
-                      ( T4[ ( t >>  8 ) & 0xFF ] & 0x0000FF00 ) ^
-                      ( T4[ ( t >> 16 ) & 0xFF ] & 0x00FF0000 ) ^
-                      ( T4[ ( t >> 24 ) & 0xFF ] & 0xFF000000 ) ;
+        uint t = RK[ i -  1 ];
+        uint p = RK[ i - nb ];
+
+        if ( ( i % nb ) == 0 )
+        {
+            t = RC[ j++ ] ^ ( T4[ ( t >>  8 ) & 0xFF ] & 0x000000FF ) ^
+                            ( T4[ ( t >> 16 ) & 0xFF ] & 0x0000FF00 ) ^
+                            ( T4[ ( t >> 24 ) & 0xFF ] & 0x00FF0000 ) ^
+                            ( T4[ ( t >>  0 ) & 0xFF ] & 0xFF000000 ) ;
+        }
+        else if( ( ( i % nb ) == 4 ) && ( nb == 8 ) )
+        {
+            t = ( T4[ ( t >>  0 ) & 0xFF ] & 0x000000FF ) ^
+                ( T4[ ( t >>  8 ) & 0xFF ] & 0x0000FF00 ) ^
+                ( T4[ ( t >> 16 ) & 0xFF ] & 0x00FF0000 ) ^
+                ( T4[ ( t >> 24 ) & 0xFF ] & 0xFF000000 ) ;
+        }
+        RK[ i ] = t ^ p;
     }
-    RK[ i ] = t ^ p;
-  }
 }
 
 
 void aes_128_encrypt( octet* C, octet* M, uint* RK )
 {
-  uint t0, t1, t2, t3, t4, t5, t6, t7;
+    uint t0, t1, t2, t3, t4, t5, t6, t7;
 
-  U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
-  U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
+    U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
+    U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
 
-  ROUND1(  0,  1,  2,  3 );
-  ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
-  ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
-  ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
-  ROUND3( 40, 41, 42, 43 );
+    ROUND1(  0,  1,  2,  3 );
+    ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
+    ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
+    ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
+    ROUND3( 40, 41, 42, 43 );
 
-  U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
-  U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 
 void aes_192_encrypt( octet* C, octet* M, uint* RK )
 {
-  uint t0, t1, t2, t3, t4, t5, t6, t7;
+    uint t0, t1, t2, t3, t4, t5, t6, t7;
 
-  U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
-  U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
+    U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
+    U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
 
-  ROUND1(  0,  1,  2,  3 );
-  ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
-  ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
-  ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
-  ROUND2( 40, 41, 42, 43 ); ROUND2( 44, 45, 46, 47 ); 
-  ROUND3( 48, 49, 50, 51 );
+    ROUND1(  0,  1,  2,  3 );
+    ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
+    ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
+    ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
+    ROUND2( 40, 41, 42, 43 ); ROUND2( 44, 45, 46, 47 ); 
+    ROUND3( 48, 49, 50, 51 );
 
-  U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
-  U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 
 void aes_256_encrypt( octet* C, octet* M, uint* RK )
 {
-  uint t0, t1, t2, t3, t4, t5, t6, t7;
+    uint t0, t1, t2, t3, t4, t5, t6, t7;
 
-  U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
-  U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
+    U8_TO_U32_LE( t0, M,  0 ); U8_TO_U32_LE( t1, M,  4 );
+    U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
 
-  ROUND1(  0,  1,  2,  3 );
-  ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
-  ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
-  ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
-  ROUND2( 40, 41, 42, 43 ); ROUND2( 44, 45, 46, 47 ); ROUND2( 48, 49, 50, 51 ); 
-  ROUND2( 52, 53, 54, 55 ); 
-  ROUND3( 56, 57, 58, 59 );
+    ROUND1(  0,  1,  2,  3 );
+    ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
+    ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
+    ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
+    ROUND2( 40, 41, 42, 43 ); ROUND2( 44, 45, 46, 47 ); ROUND2( 48, 49, 50, 51 ); 
+    ROUND2( 52, 53, 54, 55 ); 
+    ROUND3( 56, 57, 58, 59 );
 
-  U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
-  U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 
@@ -506,220 +504,245 @@ void aes_256_encrypt( octet* C, octet* M, uint* RK )
 
 
 int Check_CPU_support_AES() 
-{ unsigned int a,b,c,d; 
-  cpuid(1, a, b, c, d); 
-  return (c & 0x2000000); 
+{
+    unsigned int a,b,c,d; 
+    cpuid(1, a, b, c, d); 
+    return (c & 0x2000000); 
 }
 
 #include <wmmintrin.h> 
 inline __m128i AES_128_ASSIST (__m128i temp1, __m128i temp2) 
-{ __m128i temp3; temp2 = _mm_shuffle_epi32 (temp2 ,0xff); 
-  temp3 = _mm_slli_si128 (temp1, 0x4); 
-  temp1 = _mm_xor_si128 (temp1, temp3); 
-  temp3 = _mm_slli_si128 (temp3, 0x4); 
-  temp1 = _mm_xor_si128 (temp1, temp3); 
-  temp3 = _mm_slli_si128 (temp3, 0x4); 
-  temp1 = _mm_xor_si128 (temp1, temp3); 
-  temp1 = _mm_xor_si128 (temp1, temp2); 
-  return temp1; 
+{
+    __m128i temp3; temp2 = _mm_shuffle_epi32 (temp2 ,0xff); 
+    temp3 = _mm_slli_si128 (temp1, 0x4); 
+    temp1 = _mm_xor_si128 (temp1, temp3); 
+    temp3 = _mm_slli_si128 (temp3, 0x4); 
+    temp1 = _mm_xor_si128 (temp1, temp3); 
+    temp3 = _mm_slli_si128 (temp3, 0x4); 
+    temp1 = _mm_xor_si128 (temp1, temp3); 
+    temp1 = _mm_xor_si128 (temp1, temp2); 
+    return temp1; 
 } 
 
 
 void aes_128_schedule( octet* key, const octet* userkey )
-{ __m128i temp1, temp2; 
-  __m128i *Key_Schedule = (__m128i*)key; 
-  temp1 = _mm_loadu_si128((__m128i*)userkey); 
-  Key_Schedule[0] = temp1;
-  temp2 = _mm_aeskeygenassist_si128 (temp1 ,0x1); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[1] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x2); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[2] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x4); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[3] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x8); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[4] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x10); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[5] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x20); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[6] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x40); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[7] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x80); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[8] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x1b); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[9] = temp1; 
-  temp2 = _mm_aeskeygenassist_si128 (temp1,0x36); 
-  temp1 = AES_128_ASSIST(temp1, temp2); 
-  Key_Schedule[10] = temp1; 
+{
+    __m128i temp1, temp2; 
+    __m128i *Key_Schedule = (__m128i*)key; 
+    temp1 = _mm_loadu_si128((__m128i*)userkey); 
+    Key_Schedule[0] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1 ,0x1); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[1] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x2); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[2] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x4); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[3] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x8); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[4] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x10); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[5] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x20); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[6] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x40); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[7] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x80); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[8] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x1b); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[9] = temp1; 
+    temp2 = _mm_aeskeygenassist_si128 (temp1,0x36); 
+    temp1 = AES_128_ASSIST(temp1, temp2); 
+    Key_Schedule[10] = temp1; 
 }
 
 inline void KEY_192_ASSIST(__m128i* temp1, __m128i * temp2, __m128i * temp3)
-{ __m128i temp4;
-  *temp2 = _mm_shuffle_epi32 (*temp2, 0x55);
-  temp4 = _mm_slli_si128 (*temp1, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  *temp1 = _mm_xor_si128 (*temp1, *temp2);
-  *temp2 = _mm_shuffle_epi32(*temp1, 0xff);
-  temp4 = _mm_slli_si128 (*temp3, 0x4);
-  *temp3 = _mm_xor_si128 (*temp3, temp4);
-  *temp3 = _mm_xor_si128 (*temp3, *temp2);
+{ 
+    __m128i temp4;
+    *temp2 = _mm_shuffle_epi32 (*temp2, 0x55);
+    temp4 = _mm_slli_si128 (*temp1, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    *temp1 = _mm_xor_si128 (*temp1, *temp2);
+    *temp2 = _mm_shuffle_epi32(*temp1, 0xff);
+    temp4 = _mm_slli_si128 (*temp3, 0x4);
+    *temp3 = _mm_xor_si128 (*temp3, temp4);
+    *temp3 = _mm_xor_si128 (*temp3, *temp2);
 }
 
 
 void aes_192_schedule( octet* key, const octet* userkey )
-{ __m128i temp1, temp2, temp3;
-  __m128i *Key_Schedule = (__m128i*)key;
-  temp1 = _mm_loadu_si128((__m128i*)userkey);
-  temp3 = _mm_loadu_si128((__m128i*)(userkey+16));
-  Key_Schedule[0]=temp1;
-  Key_Schedule[1]=temp3;
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x1);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[1] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[1],(__m128d)temp1,0);
-  Key_Schedule[2] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x2);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[3]=temp1;
-  Key_Schedule[4]=temp3;
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x4);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[4] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[4],(__m128d)temp1,0);
-  Key_Schedule[5] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x8);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[6]=temp1;
-  Key_Schedule[7]=temp3;
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x10);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[7] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[7],(__m128d)temp1,0);
-  Key_Schedule[8] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x20);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[9]=temp1;
-  Key_Schedule[10]=temp3;
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x40);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[10] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[10],(__m128d)temp1,0);
-  Key_Schedule[11] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
-  temp2=_mm_aeskeygenassist_si128 (temp3,0x80);
-  KEY_192_ASSIST(&temp1, &temp2, &temp3);
-  Key_Schedule[12]=temp1; 
+{ 
+    __m128i temp1, temp2, temp3;
+    __m128i *Key_Schedule = (__m128i*)key;
+    temp1 = _mm_loadu_si128((__m128i*)userkey);
+    temp3 = _mm_loadu_si128((__m128i*)(userkey+16));
+    Key_Schedule[0]=temp1;
+    Key_Schedule[1]=temp3;
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x1);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[1] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[1],(__m128d)temp1,0);
+    Key_Schedule[2] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x2);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[3]=temp1;
+    Key_Schedule[4]=temp3;
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x4);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[4] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[4],(__m128d)temp1,0);
+    Key_Schedule[5] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x8);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[6]=temp1;
+    Key_Schedule[7]=temp3;
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x10);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[7] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[7],(__m128d)temp1,0);
+    Key_Schedule[8] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x20);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[9]=temp1;
+    Key_Schedule[10]=temp3;
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x40);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[10] = (__m128i)_mm_shuffle_pd((__m128d)Key_Schedule[10],(__m128d)temp1,0);
+    Key_Schedule[11] = (__m128i)_mm_shuffle_pd((__m128d)temp1,(__m128d)temp3,1);
+    temp2=_mm_aeskeygenassist_si128 (temp3,0x80);
+    KEY_192_ASSIST(&temp1, &temp2, &temp3);
+    Key_Schedule[12]=temp1; 
 }
 
 inline void KEY_256_ASSIST_1(__m128i* temp1, __m128i * temp2)
-{ __m128i temp4;
-  *temp2 = _mm_shuffle_epi32(*temp2, 0xff);
-  temp4 = _mm_slli_si128 (*temp1, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp1 = _mm_xor_si128 (*temp1, temp4);
-  *temp1 = _mm_xor_si128 (*temp1, *temp2);
+{
+    __m128i temp4;
+    *temp2 = _mm_shuffle_epi32(*temp2, 0xff);
+    temp4 = _mm_slli_si128 (*temp1, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp1 = _mm_xor_si128 (*temp1, temp4);
+    *temp1 = _mm_xor_si128 (*temp1, *temp2);
 }
 
 
 inline void KEY_256_ASSIST_2(__m128i* temp1, __m128i * temp3)
-{ __m128i temp2,temp4;
-  temp4 = _mm_aeskeygenassist_si128 (*temp1, 0x0);
-  temp2 = _mm_shuffle_epi32(temp4, 0xaa);
-  temp4 = _mm_slli_si128 (*temp3, 0x4);
-  *temp3 = _mm_xor_si128 (*temp3, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp3 = _mm_xor_si128 (*temp3, temp4);
-  temp4 = _mm_slli_si128 (temp4, 0x4);
-  *temp3 = _mm_xor_si128 (*temp3, temp4);
-  *temp3 = _mm_xor_si128 (*temp3, temp2);
+{ 
+    __m128i temp2,temp4;
+    temp4 = _mm_aeskeygenassist_si128 (*temp1, 0x0);
+    temp2 = _mm_shuffle_epi32(temp4, 0xaa);
+    temp4 = _mm_slli_si128 (*temp3, 0x4);
+    *temp3 = _mm_xor_si128 (*temp3, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp3 = _mm_xor_si128 (*temp3, temp4);
+    temp4 = _mm_slli_si128 (temp4, 0x4);
+    *temp3 = _mm_xor_si128 (*temp3, temp4);
+    *temp3 = _mm_xor_si128 (*temp3, temp2);
 }
 
 void aes_256_schedule( octet* key, const octet* userkey )
-{ __m128i temp1, temp2, temp3;
-  __m128i *Key_Schedule = (__m128i*)key;
-  temp1 = _mm_loadu_si128((__m128i*)userkey);
-  temp3 = _mm_loadu_si128((__m128i*)(userkey+16));
-  Key_Schedule[0] = temp1;
-  Key_Schedule[1] = temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x01);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[2]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[3]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x02);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[4]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[5]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x04);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[6]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[7]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x08);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[8]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[9]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x10);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[10]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[11]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x20);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[12]=temp1;
-  KEY_256_ASSIST_2(&temp1, &temp3);
-  Key_Schedule[13]=temp3;
-  temp2 = _mm_aeskeygenassist_si128 (temp3,0x40);
-  KEY_256_ASSIST_1(&temp1, &temp2);
-  Key_Schedule[14]=temp1;
+{
+    __m128i temp1, temp2, temp3;
+    __m128i *Key_Schedule = (__m128i*)key;
+    temp1 = _mm_loadu_si128((__m128i*)userkey);
+    temp3 = _mm_loadu_si128((__m128i*)(userkey+16));
+    Key_Schedule[0] = temp1;
+    Key_Schedule[1] = temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x01);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[2]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[3]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x02);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[4]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[5]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x04);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[6]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[7]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x08);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[8]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[9]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x10);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[10]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[11]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x20);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[12]=temp1;
+    KEY_256_ASSIST_2(&temp1, &temp3);
+    Key_Schedule[13]=temp3;
+    temp2 = _mm_aeskeygenassist_si128 (temp3,0x40);
+    KEY_256_ASSIST_1(&temp1, &temp2);
+    Key_Schedule[14]=temp1;
 }
 
 
 
 void aes_128_encrypt(octet* out, const octet* in, const octet* key)
-{ __m128i tmp; 
-  tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
-  tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]); 
-  int j;
-  for(j=1; j <10; j++)
-      { tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]); } 
-  tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
-  _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
+{ 
+    __m128i tmp; 
+    tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
+    tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]);
+
+    int j;
+    for(j=1; j <10; j++)
+    {
+        tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
+    }
+
+    tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
+    _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
+
 
 void aes_192_encrypt(octet* out, const octet* in, const octet* key)
-{ __m128i tmp; 
-  tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
-  tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]); 
-  int j;
-  for(j=1; j <12; j++)
-      { tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]); } 
-  tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
-  _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
+{
+    __m128i tmp; 
+    tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
+    tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]); 
+    
+    int j;
+    for(j=1; j <12; j++)
+    {
+        tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
+    }
+    
+    tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
+    _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
 
+
 void aes_256_encrypt(octet* out, const octet* in, const octet* key)
-{ __m128i tmp; 
-  tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
-  tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]); 
-  int j;
-  for(j=1; j <14; j++)
-      { tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]); } 
-  tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
-  _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
+{
+    __m128i tmp;
+    tmp = _mm_loadu_si128 (&((__m128i*)in)[0]);
+    tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]);
+
+    int j;
+    for(j=1; j <14; j++)
+    {
+        tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
+    }
+
+    tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
+    _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
 
 
