@@ -1,5 +1,4 @@
 
-
 /**********************
  *      C Version     *
  **********************/
@@ -12,6 +11,8 @@
   r |= ( uint )( x[ i + 2 ] ) << 16; \
   r |= ( uint )( x[ i + 3 ] ) << 24; \
 }
+
+
 #define U32_TO_U8_LE(r, x, i)       \
 {                                   \
   r[ i + 0 ] = ( x >>  0 ) & 0xFF;  \
@@ -20,15 +21,17 @@
   r[ i + 3 ] = ( x >> 24 ) & 0xFF;  \
 }
 
-#define ROUND1(a,b,c,d) \
-{                       \
-  t0 = t0 ^ RK[ 0 ];    \
-  t1 = t1 ^ RK[ 1 ];    \
-  t2 = t2 ^ RK[ 2 ];    \
-  t3 = t3 ^ RK[ 3 ];    \
+
+#define ROUND1(a, b, c, d)  \
+{                           \
+  t0 = t0 ^ RK[ 0 ];        \
+  t1 = t1 ^ RK[ 1 ];        \
+  t2 = t2 ^ RK[ 2 ];        \
+  t3 = t3 ^ RK[ 3 ];        \
 }
 
-#define ROUND2(a,b,c,d)                         \
+
+#define ROUND2(a, b, c, d)                      \
 {                                               \
   t4 = ( T0[ ( t0 >>  0 ) & 0xFF ] ) ^          \
        ( T1[ ( t1 >>  8 ) & 0xFF ] ) ^          \
@@ -53,25 +56,74 @@
   t3 = t7;                                      \
 }
 
-#define ROUND3(a,b,c,d)                                      \
-{                                                            \
-  t4 = ( T4[ ( t0 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( T4[ ( t1 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( T4[ ( t2 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( T4[ ( t3 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ a ]; \
-  t5 = ( T4[ ( t1 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( T4[ ( t2 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( T4[ ( t3 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( T4[ ( t0 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ b ]; \
-  t6 = ( T4[ ( t2 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( T4[ ( t3 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( T4[ ( t0 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( T4[ ( t1 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ c ]; \
-  t7 = ( T4[ ( t3 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( T4[ ( t0 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( T4[ ( t1 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( T4[ ( t2 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ d ]; \
+
+#define ROUND2_INV(a, b, c, d)                      \
+{                                               \
+  t4 = ( U0[ ( t0 >>  0 ) & 0xFF ] ) ^          \
+       ( U1[ ( t1 >>  8 ) & 0xFF ] ) ^          \
+       ( U2[ ( t2 >> 16 ) & 0xFF ] ) ^          \
+       ( U3[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ a ]; \
+  t5 = ( U0[ ( t1 >>  0 ) & 0xFF ] ) ^          \
+       ( U1[ ( t2 >>  8 ) & 0xFF ] ) ^          \
+       ( U2[ ( t3 >> 16 ) & 0xFF ] ) ^          \
+       ( U3[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ b ]; \
+  t6 = ( U0[ ( t2 >>  0 ) & 0xFF ] ) ^          \
+       ( U1[ ( t3 >>  8 ) & 0xFF ] ) ^          \
+       ( U2[ ( t0 >> 16 ) & 0xFF ] ) ^          \
+       ( U3[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ c ]; \
+  t7 = ( U0[ ( t3 >>  0 ) & 0xFF ] ) ^          \
+       ( U1[ ( t0 >>  8 ) & 0xFF ] ) ^          \
+       ( U2[ ( t1 >> 16 ) & 0xFF ] ) ^          \
+       ( U3[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ d ]; \
+                                                \
+  t0 = t4;                                      \
+  t1 = t5;                                      \
+  t2 = t6;                                      \
+  t3 = t7;                                      \
 }
+
+
+#define ROUND3(a, b, c, d)                            \
+{                                                     \
+  t4 = ( aes_sbox[ ( t0 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t1 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t2 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ a ]; \
+  t5 = ( aes_sbox[ ( t1 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t2 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t3 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ b ]; \
+  t6 = ( aes_sbox[ ( t2 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t3 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t0 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ c ]; \
+  t7 = ( aes_sbox[ ( t3 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t0 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t1 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_sbox[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ d ]; \
+}
+
+
+#define ROUND3_INV(a, b, c, d)                            \
+{                                                         \
+  t4 = ( aes_inv_sbox[ ( t0 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t1 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t2 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ a ]; \
+  t5 = ( aes_inv_sbox[ ( t1 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t2 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t3 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ b ]; \
+  t6 = ( aes_inv_sbox[ ( t2 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t3 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t0 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ c ]; \
+  t7 = ( aes_inv_sbox[ ( t3 >>  0 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t0 >>  8 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t1 >> 16 ) & 0xFF ] ) ^          \
+       ( aes_inv_sbox[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ d ]; \
+}
+
 
 uint T0[] ={ 0xA56363C6, 0x847C7CF8, 0x997777EE, 0x8D7B7BF6,
              0x0DF2F2FF, 0xBD6B6BD6, 0xB16F6FDE, 0x54C5C591,
@@ -333,109 +385,376 @@ uint T3[] ={ 0xC6A56363, 0xF8847C7C, 0xEE997777, 0xF68D7B7B,
              0x82C34141, 0x29B09999, 0x5A772D2D, 0x1E110F0F,
              0x7BCBB0B0, 0xA8FC5454, 0x6DD6BBBB, 0x2C3A1616 };
 
-uint T4[] ={ 0x63636363, 0x7C7C7C7C, 0x77777777, 0x7B7B7B7B,
-             0xF2F2F2F2, 0x6B6B6B6B, 0x6F6F6F6F, 0xC5C5C5C5,
-             0x30303030, 0x01010101, 0x67676767, 0x2B2B2B2B,
-             0xFEFEFEFE, 0xD7D7D7D7, 0xABABABAB, 0x76767676,
-             0xCACACACA, 0x82828282, 0xC9C9C9C9, 0x7D7D7D7D,
-             0xFAFAFAFA, 0x59595959, 0x47474747, 0xF0F0F0F0,
-             0xADADADAD, 0xD4D4D4D4, 0xA2A2A2A2, 0xAFAFAFAF,
-             0x9C9C9C9C, 0xA4A4A4A4, 0x72727272, 0xC0C0C0C0,
-             0xB7B7B7B7, 0xFDFDFDFD, 0x93939393, 0x26262626,
-             0x36363636, 0x3F3F3F3F, 0xF7F7F7F7, 0xCCCCCCCC,
-             0x34343434, 0xA5A5A5A5, 0xE5E5E5E5, 0xF1F1F1F1,
-             0x71717171, 0xD8D8D8D8, 0x31313131, 0x15151515,
-             0x04040404, 0xC7C7C7C7, 0x23232323, 0xC3C3C3C3,
-             0x18181818, 0x96969696, 0x05050505, 0x9A9A9A9A,
-             0x07070707, 0x12121212, 0x80808080, 0xE2E2E2E2,
-             0xEBEBEBEB, 0x27272727, 0xB2B2B2B2, 0x75757575,
-             0x09090909, 0x83838383, 0x2C2C2C2C, 0x1A1A1A1A,
-             0x1B1B1B1B, 0x6E6E6E6E, 0x5A5A5A5A, 0xA0A0A0A0,
-             0x52525252, 0x3B3B3B3B, 0xD6D6D6D6, 0xB3B3B3B3,
-             0x29292929, 0xE3E3E3E3, 0x2F2F2F2F, 0x84848484,
-             0x53535353, 0xD1D1D1D1, 0x00000000, 0xEDEDEDED,
-             0x20202020, 0xFCFCFCFC, 0xB1B1B1B1, 0x5B5B5B5B,
-             0x6A6A6A6A, 0xCBCBCBCB, 0xBEBEBEBE, 0x39393939,
-             0x4A4A4A4A, 0x4C4C4C4C, 0x58585858, 0xCFCFCFCF,
-             0xD0D0D0D0, 0xEFEFEFEF, 0xAAAAAAAA, 0xFBFBFBFB,
-             0x43434343, 0x4D4D4D4D, 0x33333333, 0x85858585,
-             0x45454545, 0xF9F9F9F9, 0x02020202, 0x7F7F7F7F,
-             0x50505050, 0x3C3C3C3C, 0x9F9F9F9F, 0xA8A8A8A8,
-             0x51515151, 0xA3A3A3A3, 0x40404040, 0x8F8F8F8F,
-             0x92929292, 0x9D9D9D9D, 0x38383838, 0xF5F5F5F5,
-             0xBCBCBCBC, 0xB6B6B6B6, 0xDADADADA, 0x21212121,
-             0x10101010, 0xFFFFFFFF, 0xF3F3F3F3, 0xD2D2D2D2,
-             0xCDCDCDCD, 0x0C0C0C0C, 0x13131313, 0xECECECEC,
-             0x5F5F5F5F, 0x97979797, 0x44444444, 0x17171717,
-             0xC4C4C4C4, 0xA7A7A7A7, 0x7E7E7E7E, 0x3D3D3D3D,
-             0x64646464, 0x5D5D5D5D, 0x19191919, 0x73737373,
-             0x60606060, 0x81818181, 0x4F4F4F4F, 0xDCDCDCDC,
-             0x22222222, 0x2A2A2A2A, 0x90909090, 0x88888888,
-             0x46464646, 0xEEEEEEEE, 0xB8B8B8B8, 0x14141414,
-             0xDEDEDEDE, 0x5E5E5E5E, 0x0B0B0B0B, 0xDBDBDBDB,
-             0xE0E0E0E0, 0x32323232, 0x3A3A3A3A, 0x0A0A0A0A,
-             0x49494949, 0x06060606, 0x24242424, 0x5C5C5C5C,
-             0xC2C2C2C2, 0xD3D3D3D3, 0xACACACAC, 0x62626262,
-             0x91919191, 0x95959595, 0xE4E4E4E4, 0x79797979,
-             0xE7E7E7E7, 0xC8C8C8C8, 0x37373737, 0x6D6D6D6D,
-             0x8D8D8D8D, 0xD5D5D5D5, 0x4E4E4E4E, 0xA9A9A9A9,
-             0x6C6C6C6C, 0x56565656, 0xF4F4F4F4, 0xEAEAEAEA,
-             0x65656565, 0x7A7A7A7A, 0xAEAEAEAE, 0x08080808,
-             0xBABABABA, 0x78787878, 0x25252525, 0x2E2E2E2E,
-             0x1C1C1C1C, 0xA6A6A6A6, 0xB4B4B4B4, 0xC6C6C6C6,
-             0xE8E8E8E8, 0xDDDDDDDD, 0x74747474, 0x1F1F1F1F,
-             0x4B4B4B4B, 0xBDBDBDBD, 0x8B8B8B8B, 0x8A8A8A8A,
-             0x70707070, 0x3E3E3E3E, 0xB5B5B5B5, 0x66666666,
-             0x48484848, 0x03030303, 0xF6F6F6F6, 0x0E0E0E0E,
-             0x61616161, 0x35353535, 0x57575757, 0xB9B9B9B9,
-             0x86868686, 0xC1C1C1C1, 0x1D1D1D1D, 0x9E9E9E9E,
-             0xE1E1E1E1, 0xF8F8F8F8, 0x98989898, 0x11111111,
-             0x69696969, 0xD9D9D9D9, 0x8E8E8E8E, 0x94949494,
-             0x9B9B9B9B, 0x1E1E1E1E, 0x87878787, 0xE9E9E9E9,
-             0xCECECECE, 0x55555555, 0x28282828, 0xDFDFDFDF,
-             0x8C8C8C8C, 0xA1A1A1A1, 0x89898989, 0x0D0D0D0D,
-             0xBFBFBFBF, 0xE6E6E6E6, 0x42424242, 0x68686868,
-             0x41414141, 0x99999999, 0x2D2D2D2D, 0x0F0F0F0F,
-             0xB0B0B0B0, 0x54545454, 0xBBBBBBBB, 0x16161616 };
+uint U0[] = {0x50a7f451, 0x5365417e, 0xc3a4171a, 0x965e273a, 
+             0xcb6bab3b, 0xf1459d1f, 0xab58faac, 0x9303e34b, 
+             0x55fa3020, 0xf66d76ad, 0x9176cc88, 0x254c02f5, 
+             0xfcd7e54f, 0xd7cb2ac5, 0x80443526, 0x8fa362b5, 
+             0x495ab1de, 0x671bba25, 0x980eea45, 0xe1c0fe5d, 
+             0x2752fc3, 0x12f04c81, 0xa397468d, 0xc6f9d36b, 
+             0xe75f8f03, 0x959c9215, 0xeb7a6dbf, 0xda595295, 
+             0x2d83bed4, 0xd3217458, 0x2969e049, 0x44c8c98e, 
+             0x6a89c275, 0x78798ef4, 0x6b3e5899, 0xdd71b927, 
+             0xb64fe1be, 0x17ad88f0, 0x66ac20c9, 0xb43ace7d, 
+             0x184adf63, 0x82311ae5, 0x60335197, 0x457f5362, 
+             0xe07764b1, 0x84ae6bbb, 0x1ca081fe, 0x942b08f9, 
+             0x58684870, 0x19fd458f, 0x876cde94, 0xb7f87b52, 
+             0x23d373ab, 0xe2024b72, 0x578f1fe3, 0x2aab5566, 
+             0x728ebb2, 0x3c2b52f, 0x9a7bc586, 0xa50837d3, 
+             0xf2872830, 0xb2a5bf23, 0xba6a0302, 0x5c8216ed, 
+             0x2b1ccf8a, 0x92b479a7, 0xf0f207f3, 0xa1e2694e, 
+             0xcdf4da65, 0xd5be0506, 0x1f6234d1, 0x8afea6c4, 
+             0x9d532e34, 0xa055f3a2, 0x32e18a05, 0x75ebf6a4, 
+             0x39ec830b, 0xaaef6040, 0x69f715e, 0x51106ebd, 
+             0xf98a213e, 0x3d06dd96, 0xae053edd, 0x46bde64d, 
+             0xb58d5491, 0x55dc471, 0x6fd40604, 0xff155060, 
+             0x24fb9819, 0x97e9bdd6, 0xcc434089, 0x779ed967, 
+             0xbd42e8b0, 0x888b8907, 0x385b19e7, 0xdbeec879, 
+             0x470a7ca1, 0xe90f427c, 0xc91e84f8, 0x0, 
+             0x83868009, 0x48ed2b32, 0xac70111e, 0x4e725a6c, 
+             0xfbff0efd, 0x5638850f, 0x1ed5ae3d, 0x27392d36, 
+             0x64d90f0a, 0x21a65c68, 0xd1545b9b, 0x3a2e3624, 
+             0xb1670a0c, 0xfe75793, 0xd296eeb4, 0x9e919b1b, 
+             0x4fc5c080, 0xa220dc61, 0x694b775a, 0x161a121c, 
+             0xaba93e2, 0xe52aa0c0, 0x43e0223c, 0x1d171b12, 
+             0xb0d090e, 0xadc78bf2, 0xb9a8b62d, 0xc8a91e14, 
+             0x8519f157, 0x4c0775af, 0xbbdd99ee, 0xfd607fa3, 
+             0x9f2601f7, 0xbcf5725c, 0xc53b6644, 0x347efb5b, 
+             0x7629438b, 0xdcc623cb, 0x68fcedb6, 0x63f1e4b8, 
+             0xcadc31d7, 0x10856342, 0x40229713, 0x2011c684, 
+             0x7d244a85, 0xf83dbbd2, 0x1132f9ae, 0x6da129c7, 
+             0x4b2f9e1d, 0xf330b2dc, 0xec52860d, 0xd0e3c177, 
+             0x6c16b32b, 0x99b970a9, 0xfa489411, 0x2264e947, 
+             0xc48cfca8, 0x1a3ff0a0, 0xd82c7d56, 0xef903322, 
+             0xc74e4987, 0xc1d138d9, 0xfea2ca8c, 0x360bd498, 
+             0xcf81f5a6, 0x28de7aa5, 0x268eb7da, 0xa4bfad3f, 
+             0xe49d3a2c, 0xd927850, 0x9bcc5f6a, 0x62467e54, 
+             0xc2138df6, 0xe8b8d890, 0x5ef7392e, 0xf5afc382, 
+             0xbe805d9f, 0x7c93d069, 0xa92dd56f, 0xb31225cf, 
+             0x3b99acc8, 0xa77d1810, 0x6e639ce8, 0x7bbb3bdb, 
+             0x97826cd, 0xf418596e, 0x1b79aec, 0xa89a4f83, 
+             0x656e95e6, 0x7ee6ffaa, 0x8cfbc21, 0xe6e815ef, 
+             0xd99be7ba, 0xce366f4a, 0xd4099fea, 0xd67cb029, 
+             0xafb2a431, 0x31233f2a, 0x3094a5c6, 0xc066a235, 
+             0x37bc4e74, 0xa6ca82fc, 0xb0d090e0, 0x15d8a733, 
+             0x4a9804f1, 0xf7daec41, 0xe50cd7f, 0x2ff69117, 
+             0x8dd64d76, 0x4db0ef43, 0x544daacc, 0xdf0496e4, 
+             0xe3b5d19e, 0x1b886a4c, 0xb81f2cc1, 0x7f516546, 
+             0x4ea5e9d, 0x5d358c01, 0x737487fa, 0x2e410bfb, 
+             0x5a1d67b3, 0x52d2db92, 0x335610e9, 0x1347d66d, 
+             0x8c61d79a, 0x7a0ca137, 0x8e14f859, 0x893c13eb, 
+             0xee27a9ce, 0x35c961b7, 0xede51ce1, 0x3cb1477a, 
+             0x59dfd29c, 0x3f73f255, 0x79ce1418, 0xbf37c773, 
+             0xeacdf753, 0x5baafd5f, 0x146f3ddf, 0x86db4478, 
+             0x81f3afca, 0x3ec468b9, 0x2c342438, 0x5f40a3c2, 
+             0x72c31d16, 0xc25e2bc, 0x8b493c28, 0x41950dff, 
+             0x7101a839, 0xdeb30c08, 0x9ce4b4d8, 0x90c15664, 
+             0x6184cb7b, 0x70b632d5, 0x745c6c48, 0x4257b8d0};
+
+uint U1[] = {0xa7f45150, 0x65417e53, 0xa4171ac3, 0x5e273a96, 
+             0x6bab3bcb, 0x459d1ff1, 0x58faacab, 0x3e34b93, 
+             0xfa302055, 0x6d76adf6, 0x76cc8891, 0x4c02f525, 
+             0xd7e54ffc, 0xcb2ac5d7, 0x44352680, 0xa362b58f, 
+             0x5ab1de49, 0x1bba2567, 0xeea4598, 0xc0fe5de1, 
+             0x752fc302, 0xf04c8112, 0x97468da3, 0xf9d36bc6, 
+             0x5f8f03e7, 0x9c921595, 0x7a6dbfeb, 0x595295da, 
+             0x83bed42d, 0x217458d3, 0x69e04929, 0xc8c98e44, 
+             0x89c2756a, 0x798ef478, 0x3e58996b, 0x71b927dd, 
+             0x4fe1beb6, 0xad88f017, 0xac20c966, 0x3ace7db4, 
+             0x4adf6318, 0x311ae582, 0x33519760, 0x7f536245, 
+             0x7764b1e0, 0xae6bbb84, 0xa081fe1c, 0x2b08f994, 
+             0x68487058, 0xfd458f19, 0x6cde9487, 0xf87b52b7, 
+             0xd373ab23, 0x24b72e2, 0x8f1fe357, 0xab55662a, 
+             0x28ebb207, 0xc2b52f03, 0x7bc5869a, 0x837d3a5, 
+             0x872830f2, 0xa5bf23b2, 0x6a0302ba, 0x8216ed5c, 
+             0x1ccf8a2b, 0xb479a792, 0xf207f3f0, 0xe2694ea1, 
+             0xf4da65cd, 0xbe0506d5, 0x6234d11f, 0xfea6c48a, 
+             0x532e349d, 0x55f3a2a0, 0xe18a0532, 0xebf6a475, 
+             0xec830b39, 0xef6040aa, 0x9f715e06, 0x106ebd51, 
+             0x8a213ef9, 0x6dd963d, 0x53eddae, 0xbde64d46, 
+             0x8d5491b5, 0x5dc47105, 0xd406046f, 0x155060ff, 
+             0xfb981924, 0xe9bdd697, 0x434089cc, 0x9ed96777, 
+             0x42e8b0bd, 0x8b890788, 0x5b19e738, 0xeec879db, 
+             0xa7ca147, 0xf427ce9, 0x1e84f8c9, 0x0, 
+             0x86800983, 0xed2b3248, 0x70111eac, 0x725a6c4e, 
+             0xff0efdfb, 0x38850f56, 0xd5ae3d1e, 0x392d3627, 
+             0xd90f0a64, 0xa65c6821, 0x545b9bd1, 0x2e36243a, 
+             0x670a0cb1, 0xe757930f, 0x96eeb4d2, 0x919b1b9e, 
+             0xc5c0804f, 0x20dc61a2, 0x4b775a69, 0x1a121c16, 
+             0xba93e20a, 0x2aa0c0e5, 0xe0223c43, 0x171b121d, 
+             0xd090e0b, 0xc78bf2ad, 0xa8b62db9, 0xa91e14c8, 
+             0x19f15785, 0x775af4c, 0xdd99eebb, 0x607fa3fd, 
+             0x2601f79f, 0xf5725cbc, 0x3b6644c5, 0x7efb5b34, 
+             0x29438b76, 0xc623cbdc, 0xfcedb668, 0xf1e4b863, 
+             0xdc31d7ca, 0x85634210, 0x22971340, 0x11c68420, 
+             0x244a857d, 0x3dbbd2f8, 0x32f9ae11, 0xa129c76d, 
+             0x2f9e1d4b, 0x30b2dcf3, 0x52860dec, 0xe3c177d0, 
+             0x16b32b6c, 0xb970a999, 0x489411fa, 0x64e94722, 
+             0x8cfca8c4, 0x3ff0a01a, 0x2c7d56d8, 0x903322ef, 
+             0x4e4987c7, 0xd138d9c1, 0xa2ca8cfe, 0xbd49836, 
+             0x81f5a6cf, 0xde7aa528, 0x8eb7da26, 0xbfad3fa4, 
+             0x9d3a2ce4, 0x9278500d, 0xcc5f6a9b, 0x467e5462, 
+             0x138df6c2, 0xb8d890e8, 0xf7392e5e, 0xafc382f5, 
+             0x805d9fbe, 0x93d0697c, 0x2dd56fa9, 0x1225cfb3, 
+             0x99acc83b, 0x7d1810a7, 0x639ce86e, 0xbb3bdb7b, 
+             0x7826cd09, 0x18596ef4, 0xb79aec01, 0x9a4f83a8, 
+             0x6e95e665, 0xe6ffaa7e, 0xcfbc2108, 0xe815efe6, 
+             0x9be7bad9, 0x366f4ace, 0x99fead4, 0x7cb029d6, 
+             0xb2a431af, 0x233f2a31, 0x94a5c630, 0x66a235c0, 
+             0xbc4e7437, 0xca82fca6, 0xd090e0b0, 0xd8a73315, 
+             0x9804f14a, 0xdaec41f7, 0x50cd7f0e, 0xf691172f, 
+             0xd64d768d, 0xb0ef434d, 0x4daacc54, 0x496e4df, 
+             0xb5d19ee3, 0x886a4c1b, 0x1f2cc1b8, 0x5165467f, 
+             0xea5e9d04, 0x358c015d, 0x7487fa73, 0x410bfb2e, 
+             0x1d67b35a, 0xd2db9252, 0x5610e933, 0x47d66d13, 
+             0x61d79a8c, 0xca1377a, 0x14f8598e, 0x3c13eb89, 
+             0x27a9ceee, 0xc961b735, 0xe51ce1ed, 0xb1477a3c, 
+             0xdfd29c59, 0x73f2553f, 0xce141879, 0x37c773bf, 
+             0xcdf753ea, 0xaafd5f5b, 0x6f3ddf14, 0xdb447886, 
+             0xf3afca81, 0xc468b93e, 0x3424382c, 0x40a3c25f, 
+             0xc31d1672, 0x25e2bc0c, 0x493c288b, 0x950dff41, 
+             0x1a83971, 0xb30c08de, 0xe4b4d89c, 0xc1566490, 
+             0x84cb7b61, 0xb632d570, 0x5c6c4874, 0x57b8d042};
+
+uint U2[] = {0xf45150a7, 0x417e5365, 0x171ac3a4, 0x273a965e, 
+             0xab3bcb6b, 0x9d1ff145, 0xfaacab58, 0xe34b9303, 
+             0x302055fa, 0x76adf66d, 0xcc889176, 0x2f5254c, 
+             0xe54ffcd7, 0x2ac5d7cb, 0x35268044, 0x62b58fa3, 
+             0xb1de495a, 0xba25671b, 0xea45980e, 0xfe5de1c0, 
+             0x2fc30275, 0x4c8112f0, 0x468da397, 0xd36bc6f9, 
+             0x8f03e75f, 0x9215959c, 0x6dbfeb7a, 0x5295da59, 
+             0xbed42d83, 0x7458d321, 0xe0492969, 0xc98e44c8, 
+             0xc2756a89, 0x8ef47879, 0x58996b3e, 0xb927dd71, 
+             0xe1beb64f, 0x88f017ad, 0x20c966ac, 0xce7db43a, 
+             0xdf63184a, 0x1ae58231, 0x51976033, 0x5362457f, 
+             0x64b1e077, 0x6bbb84ae, 0x81fe1ca0, 0x8f9942b, 
+             0x48705868, 0x458f19fd, 0xde94876c, 0x7b52b7f8, 
+             0x73ab23d3, 0x4b72e202, 0x1fe3578f, 0x55662aab, 
+             0xebb20728, 0xb52f03c2, 0xc5869a7b, 0x37d3a508, 
+             0x2830f287, 0xbf23b2a5, 0x302ba6a, 0x16ed5c82, 
+             0xcf8a2b1c, 0x79a792b4, 0x7f3f0f2, 0x694ea1e2, 
+             0xda65cdf4, 0x506d5be, 0x34d11f62, 0xa6c48afe, 
+             0x2e349d53, 0xf3a2a055, 0x8a0532e1, 0xf6a475eb, 
+             0x830b39ec, 0x6040aaef, 0x715e069f, 0x6ebd5110, 
+             0x213ef98a, 0xdd963d06, 0x3eddae05, 0xe64d46bd, 
+             0x5491b58d, 0xc471055d, 0x6046fd4, 0x5060ff15, 
+             0x981924fb, 0xbdd697e9, 0x4089cc43, 0xd967779e, 
+             0xe8b0bd42, 0x8907888b, 0x19e7385b, 0xc879dbee, 
+             0x7ca1470a, 0x427ce90f, 0x84f8c91e, 0x0, 
+             0x80098386, 0x2b3248ed, 0x111eac70, 0x5a6c4e72, 
+             0xefdfbff, 0x850f5638, 0xae3d1ed5, 0x2d362739, 
+             0xf0a64d9, 0x5c6821a6, 0x5b9bd154, 0x36243a2e, 
+             0xa0cb167, 0x57930fe7, 0xeeb4d296, 0x9b1b9e91, 
+             0xc0804fc5, 0xdc61a220, 0x775a694b, 0x121c161a, 
+             0x93e20aba, 0xa0c0e52a, 0x223c43e0, 0x1b121d17, 
+             0x90e0b0d, 0x8bf2adc7, 0xb62db9a8, 0x1e14c8a9, 
+             0xf1578519, 0x75af4c07, 0x99eebbdd, 0x7fa3fd60, 
+             0x1f79f26, 0x725cbcf5, 0x6644c53b, 0xfb5b347e, 
+             0x438b7629, 0x23cbdcc6, 0xedb668fc, 0xe4b863f1, 
+             0x31d7cadc, 0x63421085, 0x97134022, 0xc6842011, 
+             0x4a857d24, 0xbbd2f83d, 0xf9ae1132, 0x29c76da1, 
+             0x9e1d4b2f, 0xb2dcf330, 0x860dec52, 0xc177d0e3, 
+             0xb32b6c16, 0x70a999b9, 0x9411fa48, 0xe9472264, 
+             0xfca8c48c, 0xf0a01a3f, 0x7d56d82c, 0x3322ef90, 
+             0x4987c74e, 0x38d9c1d1, 0xca8cfea2, 0xd498360b, 
+             0xf5a6cf81, 0x7aa528de, 0xb7da268e, 0xad3fa4bf, 
+             0x3a2ce49d, 0x78500d92, 0x5f6a9bcc, 0x7e546246, 
+             0x8df6c213, 0xd890e8b8, 0x392e5ef7, 0xc382f5af, 
+             0x5d9fbe80, 0xd0697c93, 0xd56fa92d, 0x25cfb312, 
+             0xacc83b99, 0x1810a77d, 0x9ce86e63, 0x3bdb7bbb, 
+             0x26cd0978, 0x596ef418, 0x9aec01b7, 0x4f83a89a, 
+             0x95e6656e, 0xffaa7ee6, 0xbc2108cf, 0x15efe6e8, 
+             0xe7bad99b, 0x6f4ace36, 0x9fead409, 0xb029d67c, 
+             0xa431afb2, 0x3f2a3123, 0xa5c63094, 0xa235c066, 
+             0x4e7437bc, 0x82fca6ca, 0x90e0b0d0, 0xa73315d8, 
+             0x4f14a98, 0xec41f7da, 0xcd7f0e50, 0x91172ff6, 
+             0x4d768dd6, 0xef434db0, 0xaacc544d, 0x96e4df04, 
+             0xd19ee3b5, 0x6a4c1b88, 0x2cc1b81f, 0x65467f51, 
+             0x5e9d04ea, 0x8c015d35, 0x87fa7374, 0xbfb2e41, 
+             0x67b35a1d, 0xdb9252d2, 0x10e93356, 0xd66d1347, 
+             0xd79a8c61, 0xa1377a0c, 0xf8598e14, 0x13eb893c, 
+             0xa9ceee27, 0x61b735c9, 0x1ce1ede5, 0x477a3cb1, 
+             0xd29c59df, 0xf2553f73, 0x141879ce, 0xc773bf37, 
+             0xf753eacd, 0xfd5f5baa, 0x3ddf146f, 0x447886db, 
+             0xafca81f3, 0x68b93ec4, 0x24382c34, 0xa3c25f40, 
+             0x1d1672c3, 0xe2bc0c25, 0x3c288b49, 0xdff4195, 
+             0xa8397101, 0xc08deb3, 0xb4d89ce4, 0x566490c1, 
+             0xcb7b6184, 0x32d570b6, 0x6c48745c, 0xb8d04257};
+
+uint U3[] = {0x5150a7f4, 0x7e536541, 0x1ac3a417, 0x3a965e27, 
+             0x3bcb6bab, 0x1ff1459d, 0xacab58fa, 0x4b9303e3, 
+             0x2055fa30, 0xadf66d76, 0x889176cc, 0xf5254c02, 
+             0x4ffcd7e5, 0xc5d7cb2a, 0x26804435, 0xb58fa362, 
+             0xde495ab1, 0x25671bba, 0x45980eea, 0x5de1c0fe, 
+             0xc302752f, 0x8112f04c, 0x8da39746, 0x6bc6f9d3, 
+             0x3e75f8f, 0x15959c92, 0xbfeb7a6d, 0x95da5952, 
+             0xd42d83be, 0x58d32174, 0x492969e0, 0x8e44c8c9, 
+             0x756a89c2, 0xf478798e, 0x996b3e58, 0x27dd71b9, 
+             0xbeb64fe1, 0xf017ad88, 0xc966ac20, 0x7db43ace, 
+             0x63184adf, 0xe582311a, 0x97603351, 0x62457f53, 
+             0xb1e07764, 0xbb84ae6b, 0xfe1ca081, 0xf9942b08, 
+             0x70586848, 0x8f19fd45, 0x94876cde, 0x52b7f87b, 
+             0xab23d373, 0x72e2024b, 0xe3578f1f, 0x662aab55, 
+             0xb20728eb, 0x2f03c2b5, 0x869a7bc5, 0xd3a50837, 
+             0x30f28728, 0x23b2a5bf, 0x2ba6a03, 0xed5c8216, 
+             0x8a2b1ccf, 0xa792b479, 0xf3f0f207, 0x4ea1e269, 
+             0x65cdf4da, 0x6d5be05, 0xd11f6234, 0xc48afea6, 
+             0x349d532e, 0xa2a055f3, 0x532e18a, 0xa475ebf6, 
+             0xb39ec83, 0x40aaef60, 0x5e069f71, 0xbd51106e, 
+             0x3ef98a21, 0x963d06dd, 0xddae053e, 0x4d46bde6, 
+             0x91b58d54, 0x71055dc4, 0x46fd406, 0x60ff1550, 
+             0x1924fb98, 0xd697e9bd, 0x89cc4340, 0x67779ed9, 
+             0xb0bd42e8, 0x7888b89, 0xe7385b19, 0x79dbeec8, 
+             0xa1470a7c, 0x7ce90f42, 0xf8c91e84, 0x0, 
+             0x9838680, 0x3248ed2b, 0x1eac7011, 0x6c4e725a, 
+             0xfdfbff0e, 0xf563885, 0x3d1ed5ae, 0x3627392d, 
+             0xa64d90f, 0x6821a65c, 0x9bd1545b, 0x243a2e36, 
+             0xcb1670a, 0x930fe757, 0xb4d296ee, 0x1b9e919b, 
+             0x804fc5c0, 0x61a220dc, 0x5a694b77, 0x1c161a12, 
+             0xe20aba93, 0xc0e52aa0, 0x3c43e022, 0x121d171b, 
+             0xe0b0d09, 0xf2adc78b, 0x2db9a8b6, 0x14c8a91e, 
+             0x578519f1, 0xaf4c0775, 0xeebbdd99, 0xa3fd607f, 
+             0xf79f2601, 0x5cbcf572, 0x44c53b66, 0x5b347efb, 
+             0x8b762943, 0xcbdcc623, 0xb668fced, 0xb863f1e4, 
+             0xd7cadc31, 0x42108563, 0x13402297, 0x842011c6, 
+             0x857d244a, 0xd2f83dbb, 0xae1132f9, 0xc76da129, 
+             0x1d4b2f9e, 0xdcf330b2, 0xdec5286, 0x77d0e3c1, 
+             0x2b6c16b3, 0xa999b970, 0x11fa4894, 0x472264e9, 
+             0xa8c48cfc, 0xa01a3ff0, 0x56d82c7d, 0x22ef9033, 
+             0x87c74e49, 0xd9c1d138, 0x8cfea2ca, 0x98360bd4, 
+             0xa6cf81f5, 0xa528de7a, 0xda268eb7, 0x3fa4bfad, 
+             0x2ce49d3a, 0x500d9278, 0x6a9bcc5f, 0x5462467e, 
+             0xf6c2138d, 0x90e8b8d8, 0x2e5ef739, 0x82f5afc3, 
+             0x9fbe805d, 0x697c93d0, 0x6fa92dd5, 0xcfb31225, 
+             0xc83b99ac, 0x10a77d18, 0xe86e639c, 0xdb7bbb3b, 
+             0xcd097826, 0x6ef41859, 0xec01b79a, 0x83a89a4f, 
+             0xe6656e95, 0xaa7ee6ff, 0x2108cfbc, 0xefe6e815, 
+             0xbad99be7, 0x4ace366f, 0xead4099f, 0x29d67cb0, 
+             0x31afb2a4, 0x2a31233f, 0xc63094a5, 0x35c066a2, 
+             0x7437bc4e, 0xfca6ca82, 0xe0b0d090, 0x3315d8a7, 
+             0xf14a9804, 0x41f7daec, 0x7f0e50cd, 0x172ff691, 
+             0x768dd64d, 0x434db0ef, 0xcc544daa, 0xe4df0496, 
+             0x9ee3b5d1, 0x4c1b886a, 0xc1b81f2c, 0x467f5165, 
+             0x9d04ea5e, 0x15d358c, 0xfa737487, 0xfb2e410b, 
+             0xb35a1d67, 0x9252d2db, 0xe9335610, 0x6d1347d6, 
+             0x9a8c61d7, 0x377a0ca1, 0x598e14f8, 0xeb893c13, 
+             0xceee27a9, 0xb735c961, 0xe1ede51c, 0x7a3cb147, 
+             0x9c59dfd2, 0x553f73f2, 0x1879ce14, 0x73bf37c7, 
+             0x53eacdf7, 0x5f5baafd, 0xdf146f3d, 0x7886db44, 
+             0xca81f3af, 0xb93ec468, 0x382c3424, 0xc25f40a3, 
+             0x1672c31d, 0xbc0c25e2, 0x288b493c, 0xff41950d, 
+             0x397101a8, 0x8deb30c, 0xd89ce4b4, 0x6490c156, 
+             0x7b6184cb, 0xd570b632, 0x48745c6c, 0xd04257b8 };
+
+unsigned char aes_sbox[256] = {
+  0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 
+  0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76, 
+  0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 
+  0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0, 
+  0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 
+  0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15, 
+  0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 
+  0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75, 
+  0x09, 0x83, 0x2c, 0x1a, 0x1b, 0x6e, 0x5a, 0xa0, 
+  0x52, 0x3b, 0xd6, 0xb3, 0x29, 0xe3, 0x2f, 0x84, 
+  0x53, 0xd1, 0x00, 0xed, 0x20, 0xfc, 0xb1, 0x5b, 
+  0x6a, 0xcb, 0xbe, 0x39, 0x4a, 0x4c, 0x58, 0xcf, 
+  0xd0, 0xef, 0xaa, 0xfb, 0x43, 0x4d, 0x33, 0x85, 
+  0x45, 0xf9, 0x02, 0x7f, 0x50, 0x3c, 0x9f, 0xa8, 
+  0x51, 0xa3, 0x40, 0x8f, 0x92, 0x9d, 0x38, 0xf5, 
+  0xbc, 0xb6, 0xda, 0x21, 0x10, 0xff, 0xf3, 0xd2, 
+  0xcd, 0x0c, 0x13, 0xec, 0x5f, 0x97, 0x44, 0x17, 
+  0xc4, 0xa7, 0x7e, 0x3d, 0x64, 0x5d, 0x19, 0x73, 
+  0x60, 0x81, 0x4f, 0xdc, 0x22, 0x2a, 0x90, 0x88, 
+  0x46, 0xee, 0xb8, 0x14, 0xde, 0x5e, 0x0b, 0xdb, 
+  0xe0, 0x32, 0x3a, 0x0a, 0x49, 0x06, 0x24, 0x5c, 
+  0xc2, 0xd3, 0xac, 0x62, 0x91, 0x95, 0xe4, 0x79, 
+  0xe7, 0xc8, 0x37, 0x6d, 0x8d, 0xd5, 0x4e, 0xa9, 
+  0x6c, 0x56, 0xf4, 0xea, 0x65, 0x7a, 0xae, 0x08, 
+  0xba, 0x78, 0x25, 0x2e, 0x1c, 0xa6, 0xb4, 0xc6, 
+  0xe8, 0xdd, 0x74, 0x1f, 0x4b, 0xbd, 0x8b, 0x8a, 
+  0x70, 0x3e, 0xb5, 0x66, 0x48, 0x03, 0xf6, 0x0e, 
+  0x61, 0x35, 0x57, 0xb9, 0x86, 0xc1, 0x1d, 0x9e, 
+  0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 
+  0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf, 
+  0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 
+  0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 
+};
+
+unsigned char aes_inv_sbox[256] = {
+  0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 
+  0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
+  0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87,
+  0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
+  0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 
+  0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
+  0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2,
+  0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
+  0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 
+  0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
+  0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 
+  0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
+  0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 
+  0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
+  0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 
+  0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
+  0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 
+  0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
+  0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 
+  0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
+  0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 
+  0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
+  0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 
+  0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
+  0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 
+  0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
+  0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 
+  0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
+  0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 
+  0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
+  0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 
+  0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
+};
 
 uint RC[] ={ 0x00000001, 0x00000002, 0x00000004, 0x00000008,
              0x00000010, 0x00000020, 0x00000040, 0x00000080,
              0x0000001B, 0x00000036                         };
 
 
-
-void aes_schedule( int nb, int nr, octet* k, uint* RK ) 
+void aes_schedule( int nb, int nr, octet *k, uint *RK ) 
 {
-    for( int i = 0; i < nb; i++ ) 
+    int i, j;
+
+    for( i = 0; i < nb; i++ ) 
     {
         U8_TO_U32_LE( RK[ i ], k, 4 * i );
     }
 
-    for( int i = nb, j = 0; i < (4 * (nr + 1)); i++ )
+    for( i = nb, j = 0; i < (4 * (nr + 1)); i++ )
     {
         uint t = RK[ i -  1 ];
         uint p = RK[ i - nb ];
 
         if ( ( i % nb ) == 0 )
         {
-            t = RC[ j++ ] ^ ( T4[ ( t >>  8 ) & 0xFF ] & 0x000000FF ) ^
-                            ( T4[ ( t >> 16 ) & 0xFF ] & 0x0000FF00 ) ^
-                            ( T4[ ( t >> 24 ) & 0xFF ] & 0x00FF0000 ) ^
-                            ( T4[ ( t >>  0 ) & 0xFF ] & 0xFF000000 ) ;
+            t = RC[ j++ ] ^ ( aes_sbox[ ( t >>  8 ) & 0xFF ] ) ^
+                            ( aes_sbox[ ( t >> 16 ) & 0xFF ] ) ^
+                            ( aes_sbox[ ( t >> 24 ) & 0xFF ] ) ^
+                            ( aes_sbox[ ( t >>  0 ) & 0xFF ] ) ;
         }
         else if( ( ( i % nb ) == 4 ) && ( nb == 8 ) )
         {
-            t = ( T4[ ( t >>  0 ) & 0xFF ] & 0x000000FF ) ^
-                ( T4[ ( t >>  8 ) & 0xFF ] & 0x0000FF00 ) ^
-                ( T4[ ( t >> 16 ) & 0xFF ] & 0x00FF0000 ) ^
-                ( T4[ ( t >> 24 ) & 0xFF ] & 0xFF000000 ) ;
+            t = ( aes_sbox[ ( t >>  0 ) & 0xFF ] ) ^
+                ( aes_sbox[ ( t >>  8 ) & 0xFF ] ) ^
+                ( aes_sbox[ ( t >> 16 ) & 0xFF ] ) ^
+                ( aes_sbox[ ( t >> 24 ) & 0xFF ] ) ;
         }
         RK[ i ] = t ^ p;
     }
 }
 
 
-void aes_128_encrypt( octet* C, octet* M, uint* RK )
+
+void aes_128_encrypt( octet *C, octet *M, uint *RK )
 {
     uint t0, t1, t2, t3, t4, t5, t6, t7;
 
@@ -448,6 +767,43 @@ void aes_128_encrypt( octet* C, octet* M, uint* RK )
     ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
     ROUND3( 40, 41, 42, 43 );
 
+    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+}
+
+void aes_128_decrypt(octet *C, octet *M, uint *RK)
+{
+    int i, j, round = 0;
+    uint t0, t1, t2, t3, t4, t5, t6, t7;
+
+    U8_TO_U32_LE( t0, C, 0 ); U8_TO_U32_LE( t1, C,  4 );
+    U8_TO_U32_LE( t2, C, 8 ); U8_TO_U32_LE( t3, C, 12 );
+
+    // Add the First round key to the state before starting the rounds.
+    // AddRoundKey(Nr);
+    ROUND1(  0, 1, 2, 3 );
+
+    /*
+    // There will be Nr rounds.
+    // The first Nr-1 rounds are identical.
+    // These Nr-1 rounds are executed in the loop below.
+    for(round = Nr - 1; round > 0; round--)
+    {
+        InvShiftRows();
+        InvSubBytes();
+        AddRoundKey(round);
+        InvMixColumns();
+    }
+    
+    // The last round is given below.
+    // The MixColumns function is not here in the last round.
+    InvShiftRows();
+    InvSubBytes();
+    AddRoundKey(0);
+    */
+
+    // The decryption process is over.
+    // Copy the state array to output array.
     U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
     U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
@@ -467,8 +823,8 @@ void aes_192_encrypt( octet* C, octet* M, uint* RK )
     ROUND2( 40, 41, 42, 43 ); ROUND2( 44, 45, 46, 47 ); 
     ROUND3( 48, 49, 50, 51 );
 
-    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
-    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+    U32_TO_U8_LE( C, t4, 0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6, 8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 
@@ -499,30 +855,31 @@ void aes_256_encrypt( octet* C, octet* M, uint* RK )
  **********************/
 
 #define cpuid(func,ax,bx,cx,dx)\
-           __asm__ __volatile__ ("cpuid":\
-           "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx) : "a" (func)); 
+    __asm__ __volatile__("cpuid": "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx) : "a" (func)); 
 
 
 int Check_CPU_support_AES() 
 {
-    unsigned int a,b,c,d; 
+    unsigned int a, b, c, d; 
     cpuid(1, a, b, c, d); 
     return (c & 0x2000000); 
 }
 
-#include <wmmintrin.h> 
-inline __m128i AES_128_ASSIST (__m128i temp1, __m128i temp2) 
+#include <wmmintrin.h>
+
+
+inline __m128i AES_128_ASSIST (__m128i temp1, __m128i temp2)
 {
-    __m128i temp3; temp2 = _mm_shuffle_epi32 (temp2 ,0xff); 
-    temp3 = _mm_slli_si128 (temp1, 0x4); 
-    temp1 = _mm_xor_si128 (temp1, temp3); 
-    temp3 = _mm_slli_si128 (temp3, 0x4); 
-    temp1 = _mm_xor_si128 (temp1, temp3); 
-    temp3 = _mm_slli_si128 (temp3, 0x4); 
-    temp1 = _mm_xor_si128 (temp1, temp3); 
-    temp1 = _mm_xor_si128 (temp1, temp2); 
-    return temp1; 
-} 
+    __m128i temp3; temp2 = _mm_shuffle_epi32 (temp2 ,0xff);
+    temp3 = _mm_slli_si128 (temp1, 0x4);
+    temp1 = _mm_xor_si128 (temp1, temp3);
+    temp3 = _mm_slli_si128 (temp3, 0x4);
+    temp1 = _mm_xor_si128 (temp1, temp3);
+    temp3 = _mm_slli_si128 (temp3, 0x4);
+    temp1 = _mm_xor_si128 (temp1, temp3);
+    temp1 = _mm_xor_si128 (temp1, temp2);
+    return temp1;
+}
 
 
 void aes_128_schedule( octet* key, const octet* userkey )
@@ -531,37 +888,38 @@ void aes_128_schedule( octet* key, const octet* userkey )
     __m128i *Key_Schedule = (__m128i*)key; 
     temp1 = _mm_loadu_si128((__m128i*)userkey); 
     Key_Schedule[0] = temp1;
-    temp2 = _mm_aeskeygenassist_si128 (temp1 ,0x1); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[1] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x2); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[2] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x4); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[3] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x8); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[4] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x10); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[5] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x20); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[6] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x40); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[7] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x80); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[8] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x1b); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
-    Key_Schedule[9] = temp1; 
-    temp2 = _mm_aeskeygenassist_si128 (temp1,0x36); 
-    temp1 = AES_128_ASSIST(temp1, temp2); 
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x1);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[1] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x2);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[2] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x4);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[3] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x8);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[4] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x10);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[5] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x20);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[6] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x40);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[7] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x80);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[8] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x1b);
+    temp1 = AES_128_ASSIST(temp1, temp2);
+    Key_Schedule[9] = temp1;
+    temp2 = _mm_aeskeygenassist_si128 (temp1, 0x36);
+    temp1 = AES_128_ASSIST(temp1, temp2);
     Key_Schedule[10] = temp1; 
 }
+
 
 inline void KEY_192_ASSIST(__m128i* temp1, __m128i * temp2, __m128i * temp3)
 { 
@@ -622,6 +980,7 @@ void aes_192_schedule( octet* key, const octet* userkey )
     Key_Schedule[12]=temp1; 
 }
 
+
 inline void KEY_256_ASSIST_1(__m128i* temp1, __m128i * temp2)
 {
     __m128i temp4;
@@ -650,6 +1009,7 @@ inline void KEY_256_ASSIST_2(__m128i* temp1, __m128i * temp3)
     *temp3 = _mm_xor_si128 (*temp3, temp2);
 }
 
+
 void aes_256_schedule( octet* key, const octet* userkey )
 {
     __m128i temp1, temp2, temp3;
@@ -660,39 +1020,38 @@ void aes_256_schedule( octet* key, const octet* userkey )
     Key_Schedule[1] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x01);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[2]=temp1;
+    Key_Schedule[2] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[3]=temp3;
+    Key_Schedule[3] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x02);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[4]=temp1;
+    Key_Schedule[4] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[5]=temp3;
+    Key_Schedule[5] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x04);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[6]=temp1;
+    Key_Schedule[6] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[7]=temp3;
+    Key_Schedule[7] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x08);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[8]=temp1;
+    Key_Schedule[8] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[9]=temp3;
+    Key_Schedule[9] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x10);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[10]=temp1;
+    Key_Schedule[10] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[11]=temp3;
+    Key_Schedule[11] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x20);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[12]=temp1;
+    Key_Schedule[12] = temp1;
     KEY_256_ASSIST_2(&temp1, &temp3);
-    Key_Schedule[13]=temp3;
+    Key_Schedule[13] = temp3;
     temp2 = _mm_aeskeygenassist_si128 (temp3,0x40);
     KEY_256_ASSIST_1(&temp1, &temp2);
-    Key_Schedule[14]=temp1;
+    Key_Schedule[14] = temp1;
 }
-
 
 
 void aes_128_encrypt(octet* out, const octet* in, const octet* key)
@@ -702,7 +1061,7 @@ void aes_128_encrypt(octet* out, const octet* in, const octet* key)
     tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]);
 
     int j;
-    for(j=1; j <10; j++)
+    for(j = 1; j < 10; j++)
     {
         tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
     }
@@ -719,7 +1078,7 @@ void aes_192_encrypt(octet* out, const octet* in, const octet* key)
     tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]); 
     
     int j;
-    for(j=1; j <12; j++)
+    for(j = 1; j < 12; j++)
     {
         tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
     }
@@ -736,7 +1095,7 @@ void aes_256_encrypt(octet* out, const octet* in, const octet* key)
     tmp = _mm_xor_si128 (tmp,((__m128i*)key)[0]);
 
     int j;
-    for(j=1; j <14; j++)
+    for(j = 1; j < 14; j++)
     {
         tmp = _mm_aesenc_si128 (tmp,((__m128i*)key)[j]);
     }
