@@ -1,0 +1,52 @@
+#include "aes.c"
+#include <stdio.h>
+
+
+int aesTesting()
+{
+	printf( "CPU capable?  %d\n", Check_CPU_support_AES() );
+
+	int intKey = 2324253, intMessage = 123546236;
+
+	octet* tempKey = new octet[4];
+	tempKey[0] = (intKey >> 24) & 0x000000FF;
+	tempKey[1] = (intKey >> 16) & 0x000000FF;
+	tempKey[2] = (intKey >> 8) & 0x000000FF;
+	tempKey[3] = (intKey >> 0) & 0x000000FF;
+
+	octet* tempMsg = new octet[16];
+	//encode_length( tempMsg, intMessage);
+
+	uint* RK = new uint[44];
+	octet* C = new octet[16];
+
+	for(int i = 0; i < 16; i ++)
+	{
+		printf("%02X", tempMsg[i]);
+	}
+	printf("\n");
+
+	for(int i = 0; i < 16; i ++)
+	{
+		printf("%02X", tempKey[i]);
+	}
+	printf("\n");
+
+	aes_schedule( 128, 10, tempKey, RK );
+	aes_128_encrypt(C, tempMsg, RK);
+
+	for(int i = 0; i < 16; i ++)
+	{
+		printf("%02X", C[i]);
+	}
+	printf("\nTesting done\n");
+
+	return 0;
+}
+
+int main(int argc, char* argv[])
+{
+	aesTesting();
+
+	return 0;
+}
