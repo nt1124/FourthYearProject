@@ -31,32 +31,58 @@
 }
 
 
-#define ROUND2(a, b, c, d)                        \
-{                                                 \
-    t4 = ( T0[ ( t0 >>  0 ) & 0xFF ] ) ^          \
-         ( T1[ ( t1 >>  8 ) & 0xFF ] ) ^          \
-         ( T2[ ( t2 >> 16 ) & 0xFF ] ) ^          \
-         ( T3[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ a ]; \
-    t5 = ( T0[ ( t1 >>  0 ) & 0xFF ] ) ^          \
-         ( T1[ ( t2 >>  8 ) & 0xFF ] ) ^          \
-         ( T2[ ( t3 >> 16 ) & 0xFF ] ) ^          \
-         ( T3[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ b ]; \
-    t6 = ( T0[ ( t2 >>  0 ) & 0xFF ] ) ^          \
-         ( T1[ ( t3 >>  8 ) & 0xFF ] ) ^          \
-         ( T2[ ( t0 >> 16 ) & 0xFF ] ) ^          \
-         ( T3[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ c ]; \
-    t7 = ( T0[ ( t3 >>  0 ) & 0xFF ] ) ^          \
-         ( T1[ ( t0 >>  8 ) & 0xFF ] ) ^          \
-         ( T2[ ( t1 >> 16 ) & 0xFF ] ) ^          \
-         ( T3[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ d ]; \
-                                                  \
-    t0 = t4;                                      \
-    t1 = t5;                                      \
-    t2 = t6;                                      \
-    t3 = t7;                                      \
+#define ROUND2(a, b, c, d)                          \
+{                                                   \
+    t4 = ( T0[ ( t0 >>  0 ) & 0xFF ] ) ^            \
+         ( T1[ ( t1 >>  8 ) & 0xFF ] ) ^            \
+         ( T2[ ( t2 >> 16 ) & 0xFF ] ) ^            \
+         ( T3[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ a ];   \
+    t5 = ( T0[ ( t1 >>  0 ) & 0xFF ] ) ^            \
+         ( T1[ ( t2 >>  8 ) & 0xFF ] ) ^            \
+         ( T2[ ( t3 >> 16 ) & 0xFF ] ) ^            \
+         ( T3[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ b ];   \
+    t6 = ( T0[ ( t2 >>  0 ) & 0xFF ] ) ^            \
+         ( T1[ ( t3 >>  8 ) & 0xFF ] ) ^            \
+         ( T2[ ( t0 >> 16 ) & 0xFF ] ) ^            \
+         ( T3[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ c ];   \
+    t7 = ( T0[ ( t3 >>  0 ) & 0xFF ] ) ^            \
+         ( T1[ ( t0 >>  8 ) & 0xFF ] ) ^            \
+         ( T2[ ( t1 >> 16 ) & 0xFF ] ) ^            \
+         ( T3[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ d ];   \
+                                                    \
+    t0 = t4;                                        \
+    t1 = t5;                                        \
+    t2 = t6;                                        \
+    t3 = t7;                                        \
 }
 
 
+#define ROUND2_INV(a, b, c, d)          \
+{                                       \
+  t4 = ( U0[ ( t0 >>  0 ) & 0xFF ] ) ^  \
+       ( U1[ ( t3 >>  8 ) & 0xFF ] ) ^  \
+       ( U2[ ( t2 >> 16 ) & 0xFF ] ) ^  \
+       ( U3[ ( t1 >> 24 ) & 0xFF ] );   \
+  t5 = ( U0[ ( t1 >>  0 ) & 0xFF ] ) ^  \
+       ( U1[ ( t0 >>  8 ) & 0xFF ] ) ^  \
+       ( U2[ ( t3 >> 16 ) & 0xFF ] ) ^  \
+       ( U3[ ( t2 >> 24 ) & 0xFF ] );   \
+  t6 = ( U0[ ( t2 >>  0 ) & 0xFF ] ) ^  \
+       ( U1[ ( t1 >>  8 ) & 0xFF ] ) ^  \
+       ( U2[ ( t0 >> 16 ) & 0xFF ] ) ^  \
+       ( U3[ ( t3 >> 24 ) & 0xFF ] );   \
+  t7 = ( U0[ ( t3 >>  0 ) & 0xFF ] ) ^  \
+       ( U1[ ( t2 >>  8 ) & 0xFF ] ) ^  \
+       ( U2[ ( t1 >> 16 ) & 0xFF ] ) ^  \
+       ( U3[ ( t0 >> 24 ) & 0xFF ] );   \
+                                        \
+  t0 = t4;                      \
+  t1 = t5;                      \
+  t2 = t6;                      \
+  t3 = t7;                      \
+}
+
+/*
 #define ROUND2_INV(a, b, c, d)                  \
 {                                               \
   t4 = ( U0[ ( t0 >>  0 ) & 0xFF ] ) ^          \
@@ -81,58 +107,47 @@
   t2 = t6;                                      \
   t3 = t7;                                      \
 }
-
-/*
-SubBytes();
-ShiftRows();
-MixColumns();
-AddRoundKey();
------------------------
-InvShiftRows();
-InvSubBytes();
-AddRoundKey(round);
-InvMixColumns();
 */
 
-#define ROUND3(a, b, c, d)                            \
-{                                                     \
-    t4 = ( aes_sbox[ ( t0 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-         ( aes_sbox[ ( t1 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-         ( aes_sbox[ ( t2 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-         ( aes_sbox[ ( t3 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ a ]; \
-    t5 = ( aes_sbox[ ( t1 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-         ( aes_sbox[ ( t2 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-         ( aes_sbox[ ( t3 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-         ( aes_sbox[ ( t0 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ b ]; \
-    t6 = ( aes_sbox[ ( t2 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-         ( aes_sbox[ ( t3 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-         ( aes_sbox[ ( t0 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-         ( aes_sbox[ ( t1 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ c ]; \
-    t7 = ( aes_sbox[ ( t3 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-         ( aes_sbox[ ( t0 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-         ( aes_sbox[ ( t1 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-         ( aes_sbox[ ( t2 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ d ]; \
+#define ROUND3(a,b,c,d)                                               \
+{                                                                     \
+    t4 = ( aes_sbox[ ( t0 >>  0 ) & 0xFF ] & 0x000000FF ) ^           \
+         ( aes_sbox[ ( t1 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^           \
+         ( aes_sbox[ ( t2 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^           \
+         ( aes_sbox[ ( t3 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ a ];  \
+    t5 = ( aes_sbox[ ( t1 >>  0 ) & 0xFF ] & 0x000000FF ) ^           \
+         ( aes_sbox[ ( t2 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^           \
+         ( aes_sbox[ ( t3 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^           \
+         ( aes_sbox[ ( t0 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ b ];  \
+    t6 = ( aes_sbox[ ( t2 >>  0 ) & 0xFF ] & 0x000000FF ) ^           \
+         ( aes_sbox[ ( t3 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^           \
+         ( aes_sbox[ ( t0 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^           \
+         ( aes_sbox[ ( t1 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ c ];  \
+    t7 = ( aes_sbox[ ( t3 >>  0 ) & 0xFF ] & 0x000000FF ) ^           \
+         ( aes_sbox[ ( t0 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^           \
+         ( aes_sbox[ ( t1 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^           \
+         ( aes_sbox[ ( t2 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ d ];  \
 }
 
 
-#define ROUND3_INV(a, b, c, d)                                         \
-{                                                                      \
-  t4 = ( aes_inv_sbox[ ( t0 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( aes_inv_sbox[ ( t3 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( aes_inv_sbox[ ( t2 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( aes_inv_sbox[ ( t1 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ a ]; \
-  t5 = ( aes_inv_sbox[ ( t1 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( aes_inv_sbox[ ( t0 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( aes_inv_sbox[ ( t3 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( aes_inv_sbox[ ( t2 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ b ]; \
-  t6 = ( aes_inv_sbox[ ( t2 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( aes_inv_sbox[ ( t1 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( aes_inv_sbox[ ( t0 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( aes_inv_sbox[ ( t3 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ c ]; \
-  t7 = ( aes_inv_sbox[ ( t3 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
-       ( aes_inv_sbox[ ( t2 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
-       ( aes_inv_sbox[ ( t1 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
-       ( aes_inv_sbox[ ( t0 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ d ]; \
+#define ROUND3_INV(a, b, c, d)                                           \
+{                                                                        \
+    t4 = ( aes_inv_sbox[ ( t0 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
+         ( aes_inv_sbox[ ( t3 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
+         ( aes_inv_sbox[ ( t2 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
+         ( aes_inv_sbox[ ( t1 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ a ]; \
+    t5 = ( aes_inv_sbox[ ( t1 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
+         ( aes_inv_sbox[ ( t0 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
+         ( aes_inv_sbox[ ( t3 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
+         ( aes_inv_sbox[ ( t2 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ b ]; \
+    t6 = ( aes_inv_sbox[ ( t2 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
+         ( aes_inv_sbox[ ( t1 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
+         ( aes_inv_sbox[ ( t0 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
+         ( aes_inv_sbox[ ( t3 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ c ]; \
+    t7 = ( aes_inv_sbox[ ( t3 >>  0 ) & 0xFF ] & 0x000000FF ) ^          \
+         ( aes_inv_sbox[ ( t2 >>  8 ) & 0xFF ] & 0x0000FF00 ) ^          \
+         ( aes_inv_sbox[ ( t1 >> 16 ) & 0xFF ] & 0x00FF0000 ) ^          \
+         ( aes_inv_sbox[ ( t0 >> 24 ) & 0xFF ] & 0xFF000000 ) ^ RK[ d ]; \
 }
 
 
@@ -656,40 +671,39 @@ uint U3[] = {0x5150a7f4, 0x7e536541, 0x1ac3a417, 0x3a965e27,
              0x397101a8, 0x8deb30c, 0xd89ce4b4, 0x6490c156, 
              0x7b6184cb, 0xd570b632, 0x48745c6c, 0xd04257b8 };
 
-unsigned int aes_sbox[256] = {
-  0x63636363, 0x7c7c7c7c, 0x77777777, 0x7b7b7b7b, 0xf2f2f2f2, 0x6b6b6b6b, 0x6f6f6f6f, 0xc5c5c5c5, 
-  0x30303030, 0x01010101, 0x67676767, 0x2b2b2b2b, 0xfefefefe, 0xd7d7d7d7, 0xabababab, 0x76767676, 
-  0xcacacaca, 0x82828282, 0xc9c9c9c9, 0x7d7d7d7d, 0xfafafafa, 0x59595959, 0x47474747, 0xf0f0f0f0, 
-  0xadadadad, 0xd4d4d4d4, 0xa2a2a2a2, 0xafafafaf, 0x9c9c9c9c, 0xa4a4a4a4, 0x72727272, 0xc0c0c0c0, 
-  0xb7b7b7b7, 0xfdfdfdfd, 0x93939393, 0x26262626, 0x36363636, 0x3f3f3f3f, 0xf7f7f7f7, 0xcccccccc, 
-  0x34343434, 0xa5a5a5a5, 0xe5e5e5e5, 0xf1f1f1f1, 0x71717171, 0xd8d8d8d8, 0x31313131, 0x15151515, 
-  0x04040404, 0xc7c7c7c7, 0x23232323, 0xc3c3c3c3, 0x18181818, 0x96969696, 0x05050505, 0x9a9a9a9a, 
-  0x07070707, 0x12121212, 0x80808080, 0xe2e2e2e2, 0xebebebeb, 0x27272727, 0xb2b2b2b2, 0x75757575, 
-  0x09090909, 0x83838383, 0x2c2c2c2c, 0x1a1a1a1a, 0x1b1b1b1b, 0x6e6e6e6e, 0x5a5a5a5a, 0xa0a0a0a0, 
-  0x52525252, 0x3b3b3b3b, 0xd6d6d6d6, 0xb3b3b3b3, 0x29292929, 0xe3e3e3e3, 0x2f2f2f2f, 0x84848484, 
-  0x53535353, 0xd1d1d1d1, 0x00000000, 0xedededed, 0x20202020, 0xfcfcfcfc, 0xb1b1b1b1, 0x5b5b5b5b, 
-  0x6a6a6a6a, 0xcbcbcbcb, 0xbebebebe, 0x39393939, 0x4a4a4a4a, 0x4c4c4c4c, 0x58585858, 0xcfcfcfcf, 
-  0xd0d0d0d0, 0xefefefef, 0xaaaaaaaa, 0xfbfbfbfb, 0x43434343, 0x4d4d4d4d, 0x33333333, 0x85858585, 
-  0x45454545, 0xf9f9f9f9, 0x02020202, 0x7f7f7f7f, 0x50505050, 0x3c3c3c3c, 0x9f9f9f9f, 0xa8a8a8a8, 
-  0x51515151, 0xa3a3a3a3, 0x40404040, 0x8f8f8f8f, 0x92929292, 0x9d9d9d9d, 0x38383838, 0xf5f5f5f5, 
-  0xbcbcbcbc, 0xb6b6b6b6, 0xdadadada, 0x21212121, 0x10101010, 0xffffffff, 0xf3f3f3f3, 0xd2d2d2d2, 
-  0xcdcdcdcd, 0x0c0c0c0c, 0x13131313, 0xecececec, 0x5f5f5f5f, 0x97979797, 0x44444444, 0x17171717, 
-  0xc4c4c4c4, 0xa7a7a7a7, 0x7e7e7e7e, 0x3d3d3d3d, 0x64646464, 0x5d5d5d5d, 0x19191919, 0x73737373, 
-  0x60606060, 0x81818181, 0x4f4f4f4f, 0xdcdcdcdc, 0x22222222, 0x2a2a2a2a, 0x90909090, 0x88888888, 
-  0x46464646, 0xeeeeeeee, 0xb8b8b8b8, 0x14141414, 0xdededede, 0x5e5e5e5e, 0x0b0b0b0b, 0xdbdbdbdb, 
-  0xe0e0e0e0, 0x32323232, 0x3a3a3a3a, 0x0a0a0a0a, 0x49494949, 0x06060606, 0x24242424, 0x5c5c5c5c, 
-  0xc2c2c2c2, 0xd3d3d3d3, 0xacacacac, 0x62626262, 0x91919191, 0x95959595, 0xe4e4e4e4, 0x79797979, 
-  0xe7e7e7e7, 0xc8c8c8c8, 0x37373737, 0x6d6d6d6d, 0x8d8d8d8d, 0xd5d5d5d5, 0x4e4e4e4e, 0xa9a9a9a9, 
-  0x6c6c6c6c, 0x56565656, 0xf4f4f4f4, 0xeaeaeaea, 0x65656565, 0x7a7a7a7a, 0xaeaeaeae, 0x08080808, 
-  0xbabababa, 0x78787878, 0x25252525, 0x2e2e2e2e, 0x1c1c1c1c, 0xa6a6a6a6, 0xb4b4b4b4, 0xc6c6c6c6, 
-  0xe8e8e8e8, 0xdddddddd, 0x74747474, 0x1f1f1f1f, 0x4b4b4b4b, 0xbdbdbdbd, 0x8b8b8b8b, 0x8a8a8a8a, 
-  0x70707070, 0x3e3e3e3e, 0xb5b5b5b5, 0x66666666, 0x48484848, 0x03030303, 0xf6f6f6f6, 0x0e0e0e0e, 
-  0x61616161, 0x35353535, 0x57575757, 0xb9b9b9b9, 0x86868686, 0xc1c1c1c1, 0x1d1d1d1d, 0x9e9e9e9e, 
-  0xe1e1e1e1, 0xf8f8f8f8, 0x98989898, 0x11111111, 0x69696969, 0xd9d9d9d9, 0x8e8e8e8e, 0x94949494, 
-  0x9b9b9b9b, 0x1e1e1e1e, 0x87878787, 0xe9e9e9e9, 0xcececece, 0x55555555, 0x28282828, 0xdfdfdfdf, 
-  0x8c8c8c8c, 0xa1a1a1a1, 0x89898989, 0x0d0d0d0d, 0xbfbfbfbf, 0xe6e6e6e6, 0x42424242, 0x68686868, 
-  0x41414141, 0x99999999, 0x2d2d2d2d, 0x0f0f0f0f, 0xb0b0b0b0, 0x54545454, 0xbbbbbbbb, 0x16161616 
-};
+uint aes_sbox[] = {
+    0x63636363, 0x7C7C7C7C, 0x77777777, 0x7B7B7B7B, 0xF2F2F2F2, 0x6B6B6B6B, 0x6F6F6F6F, 0xC5C5C5C5,
+    0x30303030, 0x01010101, 0x67676767, 0x2B2B2B2B, 0xFEFEFEFE, 0xD7D7D7D7, 0xABABABAB, 0x76767676,
+    0xCACACACA, 0x82828282, 0xC9C9C9C9, 0x7D7D7D7D, 0xFAFAFAFA, 0x59595959, 0x47474747, 0xF0F0F0F0,
+    0xADADADAD, 0xD4D4D4D4, 0xA2A2A2A2, 0xAFAFAFAF, 0x9C9C9C9C, 0xA4A4A4A4, 0x72727272, 0xC0C0C0C0,
+    0xB7B7B7B7, 0xFDFDFDFD, 0x93939393, 0x26262626, 0x36363636, 0x3F3F3F3F, 0xF7F7F7F7, 0xCCCCCCCC,
+    0x34343434, 0xA5A5A5A5, 0xE5E5E5E5, 0xF1F1F1F1, 0x71717171, 0xD8D8D8D8, 0x31313131, 0x15151515,
+    0x04040404, 0xC7C7C7C7, 0x23232323, 0xC3C3C3C3, 0x18181818, 0x96969696, 0x05050505, 0x9A9A9A9A,
+    0x07070707, 0x12121212, 0x80808080, 0xE2E2E2E2, 0xEBEBEBEB, 0x27272727, 0xB2B2B2B2, 0x75757575,
+    0x09090909, 0x83838383, 0x2C2C2C2C, 0x1A1A1A1A, 0x1B1B1B1B, 0x6E6E6E6E, 0x5A5A5A5A, 0xA0A0A0A0,
+    0x52525252, 0x3B3B3B3B, 0xD6D6D6D6, 0xB3B3B3B3, 0x29292929, 0xE3E3E3E3, 0x2F2F2F2F, 0x84848484,
+    0x53535353, 0xD1D1D1D1, 0x00000000, 0xEDEDEDED, 0x20202020, 0xFCFCFCFC, 0xB1B1B1B1, 0x5B5B5B5B,
+    0x6A6A6A6A, 0xCBCBCBCB, 0xBEBEBEBE, 0x39393939, 0x4A4A4A4A, 0x4C4C4C4C, 0x58585858, 0xCFCFCFCF,
+    0xD0D0D0D0, 0xEFEFEFEF, 0xAAAAAAAA, 0xFBFBFBFB, 0x43434343, 0x4D4D4D4D, 0x33333333, 0x85858585,
+    0x45454545, 0xF9F9F9F9, 0x02020202, 0x7F7F7F7F, 0x50505050, 0x3C3C3C3C, 0x9F9F9F9F, 0xA8A8A8A8,
+    0x51515151, 0xA3A3A3A3, 0x40404040, 0x8F8F8F8F, 0x92929292, 0x9D9D9D9D, 0x38383838, 0xF5F5F5F5,
+    0xBCBCBCBC, 0xB6B6B6B6, 0xDADADADA, 0x21212121, 0x10101010, 0xFFFFFFFF, 0xF3F3F3F3, 0xD2D2D2D2,
+    0xCDCDCDCD, 0x0C0C0C0C, 0x13131313, 0xECECECEC, 0x5F5F5F5F, 0x97979797, 0x44444444, 0x17171717,
+    0xC4C4C4C4, 0xA7A7A7A7, 0x7E7E7E7E, 0x3D3D3D3D, 0x64646464, 0x5D5D5D5D, 0x19191919, 0x73737373,
+    0x60606060, 0x81818181, 0x4F4F4F4F, 0xDCDCDCDC, 0x22222222, 0x2A2A2A2A, 0x90909090, 0x88888888,
+    0x46464646, 0xEEEEEEEE, 0xB8B8B8B8, 0x14141414, 0xDEDEDEDE, 0x5E5E5E5E, 0x0B0B0B0B, 0xDBDBDBDB,
+    0xE0E0E0E0, 0x32323232, 0x3A3A3A3A, 0x0A0A0A0A, 0x49494949, 0x06060606, 0x24242424, 0x5C5C5C5C,
+    0xC2C2C2C2, 0xD3D3D3D3, 0xACACACAC, 0x62626262, 0x91919191, 0x95959595, 0xE4E4E4E4, 0x79797979,
+    0xE7E7E7E7, 0xC8C8C8C8, 0x37373737, 0x6D6D6D6D, 0x8D8D8D8D, 0xD5D5D5D5, 0x4E4E4E4E, 0xA9A9A9A9,
+    0x6C6C6C6C, 0x56565656, 0xF4F4F4F4, 0xEAEAEAEA, 0x65656565, 0x7A7A7A7A, 0xAEAEAEAE, 0x08080808,
+    0xBABABABA, 0x78787878, 0x25252525, 0x2E2E2E2E, 0x1C1C1C1C, 0xA6A6A6A6, 0xB4B4B4B4, 0xC6C6C6C6,
+    0xE8E8E8E8, 0xDDDDDDDD, 0x74747474, 0x1F1F1F1F, 0x4B4B4B4B, 0xBDBDBDBD, 0x8B8B8B8B, 0x8A8A8A8A,
+    0x70707070, 0x3E3E3E3E, 0xB5B5B5B5, 0x66666666, 0x48484848, 0x03030303, 0xF6F6F6F6, 0x0E0E0E0E,
+    0x61616161, 0x35353535, 0x57575757, 0xB9B9B9B9, 0x86868686, 0xC1C1C1C1, 0x1D1D1D1D, 0x9E9E9E9E,
+    0xE1E1E1E1, 0xF8F8F8F8, 0x98989898, 0x11111111, 0x69696969, 0xD9D9D9D9, 0x8E8E8E8E, 0x94949494,
+    0x9B9B9B9B, 0x1E1E1E1E, 0x87878787, 0xE9E9E9E9, 0xCECECECE, 0x55555555, 0x28282828, 0xDFDFDFDF,
+    0x8C8C8C8C, 0xA1A1A1A1, 0x89898989, 0x0D0D0D0D, 0xBFBFBFBF, 0xE6E6E6E6, 0x42424242, 0x68686868,
+    0x41414141, 0x99999999, 0x2D2D2D2D, 0x0F0F0F0F, 0xB0B0B0B0, 0x54545454, 0xBBBBBBBB, 0x16161616 };
 
 uint aes_inv_sbox[256] = {
   0x52525252, 0x09090909, 0x6a6a6a6a, 0xd5d5d5d5, 0x30303030, 0x36363636, 0xa5a5a5a5, 0x38383838, 
@@ -731,36 +745,119 @@ uint RC[] ={ 0x00000001, 0x00000002, 0x00000004, 0x00000008,
              0x0000001B, 0x00000036                         };
 
 
-void aes_schedule( int nb, int nr, octet *k, uint *RK ) 
-{
-    int i, j;
 
-    for( i = 0; i < nb; i++ ) 
+void aes_schedule( int nb, int nr, octet* k, uint* RK ) 
+{
+    int i;
+    for( int i = 0; i < (nb); i++ ) 
     {
-        U8_TO_U32_LE( RK[ i ], k, 4 * i );
+        U8_TO_U32_LE( RK[ i ], k, 4*i );
     }
 
-    for( i = nb, j = 0; i < (4 * (nr + 1)); i++ )
+    for( int i = nb, j = 0; i < ( 4 * ( nr + 1 ) ); i++ ) 
     {
         uint t = RK[ i -  1 ];
         uint p = RK[ i - nb ];
 
-        if ( ( i % nb ) == 0 )
+        if( ( ( i % nb ) == 0 ) )
         {
-            t = RC[ j++ ] ^ ( aes_sbox[ ( t >>  8 ) & 0xFF ] & 0x000000FF  ) ^
-                            ( aes_sbox[ ( t >> 16 ) & 0xFF ] & 0x0000FF00  ) ^
-                            ( aes_sbox[ ( t >> 24 ) & 0xFF ] & 0x00FF0000  ) ^
-                            ( aes_sbox[ ( t >>  0 ) & 0xFF ] & 0xFF000000  ) ;
+          t = RC[ j++ ] ^ ( aes_sbox[ ( t >>  8 ) & 0xFF ] & 0x000000FF ) ^
+                          ( aes_sbox[ ( t >> 16 ) & 0xFF ] & 0x0000FF00 ) ^
+                          ( aes_sbox[ ( t >> 24 ) & 0xFF ] & 0x00FF0000 ) ^
+                          ( aes_sbox[ ( t >>  0 ) & 0xFF ] & 0xFF000000 ) ;
         }
-        else if( ( ( i % nb ) == 4 ) && ( nb == 8 ) )
-        {
-            t = ( aes_sbox[ ( t >>  0 ) & 0xFF ] & 0x000000FF  ) ^
-                ( aes_sbox[ ( t >>  8 ) & 0xFF ] & 0x0000FF00  ) ^
-                ( aes_sbox[ ( t >> 16 ) & 0xFF ] & 0x00FF0000  ) ^
-                ( aes_sbox[ ( t >> 24 ) & 0xFF ] & 0xFF000000  ) ;
+        else if( ( ( i % nb ) == 4 ) && ( nb == 8 ) ) {
+            t = ( aes_sbox[ ( t >>  0 ) & 0xFF ] & 0x000000FF ) ^
+                ( aes_sbox[ ( t >>  8 ) & 0xFF ] & 0x0000FF00 ) ^
+                ( aes_sbox[ ( t >> 16 ) & 0xFF ] & 0x00FF0000 ) ^
+                ( aes_sbox[ ( t >> 24 ) & 0xFF ] & 0xFF000000 ) ;
         }
         RK[ i ] = t ^ p;
     }
+}
+
+
+void rotate(unsigned char *in)
+{
+    unsigned char a, c;
+    a = in[0];
+
+    for(c = 0; c < 3; c++) 
+        in[c] = in[c + 1];
+
+    in[3] = a;
+    return;
+}
+
+/* This is the core key expansion, which, given a 4-byte value,
+ * does some scrambling */
+void schedule_core(unsigned char *in, unsigned char i)
+{
+    char a;
+    /* Rotate the input 8 bits to the left */
+    rotate(in);
+
+    /* Apply Rijndael's s-box on all 4 bytes */
+    for(a = 0; a < 4; a++) 
+        in[a] = aes_sbox[in[a]];
+
+    /* On just the first byte, add 2^i to the byte */
+    in[0] ^= RC[i];
+}
+
+void expand_key(octet *in)
+{
+    unsigned char t[4];
+    /* c is 16 because the first sub-key is the user-supplied key */
+    unsigned char c = 16;
+    unsigned char i = 0;
+        unsigned char a;
+
+    /* We need 11 sets of sixteen bytes each for 128-bit mode */
+    while(c < 176)
+    {
+        /* Copy the temporary variable over from the last 4-byte
+         * block */
+        for(a = 0; a < 4; a++)
+            t[a] = in[a + c - 4];
+
+        /* Every four blocks (of four bytes), 
+         * do a complex calculation */
+        if(c % 16 == 0)
+        {
+            schedule_core(t, i);
+            i++;
+        }
+
+        for(a = 0; a < 4; a++)
+        {
+                in[c] = in[c - 16] ^ t[a];
+                c++;
+        }
+    }
+}
+
+uint *convertCharStringToUINT(octet *in)
+{
+    uint *toReturn = new uint[44];
+    int i;
+
+    for(i = 0; i < 44; i ++)
+        U8_TO_U32_LE(toReturn[i], in, 4 * i);
+
+    return toReturn;
+}
+
+uint *getUintKeySchedule(octet *key)
+{
+    octet *tempExpKey = new octet[44*4];
+    strncpy( (char*)tempExpKey, (char*)key, 16);
+
+    expand_key(tempExpKey);
+
+    uint *toReturn = convertCharStringToUINT(tempExpKey);
+
+    return toReturn;
 }
 
 
@@ -773,17 +870,18 @@ void aes_128_encrypt( octet *C, octet *M, uint *RK )
     U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
 
     ROUND1(  0,  1,  2,  3 );
-    //ROUND2(  4,  5,  6,  7 );
-    //ROUND3(  8,  9, 10, 11 );
-    /*
-    ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
-    ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
-    ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
-    ROUND3( 40, 41, 42, 43 );
-    */
-
+    ROUND2(  4,  5,  6,  7 );
     U32_TO_U8_LE( C, t0,  0 ); U32_TO_U8_LE( C, t1,  4 );
     U32_TO_U8_LE( C, t2,  8 ); U32_TO_U8_LE( C, t3, 12 );
+
+    //ROUND1(  0,  1,  2,  3 );
+    //ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
+    //ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
+    //ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
+    //ROUND3( 40, 41, 42, 43 );
+
+    //U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    //U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 void aes_128_decrypt(octet *C, octet *M, uint *RK)
@@ -792,22 +890,20 @@ void aes_128_decrypt(octet *C, octet *M, uint *RK)
 
     U8_TO_U32_LE( t0, C, 0 ); U8_TO_U32_LE( t1, C,  4 );
     U8_TO_U32_LE( t2, C, 8 ); U8_TO_U32_LE( t3, C, 12 );
-
-    //ROUND3(  0,  1,  2,  3 );
-    //ROUND2(  4,  5,  6,  7 );
-    //ROUND1(  8,  9, 10, 11 );
+    
     ROUND1(  0,  1,  2,  3 );
+    ROUND2_INV(  4,  5,  6,  7 );
+    U32_TO_U8_LE( M, t0,  0 ); U32_TO_U8_LE( M, t1,  4 );
+    U32_TO_U8_LE( M, t2,  8 ); U32_TO_U8_LE( M, t3, 12 );
+
+    // ROUND1( 40, 41, 42, 43 );
+    // ROUND2_INV( 36, 37, 38, 39 ); ROUND2_INV( 32, 33, 34, 35 ); ROUND2_INV( 28, 29, 30, 31 );
+    // ROUND2_INV( 24, 25, 26, 27 ); ROUND2_INV( 20, 21, 22, 23 ); ROUND2_INV( 16, 17, 18, 19 );
+    // ROUND2_INV( 12, 13, 14, 15 ); ROUND2_INV(  8,  9, 10, 11 ); ROUND2_INV(  4,  5,  6,  7 );
+    // ROUND3_INV(  0,  1,  2,  3 );
     
-    /*
-    ROUND1( 40, 41, 42, 43 );
-    ROUND2( 36, 37, 38, 39 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 28, 29, 30, 31 );
-    ROUND2( 24, 25, 26, 27 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 16, 17, 18, 19 );
-    ROUND2( 12, 13, 14, 15 ); ROUND2(  8,  9, 10, 11 ); ROUND2(  4,  5,  6,  7 );
-    ROUND3(  0,  1,  2,  3 );
-    */
-    
-    U32_TO_U8_LE( C, t0,  0 ); U32_TO_U8_LE( C, t1,  4 );
-    U32_TO_U8_LE( C, t2,  8 ); U32_TO_U8_LE( C, t3, 12 );
+    // U32_TO_U8_LE( M, t4,  0 ); U32_TO_U8_LE( M, t5,  4 );
+    // U32_TO_U8_LE( M, t6,  8 ); U32_TO_U8_LE( M, t7, 12 );
 }
 
 
@@ -1105,8 +1201,3 @@ void aes_256_encrypt(octet* out, const octet* in, const octet* key)
     tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
     _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
-
-
-
-
-

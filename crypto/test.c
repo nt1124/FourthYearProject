@@ -1,6 +1,8 @@
 #include "aes.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <openssl/aes.h>
+
 
 
 int aesTesting()
@@ -9,18 +11,16 @@ int aesTesting()
 
 	int intKey = 2324253, intMessage = 123546236, i;
 
-	octet* tempKey = new octet[4];
-	tempKey[0] = (intKey >> 24) & 0x000000FF;
-	tempKey[1] = (intKey >> 16) & 0x000000FF;
-	tempKey[2] = (intKey >> 8) & 0x000000FF;
-	tempKey[3] = (intKey >> 0) & 0x000000FF;
-
+	octet* tempKey = new octet[16];
 	octet* tempMsg = new octet[16];
 	octet* tempOut = new octet[16];
-	//encode_length( tempMsg, intMessage);
-	tempMsg = generateRandBytes(16);
 
-	unsigned int *RK = new uint[44];
+	tempMsg = generateRandBytes(16);
+	tempKey = generateRandBytes(16);
+
+	uint *RK = new uint[44];
+	//aes_schedule( 128, 10, tempKey, RK );
+	RK = getUintKeySchedule(tempKey);
 	octet* C = new octet[16];
 
 	printf("Message\n");
@@ -29,15 +29,8 @@ int aesTesting()
 		printf("%02X", tempMsg[i]);
 	}
 
-	printf("\nKey\n");
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", tempKey[i]);
-	}
-
-	aes_schedule( 128, 10, tempKey, RK );
-
 	aes_128_encrypt(C, tempMsg, RK);
+
 	printf("\nCiphertext\n");
 	for(i = 0; i < 16; i ++)
 	{
@@ -51,6 +44,16 @@ int aesTesting()
 		printf("%02X", tempOut[i]);
 	}
 	printf("\nTesting done\n");
+
+	AES_KEY enc_key;
+	AES_set_encrypt_key( tempKey, 128, &enc_key );
+	AES_encrypt(tempMsg, C, &enc_key);
+	printf("\nOpenSSL Ciphertext\n");
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", C[i]);
+	}
+
 
 	return 0;
 }
