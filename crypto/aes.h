@@ -7,6 +7,7 @@
 typedef unsigned int  uint;
 typedef unsigned char octet;
 
+#include "randUtils.c"
 #include "aes.cpp"
 
 #define AES_BLK_SIZE 16

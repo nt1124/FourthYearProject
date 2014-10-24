@@ -16,29 +16,39 @@ int aesTesting()
 	tempKey[3] = (intKey >> 0) & 0x000000FF;
 
 	octet* tempMsg = new octet[16];
+	octet* tempOut = new octet[16];
 	//encode_length( tempMsg, intMessage);
+	tempMsg = generateRandBytes(16);
 
 	unsigned int *RK = new uint[44];
 	octet* C = new octet[16];
 
+	printf("Message\n");
 	for(i = 0; i < 16; i ++)
 	{
 		printf("%02X", tempMsg[i]);
 	}
-	printf("\n");
 
+	printf("\nKey\n");
 	for(i = 0; i < 16; i ++)
 	{
 		printf("%02X", tempKey[i]);
 	}
-	printf("\n");
 
 	aes_schedule( 128, 10, tempKey, RK );
-	aes_128_encrypt(C, tempMsg, RK);
 
+	aes_128_encrypt(C, tempMsg, RK);
+	printf("\nCiphertext\n");
 	for(i = 0; i < 16; i ++)
 	{
 		printf("%02X", C[i]);
+	}
+
+	aes_128_decrypt(C, tempOut, RK);
+	printf("\nDecrypted CT\n");
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", tempOut[i]);
 	}
 	printf("\nTesting done\n");
 
