@@ -9,7 +9,7 @@ typedef unsigned int  uint;
 
 #include "randUtils.c"
 #include <string.h>
-// #include <wmmintrin.h>
+#include <wmmintrin.h>
 #include "aes.cpp"
 
 #define AES_BLK_SIZE 16
@@ -37,7 +37,7 @@ inline void aes_encrypt( unsigned char* C, unsigned char* M, uint* RK )
 
 
 /*********** M-Code Version ***********/
-/*
+
 
 // Check can support this
 int Check_CPU_support_AES();
@@ -58,7 +58,6 @@ void aes_256_encrypt( unsigned char* C, const unsigned char* M,const unsigned ch
 inline void aes_encrypt( unsigned char* C, const unsigned char* M,const unsigned char* RK )
 { aes_128_encrypt(C,M,RK); }
 
-*/
 
 #endif
 
