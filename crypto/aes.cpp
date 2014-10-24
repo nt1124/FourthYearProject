@@ -76,38 +76,12 @@
        ( U2[ ( t1 >> 16 ) & 0xFF ] ) ^  \
        ( U3[ ( t0 >> 24 ) & 0xFF ] );   \
                                         \
-  t0 = t4;                      \
-  t1 = t5;                      \
-  t2 = t6;                      \
-  t3 = t7;                      \
+  t0 = t4 ^ RK[a];                      \
+  t1 = t5 ^ RK[b];                      \
+  t2 = t6 ^ RK[c];                      \
+  t3 = t7 ^ RK[d];                      \
 }
 
-/*
-#define ROUND2_INV(a, b, c, d)                  \
-{                                               \
-  t4 = ( U0[ ( t0 >>  0 ) & 0xFF ] ) ^          \
-       ( U1[ ( t3 >>  8 ) & 0xFF ] ) ^          \
-       ( U2[ ( t2 >> 16 ) & 0xFF ] ) ^          \
-       ( U3[ ( t1 >> 24 ) & 0xFF ] ) ^ RK[ a ]; \
-  t5 = ( U0[ ( t1 >>  0 ) & 0xFF ] ) ^          \
-       ( U1[ ( t0 >>  8 ) & 0xFF ] ) ^          \
-       ( U2[ ( t3 >> 16 ) & 0xFF ] ) ^          \
-       ( U3[ ( t2 >> 24 ) & 0xFF ] ) ^ RK[ b ]; \
-  t6 = ( U0[ ( t2 >>  0 ) & 0xFF ] ) ^          \
-       ( U1[ ( t1 >>  8 ) & 0xFF ] ) ^          \
-       ( U2[ ( t0 >> 16 ) & 0xFF ] ) ^          \
-       ( U3[ ( t3 >> 24 ) & 0xFF ] ) ^ RK[ c ]; \
-  t7 = ( U0[ ( t3 >>  0 ) & 0xFF ] ) ^          \
-       ( U1[ ( t2 >>  8 ) & 0xFF ] ) ^          \
-       ( U2[ ( t1 >> 16 ) & 0xFF ] ) ^          \
-       ( U3[ ( t0 >> 24 ) & 0xFF ] ) ^ RK[ d ]; \
-                                                \
-  t0 = t4;                                      \
-  t1 = t5;                                      \
-  t2 = t6;                                      \
-  t3 = t7;                                      \
-}
-*/
 
 #define ROUND3(a,b,c,d)                                               \
 {                                                                     \
@@ -860,6 +834,31 @@ uint *getUintKeySchedule(octet *key)
     return toReturn;
 }
 
+// Takes an EXPANDED key and reverses order/applies InvMixColumns
+uint *decryptionKeySchedule_128(uint *expandedEncKey)
+{
+    uint *decRK = new uint[44];
+    int i, j;
+
+    for(i = 0; i < 41; i += 4)
+    {
+        decRK[i + 0] = expandedEncKey[40 - i + 0];
+        decRK[i + 1] = expandedEncKey[40 - i + 1];
+        decRK[i + 2] = expandedEncKey[40 - i + 2];
+        decRK[i + 3] = expandedEncKey[40 - i + 3];
+    }
+
+    for(i = 4; i < 40; i ++)
+    {
+        decRK[i] =  U0[aes_sbox[ (decRK[i] >>  0) & 0xff ] & 0xff] ^
+                    U1[aes_sbox[ (decRK[i] >>  8) & 0xff ] & 0xff] ^
+                    U2[aes_sbox[ (decRK[i] >> 16) & 0xff ] & 0xff] ^
+                    U3[aes_sbox[ (decRK[i] >> 24) & 0xff ] & 0xff];
+    }
+
+    return decRK;
+}
+
 
 
 void aes_128_encrypt( octet *C, octet *M, uint *RK )
@@ -870,18 +869,13 @@ void aes_128_encrypt( octet *C, octet *M, uint *RK )
     U8_TO_U32_LE( t2, M,  8 ); U8_TO_U32_LE( t3, M, 12 );
 
     ROUND1(  0,  1,  2,  3 );
-    ROUND2(  4,  5,  6,  7 );
-    U32_TO_U8_LE( C, t0,  0 ); U32_TO_U8_LE( C, t1,  4 );
-    U32_TO_U8_LE( C, t2,  8 ); U32_TO_U8_LE( C, t3, 12 );
+    ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
+    ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
+    ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
+    ROUND3( 40, 41, 42, 43 );
 
-    //ROUND1(  0,  1,  2,  3 );
-    //ROUND2(  4,  5,  6,  7 ); ROUND2(  8,  9, 10, 11 ); ROUND2( 12, 13, 14, 15 );
-    //ROUND2( 16, 17, 18, 19 ); ROUND2( 20, 21, 22, 23 ); ROUND2( 24, 25, 26, 27 );
-    //ROUND2( 28, 29, 30, 31 ); ROUND2( 32, 33, 34, 35 ); ROUND2( 36, 37, 38, 39 );
-    //ROUND3( 40, 41, 42, 43 );
-
-    //U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
-    //U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
+    U32_TO_U8_LE( C, t4,  0 ); U32_TO_U8_LE( C, t5,  4 );
+    U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
 void aes_128_decrypt(octet *C, octet *M, uint *RK)
@@ -890,20 +884,15 @@ void aes_128_decrypt(octet *C, octet *M, uint *RK)
 
     U8_TO_U32_LE( t0, C, 0 ); U8_TO_U32_LE( t1, C,  4 );
     U8_TO_U32_LE( t2, C, 8 ); U8_TO_U32_LE( t3, C, 12 );
-    
-    ROUND1(  0,  1,  2,  3 );
-    ROUND2_INV(  4,  5,  6,  7 );
-    U32_TO_U8_LE( M, t0,  0 ); U32_TO_U8_LE( M, t1,  4 );
-    U32_TO_U8_LE( M, t2,  8 ); U32_TO_U8_LE( M, t3, 12 );
 
-    // ROUND1( 40, 41, 42, 43 );
-    // ROUND2_INV( 36, 37, 38, 39 ); ROUND2_INV( 32, 33, 34, 35 ); ROUND2_INV( 28, 29, 30, 31 );
-    // ROUND2_INV( 24, 25, 26, 27 ); ROUND2_INV( 20, 21, 22, 23 ); ROUND2_INV( 16, 17, 18, 19 );
-    // ROUND2_INV( 12, 13, 14, 15 ); ROUND2_INV(  8,  9, 10, 11 ); ROUND2_INV(  4,  5,  6,  7 );
-    // ROUND3_INV(  0,  1,  2,  3 );
+    ROUND1(  0,  1,  2,  3 );
+    ROUND2_INV(  4,  5,  6,  7 ); ROUND2_INV(  8,  9, 10, 11 ); ROUND2_INV( 12, 13, 14, 15 );
+    ROUND2_INV( 16, 17, 18, 19 ); ROUND2_INV( 20, 21, 22, 23 ); ROUND2_INV( 24, 25, 26, 27 );
+    ROUND2_INV( 28, 29, 30, 31 ); ROUND2_INV( 32, 33, 34, 35 ); ROUND2_INV( 36, 37, 38, 39 );
+    ROUND3_INV( 40, 41, 42, 43 );
     
-    // U32_TO_U8_LE( M, t4,  0 ); U32_TO_U8_LE( M, t5,  4 );
-    // U32_TO_U8_LE( M, t6,  8 ); U32_TO_U8_LE( M, t7, 12 );
+    U32_TO_U8_LE( M, t4,  0 ); U32_TO_U8_LE( M, t5,  4 );
+    U32_TO_U8_LE( M, t6,  8 ); U32_TO_U8_LE( M, t7, 12 );
 }
 
 

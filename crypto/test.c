@@ -1,7 +1,7 @@
 #include "aes.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <openssl/aes.h>
+#include <string.h>
 
 
 
@@ -9,51 +9,28 @@ int aesTesting()
 {
 	printf( "CPU capable?  %d\n", Check_CPU_support_AES() );
 
-	int intKey = 2324253, intMessage = 123546236, i;
+	int i;
 
 	octet* tempKey = new octet[16];
 	octet* tempMsg = new octet[16];
 	octet* tempOut = new octet[16];
 
-	tempMsg = generateRandBytes(16);
-	tempKey = generateRandBytes(16);
+	initRandGen();
 
-	uint *RK = new uint[44];
-	//aes_schedule( 128, 10, tempKey, RK );
-	RK = getUintKeySchedule(tempKey);
-	octet* C = new octet[16];
-
-	printf("Message\n");
-	for(i = 0; i < 16; i ++)
+	printf("0 indicates succesful test.\n");
+	for(i = 0; i < 100; i ++)
 	{
-		printf("%02X", tempMsg[i]);
+		tempMsg = generateRandBytes(16);
+		tempKey = generateRandBytes(16);
+
+		uint *encRK = getUintKeySchedule(tempKey);
+		octet* C = new octet[16];
+		aes_128_encrypt(C, tempMsg, encRK);
+		uint *decRK = decryptionKeySchedule_128(encRK);
+		aes_128_decrypt(C, tempOut, decRK);
+		
+		printf("%d Test = %d\n", i, strncmp( (char*)tempMsg, (char*)tempOut, 16));
 	}
-
-	aes_128_encrypt(C, tempMsg, RK);
-
-	printf("\nCiphertext\n");
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", C[i]);
-	}
-
-	aes_128_decrypt(C, tempOut, RK);
-	printf("\nDecrypted CT\n");
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", tempOut[i]);
-	}
-	printf("\nTesting done\n");
-
-	AES_KEY enc_key;
-	AES_set_encrypt_key( tempKey, 128, &enc_key );
-	AES_encrypt(tempMsg, C, &enc_key);
-	printf("\nOpenSSL Ciphertext\n");
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", C[i]);
-	}
-
 
 	return 0;
 }
