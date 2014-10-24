@@ -720,7 +720,7 @@ uint RC[] ={ 0x00000001, 0x00000002, 0x00000004, 0x00000008,
 
 
 
-void aes_schedule( int nb, int nr, octet* k, uint* RK ) 
+void aes_schedule( int nb, int nr, unsigned char* k, uint* RK ) 
 {
     int i;
     for( int i = 0; i < (nb); i++ ) 
@@ -779,7 +779,7 @@ void schedule_core(unsigned char *in, unsigned char i)
     in[0] ^= RC[i];
 }
 
-void expand_key(octet *in)
+void expand_key(unsigned char *in)
 {
     unsigned char t[4];
     /* c is 16 because the first sub-key is the user-supplied key */
@@ -811,7 +811,7 @@ void expand_key(octet *in)
     }
 }
 
-uint *convertCharStringToUINT(octet *in)
+uint *convertCharStringToUINT(unsigned char *in)
 {
     uint *toReturn = new uint[44];
     int i;
@@ -822,9 +822,9 @@ uint *convertCharStringToUINT(octet *in)
     return toReturn;
 }
 
-uint *getUintKeySchedule(octet *key)
+uint *getUintKeySchedule(unsigned char *key)
 {
-    octet *tempExpKey = new octet[44*4];
+    unsigned char *tempExpKey = new unsigned char[44*4];
     strncpy( (char*)tempExpKey, (char*)key, 16);
 
     expand_key(tempExpKey);
@@ -861,7 +861,7 @@ uint *decryptionKeySchedule_128(uint *expandedEncKey)
 
 
 
-void aes_128_encrypt( octet *C, octet *M, uint *RK )
+void aes_128_encrypt( unsigned char *C, unsigned char *M, uint *RK )
 {
     uint t0, t1, t2, t3, t4, t5, t6, t7;
 
@@ -878,7 +878,7 @@ void aes_128_encrypt( octet *C, octet *M, uint *RK )
     U32_TO_U8_LE( C, t6,  8 ); U32_TO_U8_LE( C, t7, 12 );
 }
 
-void aes_128_decrypt(octet *C, octet *M, uint *RK)
+void aes_128_decrypt(unsigned char *C, unsigned char *M, uint *RK)
 {
     uint t0, t1, t2, t3, t4, t5, t6, t7;
 
@@ -896,7 +896,7 @@ void aes_128_decrypt(octet *C, octet *M, uint *RK)
 }
 
 
-void aes_192_encrypt( octet* C, octet* M, uint* RK )
+void aes_192_encrypt( unsigned char* C, unsigned char* M, uint* RK )
 {
     uint t0, t1, t2, t3, t4, t5, t6, t7;
 
@@ -915,7 +915,7 @@ void aes_192_encrypt( octet* C, octet* M, uint* RK )
 }
 
 
-void aes_256_encrypt( octet* C, octet* M, uint* RK )
+void aes_256_encrypt( unsigned char* C, unsigned char* M, uint* RK )
 {
     uint t0, t1, t2, t3, t4, t5, t6, t7;
 
@@ -941,6 +941,8 @@ void aes_256_encrypt( octet* C, octet* M, uint* RK )
  *    M-Code Version  *
  **********************/
 
+ /*
+
 #define cpuid(func,ax,bx,cx,dx)\
     __asm__ __volatile__("cpuid": "=a" (ax), "=b" (bx), "=c" (cx), "=d" (dx) : "a" (func)); 
 
@@ -952,7 +954,6 @@ int Check_CPU_support_AES()
     return (c & 0x2000000); 
 }
 
-#include <wmmintrin.h>
 
 
 inline __m128i AES_128_ASSIST (__m128i temp1, __m128i temp2)
@@ -969,7 +970,7 @@ inline __m128i AES_128_ASSIST (__m128i temp1, __m128i temp2)
 }
 
 
-void aes_128_schedule( octet* key, const octet* userkey )
+void aes_128_schedule( unsigned char* key, const unsigned char* userkey )
 {
     __m128i temp1, temp2; 
     __m128i *Key_Schedule = (__m128i*)key; 
@@ -1026,7 +1027,7 @@ inline void KEY_192_ASSIST(__m128i* temp1, __m128i * temp2, __m128i * temp3)
 }
 
 
-void aes_192_schedule( octet* key, const octet* userkey )
+void aes_192_schedule( unsigned char* key, const unsigned char* userkey )
 { 
     __m128i temp1, temp2, temp3;
     __m128i *Key_Schedule = (__m128i*)key;
@@ -1097,7 +1098,7 @@ inline void KEY_256_ASSIST_2(__m128i* temp1, __m128i * temp3)
 }
 
 
-void aes_256_schedule( octet* key, const octet* userkey )
+void aes_256_schedule( unsigned char* key, const unsigned char* userkey )
 {
     __m128i temp1, temp2, temp3;
     __m128i *Key_Schedule = (__m128i*)key;
@@ -1141,7 +1142,7 @@ void aes_256_schedule( octet* key, const octet* userkey )
 }
 
 
-void aes_128_encrypt(octet* out, const octet* in, const octet* key)
+void aes_128_encrypt(unsigned char* out, const unsigned char* in, const unsigned char* key)
 { 
     __m128i tmp; 
     tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
@@ -1158,7 +1159,7 @@ void aes_128_encrypt(octet* out, const octet* in, const octet* key)
 }
 
 
-void aes_192_encrypt(octet* out, const octet* in, const octet* key)
+void aes_192_encrypt(unsigned char* out, const unsigned char* in, const unsigned char* key)
 {
     __m128i tmp; 
     tmp = _mm_loadu_si128 (&((__m128i*)in)[0]); 
@@ -1175,7 +1176,7 @@ void aes_192_encrypt(octet* out, const octet* in, const octet* key)
 }
 
 
-void aes_256_encrypt(octet* out, const octet* in, const octet* key)
+void aes_256_encrypt(unsigned char* out, const unsigned char* in, const unsigned char* key)
 {
     __m128i tmp;
     tmp = _mm_loadu_si128 (&((__m128i*)in)[0]);
@@ -1190,3 +1191,5 @@ void aes_256_encrypt(octet* out, const octet* in, const octet* key)
     tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
     _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
+
+*/

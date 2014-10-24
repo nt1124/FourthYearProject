@@ -1,2 +1,2 @@
-gcc circuitEvaluator.c -lcrypto -lgmp -o a.out
+g++ circuitEvaluator.c -lgmp -o a.out
 time ./a.out circuits/And.sfdl.Opt.circuit circuits/And.sfdl.Opt.fmt

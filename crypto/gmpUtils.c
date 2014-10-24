@@ -13,7 +13,7 @@ typedef struct mpzAsHex
 
 gmp_randstate_t *seedRandGen()
 {
-    gmp_randstate_t *state = calloc(1, sizeof(gmp_randstate_t));
+    gmp_randstate_t *state = (gmp_randstate_t*) calloc(1, sizeof(gmp_randstate_t));
     unsigned long int seed = time(NULL);
     gmp_randinit_default(*state);
     gmp_randseed_ui(*state, seed);
@@ -86,7 +86,7 @@ char *convertBytesToHex(unsigned char *input, int inputLength)
 							  	'C', 'D', 'E', 'F'};
 	int i, j = 0;
 	unsigned char temp;
-	char *output = calloc(inputLength * 2 + 1, sizeof(char));
+	char *output = (char*) calloc(inputLength * 2 + 1, sizeof(char));
 
 	for(i = 0; i < inputLength; i ++)
 	{
@@ -120,8 +120,8 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	int shift = 0;
 	*inputLength = numberOfHexChars(input, &shift);
 
-	unsigned char *bytesToOutput = calloc( *inputLength, sizeof(unsigned char));
-	char *hexVersion = calloc(*inputLength, sizeof(char));
+	unsigned char *bytesToOutput = (unsigned char*) calloc( *inputLength, sizeof(unsigned char));
+	char *hexVersion = (char*) calloc(*inputLength, sizeof(char));
 
 	*(hexVersion) = '0';
 

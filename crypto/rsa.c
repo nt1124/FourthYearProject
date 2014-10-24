@@ -167,8 +167,8 @@ struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, int nLength,
 {
 	struct rsaPubKey *outputKey = initPubKeyRSA();
 
-	mpz_t *nNum = calloc(1, sizeof(mpz_t));
-	mpz_t *eNum = calloc(1, sizeof(mpz_t));
+	mpz_t *nNum = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *eNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 
 	convertBytesToMPZ(nNum, N_Bytes, nLength);
 	convertBytesToMPZ(eNum, e_Bytes, eLength);
