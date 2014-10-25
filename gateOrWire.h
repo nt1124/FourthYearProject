@@ -24,7 +24,8 @@ typedef struct gate
 
 	short outputTableSize;
 	struct outputEncRow *outputTreeEnc;
-	unsigned char *outputTable[16];
+	unsigned char tablePermutation;
+	// unsigned char *outputTable[16];
 
 	struct bitsGarbleKeys **inputKeySet;
 } gate;
