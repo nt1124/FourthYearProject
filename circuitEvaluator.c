@@ -15,13 +15,13 @@ int main(int argc, char *argv[])
 	if( 2 != argc )
 	{
 		char *circuitFilepath = argv[1];
-		char *formatFilepath = argv[2];
+		// char *formatFilepath = argv[2];
 
 		int numGates = count_lines_of_file(circuitFilepath);
-		int numInputOutputs = count_lines_of_file(formatFilepath);
+		// int numInputOutputs = count_lines_of_file(formatFilepath);
 
 		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
-		struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
+		// struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
 
 		char tempAlice[] = "And.alice.input";
 		char tempBob[] = "And.bob.input";

@@ -120,7 +120,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( NULL == inputCircuit[i] -> gate_data )
+		if( NULL != inputCircuit[i] -> gate_data )
 		{
 			outputTableIndex = 0;
 			currentGate = inputCircuit[i] -> gate_data;
