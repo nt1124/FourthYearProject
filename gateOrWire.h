@@ -51,6 +51,7 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 
 #include "fileUtils.h"
 #include "gateOrWire.c"
+#include <math.h>
 
 
 

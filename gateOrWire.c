@@ -1,8 +1,63 @@
-unsigned char *serialiseGateOrWire(struct gateOrWire *toSerialise)
+unsigned char *serialiseGate(struct gate *toSerialise)
 {
 	unsigned char *toReturn;
 
-	
+	/*	struct outputEncRow *keyChoice[2];			Len = 32
+
+	unsigned char outputValue;					Len = 2 ^ Value(numInputs)
+	unsigned char *outputEncValue;  			Len = 16 * 2 ^ Value(numInputs)
+	unsigned char *key0;						Len = 16 * 2 ^ Value(numInputs)
+	unsigned char *key1;						Len = 16 * 2 ^ Value(numInputs)
+	char numInputs;								Len = 1
+	int *inputIDs;								Len = Value(numInputs)
+
+	short outputTableSize;						Len = 2
+	struct outputEncRow *outputTreeEnc;			Len = 0
+	unsigned char tablePermutation;				Len = 1 //We're not sending this.
+
+	struct bitsGarbleKeys *outputGarbleKeys;	Len = 0
+	struct gate *gate_data;						Len = 1  */
+}
+
+unsigned char *serialiseGateOrWire(struct gateOrWire *toSerialise)
+{
+	unsigned char *toReturn;
+	int twoPowNumInput = 1, i, sizeInChars = 60;
+
+	if(NULL != toSerialise -> gate_data)
+	{
+		for(i = 0; i < toSerialise -> gate_data -> numInputs; i ++)
+		{
+			twoPowNumInput *= 2;
+		}
+		sizeInChars += toSerialise -> gate_data -> numInputs;
+		sizeInChars += (twoPowNumInput * 50);
+	}
+
+/*	struct outputEncRow *keyChoice[2];			Len = 32
+
+	unsigned char outputValue;					Len = 2 ^ Value(numInputs)
+	unsigned char *outputEncValue;  			Len = 16 * 2 ^ Value(numInputs)
+	unsigned char *key0;						Len = 16 * 2 ^ Value(numInputs)
+	unsigned char *key1;						Len = 16 * 2 ^ Value(numInputs)
+	char numInputs;								Len = 1
+	int *inputIDs;								Len = Value(numInputs)
+
+	short outputTableSize;						Len = 2
+	struct outputEncRow *outputTreeEnc;			Len = 0
+	unsigned char tablePermutation;				Len = 1 //We're not sending this.
+
+	struct bitsGarbleKeys **inputKeySet;		Len = 0
+	int G_ID;									Len = 4
+	char wireValue;								Len = 1
+	unsigned char *wireEncValue;				Len = 16
+	char outputFlag;							Len = 1
+
+	struct bitsGarbleKeys *outputGarbleKeys;	Len = 0
+	struct gate *gate_data;						Len = 1  */
+
+
+
 
 	return toReturn;
 }
@@ -19,7 +74,7 @@ void recursiveEncryptionTree(struct gateOrWire *curGate)
 		tempRow = curGate -> gate_data -> outputTreeEnc;
 		for(j = 0; j < curGate -> gate_data -> numInputs; j ++)
 		{
-			tempBit = (i >> j) & 1;
+			tempBit = ((i >> j) & 1) ^ ((curGate -> gate_data -> tablePermutation >> j) & 1);
 			tempRow = tempRow -> keyChoice[tempBit];
 
 			if(0 == tempBit)
@@ -28,7 +83,7 @@ void recursiveEncryptionTree(struct gateOrWire *curGate)
 				keyList[j] = curGate -> gate_data -> inputKeySet[j] -> key1;
 		}
 
-		if(0 == tempRow -> outputValue)		
+		if(0 == tempRow -> outputValue)
 			tempRow -> outputEncValue = encryptMultiple(keyList, curGate -> gate_data -> numInputs, curGate -> outputGarbleKeys -> key0);
 		else if(1 == tempRow -> outputValue)
 			tempRow -> outputEncValue = encryptMultiple(keyList, curGate -> gate_data -> numInputs, curGate -> outputGarbleKeys -> key1);
@@ -47,6 +102,7 @@ unsigned char *decryptionTree(struct gateOrWire *curGate, struct gateOrWire **in
 	{
 		tempIndex = curGate -> gate_data -> inputIDs[j];
 		tempBit = inputCircuit[tempIndex] -> wireValue;
+		tempBit = ((tempBit >> j) & 1) ^ ((curGate -> gate_data -> tablePermutation >> j) & 1);
 		tempRow = tempRow -> keyChoice[tempBit];
 
 		if(0 == tempBit)
@@ -67,8 +123,6 @@ struct bitsGarbleKeys *generateGarbleKeyPair()
 {
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys *)calloc(1, sizeof(struct bitsGarbleKeys));
 
-	// RAND_bytes(toReturn -> key0, 16);
-	// RAND_bytes(toReturn -> key1, 16);
 	toReturn -> key0 = generateRandBytes(16);
 	toReturn -> key1 = generateRandBytes(16);
 
@@ -89,6 +143,15 @@ struct bitsGarbleKeys **getInputGarbleKeys(struct gateOrWire **circuit, int numI
 
 	return inputKeys;
 }
+
+
+unsigned char getPermutation()
+{
+	unsigned char *toOutput = generateRandBytes(1);
+
+	return *toOutput;
+}
+
 
 
 void printGate(struct gate *input)
@@ -146,6 +209,7 @@ struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit, 
 	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
 	toReturn -> inputKeySet = getInputGarbleKeys(circuit, toReturn -> numInputs, toReturn -> inputIDs);
 	toReturn -> outputTreeEnc = recursiveOutputTable(tableToParse, toReturn);
+	toReturn -> tablePermutation = getPermutation();
 	
 	return toReturn;
 }
@@ -161,12 +225,10 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 
 	if( 'i' == line[*strIndex] )
 	{
-		// toReturn -> typeTag = 'W';
 		toReturn -> gate_data = NULL;
 	}
 	else
 	{
-		// toReturn -> typeTag = 'G';
 		if('o' == line[*strIndex])
 		{
 			toReturn -> outputFlag = 1;
