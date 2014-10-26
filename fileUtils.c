@@ -1,25 +1,14 @@
 
-struct outputEncRow *recursiveOutputTable(int *outputTable, struct gate *curGate)
+struct outputEncRow **recursiveOutputTable(int *outputTable, struct gate *curGate)
 {
-	struct outputEncRow *toReturn = (struct outputEncRow*) calloc(1, sizeof(struct outputEncRow));
+	struct outputEncRow **toReturn = (struct outputEncRow**) calloc(curGate -> outputTableSize, sizeof(struct outputEncRow*));
 	struct outputEncRow *tempRow;
-	int i, j, tempBit;
+	int i, j;
 
 	for(i = 0; i < curGate -> outputTableSize; i ++)
 	{
-		tempRow = toReturn;
-		for(j = 0; j < curGate -> numInputs; j ++)
-		{
-			tempBit = (i >> j) & 1;
-			if(NULL == tempRow -> keyChoice[tempBit])
-			{
-				tempRow -> keyChoice[tempBit] = (struct outputEncRow*) calloc(1, sizeof(struct outputEncRow));
-			}
-
-			tempRow = tempRow -> keyChoice[tempBit];
-		}
-
-		tempRow -> outputValue = *(outputTable + i);
+		toReturn[i] = (struct outputEncRow*) calloc(1, sizeof(struct outputEncRow));
+		toReturn[i] -> outputValue = *(outputTable + i);
 	}
 
 	return toReturn;

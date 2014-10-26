@@ -113,10 +113,11 @@ void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
 
 void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 {
-	int i, j, tempIndex, numInputs;
-	char outputTableIndex, tempValue;
+	int i, j, k, tempIndex, numInputs;
+	char outputTableIndex, tempBit;
 	struct gate *currentGate;
 	struct outputEncRow *outputTree;
+	unsigned char *tempEncValue;
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -126,16 +127,29 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 			currentGate = inputCircuit[i] -> gate_data;
 			numInputs = currentGate -> numInputs;
 
-			outputTree = inputCircuit[i] -> gate_data -> outputTreeEnc;
-
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				outputTree = outputTree -> keyChoice[inputCircuit[tempIndex] -> wireValue];
+				tempBit = inputCircuit[tempIndex] -> wireValue;
+				outputTableIndex <<= 1;
+				outputTableIndex += tempBit;
 			}
+			outputTree = inputCircuit[i] -> gate_data -> outputTreeEnc[outputTableIndex];
 
 			inputCircuit[i] -> wireEncValue = decryptionTree(inputCircuit[i], inputCircuit);
-			inputCircuit[i] -> wireValue = outputTree -> outputValue;
+			if( 1 == inputCircuit[i] -> outputFlag )
+			{
+				for(k = 0; k < inputCircuit[i] -> gate_data -> outputTableSize; k ++)
+				{
+					/*
+					if( 0 == strncpy(inputCircuit[i] -> wireEncValue, , 16) )
+					{
+
+					}
+					*/
+				}
+				inputCircuit[i] -> wireValue = outputTree -> outputValue;
+			}
 		}
 	}
 }

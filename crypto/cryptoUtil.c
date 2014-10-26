@@ -4,29 +4,31 @@
 #include "aes.h"
 
 
-unsigned char *encryptMultiple(unsigned char **keyList, int numKeys, unsigned char *toEncrypt)
+unsigned char *encryptMultipleKeys(unsigned char **keyList, int numKeys, unsigned char *toEncrypt, int blockCount)
 {
 	unsigned int *RK;
-	unsigned char *ciphertext = (unsigned char*) calloc(16, sizeof(unsigned char));
-	int i;
+	unsigned char *ciphertext = (unsigned char*) calloc(16 * blockCount, sizeof(unsigned char));
+	int i, j;
 
 	RK = getUintKeySchedule(keyList[0]);
-	aes_128_encrypt( ciphertext, toEncrypt, RK );
+	for(j = 0; j < blockCount; j ++)
+		aes_128_encrypt( (ciphertext + j*16), (toEncrypt + j*16), RK );
 
 	for(i = 1; i < numKeys; i ++)
 	{
 		RK = getUintKeySchedule(keyList[i]);
-		aes_128_encrypt( ciphertext, ciphertext, RK );
+		for(j = 0; j < blockCount; j ++)
+			aes_128_encrypt( (ciphertext + j*16), (toEncrypt + j*16), RK );
 	}
 
 	return ciphertext;
 }
 
 
-unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, unsigned char *toDecrypt)
+unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigned char *toDecrypt, int blockCount)
 {
 	unsigned int *encRK, *decRK;
-	unsigned char *ciphertext = (unsigned char*) calloc(16, sizeof(unsigned char));
+	unsigned char *ciphertext = (unsigned char*) calloc(16 * blockCount, sizeof(unsigned char));
 	int i;
 
 	encRK = getUintKeySchedule(keyList[0]);
@@ -42,3 +44,4 @@ unsigned char *decryptMultiple(unsigned char **keyList, int numKeys, unsigned ch
 
 	return ciphertext;
 }
+

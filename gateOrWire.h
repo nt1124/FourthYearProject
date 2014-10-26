@@ -3,8 +3,6 @@
 
 typedef struct outputEncRow
 {
-	struct outputEncRow *keyChoice[2];
-
 	unsigned char outputValue;
 	unsigned char *outputEncValue;
 } outputEncRow;
@@ -23,9 +21,8 @@ typedef struct gate
 	int *inputIDs;
 
 	short outputTableSize;
-	struct outputEncRow *outputTreeEnc;
+	struct outputEncRow **outputTreeEnc;
 	unsigned char tablePermutation;
-	// unsigned char *outputTable[16];
 
 	struct bitsGarbleKeys **inputKeySet;
 } gate;
@@ -42,6 +39,37 @@ typedef struct gateOrWire
 	struct gate *gate_data;
 } gateOrWire;
 
+/*
+
+
+typedef struct gate
+{
+	char numInputs;
+	int *inputIDs;
+
+	short outputTableSize;
+	unsigned char **encOutputTable;
+} gate;
+
+typedef struct wire
+{
+	int inputIDs;
+	unsigned char wireOwnerOutput;	//LSB denoted owner, MSB denotes output or not
+	unsigned char wirePermutation;
+	unsigned char wireValue;
+	unsigned char *wireEncValue;
+	struct bitsGarbleKeys *outputGarbleKeys;
+} wire;
+
+typedef struct gateOrWire
+{
+	int G_ID;
+
+	struct bitsGarbleKeys *outputGarbleKeys;
+} gateOrWire;
+
+
+*/
 
 void printGate(struct gate *input);
 void printGateOrWire(struct gateOrWire *input);
