@@ -1,8 +1,19 @@
 unsigned char *serialiseGate(struct gate *toSerialise)
 {
 	unsigned char *toReturn;
+	int twoPowNumInput = 1, i, sizeInChars = 60;
 
-	/*	struct outputEncRow *keyChoice[2];			Len = 32
+	for(i = 0; i < toSerialise -> gate_data -> numInputs; i ++)
+	{
+		twoPowNumInput *= 2;
+	}
+	sizeInChars += toSerialise -> gate_data -> numInputs;
+	sizeInChars += (twoPowNumInput * 50);
+
+
+
+	/*
+	struct outputEncRow *keyChoice[2];			Len = 32
 
 	unsigned char outputValue;					Len = 2 ^ Value(numInputs)
 	unsigned char *outputEncValue;  			Len = 16 * 2 ^ Value(numInputs)
@@ -16,8 +27,10 @@ unsigned char *serialiseGate(struct gate *toSerialise)
 	unsigned char tablePermutation;				Len = 1 //We're not sending this.
 
 	struct bitsGarbleKeys *outputGarbleKeys;	Len = 0
-	struct gate *gate_data;						Len = 1  */
+	struct gate *gate_data;						Len = 1
+	*/
 }
+
 
 unsigned char *serialiseGateOrWire(struct gateOrWire *toSerialise)
 {
@@ -34,7 +47,8 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *toSerialise)
 		sizeInChars += (twoPowNumInput * 50);
 	}
 
-/*	struct outputEncRow *keyChoice[2];			Len = 32
+	/*
+	struct outputEncRow *keyChoice[2];			Len = 32
 
 	unsigned char outputValue;					Len = 2 ^ Value(numInputs)
 	unsigned char *outputEncValue;  			Len = 16 * 2 ^ Value(numInputs)
@@ -54,7 +68,8 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *toSerialise)
 	char outputFlag;							Len = 1
 
 	struct bitsGarbleKeys *outputGarbleKeys;	Len = 0
-	struct gate *gate_data;						Len = 1  */
+	struct gate *gate_data;						Len = 1
+	*/
 
 
 
