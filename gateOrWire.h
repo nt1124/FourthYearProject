@@ -49,6 +49,7 @@ typedef struct gate
 
 	short outputTableSize;
 	unsigned char **encOutputTable;
+	int *rawOutputTable;
 } gate;
 
 typedef struct wire

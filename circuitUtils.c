@@ -53,7 +53,6 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 		char line [ 512 ]; /* or other suitable maximum line size */
 		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
 		{
-			printf("%d ------------------------\n", gateIndex);
 			tempGateOrWire = processGateLine(line, circuit);
 			if( NULL != tempGateOrWire )
 			{
@@ -137,22 +136,16 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 				outputTableIndex <<= 1;
 				outputTableIndex += tempBit;
 			}
-			outputChars = inputCircuit[i] -> gatePayload -> encOutputTable[outputTableIndex];
+			// outputChars = inputCircuit[i] -> gatePayload -> encOutputTable[outputTableIndex];
 
-			// inputCircuit[i] -> outputWire -> wireEncValue = decryptionTree(inputCircuit[i], inputCircuit);
+			decryptGate(inputCircuit[i], inputCircuit);
+			/*
 			if( 1 == inputCircuit[i] -> outputWire -> wireMask )
 			{
-				for(k = 0; k < inputCircuit[i] -> gatePayload -> outputTableSize; k ++)
-				{
-					/*
-					if( 0 == strncpy(inputCircuit[i] -> wireEncValue, , 16) )
-					{
 
-					}
-					*/
-				}
 				inputCircuit[i] -> outputWire -> wirePermedValue = outputChars[16];
 			}
+			*/
 		}
 	}
 }

@@ -1,5 +1,5 @@
 
-unsigned char **recursiveOutputTable(int *outputTable, struct gate *curGate)
+unsigned char **recursiveOutputTable(struct gate *curGate)
 {
 	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
 	int i;
@@ -7,7 +7,7 @@ unsigned char **recursiveOutputTable(int *outputTable, struct gate *curGate)
 	for(i = 0; i < curGate -> outputTableSize; i ++)
 	{
 		toReturn[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
-		toReturn[i][16] = *(outputTable + i);
+		toReturn[i][16] = curGate -> rawOutputTable[i];
 	}
 
 	return toReturn;
