@@ -7,9 +7,9 @@ void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( 1 == inputCircuit[i] -> outputFlag )
+		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
 		{
-			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> wireValue);
+			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> outputWire -> wireValue);
 		}
 	}
 }
@@ -85,13 +85,13 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 
 	if( '1' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> wireValue = 1;
-		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key1;
+		inputCircuit[gateID] -> outputWire -> wireValue = 0x01;
+		inputCircuit[gateID] -> outputWire -> wireEncValue = inputCircuit[gateID] -> outputWire -> outputGarbleKeys -> key1;
 	}
 	else if( '0' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> wireValue = 0;
-		inputCircuit[gateID] -> wireEncValue = inputCircuit[gateID] -> outputGarbleKeys -> key0;
+		inputCircuit[gateID] -> outputWire -> wireValue = 0x00;
+		inputCircuit[gateID] -> outputWire -> wireEncValue = inputCircuit[gateID] -> outputWire -> outputGarbleKeys -> key0;
 	}
 }
 
@@ -116,30 +116,30 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 	int i, j, k, tempIndex, numInputs;
 	char outputTableIndex, tempBit;
 	struct gate *currentGate;
-	struct outputEncRow *outputTree;
+	unsigned char *outputChars;
 	unsigned char *tempEncValue;
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( NULL != inputCircuit[i] -> gate_data )
+		if( NULL != inputCircuit[i] -> gatePayload )
 		{
 			outputTableIndex = 0;
-			currentGate = inputCircuit[i] -> gate_data;
+			currentGate = inputCircuit[i] -> gatePayload;
 			numInputs = currentGate -> numInputs;
 
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				tempBit = inputCircuit[tempIndex] -> wireValue;
+				tempBit = inputCircuit[tempIndex] -> outputWire -> wireValue;
 				outputTableIndex <<= 1;
 				outputTableIndex += tempBit;
 			}
-			outputTree = inputCircuit[i] -> gate_data -> outputTreeEnc[outputTableIndex];
+			outputChars = inputCircuit[i] -> gatePayload -> encOutputTable[outputTableIndex];
 
-			inputCircuit[i] -> wireEncValue = decryptionTree(inputCircuit[i], inputCircuit);
-			if( 1 == inputCircuit[i] -> outputFlag )
+			// inputCircuit[i] -> outputWire -> wireEncValue = decryptionTree(inputCircuit[i], inputCircuit);
+			if( 1 == inputCircuit[i] -> outputWire -> wireMask )
 			{
-				for(k = 0; k < inputCircuit[i] -> gate_data -> outputTableSize; k ++)
+				for(k = 0; k < inputCircuit[i] -> gatePayload -> outputTableSize; k ++)
 				{
 					/*
 					if( 0 == strncpy(inputCircuit[i] -> wireEncValue, , 16) )
@@ -148,7 +148,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 					}
 					*/
 				}
-				inputCircuit[i] -> wireValue = outputTree -> outputValue;
+				inputCircuit[i] -> outputWire -> wireValue = outputChars[16];
 			}
 		}
 	}

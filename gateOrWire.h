@@ -15,6 +15,7 @@ typedef struct bitsGarbleKeys
 } bitsGarbleKeys;
 
 
+/*
 typedef struct gate
 {
 	char numInputs;
@@ -38,8 +39,7 @@ typedef struct gateOrWire
 	struct bitsGarbleKeys *outputGarbleKeys;
 	struct gate *gate_data;
 } gateOrWire;
-
-/*
+*/
 
 
 typedef struct gate
@@ -53,9 +53,8 @@ typedef struct gate
 
 typedef struct wire
 {
-	int inputIDs;
-	unsigned char wireOwnerOutput;	//LSB denoted owner, MSB denotes output or not
-	unsigned char wirePermutation;
+	unsigned char wireMask;	//LSB denoted owner, MSB denotes output or not
+	unsigned char wirePerm;
 	unsigned char wireValue;
 	unsigned char *wireEncValue;
 	struct bitsGarbleKeys *outputGarbleKeys;
@@ -65,10 +64,17 @@ typedef struct gateOrWire
 {
 	int G_ID;
 
-	struct bitsGarbleKeys *outputGarbleKeys;
+	struct wire *outputWire;
+	struct gate *gatePayload;
 } gateOrWire;
 
 
+/*
+void printGate(struct gate *input);
+void printGateOrWire(struct gateOrWire *input);
+
+struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit, struct gateOrWire *curGate);
+struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit);
 */
 
 void printGate(struct gate *input);

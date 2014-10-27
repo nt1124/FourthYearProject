@@ -1,14 +1,13 @@
 
-struct outputEncRow **recursiveOutputTable(int *outputTable, struct gate *curGate)
+unsigned char **recursiveOutputTable(int *outputTable, struct gate *curGate)
 {
-	struct outputEncRow **toReturn = (struct outputEncRow**) calloc(curGate -> outputTableSize, sizeof(struct outputEncRow*));
-	struct outputEncRow *tempRow;
-	int i, j;
+	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
+	int i;
 
 	for(i = 0; i < curGate -> outputTableSize; i ++)
 	{
-		toReturn[i] = (struct outputEncRow*) calloc(1, sizeof(struct outputEncRow));
-		toReturn[i] -> outputValue = *(outputTable + i);
+		toReturn[i] = (unsigned char*) calloc(1, sizeof(unsigned char));
+		toReturn[i][16] = *(outputTable + i);
 	}
 
 	return toReturn;
