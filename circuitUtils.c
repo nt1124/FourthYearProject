@@ -9,7 +9,7 @@ void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 	{
 		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
 		{
-			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> outputWire -> wireValue);
+			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> outputWire -> wirePermedValue);
 		}
 	}
 }
@@ -53,6 +53,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 		char line [ 512 ]; /* or other suitable maximum line size */
 		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
 		{
+			printf("%d ------------------------\n", gateIndex);
 			tempGateOrWire = processGateLine(line, circuit);
 			if( NULL != tempGateOrWire )
 			{
@@ -71,6 +72,7 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
+	struct wire *outputWire;
 
 	while( ' ' != line[strIndex++] ){}
 
@@ -83,15 +85,16 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 	}
 	strIndex ++;
 
+	outputWire = inputCircuit[gateID] -> outputWire;
 	if( '1' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> outputWire -> wireValue = 0x01;
-		inputCircuit[gateID] -> outputWire -> wireEncValue = inputCircuit[gateID] -> outputWire -> outputGarbleKeys -> key1;
+		outputWire -> wirePermedValue = 0x01;
+		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key1;
 	}
 	else if( '0' == line[strIndex] )
 	{
-		inputCircuit[gateID] -> outputWire -> wireValue = 0x00;
-		inputCircuit[gateID] -> outputWire -> wireEncValue = inputCircuit[gateID] -> outputWire -> outputGarbleKeys -> key0;
+		outputWire -> wirePermedValue = 0x00;
+		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key0;
 	}
 }
 
@@ -130,7 +133,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				tempBit = inputCircuit[tempIndex] -> outputWire -> wireValue;
+				tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
 				outputTableIndex <<= 1;
 				outputTableIndex += tempBit;
 			}
@@ -148,7 +151,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 					}
 					*/
 				}
-				inputCircuit[i] -> outputWire -> wireValue = outputChars[16];
+				inputCircuit[i] -> outputWire -> wirePermedValue = outputChars[16];
 			}
 		}
 	}

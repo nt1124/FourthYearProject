@@ -53,10 +53,10 @@ typedef struct gate
 
 typedef struct wire
 {
-	unsigned char wireMask;	//LSB denoted owner, MSB denotes output or not
+	unsigned char wireMask;
 	unsigned char wirePerm;
-	unsigned char wireValue;
-	unsigned char *wireEncValue;
+	unsigned char wirePermedValue;
+	unsigned char *wireOutputKey;
 	struct bitsGarbleKeys *outputGarbleKeys;
 } wire;
 

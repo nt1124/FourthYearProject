@@ -25,8 +25,8 @@ int main(int argc, char *argv[])
 
 		char tempAlice[] = "And.alice.input";
 		char tempBob[] = "And.bob.input";
-		readInputDetailsFile( tempAlice, inputCircuit );
-		readInputDetailsFile( tempBob, inputCircuit );
+		// readInputDetailsFile( tempAlice, inputCircuit );
+		// readInputDetailsFile( tempBob, inputCircuit );
 
 		// runCircuit( inputCircuit, numGates );
 		// printAllOutput(inputCircuit, numGates);

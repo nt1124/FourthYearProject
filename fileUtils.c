@@ -6,7 +6,7 @@ unsigned char **recursiveOutputTable(int *outputTable, struct gate *curGate)
 
 	for(i = 0; i < curGate -> outputTableSize; i ++)
 	{
-		toReturn[i] = (unsigned char*) calloc(1, sizeof(unsigned char));
+		toReturn[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
 		toReturn[i][16] = *(outputTable + i);
 	}
 
