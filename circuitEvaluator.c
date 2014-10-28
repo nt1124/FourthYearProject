@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     	// testElgamal();
     	// testRSA();
     	// testByteConvert();
+    	// testSerialisation(inputCircuit[16]);
 	}
 	else
 	{

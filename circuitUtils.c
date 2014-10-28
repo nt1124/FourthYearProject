@@ -11,7 +11,7 @@ void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
 		{
 			tempBit = inputCircuit[i] -> outputWire -> wirePermedValue;
-			//tempBit = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
+			tempBit = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
 			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, tempBit);
 		}
 	}
@@ -90,12 +90,12 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 	outputWire = inputCircuit[gateID] -> outputWire;
 	if( '1' == line[strIndex] )
 	{
-		outputWire -> wirePermedValue = 0x01;
+		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key1[16];
 		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key1;
 	}
 	else if( '0' == line[strIndex] )
 	{
-		outputWire -> wirePermedValue = 0x00;
+		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
 		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key0;
 	}
 }
