@@ -1,0 +1,8 @@
+0 input		//output$input.bob$0
+1 input		//output$input.bob$1
+2 input		//output$input.bob$2
+3 input		//output$input.bob$3
+4 output gate arity 2 table [ 0 0 0 1 ] inputs [ 2 0 ]	//output$output.alice$0
+5 output gate arity 2 table [ 0 0 0 1 ] inputs [ 3 1 ]	//output$output.alice$1
+6 output gate arity 1 table [ 0 1 ] inputs [ 4 ]	//output$output.bob$0
+7 output gate arity 1 table [ 0 1 ] inputs [ 5 ]	//output$output.bob$1

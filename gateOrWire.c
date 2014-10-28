@@ -1,3 +1,5 @@
+
+
 void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 {
 	int numInputs = curGate -> gatePayload -> numInputs;
@@ -10,18 +12,21 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 	memcpy( toEncrypt0, curGate -> outputWire -> outputGarbleKeys -> key0, 17);
 	memcpy( toEncrypt1, curGate -> outputWire -> outputGarbleKeys -> key1, 17);
 
+	// printf("++ %d\n", curGate -> G_ID);
 	for(i = 0; i < curGate -> gatePayload -> outputTableSize; i ++)
-	{
+	{	
+		// printf("(");
 		permedIndex = 0;
 		for(j = 0; j < numInputs; j ++)
 		{
 			inputID = curGate -> gatePayload -> inputIDs[j];
 			inputWire = circuit[inputID] -> outputWire;
 
-			tempBit = ((i >> j) & 1);
-			tempBit ^= (inputWire -> wirePerm & 0x01);
+			tempBit = i;
+			tempBit = ((tempBit >> j) & 0x01);
 			permedIndex <<= 1;
-			permedIndex += tempBit;
+			permedIndex += (inputWire -> wirePerm & 0x01);
+			// printf("%d ", (inputWire -> wirePerm & 0x01));
 
 			keyList[j] = (unsigned char*) calloc(16, sizeof(unsigned char));
 			if(0 == tempBit)
@@ -30,11 +35,13 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 				memcpy(keyList[j], inputWire -> outputGarbleKeys -> key1, 16);
 		}
 
+		permedIndex = permedIndex ^ i;
+		// printf(") %d -> %d\n", i, permedIndex);
+
 		if(0 == curGate -> gatePayload -> rawOutputTable[i])
 			tempRow = encryptMultipleKeys(keyList, numInputs, toEncrypt0, 2);
 		else if(1 == curGate -> gatePayload -> rawOutputTable[i])
 			tempRow = encryptMultipleKeys(keyList, numInputs, toEncrypt1, 2);
-
 		memcpy(curGate -> gatePayload -> encOutputTable[permedIndex], tempRow, 32);
 	}
 }
@@ -47,32 +54,43 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	unsigned char *keyList[numInputs], *toReturn;
 	unsigned char *tempRow;
 
+	// printf("==  %d\n", curGate -> G_ID);
 	for(j = 0; j < numInputs; j ++)
 	{
-		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - j - 1];
+		tempIndex = curGate -> gatePayload -> inputIDs[j];
 		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
 
 		// tempBit = tempBit ^ (0x01 & inputCircuit[tempIndex] -> outputWire -> wirePerm);
 		outputIndex <<= 1;
 		outputIndex += tempBit;
 
-		keyList[j] = (unsigned char*) calloc(16, sizeof(unsigned char));
-		memcpy(keyList[j], inputCircuit[tempIndex] -> outputWire -> wireOutputKey, 16);
+		keyList[numInputs - j - 1] = (unsigned char*) calloc(16, sizeof(unsigned char));
+		memcpy(keyList[numInputs - j - 1], inputCircuit[tempIndex] -> outputWire -> wireOutputKey, 16);
 	}
+	// If we have inputIDs [a b c] c is LSB, a is MSB
 
 	tempRow = curGate -> gatePayload -> encOutputTable[outputIndex];
 	toReturn = decryptMultipleKeys(keyList, numInputs, tempRow, 2);
 	curGate -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
 
-	curGate -> outputWire -> wirePermedValue = curGate -> gatePayload -> rawOutputTable[outputIndex];//toReturn[16];
+/*
+	printf("%d - %d - ", curGate -> G_ID, outputIndex);
+	for(i = 0; i < 17; i ++)
+		printf("%02X.", toReturn[i]);
+	printf("%02X", (toReturn[i] ^ ((0x01 & curGate -> outputWire -> wirePerm)) ) );
+	printf("\n");
+	fflush(stdout);
+*/
+	// curGate -> outputWire -> wirePermedValue = toReturn[16];
+	// curGate -> gatePayload -> rawOutputTable[outputIndex];
 }
 
 
 unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength)
 {
 	unsigned char *toReturn;
-	int i, outputTableSize = inputGW -> gatePayload -> outputTableSize;
+	int i, j, outputTableSize = inputGW -> gatePayload -> outputTableSize;
 	int numInputs = inputGW -> gatePayload -> numInputs;
 	int serialisedSize = 42 + (32 * outputTableSize) + (4 * numInputs);
 
@@ -89,51 +107,67 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 	memcpy(toReturn + 7, inputGW -> outputWire -> wireOutputKey, 32);
 	*outputLength = 39;
 
-	if(NULL == inputGW -> gatePayload)
+	if(NULL != inputGW -> gatePayload)
 	{
 		toReturn[39] = inputGW -> gatePayload -> numInputs;
-		memcpy(toReturn + 40, inputGW -> gatePayload -> inputIDs, 4 * inputGW -> gatePayload -> numInputs);
-		memcpy(toReturn + 40 + (4 * numInputs), &outputTableSize, 2);
-		memcpy(toReturn + 42 + (4 * numInputs), inputGW -> gatePayload -> encOutputTable, 32 * outputTableSize);
+		memcpy(toReturn + 40, &outputTableSize, 2);
+		for(i = 0; i < inputGW -> gatePayload -> numInputs; i ++)
+		{
+			j = 42 + 4 * i;
+			memcpy(toReturn + j, inputGW -> gatePayload -> inputIDs + i, 4);
+		}
+
+		for(i = 0; i < outputTableSize; i ++)
+		{
+			j = 42 + 4 * numInputs + 32 * i;
+			memcpy(toReturn + j, inputGW -> gatePayload -> encOutputTable + i, 32);
+		}
+		//memcpy(toReturn + 42 , inputGW -> gatePayload -> encOutputTable, 32 * outputTableSize);
 		*outputLength += ( (32 * outputTableSize) + (4 * numInputs) + 3 );
 	}
 
 	return toReturn;
 }
 
-/*
+
 struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW, int outputLength)
 {
-	unsigned char *toReturn;
-	int i, outputTableSize = inputGW -> gatePayload -> outputTableSize;
-	int numInputs = inputGW -> gatePayload -> numInputs;
-	int serialisedSize = 42 + (32 * outputTableSize) + (4 * numInputs);
+	struct gateOrWire *toReturn;
+	struct gate *tempGate;
+	int i, j;
 
-	toReturn = (unsigned char*) calloc(serialisedSize, sizeof(unsigned char));
+	toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
+	toReturn -> outputWire = (struct wire*) calloc(1, sizeof(struct wire));
 
-	memcpy(toReturn, &(inputGW -> G_ID), 4);
-	if(NULL == inputGW -> gatePayload)
-		toReturn[4] = 0x00;
-	else
-		toReturn[4] = 0xFF;
+	memcpy(&(toReturn -> G_ID), serialGW, 4);
+	toReturn -> outputWire -> wireMask = serialGW[5];
+	toReturn -> outputWire -> wirePermedValue = serialGW[6];
+	memcpy(toReturn -> outputWire -> wireOutputKey, serialGW + 7, 32);
 
-	toReturn[5] = inputGW -> outputWire -> wireMask;
-	toReturn[6] = inputGW -> outputWire -> wirePermedValue;
-	memcpy(toReturn + 7, inputGW -> outputWire -> wireOutputKey, 32);
-	*outputLength = 39;
-
-	if(NULL == inputGW -> gatePayload)
+	if(0xFF == serialGW[4])
 	{
-		toReturn[39] = inputGW -> gatePayload -> numInputs;
-		memcpy(toReturn + 40, inputGW -> gatePayload -> inputIDs, 4 * inputGW -> gatePayload -> numInputs);
-		memcpy(toReturn + 40 + (4 * numInputs), &outputTableSize, 2);
-		memcpy(toReturn + 42 + (4 * numInputs), inputGW -> gatePayload -> encOutputTable, 32 * outputTableSize);
-		*outputLength += ( (32 * outputTableSize) + (4 * numInputs) + 3 );
+		tempGate = (struct gate*) calloc(1, sizeof(struct gate));
+		tempGate -> numInputs = serialGW[39];
+		memcpy(&(tempGate -> outputTableSize), serialGW + 40, 2);
+
+		tempGate -> inputIDs = (int*) calloc(tempGate -> numInputs, sizeof(int));
+		for(i = 0; i < tempGate -> numInputs; i ++)
+		{
+			j = 42 + 4 * i;
+			memcpy(tempGate -> inputIDs + i, serialGW + j, 4);
+		}
+
+		for(i = 0; i < tempGate -> outputTableSize; i ++)
+		{
+			j = 42 + (4 * tempGate -> numInputs) + (32 * i);
+			tempGate -> encOutputTable[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
+			memcpy(tempGate -> encOutputTable + i, toReturn + j, 32);
+		}
 	}
 
 	return toReturn;
 }
-*/
+
 
 
 struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)

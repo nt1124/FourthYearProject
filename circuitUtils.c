@@ -4,12 +4,15 @@
 void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 {
 	int i;
+	unsigned char tempBit;
 
 	for(i = 0; i < numGates; i ++)
 	{
 		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
 		{
-			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, inputCircuit[i] -> outputWire -> wirePermedValue);
+			tempBit = inputCircuit[i] -> outputWire -> wirePermedValue;
+			//tempBit = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
+			printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, tempBit);
 		}
 	}
 }
@@ -129,6 +132,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 			currentGate = inputCircuit[i] -> gatePayload;
 			numInputs = currentGate -> numInputs;
 
+			/*
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
@@ -136,6 +140,7 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 				outputTableIndex <<= 1;
 				outputTableIndex += tempBit;
 			}
+			*/
 
 			decryptGate(inputCircuit[i], inputCircuit);
 		}

@@ -12,7 +12,7 @@ program And {
 	type Output = struct {AliceOutput alice, BobOutput bob};
 
 	function Output output(Input input) {
-           output.alice = (input.bob & input.alice);
-           output.bob = (input.bob & input.alice);
+           output.alice = (~input.bob | input.alice);
+           output.bob = (input.bob | input.alice);
 	}
 }

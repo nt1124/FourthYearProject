@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 	int i;
 	srand( time(NULL) );
 
-	if( 2 != argc )
+	if( 1 != argc )
 	{
 		char *circuitFilepath = argv[1];
 		// char *formatFilepath = argv[2];
