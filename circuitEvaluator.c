@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 		readInputDetailsFile( tempBob, inputCircuit );
 
 		runCircuit( inputCircuit, numGates );
-		// printAllOutput(inputCircuit, numGates);
+		printAllOutput(inputCircuit, numGates);
 
 		// testAES();
     	// testElgamal();

@@ -136,16 +136,8 @@ void runCircuit( struct gateOrWire **inputCircuit, int numGates )
 				outputTableIndex <<= 1;
 				outputTableIndex += tempBit;
 			}
-			// outputChars = inputCircuit[i] -> gatePayload -> encOutputTable[outputTableIndex];
 
 			decryptGate(inputCircuit[i], inputCircuit);
-			/*
-			if( 1 == inputCircuit[i] -> outputWire -> wireMask )
-			{
-
-				inputCircuit[i] -> outputWire -> wirePermedValue = outputChars[16];
-			}
-			*/
 		}
 	}
 }

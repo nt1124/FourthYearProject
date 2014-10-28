@@ -14,40 +14,12 @@ typedef struct bitsGarbleKeys
 	unsigned char *key1;
 } bitsGarbleKeys;
 
-
-/*
 typedef struct gate
 {
-	char numInputs;
+	unsigned char numInputs;
 	int *inputIDs;
 
-	short outputTableSize;
-	struct outputEncRow **outputTreeEnc;
-	unsigned char tablePermutation;
-
-	struct bitsGarbleKeys **inputKeySet;
-} gate;
-
-
-typedef struct gateOrWire
-{
-	int G_ID;
-	char wireValue;
-	unsigned char *wireEncValue;
-	char outputFlag;
-
-	struct bitsGarbleKeys *outputGarbleKeys;
-	struct gate *gate_data;
-} gateOrWire;
-*/
-
-
-typedef struct gate
-{
-	char numInputs;
-	int *inputIDs;
-
-	short outputTableSize;
+	unsigned short outputTableSize;
 	unsigned char **encOutputTable;
 	int *rawOutputTable;
 } gate;
@@ -69,14 +41,6 @@ typedef struct gateOrWire
 	struct gate *gatePayload;
 } gateOrWire;
 
-
-/*
-void printGate(struct gate *input);
-void printGateOrWire(struct gateOrWire *input);
-
-struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit, struct gateOrWire *curGate);
-struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit);
-*/
 
 void printGate(struct gate *input);
 void printGateOrWire(struct gateOrWire *input);

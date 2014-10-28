@@ -10,22 +10,12 @@ unsigned char *encryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 	unsigned char *ciphertext = (unsigned char*) calloc(16 * blockCount, sizeof(unsigned char));
 	int i, j;
 
-	for(j = 0; j < 16; j ++)
-	{
-		printf("%02X ", keyList[0][j]);
-	} printf("\n");
-
 	RK = getUintKeySchedule(keyList[0]);
 	for(j = 0; j < blockCount; j ++)
 		aes_128_encrypt( (ciphertext + j*16), (toEncrypt + j*16), RK );
 
 	for(i = 1; i < numKeys; i ++)
 	{
-		for(j = 0; j < 16; j ++)
-		{
-			printf("%02X ", keyList[i][j]);
-		} printf("\n");
-
 		RK = getUintKeySchedule(keyList[i]);
 		for(j = 0; j < blockCount; j ++)
 			aes_128_encrypt( (ciphertext + j*16), (ciphertext + j*16), RK );
@@ -41,12 +31,6 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 	unsigned char *plaintext = (unsigned char*) calloc(16 * blockCount, sizeof(unsigned char));
 	int i, j;
 
-	/*
-	for(j = 0; j < 16; j ++)
-	{
-		printf("%02X ", keyList[0][j]);
-	} printf("\n");
-	*/
 	encRK = getUintKeySchedule(keyList[0]);
 	decRK = decryptionKeySchedule_128(encRK);
 	for(j = 0; j < blockCount; j ++)
@@ -54,13 +38,6 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 
 	for(i = 1; i < numKeys; i ++)
 	{
-		/*
-		for(j = 0; j < 16; j ++)
-		{
-			printf("%02X ", keyList[i][j]);
-		} printf("\n");
-		*/
-
 		encRK = getUintKeySchedule(keyList[i]);
 		decRK = decryptionKeySchedule_128(encRK);
 		for(j = 0; j < blockCount; j ++)
