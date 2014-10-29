@@ -4,7 +4,6 @@ virtual int  	send(unsigned char *buffer, int bufferSize) = 0;
 virtual int 	listen(unsigned char *buffer, int bufferSize) = 0;
 virtual int 	transfer() = 0;
 */
-// #include <openssl/rsa.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,8 +16,8 @@ virtual int 	transfer() = 0;
 void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	struct rsaPubKey *PK0, *PK1;
-	mpz_t *input0 = calloc(1, sizeof(mpz_t));
-	mpz_t *input1 = calloc(1, sizeof(mpz_t));
+	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *enc0Num, *enc1Num;
 
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
@@ -57,13 +56,15 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 
 int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
 {
-    unsigned char input0[17] = "1111111111111111\0";
-    mpz_t *inputInt = calloc(1, sizeof(mpz_t));
-    mpz_t *encInt = calloc(1, sizeof(mpz_t));
-    mpz_t *decInt = calloc(1, sizeof(mpz_t));
+    unsigned char input0[17] = new unsigned char[17];
+    mpz_t *inputInt = (mpz_t*) calloc(1, sizeof(mpz_t));
+    mpz_t *encInt = (mpz_t*)calloc(1, sizeof(mpz_t));
+    mpz_t *decInt = (mpz_t*)calloc(1, sizeof(mpz_t));
     unsigned char *outputBytes1, *outputBytes2;
     int tempInt1, tempInt2;
-
+ 
+ 	strncpy(input0, "1111111111111111", 16);
+    
     printf("1.......\n");
     convertBytesToMPZ(inputInt, input0, 16);
 	gmp_printf("%Zd\n", *inputInt);
@@ -76,7 +77,7 @@ int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
     outputBytes1 = convertMPZToBytes(*decInt, &tempInt1);
 
     if(16 == tempInt1)
-    	if(strncmp(outputBytes1, input0, tempInt1) == 0)
+    	if(strncmp((char*)outputBytes1, (char*)input0, tempInt1) == 0)
     		return 1;
 
     int i;
@@ -95,7 +96,7 @@ unsigned char *receiverOT_SH_RSA(int sockfd, int inputBit, int *outputLength)
 	struct rsaPubKey *PK0, *PK1;
 	struct rsaPrivKey *SKi;
 
-	mpz_t *outputNum, *tempEncNum = calloc(1, sizeof(mpz_t));
+	mpz_t *outputNum, *tempEncNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 	int enc0Length, enc1Length;
 	unsigned char *enc0Bytes, *enc1Bytes, *outputBytes;
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
@@ -156,15 +157,17 @@ void testSender_OT_SH_RSA(char *portNumStr)
 {
     int sockfd, portNum, n;
     struct sockaddr_in serv_addr;
-    
+    char *ipAddress = new char[10];
+    strncpy(ipAddress, "127.0.0.1", 9);
+
     portNum = atoi(portNumStr);
     sockfd = openSock();
 
-    serv_addr = getServerAddr("127.0.0.1", portNum);
+    serv_addr = getServerAddr(ipAddress, portNum);
     connectToServer(&sockfd, serv_addr);
 
-    unsigned char input0[16] = "1111111111111111";
-    unsigned char input1[16] = "2222222222222222";
+    unsigned char input0[17] = "1111111111111111";
+    unsigned char input1[17] = "2222222222222222";
 
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
