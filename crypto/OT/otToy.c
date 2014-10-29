@@ -43,12 +43,14 @@ void testSender_OT_Toy(char *portNumStr)
     
     portNum = atoi(portNumStr);
     sockfd = openSock();
+    char *ipAddress = new char[10];
+    strncpy(ipAddress, "127.0.0.1", 9);
 
-    serv_addr = getServerAddr("127.0.0.1", portNum);
+    serv_addr = getServerAddr(ipAddress, portNum);
     connectToServer(&sockfd, serv_addr);
 
-    unsigned char input0[16] = "1111111111111111";
-    unsigned char input1[16] = "2222222222222222";
+    unsigned char input0[17] = "1111111111111111";
+    unsigned char input1[17] = "2222222222222222";
 
 	senderOT_Toy(sockfd, input0, input1, 16);
 }
@@ -70,12 +72,13 @@ void testReceiver_OT_Toy(char *portNumStr)
     clilen = sizeof(cli_addr);
     newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
-    buffer = receiverOT_Toy(newsockfd, (char)0, &bufferLength);
+    buffer = receiverOT_Toy(newsockfd, (char)1, &bufferLength);
     
     for(i = 0; i < bufferLength; i ++)
     {
-    	printf("%u.", buffer[i]);
+    	printf("%c", buffer[i]);
     }
+    printf("\n");
 }
 
 
@@ -91,7 +94,7 @@ int main(int argc, char *argv[])
 	}
 	else
 	{
-		testSender_OT_Toy(argv[2]);
+		testReceiver_OT_Toy(argv[2]);
 	}
 
 	return 0;

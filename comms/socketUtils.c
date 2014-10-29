@@ -3,10 +3,12 @@
 #include <math.h>
 #include <string.h>
 
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
 /*  -+ USING THIS MINI-LIBRARY +-
 
@@ -41,12 +43,19 @@
 */
 
 
-void error(char *msg)
+void error(const char *msg)
 {
     perror(msg);
     exit(0);
 }
 
+/*
+void error(char *msg)
+{
+    perror(msg);
+    exit(0);
+}
+*/
 
 int bytesToInteger(unsigned char *input)
 {
@@ -111,7 +120,7 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
          error("ERROR reading from socket");
 
     bufferLength = bytesToInteger( (unsigned char*) lengthAsBytes);
-    buffer = calloc(bufferLength + 1, sizeof(char));
+    buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);    
     if (n < 0)
@@ -209,7 +218,7 @@ void bindAndListenToSock(int sockfd, struct sockaddr_in serv_addr)
 
 int acceptNextConnectOnSock(int sockfd, struct sockaddr_in *cli_addr, int *clilen)
 {
-    int newsockfd = accept(sockfd, (struct sockaddr*)cli_addr, clilen);
+    int newsockfd = accept(sockfd, (struct sockaddr*)cli_addr, (socklen_t*)clilen);
     if (newsockfd < 0) 
     {
         error("ERROR on accept");    

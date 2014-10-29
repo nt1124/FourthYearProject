@@ -6,6 +6,17 @@
 #include "circuitUtils.h"
 
 
+int compilationOfTests()
+{
+	// testAES();
+	// testElgamal();
+	// testRSA();
+	// testByteConvert();
+	// testSerialisation(inputCircuit[16]);
+
+	return 1;
+}
+
 
 int main(int argc, char *argv[])
 {
@@ -15,10 +26,8 @@ int main(int argc, char *argv[])
 	if( 1 != argc )
 	{
 		char *circuitFilepath = argv[1];
-		// char *formatFilepath = argv[2];
 
 		int numGates = count_lines_of_file(circuitFilepath);
-		// int numInputOutputs = count_lines_of_file(formatFilepath);
 
 		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 		// struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
@@ -30,12 +39,6 @@ int main(int argc, char *argv[])
 
 		runCircuit( inputCircuit, numGates );
 		printAllOutput(inputCircuit, numGates);
-
-		// testAES();
-    	// testElgamal();
-    	// testRSA();
-    	// testByteConvert();
-    	// testSerialisation(inputCircuit[16]);
 	}
 	else
 	{
