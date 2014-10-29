@@ -26,6 +26,7 @@ typedef struct gate
 
 typedef struct wire
 {
+	unsigned char wireOwner;
 	unsigned char wireMask;
 	unsigned char wirePerm;
 	unsigned char wirePermedValue;

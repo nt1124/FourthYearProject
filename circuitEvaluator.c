@@ -12,7 +12,6 @@ int compilationOfTests()
 	// testElgamal();
 	// testRSA();
 	// testByteConvert();
-	// testSerialisation(inputCircuit[16]);
 
 	return 1;
 }
@@ -20,7 +19,7 @@ int compilationOfTests()
 
 int main(int argc, char *argv[])
 {
-	int i;
+	int i, sockfd;
 	srand( time(NULL) );
 
 	if( 1 != argc )
@@ -30,15 +29,21 @@ int main(int argc, char *argv[])
 		int numGates = count_lines_of_file(circuitFilepath);
 
 		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
-		// struct formatItem **inputFormats = readFormatFile(formatFilepath, numInputOutputs);
 
 		char tempAlice[] = "And.alice.input";
-		char tempBob[] = "And.bob.input";
+		// char tempBob[] = "And.bob.input";
 		readInputDetailsFile( tempAlice, inputCircuit );
-		readInputDetailsFile( tempBob, inputCircuit );
+		// readInputDetailsFile( tempBob, inputCircuit );
 
-		runCircuit( inputCircuit, numGates );
-		printAllOutput(inputCircuit, numGates);
+		// runCircuitExecutor( inputCircuit, numGates, sockfd );
+		// printAllOutput(inputCircuit, numGates);
+
+		for(i = 0; i < numGates; i ++)
+		{
+			printf("+++++  Gate %02d  +++++\n", i);
+			testSerialisation(inputCircuit[i]);
+			printf("\n");
+		}
 	}
 	else
 	{

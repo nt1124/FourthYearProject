@@ -88,6 +88,7 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 	strIndex ++;
 
 	outputWire = inputCircuit[gateID] -> outputWire;
+	inputCircuit[gateID] -> outputWire -> wireOwner = 0xFF;
 	if( '1' == line[strIndex] )
 	{
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key1[16];
@@ -116,33 +117,29 @@ void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
 }
 
 
-void runCircuit( struct gateOrWire **inputCircuit, int numGates )
+void runCircuitExecutor( struct gateOrWire **inputCircuit, int numGates, int sockfd )
 {
-	int i, j, k, tempIndex, numInputs;
-	char outputTableIndex, tempBit;
-	struct gate *currentGate;
-	unsigned char *outputChars;
-	unsigned char *tempEncValue;
+	int i;
 
 	for(i = 0; i < numGates; i ++)
 	{
 		if( NULL != inputCircuit[i] -> gatePayload )
 		{
-			outputTableIndex = 0;
-			currentGate = inputCircuit[i] -> gatePayload;
-			numInputs = currentGate -> numInputs;
+			decryptGate(inputCircuit[i], inputCircuit, sockfd);
+		}
+	}
+}
 
-			/*
-			for(j = 0; j < numInputs; j ++)
-			{
-				tempIndex = currentGate -> inputIDs[numInputs - j - 1];
-				tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
-				outputTableIndex <<= 1;
-				outputTableIndex += tempBit;
-			}
-			*/
 
-			decryptGate(inputCircuit[i], inputCircuit);
+void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sockfd )
+{
+	int i;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		if( NULL != inputCircuit[i] -> gatePayload )
+		{
+			//provideKeysForGate(inputCircuit[i], sockfd);
 		}
 	}
 }
