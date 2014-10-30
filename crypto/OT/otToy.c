@@ -82,8 +82,7 @@ void testReceiver_OT_Toy(char *portNumStr)
 }
 
 
-
-
+/*
 int main(int argc, char *argv[])
 {
 	int mode = atoi(argv[1]);
@@ -99,3 +98,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+*/

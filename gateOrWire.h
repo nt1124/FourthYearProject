@@ -8,16 +8,18 @@ typedef struct bitsGarbleKeys
 	unsigned char *key1; // Ronseal
 } bitsGarbleKeys;
 
+
 typedef struct gate
 {
 	unsigned char numInputs;		// Number of input wires to gate.
 	int *inputIDs;					// ID of the input wires to gate.
 
-	unsigned short outputTableSize;	// 2^numInputs.
+	unsigned short outputTableSize;	// 2 ^ numInputs.
 	unsigned char **encOutputTable; // The encrypted and permutated output table.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.
 									// Only used temporarily by Builder. Try to get rid of in future.
 } gate;
+
 
 typedef struct wire
 {
@@ -29,6 +31,7 @@ typedef struct wire
 	struct bitsGarbleKeys *outputGarbleKeys; // The two possible keys to be used for wireOutputKey.
 											 // Only one of which is known to executor.
 } wire;
+
 
 typedef struct gateOrWire
 {
@@ -46,6 +49,7 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 
 #include "fileUtils.h"
 #include "serialisationUtils.c"
+#include "crypto/OT/otToy.c"
 #include "gateOrWire.c"
 #include <math.h>
 

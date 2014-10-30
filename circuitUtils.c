@@ -70,7 +70,8 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 }
 
 
-void readInputLines(char *line, struct gateOrWire **inputCircuit)
+
+void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0, wireValue;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
@@ -88,21 +89,21 @@ void readInputLines(char *line, struct gateOrWire **inputCircuit)
 	strIndex ++;
 
 	outputWire = inputCircuit[gateID] -> outputWire;
-	inputCircuit[gateID] -> outputWire -> wireOwner = 0xFF;
+	outputWire -> wireOwner = 0xFF;
 	if( '1' == line[strIndex] )
 	{
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key1[16];
-		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key1;
+		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key1, 16);
 	}
 	else if( '0' == line[strIndex] )
 	{
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
-		outputWire -> wireOutputKey = outputWire -> outputGarbleKeys -> key0;
+		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 	}
 }
 
 
-void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
+void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircuit)
 {
 	FILE *file = fopen ( filepath, "r" );
 	if ( file != NULL )
@@ -110,22 +111,72 @@ void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
 		char line [ 512 ];
 		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
-			readInputLines(line, inputCircuit);
+			readInputLinesBuilder(line, inputCircuit);
 		}
 		fclose ( file );
 	}
 }
 
 
-void runCircuitExecutor( struct gateOrWire **inputCircuit, int numGates, int sockfd )
+
+void readInputLinesExec(char *line, struct gateOrWire **inputCircuit, int sockfd)
+{
+	int strIndex = 0, gateID = 0, outputLength = 0;
+	char *curCharStr = (char*) calloc( 2, sizeof(char) );
+	struct wire *outputWire;
+
+	while( ' ' != line[strIndex++] ){}
+	while( ' ' != line[strIndex] )
+	{
+		gateID *= 10;
+		curCharStr[0] = line[strIndex];
+		gateID += atoi(curCharStr);
+		strIndex ++;
+	}
+	strIndex ++;
+
+	outputWire = inputCircuit[gateID] -> outputWire;
+
+	if( '1' == line[strIndex] )
+	{
+		outputWire -> wireOutputKey = receiverOT_Toy(sockfd, (unsigned char)0x01, &outputLength);
+	}
+	else if( '0' == line[strIndex] )
+	{
+		outputWire -> wireOutputKey = receiverOT_Toy(sockfd, (unsigned char)0x00, &outputLength);
+	}
+	// printf("Received key for Gate %d\n", gateID);
+}
+
+
+void readInputDetailsFileExec(char *filepath, struct gateOrWire **inputCircuit, int sockfd)
+{
+	FILE *file = fopen ( filepath, "r" );
+	if ( file != NULL )
+	{
+		char line [ 512 ];
+		while ( fgets ( line, sizeof line, file ) != NULL )
+		{
+			readInputLinesExec(line, inputCircuit, sockfd);
+		}
+		fclose ( file );
+	}
+}
+
+
+
+void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath )
 {
 	int i;
 
+	readInputDetailsFileExec(filepath, inputCircuit, sockfd);
+
 	for(i = 0; i < numGates; i ++)
 	{
+		printf("++++++++ %d\n", i);
 		if( NULL != inputCircuit[i] -> gatePayload )
 		{
-			decryptGate(inputCircuit[i], inputCircuit, sockfd);
+			decryptGate(inputCircuit[i], inputCircuit);
 		}
 	}
 }
@@ -137,9 +188,81 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sock
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( NULL != inputCircuit[i] -> gatePayload )
+		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
+			0xF0 == inputCircuit[i] -> outputWire -> wireMask )
 		{
+			// printf("Providing key for Gate %d\n", i);
 			provideKeyForGate(inputCircuit[i], sockfd);
 		}
 	}
+}
+
+
+void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
+{
+	int i;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		if( NULL != inputCircuit[i] -> gatePayload )
+		{
+			decryptGate(inputCircuit[i], inputCircuit);
+		}
+	}
+}
+
+
+
+
+void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int sockfd)
+{
+	int i, bufferLength = 0;
+	unsigned char *buffer = (unsigned char*) calloc(4, sizeof(unsigned char));
+
+	memcpy(buffer, &numGates, 4);
+	writeToSock(sockfd, (char*)buffer, 4);
+
+	for(i = 0; i < numGates; i ++)
+	{
+		buffer = serialiseGateOrWire(inputCircuit[i], &bufferLength);
+		//printf("Sending the %d th gate. Size is %d\n", i, bufferLength);
+		writeToSock(sockfd, (char*)buffer, bufferLength);
+	}
+	printf("Circuit sent.\n");
+}
+
+
+int receiveNumGates(int sockfd)
+{
+	int numGates, bufferLength = 0;
+	unsigned char *buffer;
+
+	buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
+	memcpy(&numGates, buffer, 4);
+	free(buffer);
+
+	return numGates;
+}
+
+
+struct gateOrWire **receiveCircuit(int numGates, int sockfd)
+{
+	int i, bufferLength = 0;
+	unsigned char *buffer;
+	struct gateOrWire **inputCircuit;
+
+	inputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
+
+	printf("Circuit has %d gates!\n", numGates);
+
+	for(i = 0; i < numGates; i ++)
+	{
+		buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
+		// printf("Received the %d th gate. Size was %d\n", i, bufferLength);
+		inputCircuit[i] = deserialiseGateOrWire(buffer);
+		free(buffer);
+	}
+	printf("Circuit received.\n");
+
+	return inputCircuit;
 }

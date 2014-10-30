@@ -39,7 +39,7 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 }
 
 
-void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit, int sockfd)
+void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	int numInputs = curGate -> gatePayload -> numInputs;
 	int i, j, tempBit, tempIndex, outputIndex = 0;
@@ -70,12 +70,19 @@ int provideKeyForGate(struct gateOrWire *inputGW, int sockfd)
 {
 	struct wire *tempWire = inputGW -> outputWire;
 
-	/*
-	senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0,
-						 tempWire -> outputGarbleKeys -> key1, 17);
-	*/
+	senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
 
 	return 1;
+}
+
+
+int receiveKeyForGate(struct gateOrWire *inputGW, int sockfd, unsigned char inputBit)
+{
+	int outputLength = 16;
+	unsigned char *received;
+
+	received = receiverOT_Toy(sockfd, inputBit, &outputLength);
+	inputGW -> outputWire -> wireOutputKey = received;
 }
 
 
@@ -136,6 +143,7 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wirePerm = getPermutation();
+	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 
 	if( 'i' == line[*strIndex] )
@@ -147,7 +155,6 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 	{
 		if('o' == line[*strIndex])
 		{
-			//0x0F
 			toReturn -> outputWire -> wireMask = 0x0F;
 			while( line[*strIndex] != ' ' )
 			{
@@ -162,86 +169,3 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 	return toReturn;
 }
 
-
-void testSerialisation(struct gateOrWire *inputGW)
-{
-	unsigned char *serialGW;
-	int serialLength = 0, i, j;
-	struct gateOrWire *outputGW;
-	unsigned char *temp;
-
-
-	serialGW = serialiseGateOrWire(inputGW, &serialLength);
-	outputGW = deserialiseGateOrWire(serialGW);
-
-	printf("\nBefore serialisation\n");
-	printf("G_ID				=  %d\n", inputGW -> G_ID);
-	printf("Wire Mask			=  %02X\n", inputGW -> outputWire -> wireMask);
-	printf("Wire Owner			=  %02X\n", inputGW -> outputWire -> wireOwner);
-	printf("Wire Perm			=  %02X\n", inputGW -> outputWire -> wirePerm);
-
-	if(0xFF == inputGW -> outputWire -> wireOwner)
-	{
-		printf("Out key 			=  ");
-		for(i = 0; i < 16; i ++)
-			printf("%02X", inputGW -> outputWire -> wireOutputKey[i]);
-		printf("\n");
-	}
-
-	if(NULL != inputGW -> gatePayload)
-	{
-		printf("numInputs			=  %d\n", inputGW -> gatePayload -> numInputs);
-		printf("outputTableSize 		=  %d\n", inputGW -> gatePayload -> outputTableSize);
-
-		for(i = 0; i < inputGW -> gatePayload -> numInputs; i ++)
-			printf("inputIDs[%d]			=  %d\n", i, inputGW -> gatePayload -> inputIDs[i]);
-
-		temp = (unsigned char*) calloc(32, sizeof(unsigned char));
-		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
-		{
-			printf("encOutputTable[%d]		=  ", i);
-			memcpy(temp, inputGW -> gatePayload -> encOutputTable[i], 32);
-			for(j = 0; j < 32; j ++)
-			{
-				printf("%02X", temp[j]);
-			}
-			printf("\n");
-		}
-	}
-
-
-	printf("\nSerialised and back again\n");
-	printf("G_ID				=  %d\n", outputGW -> G_ID);
-	printf("Wire Mask			=  %02X\n", outputGW -> outputWire -> wireMask);
-	printf("Wire Owner			=  %02X\n", outputGW -> outputWire -> wireOwner);
-	printf("Wire Perm			=  %02X\n", outputGW -> outputWire -> wirePerm);
-
-	if(0xFF == outputGW -> outputWire -> wireOwner)
-	{
-		printf("Out key 			=  ");
-		for(i = 0; i < 16; i ++)
-			printf("%02X", outputGW -> outputWire -> wireOutputKey[i]);
-		printf("\n");
-	}
-
-	if(NULL != outputGW -> gatePayload)
-	{
-		printf("numInputs			=  %d\n", outputGW -> gatePayload -> numInputs);
-		printf("outputTableSize 		=  %d\n", outputGW -> gatePayload -> outputTableSize);
-
-		for(i = 0; i < outputGW -> gatePayload -> numInputs; i ++)
-			printf("inputIDs[%d]			=  %d\n", i, outputGW -> gatePayload -> inputIDs[i]);
-
-		temp = (unsigned char*) calloc(32, sizeof(unsigned char));
-		for(i = 0; i < outputGW -> gatePayload -> outputTableSize; i ++)
-		{
-			printf("encOutputTable[%d]		=  ", i);
-			memcpy(temp, outputGW -> gatePayload -> encOutputTable[i], 32);
-			for(j = 0; j < 32; j ++)
-			{
-				printf("%02X", temp[j]);
-			}
-			printf("\n");
-		}
-	}
-}
