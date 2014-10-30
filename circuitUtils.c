@@ -107,8 +107,8 @@ void readInputDetailsFile(char *filepath, struct gateOrWire **inputCircuit)
 	FILE *file = fopen ( filepath, "r" );
 	if ( file != NULL )
 	{
-		char line [ 512 ]; /* or other suitable maximum line size */
-		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		char line [ 512 ];
+		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
 			readInputLines(line, inputCircuit);
 		}
@@ -139,7 +139,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sock
 	{
 		if( NULL != inputCircuit[i] -> gatePayload )
 		{
-			//provideKeysForGate(inputCircuit[i], sockfd);
+			provideKeyForGate(inputCircuit[i], sockfd);
 		}
 	}
 }

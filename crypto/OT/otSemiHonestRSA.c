@@ -65,16 +65,13 @@ int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
     int tempInt1, tempInt2;
  
  	strncpy((char*)input0, "1111111111111111", 16);
-    
-    printf("1.......\n");
+
     convertBytesToMPZ(inputInt, input0, 16);
 	gmp_printf("%Zd\n", *inputInt);
     encInt = encRSA(*inputInt, PK);
     decInt = decRSA(*encInt, SK);
 
-    printf("2.......\n");
     outputBytes2 = convertMPZToBytes(*inputInt, &tempInt2);
-    printf("3.......\n");
     outputBytes1 = convertMPZToBytes(*decInt, &tempInt1);
 
     if(16 == tempInt1)

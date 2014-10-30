@@ -1,2 +1,2 @@
-g++ circuitEvaluator.c -lgmp -maes -O3 -o a.out
+g++ circuitEvaluator.c -lgmp -maes -o a.out
 time ./a.out circuits/And.sfdl.Opt.circuit circuits/And.sfdl.Opt.fmt

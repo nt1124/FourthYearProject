@@ -31,12 +31,12 @@ int main(int argc, char *argv[])
 		struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 
 		char tempAlice[] = "And.alice.input";
-		// char tempBob[] = "And.bob.input";
+		char tempBob[] = "And.bob.input";
 		readInputDetailsFile( tempAlice, inputCircuit );
-		// readInputDetailsFile( tempBob, inputCircuit );
+		readInputDetailsFile( tempBob, inputCircuit );
 
-		// runCircuitExecutor( inputCircuit, numGates, sockfd );
-		// printAllOutput(inputCircuit, numGates);
+		runCircuitExecutor( inputCircuit, numGates, sockfd );
+		printAllOutput(inputCircuit, numGates);
 
 		for(i = 0; i < numGates; i ++)
 		{

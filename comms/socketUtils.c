@@ -49,13 +49,6 @@ void error(const char *msg)
     exit(0);
 }
 
-/*
-void error(char *msg)
-{
-    perror(msg);
-    exit(0);
-}
-*/
 
 int bytesToInteger(unsigned char *input)
 {
