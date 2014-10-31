@@ -61,7 +61,7 @@ struct formatItem *readFormatLine(char *line)
 struct formatItem **readFormatFile( char *filepath, int numInputOutputs)
 {
 	FILE *file = fopen ( filepath, "r" );
-	int line_count = 0, formatIndex = 0;
+	int formatIndex = 0;
 
 	struct formatItem **formatList = (struct formatItem**) calloc(numInputOutputs, sizeof(struct formatList*));
 	struct formatItem *formatItem;

@@ -10,7 +10,7 @@ typedef unsigned int  uint;
 #include "randUtils.c"
 #include <string.h>
 #include <wmmintrin.h>
-#include "aes.cpp"
+#include "aes.c"
 
 #define AES_BLK_SIZE 16
 
@@ -18,6 +18,7 @@ typedef unsigned int  uint;
 // Key Schedule
 void aes_schedule( int nb, int nr, unsigned char* k, uint* RK );
 
+/*
 inline void aes_schedule( uint* RK, unsigned char* K )
 { aes_schedule(4, 10, K, RK); }
 inline void aes_128_schedule( uint* RK, unsigned char* K )
@@ -26,17 +27,18 @@ inline void aes_192_schedule( uint* RK, unsigned char* K )
 { aes_schedule(6, 12, K, RK); }
 inline void aes_256_schedule( uint* RK, unsigned char* K )
 { aes_schedule(8, 14, K, RK); }
+*/
 
 // Encryption Function 
 void aes_128_encrypt( unsigned char* C, unsigned char* M, uint* RK );
-void aes_192_encrypt( unsigned char* C, unsigned char* M, uint* RK );
-void aes_256_encrypt( unsigned char* C, unsigned char* M, uint* RK );
+// void aes_192_encrypt( unsigned char* C, unsigned char* M, uint* RK );
+// void aes_256_encrypt( unsigned char* C, unsigned char* M, uint* RK );
 
 inline void aes_encrypt( unsigned char* C, unsigned char* M, uint* RK )
 { aes_128_encrypt(C,M,RK ); }
 
 
-/*********** M-Code Version ***********/
+/*********** M-Code Version ***********
 
 
 // Check can support this
@@ -57,7 +59,7 @@ void aes_256_encrypt( unsigned char* C, const unsigned char* M,const unsigned ch
 
 inline void aes_encrypt( unsigned char* C, const unsigned char* M,const unsigned char* RK )
 { aes_128_encrypt(C,M,RK); }
-
+*/
 
 #endif
 

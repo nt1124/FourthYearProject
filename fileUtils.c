@@ -16,7 +16,7 @@ unsigned char **recursiveOutputTable(struct gate *curGate)
 
 int *parseOutputTable(char* line, int *strIndex, struct gate *curGate)
 {
-	int startIndex, tableIndex = 0, inputNumCount;
+	int tableIndex = 0;
 	int *tableToParse = (int*) calloc(curGate -> outputTableSize, sizeof(int));
 
 	while( line[++ *strIndex] != '[' ) {}
@@ -35,7 +35,7 @@ int *parseOutputTable(char* line, int *strIndex, struct gate *curGate)
 
 int *parseInputTable(char* line, int tableSize, int *strIndex)
 {
-	int startIndex, tableIndex = -1, inputNumCount;
+	int tableIndex = -1;
 	int *tableToReturn = (int*) calloc(tableSize, sizeof(int));
 	char *curCharStr = (char*) calloc(2, sizeof(char));
 

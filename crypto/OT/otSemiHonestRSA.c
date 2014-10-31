@@ -59,8 +59,8 @@ int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
     unsigned char input0[17] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
     mpz_t *inputInt = (mpz_t*) calloc(1, sizeof(mpz_t));
-    mpz_t *encInt = (mpz_t*)calloc(1, sizeof(mpz_t));
-    mpz_t *decInt = (mpz_t*)calloc(1, sizeof(mpz_t));
+    mpz_t *encInt = (mpz_t*) calloc(1, sizeof(mpz_t));
+    mpz_t *decInt = (mpz_t*) calloc(1, sizeof(mpz_t));
     unsigned char *outputBytes1, *outputBytes2;
     int tempInt1, tempInt2;
  

@@ -134,7 +134,7 @@ struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
 }
 
 
-struct rsaPrivKey *updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pubKey, gmp_randstate_t state)
+void updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pubKey, gmp_randstate_t state)
 {
 	mpz_t gcdThetaNE;
 	mpz_init(gcdThetaNE);
@@ -236,21 +236,11 @@ void testRSA()
 
 void testByteConvert()
 {
-	struct rsaPrivKey *privKey;
-	struct rsaPubKey *pubKey;
-    mpz_t inputMsg, *PT, *CT;
-    int i;
+    mpz_t inputMsg;
 
-
-    gmp_randstate_t state;
-    unsigned long int seed = time(NULL);
-    gmp_randinit_default(state);
-    gmp_randseed_ui(state, seed);
-
-	privKey = generatePrivRSAKey(state);
-	pubKey = generatePubRSAKey(privKey);
     mpz_init(inputMsg);
     // mpz_urandomm(inputMsg, state, pubKey -> N);
+
     mpz_set_ui(inputMsg, 1128);
 
     gmp_printf("%Zd\n", inputMsg);
@@ -258,7 +248,8 @@ void testByteConvert()
     unsigned char *tempChars = convertMPZToBytes(inputMsg, &temporary);
 	printf("...\n");
 
-	mpz_t *tempMPZ;
+	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t));
+	mpz_init(*tempMPZ);
 	convertBytesToMPZ(tempMPZ, tempChars, temporary);
 	gmp_printf("%Zd\n", *tempMPZ);
     

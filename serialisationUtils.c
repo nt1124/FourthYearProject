@@ -41,7 +41,7 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 
 int serialiseInputWire(struct gateOrWire *inputGW, unsigned char *toReturn, int offset)
 {
-	int i, j, curIndex = offset;
+	int curIndex = offset;
 
 	if(0x00 == inputGW -> outputWire -> wireOwner)
 	{
@@ -93,7 +93,7 @@ int serialiseGate(struct gate *inputGate, unsigned char *toReturn, int offset)
 unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength)
 {
 	unsigned char *toReturn;
-	int i, j, outputTableSize = 0, numInputs = 0;
+	int outputTableSize = 0, numInputs = 0;
 	int serialisedSize = 0, curIndex = 7;
 
 	if(NULL != inputGW -> gatePayload)
@@ -140,10 +140,9 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 
 
 
-
 int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, int offset)
 {
-	int i, j, curIndex = offset;
+	int curIndex = offset;
 
 	if(0x00 == outputGW -> outputWire -> wireOwner)
 	{
@@ -203,8 +202,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 {
 	struct gateOrWire *toReturn;
 	struct gate *tempGate = NULL;
-	int i, j, k, curIndex = 7;
-	int outputTableSize = 0, numInputs = 0;
+	int curIndex = 7;
 
 	// Calloc space for gateOrWire, and for the outputWire.
 	toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));

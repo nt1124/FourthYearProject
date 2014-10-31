@@ -45,14 +45,14 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 	printf("Ready to send circuit\n");
 	sendCircuit(inputCircuit, numGates, newSockFD);
-	runCircuitBuilder( inputCircuit, numGates, newSockFD );
+	//runCircuitBuilder( inputCircuit, numGates, newSockFD );
 }
 
 
 
 void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 {
-    int sockfd, portNum, n;
+    int sockfd, portNum;
     struct sockaddr_in serv_addr;
     
     portNum = atoi(portNumStr);
@@ -63,26 +63,24 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 	int numGates = 0;
 	struct gateOrWire **inputCircuit;
-	
+
 	numGates = receiveNumGates(sockfd);
 	inputCircuit = receiveCircuit(numGates, sockfd);
 	printf("Received circuit\n");
 
-	// Seg Faulting somewhere in here.
-	runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
+	//runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
 	printf("Circuit has been run\n");
 
-	printAllOutput(inputCircuit, numGates);
+	//printAllOutput(inputCircuit, numGates);
 }
 
 
 
-void testRun(char *circuitFilepath, int builder)
+void testRun(char *circuitFilepath, char *portNumStr, int builder)
 {
-	char tempAlice[] = "And.alice.input";
-	char tempBob[] = "And.bob.input";
-	char portNumStr[] = "2345";
-	char ipAddress[] = "127.0.0.1";
+	char tempAlice[] = "And.alice.input\0";
+	char tempBob[] = "And.bob.input\0";
+	char ipAddress[] = "127.0.0.1\0";
 
 	if(0 == builder)
 	{
@@ -99,14 +97,13 @@ void testRun(char *circuitFilepath, int builder)
 
 int main(int argc, char *argv[])
 {
-	int i, sockfd;
 	srand( time(NULL) );
 
 	char *circuitFilepath = argv[1];
-	int builder = atoi(argv[2]);
-	testRun(circuitFilepath, builder);
-	/*
+	int builder = atoi(argv[3]);
+	testRun(circuitFilepath, argv[2], builder);
 
+	/*
 	int numGates = count_lines_of_file(circuitFilepath);
 
 	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);

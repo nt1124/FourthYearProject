@@ -1,7 +1,60 @@
+void printGateOrWire(struct gateOrWire *inputGW)
+{
+	int i, j;
+	unsigned char *temp;
+
+	printf("G_ID				=  %d\n", inputGW -> G_ID);
+	printf("Wire Mask			=  %02X\n", inputGW -> outputWire -> wireMask);
+	printf("Wire Owner			=  %02X\n", inputGW -> outputWire -> wireOwner);
+	printf("Wire Perm			=  %02X\n", inputGW -> outputWire -> wirePerm);
+	printf("Out key 			=  ");
+	for(i = 0; i < 16; i ++)
+		printf("%02X", inputGW -> outputWire -> wireOutputKey[i]);
+	printf("\n");
+
+	if(0x00 == inputGW -> outputWire -> wireOwner &&
+	   0xF0 == inputGW -> outputWire -> wireMask)
+	{
+		printf("key0 				=  ");
+		for(i = 0; i < 16; i ++)
+			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key0[i]);
+		printf("\n");
+
+		printf("key1 				=  ");
+		for(i = 0; i < 16; i ++)
+			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key1[i]);
+		printf("\n");
+	}
+
+	if(NULL != inputGW -> gatePayload)
+	{
+		printf("numInputs			=  %d\n", inputGW -> gatePayload -> numInputs);
+		printf("outputTableSize 		=  %d\n", inputGW -> gatePayload -> outputTableSize);
+
+		for(i = 0; i < inputGW -> gatePayload -> numInputs; i ++)
+			printf("inputIDs[%d]			=  %d\n", i, inputGW -> gatePayload -> inputIDs[i]);
+
+		temp = (unsigned char*) calloc(32, sizeof(unsigned char));
+		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
+		{
+			printf("encOutputTable[%d]		=  ", i);
+			memcpy(temp, inputGW -> gatePayload -> encOutputTable[i], 32);
+			for(j = 0; j < 32; j ++)
+			{
+				printf("%02X", temp[j]);
+			}
+			printf("\n");
+		}
+	}
+
+}
+
+
+
 void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 {
 	int numInputs = curGate -> gatePayload -> numInputs;
-	int i, j, k, tempBit, permedIndex, inputID;
+	int i, j, tempBit, permedIndex, inputID;
 	struct wire *inputWire;
 	unsigned char *keyList[numInputs], *tempRow;
 	unsigned char *toEncrypt0 = (unsigned char*) calloc(32, sizeof(unsigned char));
@@ -42,7 +95,7 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	int numInputs = curGate -> gatePayload -> numInputs;
-	int i, j, tempBit, tempIndex, outputIndex = 0;
+	int j, tempBit, tempIndex, outputIndex = 0;
 	unsigned char *keyList[numInputs], *toReturn;
 	unsigned char *tempRow;
 
@@ -83,6 +136,8 @@ int receiveKeyForGate(struct gateOrWire *inputGW, int sockfd, unsigned char inpu
 
 	received = receiverOT_Toy(sockfd, inputBit, &outputLength);
 	inputGW -> outputWire -> wireOutputKey = received;
+
+	return 1;
 }
 
 
@@ -138,7 +193,7 @@ struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit,
 struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-	int i, *rawOutputTable;
+	// int *rawOutputTable;
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));

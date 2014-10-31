@@ -50,6 +50,7 @@ void error(const char *msg)
 }
 
 
+/*
 int bytesToInteger(unsigned char *input)
 {
     int output = 0, i;
@@ -61,8 +62,9 @@ int bytesToInteger(unsigned char *input)
 
     return output;
 }
+*/
 
-
+/*
 unsigned char *integerToBytes(int input)
 {
     unsigned char *output = (unsigned char *) calloc(sizeof(int), sizeof(unsigned char));
@@ -77,16 +79,19 @@ unsigned char *integerToBytes(int input)
 
     return output;
 }
-
+*/
 
 int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
-    unsigned char *bufferOfLength = (unsigned char*) calloc(sizeof(int) + 1, sizeof(char));
+    printf("Come on!\n");
+    unsigned char *bufferOfLength = (unsigned char*) calloc(5, sizeof(unsigned char));
 
-    bufferOfLength = integerToBytes(bufferLength);
+    printf("Got here Alpha!\n");
+    memcpy(bufferOfLength, &bufferLength, 4);
+    printf("Got here Beta!  %d\n", bufferLength);
 
-    n = write(sockfd, bufferOfLength, sizeof(int));
+    n = write(sockfd, (char*)bufferOfLength, sizeof(int));
     if (n < 0)
         error("ERROR writing to socket");
 
@@ -94,6 +99,7 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
     if (n < 0)
         error("ERROR writing to socket");
 
+    // free(bufferOfLength);
     return 1;
 }
 
@@ -103,7 +109,7 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
 char *readFromSock(int sockfd, int *lengthOfOutput)
 {
     char *buffer;
-    unsigned char *lengthAsBytes = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
+    unsigned char *lengthAsBytes = (unsigned char*) calloc(5, sizeof(unsigned char));
     int n = 0;
     unsigned int bufferLength = 255;
 
@@ -112,7 +118,8 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
     if (n < 0)
          error("ERROR reading from socket");
 
-    bufferLength = bytesToInteger( (unsigned char*) lengthAsBytes);
+    memcpy(&bufferLength, lengthAsBytes, 4);
+    printf("Buffer Length = %d\n", bufferLength);
     buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);    

@@ -38,12 +38,12 @@ unsigned char *receiverOT_Toy(int sockfd, unsigned char inputBit, int *outputLen
 
 void testSender_OT_Toy(char *portNumStr)
 {
-    int sockfd, portNum, n;
+    int sockfd, portNum;
     struct sockaddr_in serv_addr;
     
     portNum = atoi(portNumStr);
     sockfd = openSock();
-    char *ipAddress = new char[10];
+    char *ipAddress = (char*) calloc(10, sizeof(char));
     strncpy(ipAddress, "127.0.0.1", 9);
 
     serv_addr = getServerAddr(ipAddress, portNum);

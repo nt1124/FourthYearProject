@@ -73,7 +73,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 
 void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 {
-	int strIndex = 0, gateID = 0, wireValue;
+	int strIndex = 0, gateID = 0;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
 	struct wire *outputWire;
 
@@ -140,10 +140,12 @@ void readInputLinesExec(char *line, struct gateOrWire **inputCircuit, int sockfd
 	if( '1' == line[strIndex] )
 	{
 		outputWire -> wireOutputKey = receiverOT_Toy(sockfd, (unsigned char)0x01, &outputLength);
+		outputWire -> wirePermedValue = 0x01 ^ (outputWire -> wirePerm & 0x01);
 	}
 	else if( '0' == line[strIndex] )
 	{
 		outputWire -> wireOutputKey = receiverOT_Toy(sockfd, (unsigned char)0x00, &outputLength);
+		outputWire -> wirePermedValue = 0x00 ^ (outputWire -> wirePerm & 0x01);
 	}
 	// printf("Received key for Gate %d\n", gateID);
 }
@@ -213,20 +215,32 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
 
 
 
+void sendGate(struct gateOrWire *inputGW, int sockfd)
+{
+	unsigned char *buffer;
+	int bufferLength;
+
+	buffer = serialiseGateOrWire(inputGW, &bufferLength);
+	printf("Sending the %dth gate. Size is %d\n", inputGW -> G_ID, bufferLength);
+	
+	// writeToSock(sockfd, (char*)buffer, bufferLength);
+}
+
 
 void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int sockfd)
 {
-	int i, bufferLength = 0;
-	unsigned char *buffer = (unsigned char*) calloc(4, sizeof(unsigned char));
+	int i;
+	char *buffer = (char*) calloc(5, sizeof(char));
 
 	memcpy(buffer, &numGates, 4);
-	writeToSock(sockfd, (char*)buffer, 4);
+	writeToSock(sockfd, buffer, 4);
+	//free(buffer);
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < 1; i ++)// numGates; i ++)
 	{
-		buffer = serialiseGateOrWire(inputCircuit[i], &bufferLength);
-		//printf("Sending the %d th gate. Size is %d\n", i, bufferLength);
-		writeToSock(sockfd, (char*)buffer, bufferLength);
+		sendGate(inputCircuit[i], sockfd);
+		printf("%dth gate has been sent.\n", i);
+		fflush(stdout);
 	}
 	printf("Circuit sent.\n");
 }
@@ -248,17 +262,17 @@ int receiveNumGates(int sockfd)
 struct gateOrWire **receiveCircuit(int numGates, int sockfd)
 {
 	int i, bufferLength = 0;
-	unsigned char *buffer;
+	unsigned char *buffer = NULL;
 	struct gateOrWire **inputCircuit;
 
 	inputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
 
 	printf("Circuit has %d gates!\n", numGates);
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < 1; i ++)//numGates; i ++)
 	{
 		buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
-		// printf("Received the %d th gate. Size was %d\n", i, bufferLength);
+		printf("Received the %dth gate. Size was %d\n", i, bufferLength);
 		inputCircuit[i] = deserialiseGateOrWire(buffer);
 		free(buffer);
 	}
