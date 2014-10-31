@@ -55,12 +55,7 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
 
-    printf("Size of buffer to send = %d.\n", bufferLength);
-    fflush(stdout);
-
     unsigned char *bufferOfLength = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
-    printf("Allocated memory for buffer length.\n");
-
     memcpy(bufferOfLength, &bufferLength, sizeof(int));
 
     n = write(sockfd, (char*)bufferOfLength, sizeof(int));
@@ -87,7 +82,6 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
 
 
     n = read(sockfd, lengthAsBytes, sizeof(int));
-    printf("n1 = %d\n", n);  
     if (n < 0)
          error("ERROR reading from socket");
 
@@ -95,7 +89,6 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
     buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);
-    printf("n2 = %d\n", n);  
     if (n < 0)
          error("ERROR reading from socket");
 
@@ -199,6 +192,4 @@ int acceptNextConnectOnSock(int sockfd, struct sockaddr_in *cli_addr, int *clile
 
     return newsockfd;
 }
-
-
 

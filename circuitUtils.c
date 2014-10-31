@@ -147,8 +147,6 @@ struct idAndValue *readInputLinesExec(char *line, struct gateOrWire **inputCircu
 		toReturn -> value = 0;
 	}
 
-
-
 	return toReturn;
 }
 
@@ -293,7 +291,6 @@ struct gateOrWire **receiveCircuit(int numGates, int sockfd)
 
 	for(i = 0; i < numGates; i ++)
 	{
-		// printf("Received the %dth gate. Size was %d\n", i, bufferLength);
 		buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
 		inputCircuit[i] = deserialiseGateOrWire(buffer);
 

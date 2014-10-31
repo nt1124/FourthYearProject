@@ -116,14 +116,6 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
 
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
-
-/*
-	printf("--->  %02X\n", curGate -> outputWire -> wirePermedValue);
-	for(j = 0; j < 16; j ++)
-	{
-		printf("%02X", curGate -> outputWire -> wireOutputKey[j]);
-	} printf("\n");
-*/
 }
 
 
@@ -189,7 +181,6 @@ struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit,
 struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-	// int *rawOutputTable;
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));

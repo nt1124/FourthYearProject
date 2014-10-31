@@ -69,7 +69,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 	printf("Received circuit.\n");
 
 	runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
-	printf("Circuit has been run.\n");
 
 	printAllOutput(inputCircuit, numGates);
 }
