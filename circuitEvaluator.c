@@ -43,9 +43,9 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 	readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
-	printf("Ready to send circuit\n");
+	printf("Ready to send circuit.\n");
 	sendCircuit(inputCircuit, numGates, newSockFD);
-	//runCircuitBuilder( inputCircuit, numGates, newSockFD );
+	runCircuitBuilder( inputCircuit, numGates, newSockFD );
 }
 
 
@@ -59,19 +59,19 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     sockfd = openSock();
     serv_addr = getServerAddr(ipAddress, portNum);
     connectToServer(&sockfd, serv_addr);
-    printf("Connected to builder\n");
+    printf("Connected to builder.\n");
 
 	int numGates = 0;
 	struct gateOrWire **inputCircuit;
 
 	numGates = receiveNumGates(sockfd);
 	inputCircuit = receiveCircuit(numGates, sockfd);
-	printf("Received circuit\n");
+	printf("Received circuit.\n");
 
-	//runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
-	printf("Circuit has been run\n");
+	runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
+	printf("Circuit has been run.\n");
 
-	//printAllOutput(inputCircuit, numGates);
+	printAllOutput(inputCircuit, numGates);
 }
 
 
@@ -84,12 +84,12 @@ void testRun(char *circuitFilepath, char *portNumStr, int builder)
 
 	if(0 == builder)
 	{
-		printf("Running Executor\n");
+		printf("Running Executor.\n");
 		runExecutor(tempBob, ipAddress, portNumStr);
 	}
 	else
 	{
-		printf("Running Builder\n");
+		printf("Running Builder.\n");
 		runBuilder(circuitFilepath, tempAlice, portNumStr);
 	}
 }
@@ -105,6 +105,7 @@ int main(int argc, char *argv[])
 
 	/*
 	int numGates = count_lines_of_file(circuitFilepath);
+	int i;
 
 	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
 
@@ -115,7 +116,14 @@ int main(int argc, char *argv[])
 
 	runCircuitLocal( inputCircuit, numGates );
 	printAllOutput(inputCircuit, numGates);
+	for(i = 0; i < numGates; i ++)
+	{
+		printf("+++++  Gate %02d  +++++\n", i);
+		testSerialisation(inputCircuit[i]);
+		printf("\n");
+	}
 	*/
+
 
 	return 0;
 }

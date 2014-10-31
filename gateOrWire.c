@@ -45,8 +45,8 @@ void printGateOrWire(struct gateOrWire *inputGW)
 			}
 			printf("\n");
 		}
-	}
 
+	}
 }
 
 
@@ -116,6 +116,14 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
 
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
+
+/*
+	printf("--->  %02X\n", curGate -> outputWire -> wirePermedValue);
+	for(j = 0; j < 16; j ++)
+	{
+		printf("%02X", curGate -> outputWire -> wireOutputKey[j]);
+	} printf("\n");
+*/
 }
 
 
@@ -124,18 +132,6 @@ int provideKeyForGate(struct gateOrWire *inputGW, int sockfd)
 	struct wire *tempWire = inputGW -> outputWire;
 
 	senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
-
-	return 1;
-}
-
-
-int receiveKeyForGate(struct gateOrWire *inputGW, int sockfd, unsigned char inputBit)
-{
-	int outputLength = 16;
-	unsigned char *received;
-
-	received = receiverOT_Toy(sockfd, inputBit, &outputLength);
-	inputGW -> outputWire -> wireOutputKey = received;
 
 	return 1;
 }

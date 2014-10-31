@@ -62,9 +62,7 @@ int bytesToInteger(unsigned char *input)
 
     return output;
 }
-*/
 
-/*
 unsigned char *integerToBytes(int input)
 {
     unsigned char *output = (unsigned char *) calloc(sizeof(int), sizeof(unsigned char));
@@ -84,12 +82,9 @@ unsigned char *integerToBytes(int input)
 int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
-    printf("Come on!\n");
     unsigned char *bufferOfLength = (unsigned char*) calloc(5, sizeof(unsigned char));
 
-    printf("Got here Alpha!\n");
     memcpy(bufferOfLength, &bufferLength, 4);
-    printf("Got here Beta!  %d\n", bufferLength);
 
     n = write(sockfd, (char*)bufferOfLength, sizeof(int));
     if (n < 0)
@@ -119,7 +114,6 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
          error("ERROR reading from socket");
 
     memcpy(&bufferLength, lengthAsBytes, 4);
-    printf("Buffer Length = %d\n", bufferLength);
     buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);    

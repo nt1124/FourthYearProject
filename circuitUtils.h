@@ -16,6 +16,14 @@ typedef struct Circuit
 } Circuit;
 
 
+typedef struct idAndValue
+{
+	int id;
+	unsigned char value;
+
+	struct idAndValue *next;
+} idAndValue;
+
 #include "circuitUtils.c"
 
 
