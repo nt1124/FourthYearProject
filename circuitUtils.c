@@ -253,10 +253,10 @@ void sendGate(struct gateOrWire *inputGW, int sockfd)
 void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int sockfd)
 {
 	int i;
-	char *buffer = (char*) calloc(5, sizeof(char));
+	char *buffer = (char*) calloc(sizeof(int), sizeof(char));
 
-	memcpy(buffer, &numGates, 4);
-	writeToSock(sockfd, buffer, 4);
+	memcpy(buffer, &numGates, sizeof(int));
+	writeToSock(sockfd, buffer, sizeof(int));
 	free(buffer);
 
 	for(i = 0; i < numGates; i ++)
@@ -274,7 +274,7 @@ int receiveNumGates(int sockfd)
 	unsigned char *buffer;
 
 	buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
-	memcpy(&numGates, buffer, 4);
+	memcpy(&numGates, buffer, sizeof(int));
 	free(buffer);
 
 	return numGates;

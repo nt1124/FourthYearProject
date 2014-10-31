@@ -155,7 +155,7 @@ void testSender_OT_SH_RSA(char *portNumStr)
 {
     int sockfd, portNum, n;
     struct sockaddr_in serv_addr;
-    char *ipAddress = new char[10];
+    char *ipAddress = (char*) calloc(10, sizeof(char));
     strncpy(ipAddress, "127.0.0.1", 9);
 
     portNum = atoi(portNumStr);
@@ -168,6 +168,8 @@ void testSender_OT_SH_RSA(char *portNumStr)
     unsigned char input1[17] = "2222222222222222";
 
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
+
+	senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
 
 
@@ -177,7 +179,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
 
     int sockfd, newsockfd, clilen;
     struct sockaddr_in serv_addr, cli_addr;
-    unsigned char *buffer;
+    unsigned char *buffer, *buffer2;
     int bufferLength = 0, i;
 
     sockfd = openSock();
@@ -188,11 +190,19 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
     buffer = receiverOT_SH_RSA(newsockfd, 0, &bufferLength);
-    
+    printf("Requesting 0 gave us...\n");
     for(i = 0; i < bufferLength; i ++)
     {
-    	printf("%u.", buffer[i]);
-    }
+    	printf("%02X", buffer[i]);
+    } printf("\n");
+    free(buffer);
+
+    buffer2 = receiverOT_SH_RSA(newsockfd, 1, &bufferLength);
+    printf("Requesting 1 gave us...\n");
+    for(i = 0; i < bufferLength; i ++)
+    {
+    	printf("%02X", buffer2[i]);
+    } printf("\n");
 }
 
 

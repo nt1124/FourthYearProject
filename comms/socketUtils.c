@@ -3,12 +3,13 @@
 #include <math.h>
 #include <string.h>
 
-#include <unistd.h>
+// #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-#include <arpa/inet.h>
+
+// #include <arpa/inet.h>
 
 /*  -+ USING THIS MINI-LIBRARY +-
 
@@ -50,41 +51,17 @@ void error(const char *msg)
 }
 
 
-/*
-int bytesToInteger(unsigned char *input)
-{
-    int output = 0, i;
-
-    for(i = 0; i < sizeof(int); i ++)
-    {
-        output += (input[i] << (8 * i));
-    }
-
-    return output;
-}
-
-unsigned char *integerToBytes(int input)
-{
-    unsigned char *output = (unsigned char *) calloc(sizeof(int), sizeof(unsigned char));
-    int i;
-    int localInput = input;
-
-    for(i = 0; i < sizeof(int); i ++)
-    {
-        output[i] = (unsigned char) localInput & 0x000000FF;
-        localInput >>= 8;
-    }
-
-    return output;
-}
-*/
-
 int writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
-    unsigned char *bufferOfLength = (unsigned char*) calloc(5, sizeof(unsigned char));
 
-    memcpy(bufferOfLength, &bufferLength, 4);
+    printf("Size of buffer to send = %d.\n", bufferLength);
+    fflush(stdout);
+
+    unsigned char *bufferOfLength = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
+    printf("Allocated memory for buffer length.\n");
+
+    memcpy(bufferOfLength, &bufferLength, sizeof(int));
 
     n = write(sockfd, (char*)bufferOfLength, sizeof(int));
     if (n < 0)
@@ -104,19 +81,21 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
 char *readFromSock(int sockfd, int *lengthOfOutput)
 {
     char *buffer;
-    unsigned char *lengthAsBytes = (unsigned char*) calloc(5, sizeof(unsigned char));
+    unsigned char *lengthAsBytes = (unsigned char*) calloc(sizeof(int), sizeof(unsigned char));
     int n = 0;
-    unsigned int bufferLength = 255;
+    int bufferLength = 0;
 
 
     n = read(sockfd, lengthAsBytes, sizeof(int));
+    printf("n1 = %d\n", n);  
     if (n < 0)
          error("ERROR reading from socket");
 
     memcpy(&bufferLength, lengthAsBytes, 4);
     buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
-    n = read(sockfd, buffer, bufferLength);    
+    n = read(sockfd, buffer, bufferLength);
+    printf("n2 = %d\n", n);  
     if (n < 0)
          error("ERROR reading from socket");
 
