@@ -71,7 +71,6 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates)
 }
 
 
-
 void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0;
@@ -121,14 +120,12 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 }
 
 
-
 struct idAndValue *readInputLinesExec(char *line, struct gateOrWire **inputCircuit, int sockfd)
 {
 	struct idAndValue *toReturn = (struct idAndValue*) calloc(1, sizeof(struct idAndValue));
 	int strIndex = 0, gateID = 0, outputLength = 0, i;
 	char *curCharStr = (char*) calloc( 2, sizeof(char) );
 	struct wire *outputWire;
-
 
 	while( ' ' != line[strIndex++] ){}
 	while( ' ' != line[strIndex] )
@@ -142,13 +139,9 @@ struct idAndValue *readInputLinesExec(char *line, struct gateOrWire **inputCircu
 
 	toReturn -> id = gateID;
 	if( '1' == line[strIndex] )
-	{
 		toReturn -> value = 1;
-	}
 	else if( '0' == line[strIndex] )
-	{
 		toReturn -> value = 0;
-	}
 
 	free(curCharStr);
 
@@ -180,18 +173,24 @@ struct idAndValue *readInputDetailsFileExec(char *filepath, struct gateOrWire **
 
 void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath )
 {
-	struct idAndValue *start;
+	unsigned char *tempBuffer;
+	struct idAndValue *start, *temp;
 	int i, outputLength = 0, j;
 
 	start = readInputDetailsFileExec(filepath, inputCircuit, sockfd);
 
 	while(NULL != start -> next)
 	{
+		temp = start;
 		start = start -> next;
+		free(temp);
 		i = start -> id;
 		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
-		inputCircuit[i] -> outputWire -> wireOutputKey = receiverOT_Toy(sockfd, start -> value, &outputLength);
+		tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
+		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
+		free(tempBuffer);
 	}
+	free(start);
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -299,12 +298,15 @@ struct gateOrWire **receiveCircuit(int numGates, int sockfd)
 	{
 		buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
 		inputCircuit[i] = deserialiseGateOrWire(buffer);
+		free(buffer);
 
 		if(NULL != inputCircuit[i] -> gatePayload)
 		{
 			for(j = 0; j < inputCircuit[i] -> gatePayload -> outputTableSize; j ++)
 			{
-				inputCircuit[i] -> gatePayload -> encOutputTable[j] = (unsigned char*) readFromSock(sockfd, &bufferLength);
+				buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
+				memcpy(inputCircuit[i] -> gatePayload -> encOutputTable[j], buffer, 32);
+				free(buffer);
 			}
 		}
 	}

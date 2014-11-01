@@ -60,8 +60,8 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 	unsigned char *toEncrypt0 = (unsigned char*) calloc(32, sizeof(unsigned char));
 	unsigned char *toEncrypt1 = (unsigned char*) calloc(32, sizeof(unsigned char));
 	
-	memcpy( toEncrypt0, curGate -> outputWire -> outputGarbleKeys -> key0, 17);
-	memcpy( toEncrypt1, curGate -> outputWire -> outputGarbleKeys -> key1, 17);
+	memcpy(toEncrypt0, curGate -> outputWire -> outputGarbleKeys -> key0, 17);
+	memcpy(toEncrypt1, curGate -> outputWire -> outputGarbleKeys -> key1, 17);
 
 	for(j = 0; j < numInputs; j ++)
 	{
@@ -93,7 +93,6 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 
 		memcpy(curGate -> gatePayload -> encOutputTable[permedIndex], tempRow, 32);
 		free(tempRow);
-		// curGate -> gatePayload -> encOutputTable[permedIndex] = tempRow;
 	}
 
 	for(j = 0; j < numInputs; j ++)
@@ -247,11 +246,10 @@ void freeGateOrWire(struct gateOrWire *inputGW)
 
 		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
 		{
-			printf("Freeing table entry %d from gate %d.\n", i, inputGW -> G_ID);
 			free(inputGW -> gatePayload -> encOutputTable[i]);
 		}
-		printf("----------------------------------------\n");
-		free(inputGW -> gatePayload -> encOutputTable);
+		if(NULL != inputGW -> gatePayload)
+			free(inputGW -> gatePayload -> encOutputTable);
 
 		if(NULL != inputGW -> gatePayload -> rawOutputTable)
 		{

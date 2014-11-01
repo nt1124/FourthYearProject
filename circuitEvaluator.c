@@ -45,7 +45,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 	printf("Ready to send circuit.\n");
 	sendCircuit(inputCircuit, numGates, newSockFD);
-	// runCircuitBuilder( inputCircuit, numGates, newSockFD );
+	runCircuitBuilder( inputCircuit, numGates, newSockFD );
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -60,7 +60,7 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 {
     int sockfd, portNum;
     struct sockaddr_in serv_addr;
-	int numGates = 0;
+	int numGates = 0, i;
 	struct gateOrWire **inputCircuit;
     
     portNum = atoi(portNumStr);
@@ -73,9 +73,15 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 	inputCircuit = receiveCircuit(numGates, sockfd);
 	printf("Received circuit.\n");
 
-	// runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
+	runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
 
-	// printAllOutput(inputCircuit, numGates);
+	printAllOutput(inputCircuit, numGates);
+
+	for(i = 0; i < numGates; i ++)
+	{
+		freeGateOrWire(inputCircuit[i]);
+	}
+	free(inputCircuit);
 }
 
 
@@ -105,9 +111,9 @@ int main(int argc, char *argv[])
 
 	char *circuitFilepath = argv[1];
 	int builder = atoi(argv[3]);
-	// testRun(circuitFilepath, argv[2], builder);
+	testRun(circuitFilepath, argv[2], builder);
 
-
+	/*
 	int numGates = count_lines_of_file(circuitFilepath);
 	int i;
 
@@ -129,6 +135,7 @@ int main(int argc, char *argv[])
 		freeGateOrWire(inputCircuit[i]);
 	}
 	free(inputCircuit);
+	*/
 
 	return 0;
 }

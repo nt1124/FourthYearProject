@@ -81,7 +81,7 @@ int serialiseGate(struct gate *inputGate, unsigned char *toReturn, int offset)
 	for(i = 0; i < inputGate -> outputTableSize; i ++)
 	{
 		j = curIndex + 4 * inputGate -> numInputs + 32 * i;
-		memcpy(toReturn + j, inputGate -> encOutputTable + i, 32);
+		memcpy(toReturn + j, inputGate -> encOutputTable[i], 32);
 	}
 	curIndex = curIndex + (4 * inputGate -> numInputs)
 						+ (32 * inputGate -> outputTableSize);
@@ -185,6 +185,7 @@ int deserialiseGate(struct gate *(*outputGate), unsigned char *serialGW, int off
 	}
 	curIndex += (4 * (*outputGate) -> numInputs);
 
+	/*
 	(*outputGate) -> encOutputTable = (unsigned char **) calloc((*outputGate) -> outputTableSize, sizeof(unsigned char*));
 	for(i = 0; i < (*outputGate) -> outputTableSize; i ++)
 	{
@@ -193,7 +194,7 @@ int deserialiseGate(struct gate *(*outputGate), unsigned char *serialGW, int off
 		memcpy(&(*outputGate) -> encOutputTable[i], serialGW + j, 32);
 	}
 	curIndex += (32 * (*outputGate) -> outputTableSize);
-
+	*/
 	return curIndex;
 }
 
@@ -201,10 +202,11 @@ int deserialiseGate(struct gate *(*outputGate), unsigned char *serialGW, int off
 // Function to deserialise an unsigned chars array to a gateOrWire struct.
 struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 {
+	unsigned char **tempEncOut;
 	struct gateOrWire *toReturn;
 	struct gate *tempGate = NULL;
 	int curIndex = 7;
-	int i, j;
+	int i, j, k;
 
 	// Calloc space for gateOrWire, and for the outputWire.
 	toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
@@ -212,7 +214,6 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 
 	// Copy G_ID, wireMask, wireOwner from string. Initialise wirePerm to zero.
 	memcpy(&(toReturn -> G_ID), serialGW, 4);
-	printf("___________________________+____\n");
 	toReturn -> outputWire -> wireMask = serialGW[5];
 	toReturn -> outputWire -> wireOwner = serialGW[6];
 	toReturn -> outputWire -> wirePerm = 0;
@@ -229,29 +230,19 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 		if(0xFF == serialGW[4])
 		{
 			curIndex = deserialiseGate(&tempGate, serialGW, curIndex);
-			/*
-			tempGate = (struct gate*) calloc(1, sizeof(struct gate*));
-			tempGate -> numInputs = serialGW[curIndex++];
-			memcpy(&tempGate -> outputTableSize, serialGW + curIndex, 2);
-			curIndex += 2;
 
-			tempGate -> inputIDs = (int*) calloc(tempGate -> numInputs, sizeof(int));
-			for(i = 0; i < tempGate -> numInputs; i ++)
-			{
-				j = curIndex + 4 * i;
-				memcpy(&tempGate -> inputIDs[i], serialGW + j, 4);
-			}
-			curIndex += (4 * tempGate -> numInputs);
-
-			tempGate -> encOutputTable = (unsigned char **) calloc(tempGate -> outputTableSize, sizeof(unsigned char*));
+			tempEncOut = (unsigned char **) calloc(tempGate -> outputTableSize, sizeof(unsigned char*));
 			for(i = 0; i < tempGate -> outputTableSize; i ++)
 			{
 				j = curIndex + 32 * i;
-				tempGate -> encOutputTable[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
-				memcpy(&tempGate -> encOutputTable[i], serialGW + j, 32);
+				tempEncOut[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
+				for(k = 0; k < 32; k ++)
+				{
+					tempEncOut[i][k] = serialGW[j + k];
+				}
 			}
+			tempGate -> encOutputTable = tempEncOut;
 			curIndex += (32 * tempGate -> outputTableSize);
-			*/
 		}
 
 		if(0x0F == toReturn -> outputWire -> wireMask)

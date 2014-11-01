@@ -20,6 +20,8 @@ void senderOT_Toy(int sockfd, unsigned char *input0Bytes, unsigned char *input1B
 		writeToSock(sockfd, (char*)input0Bytes, inputLengths);
 	else if(0x01 == *bitRequested)
 		writeToSock(sockfd, (char*)input1Bytes, inputLengths);
+
+    free(bitRequested);
 }
 
 

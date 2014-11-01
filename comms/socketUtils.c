@@ -59,12 +59,10 @@ void writeToSock(int sockfd, char *buffer, int bufferLength)
     memcpy(bufferOfLength, &bufferLength, sizeof(int));
 
     n = write(sockfd, (char*)bufferOfLength, sizeof(int));
-    printf("N1 = %d\n", n);
     if (n < 0)
         error("ERROR writing to socket");
 
     n = write(sockfd, buffer, bufferLength);
-    printf("N2 = %d\n", n);
     if (n < 0)
         error("ERROR writing to socket");
 
@@ -93,9 +91,9 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
 
     n = read(sockfd, buffer, bufferLength);
     if (n < 0)
-         error("ERROR reading from socket");
+        error("ERROR reading from socket");
 
-     if(NULL != lengthOfOutput)
+    if(NULL != lengthOfOutput)
         *lengthOfOutput = bufferLength;
 
     return buffer;
