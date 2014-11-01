@@ -13,12 +13,14 @@ unsigned char *encryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 	RK = getUintKeySchedule(keyList[0]);
 	for(j = 0; j < blockCount; j ++)
 		aes_128_encrypt( (ciphertext + j*16), (toEncrypt + j*16), RK );
+	free(RK);
 
 	for(i = 1; i < numKeys; i ++)
 	{
 		RK = getUintKeySchedule(keyList[i]);
 		for(j = 0; j < blockCount; j ++)
 			aes_128_encrypt( (ciphertext + j*16), (ciphertext + j*16), RK );
+		free(RK);
 	}
 
 	return ciphertext;
@@ -33,15 +35,19 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 
 	encRK = getUintKeySchedule(keyList[0]);
 	decRK = decryptionKeySchedule_128(encRK);
+	free(encRK);
 	for(j = 0; j < blockCount; j ++)
 		aes_128_decrypt( (toDecrypt + j*16), (plaintext + j*16), decRK );
+	free(decRK);
 
 	for(i = 1; i < numKeys; i ++)
 	{
 		encRK = getUintKeySchedule(keyList[i]);
 		decRK = decryptionKeySchedule_128(encRK);
+		free(encRK);
 		for(j = 0; j < blockCount; j ++)
 			aes_128_decrypt( (plaintext + j*16), (plaintext + j*16), decRK );
+		free(decRK);
 	}
 
 	return plaintext;

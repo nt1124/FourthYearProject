@@ -32,6 +32,7 @@ struct gateOrWire *processGateLine(char *line, struct gateOrWire **circuit)
 	char *idString = (char*) calloc(strIndex + 1, sizeof(char));
 	strncpy(idString, line, strIndex);
 	idNum = atoi(idString);
+	free(idString);
 
 	while( line[strIndex] == ' ' )
 	{
@@ -100,6 +101,8 @@ void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
 		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 	}
+
+	free(curCharStr);
 }
 
 
@@ -146,6 +149,8 @@ struct idAndValue *readInputLinesExec(char *line, struct gateOrWire **inputCircu
 	{
 		toReturn -> value = 0;
 	}
+
+	free(curCharStr);
 
 	return toReturn;
 }
@@ -245,6 +250,7 @@ void sendGate(struct gateOrWire *inputGW, int sockfd)
 			writeToSock(sockfd, (char*)inputGW -> gatePayload -> encOutputTable[j], 32);
 		}
 	}
+	free(buffer);
 }
 
 

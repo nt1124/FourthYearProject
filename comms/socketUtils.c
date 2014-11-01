@@ -3,7 +3,7 @@
 #include <math.h>
 #include <string.h>
 
-// #include <unistd.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -51,7 +51,7 @@ void error(const char *msg)
 }
 
 
-int writeToSock(int sockfd, char *buffer, int bufferLength)
+void writeToSock(int sockfd, char *buffer, int bufferLength)
 {
     int n = 0;
 
@@ -59,15 +59,16 @@ int writeToSock(int sockfd, char *buffer, int bufferLength)
     memcpy(bufferOfLength, &bufferLength, sizeof(int));
 
     n = write(sockfd, (char*)bufferOfLength, sizeof(int));
+    printf("N1 = %d\n", n);
     if (n < 0)
         error("ERROR writing to socket");
 
     n = write(sockfd, buffer, bufferLength);
+    printf("N2 = %d\n", n);
     if (n < 0)
         error("ERROR writing to socket");
 
-    // free(bufferOfLength);
-    return 1;
+    free(bufferOfLength);
 }
 
 
@@ -86,6 +87,8 @@ char *readFromSock(int sockfd, int *lengthOfOutput)
          error("ERROR reading from socket");
 
     memcpy(&bufferLength, lengthAsBytes, 4);
+    free(lengthAsBytes);
+
     buffer = (char*) calloc(bufferLength + 1, sizeof(char));
 
     n = read(sockfd, buffer, bufferLength);

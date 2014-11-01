@@ -819,6 +819,7 @@ uint *convertCharStringToUINT(unsigned char *in)
     for(i = 0; i < 44; i ++)
         U8_TO_U32_LE(toReturn[i], in, 4 * i);
 
+
     return toReturn;
 }
 
@@ -830,6 +831,8 @@ uint *getUintKeySchedule(unsigned char *key)
     expand_key(tempExpKey);
 
     uint *toReturn = convertCharStringToUINT(tempExpKey);
+
+    free(tempExpKey);
 
     return toReturn;
 }

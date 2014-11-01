@@ -209,10 +209,10 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 	// Calloc space for gateOrWire, and for the outputWire.
 	toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	toReturn -> outputWire = (struct wire*) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// Copy G_ID, wireMask, wireOwner from string. Initialise wirePerm to zero.
 	memcpy(&(toReturn -> G_ID), serialGW, 4);
+	printf("___________________________+____\n");
 	toReturn -> outputWire -> wireMask = serialGW[5];
 	toReturn -> outputWire -> wireOwner = serialGW[6];
 	toReturn -> outputWire -> wirePerm = 0;
@@ -228,8 +228,8 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 	{
 		if(0xFF == serialGW[4])
 		{
-			// curIndex = deserialiseGate(&tempGate, serialGW, curIndex);
-			
+			curIndex = deserialiseGate(&tempGate, serialGW, curIndex);
+			/*
 			tempGate = (struct gate*) calloc(1, sizeof(struct gate*));
 			tempGate -> numInputs = serialGW[curIndex++];
 			memcpy(&tempGate -> outputTableSize, serialGW + curIndex, 2);
@@ -251,6 +251,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 				memcpy(&tempGate -> encOutputTable[i], serialGW + j, 32);
 			}
 			curIndex += (32 * tempGate -> outputTableSize);
+			*/
 		}
 
 		if(0x0F == toReturn -> outputWire -> wireMask)
@@ -278,7 +279,9 @@ void testSerialisation(struct gateOrWire *inputGW)
 
 	serialGW = serialiseGateOrWire(inputGW, &serialLength);
 	outputGW = deserialiseGateOrWire(serialGW);
+	free(serialGW);
 
+	/*
 	printf("\nBefore serialisation\n");
 	printf("G_ID				=  %d\n", inputGW -> G_ID);
 	printf("Wire Mask			=  %02X\n", inputGW -> outputWire -> wireMask);
@@ -322,8 +325,8 @@ void testSerialisation(struct gateOrWire *inputGW)
 			}
 			printf("\n");
 		}
+		free(temp);
 	}
-
 
 	printf("\nSerialised and back again\n");
 	printf("G_ID				=  %d\n", outputGW -> G_ID);
@@ -368,7 +371,11 @@ void testSerialisation(struct gateOrWire *inputGW)
 			}
 			printf("\n");
 		}
+		free(temp);
 	}
+	*/
+
+	freeGateOrWire(outputGW);
 }
 
 #endif

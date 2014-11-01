@@ -53,6 +53,8 @@ int *parseInputTable(char* line, int tableSize, int *strIndex)
 		}
 	}
 
+	free(curCharStr);
+
 	return tableToReturn;
 }
 

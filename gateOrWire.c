@@ -63,6 +63,11 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 	memcpy( toEncrypt0, curGate -> outputWire -> outputGarbleKeys -> key0, 17);
 	memcpy( toEncrypt1, curGate -> outputWire -> outputGarbleKeys -> key1, 17);
 
+	for(j = 0; j < numInputs; j ++)
+	{
+		keyList[j] = (unsigned char*) calloc(16, sizeof(unsigned char));
+	}
+
 	for(i = 0; i < curGate -> gatePayload -> outputTableSize; i ++)
 	{
 		permedIndex = 0;
@@ -74,7 +79,6 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 			tempBit = (i >> j) & 0x01;
 			permedIndex ^= (inputWire -> wirePerm & 0x01) << j;
 
-			keyList[j] = (unsigned char*) calloc(16, sizeof(unsigned char));
 			if(0 == tempBit)
 				memcpy(keyList[j], inputWire -> outputGarbleKeys -> key0, 16);
 			else if(1 == tempBit)
@@ -88,7 +92,16 @@ void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 			tempRow = encryptMultipleKeys(keyList, numInputs, toEncrypt1, 2);
 
 		memcpy(curGate -> gatePayload -> encOutputTable[permedIndex], tempRow, 32);
+		free(tempRow);
+		// curGate -> gatePayload -> encOutputTable[permedIndex] = tempRow;
 	}
+
+	for(j = 0; j < numInputs; j ++)
+	{
+		free(keyList[j]);
+	}
+	free(toEncrypt0);
+	free(toEncrypt1);
 }
 
 
@@ -98,6 +111,7 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	int j, tempBit, tempIndex, outputIndex = 0;
 	unsigned char *keyList[numInputs], *toReturn;
 	unsigned char *tempRow;
+
 
 	for(j = 0; j < numInputs; j ++)
 	{
@@ -112,10 +126,15 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	tempRow = curGate -> gatePayload -> encOutputTable[outputIndex];
 	toReturn = decryptMultipleKeys(keyList, numInputs, tempRow, 2);
-	curGate -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
 
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
+	
+	for(j = 0; j < numInputs; j ++)
+	{
+		free(keyList[j]);
+	}
+	free(toReturn);
 }
 
 
@@ -145,9 +164,12 @@ struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)
 
 unsigned char getPermutation()
 {
-	unsigned char *toOutput = generateRandBytes(1, 1);
+	unsigned char *toOutputPointer = generateRandBytes(1, 1);
+	unsigned char toReturn = *toOutputPointer;
 
-	return *toOutput;
+	free(toOutputPointer);
+
+	return toReturn;
 }
 
 
@@ -174,6 +196,8 @@ struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit,
 	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
 	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
 	
+	free(tempString);
+
 	return toReturn;
 }
 
@@ -211,3 +235,40 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 	return toReturn;
 }
 
+
+
+void freeGateOrWire(struct gateOrWire *inputGW)
+{
+	int i;
+
+	if(NULL != inputGW -> gatePayload)
+	{
+		free(inputGW -> gatePayload -> inputIDs);
+
+		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
+		{
+			printf("Freeing table entry %d from gate %d.\n", i, inputGW -> G_ID);
+			free(inputGW -> gatePayload -> encOutputTable[i]);
+		}
+		printf("----------------------------------------\n");
+		free(inputGW -> gatePayload -> encOutputTable);
+
+		if(NULL != inputGW -> gatePayload -> rawOutputTable)
+		{
+			free(inputGW -> gatePayload -> rawOutputTable);
+		}
+	}
+	free(inputGW -> gatePayload);
+
+	if(NULL != inputGW -> outputWire -> outputGarbleKeys)
+	{
+		free(inputGW -> outputWire -> outputGarbleKeys -> key0);
+		free(inputGW -> outputWire -> outputGarbleKeys -> key1);
+		free(inputGW -> outputWire -> outputGarbleKeys);
+	}
+	if(NULL != inputGW -> outputWire -> wireOutputKey)
+		free(inputGW -> outputWire -> wireOutputKey);
+	free(inputGW -> outputWire);
+
+	free(inputGW);
+}
