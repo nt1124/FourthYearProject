@@ -2,6 +2,7 @@
 #define SERIALISATION_UTILS
 
 
+
 int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInputs)
 {
 	int serialisedSize = 8;
@@ -17,7 +18,8 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 	if(0xF0 == inputGW -> outputWire -> wireMask)
 	{
 		serialisedSize ++;
-		if(0xFF == inputGW -> outputWire -> wireOwner)
+		serialisedSize += 16;
+		if(0x00 == inputGW -> outputWire -> wireOwner)
 		{
 			serialisedSize += 16;
 		}
@@ -50,7 +52,6 @@ int serialiseInputWire(struct gateOrWire *inputGW, unsigned char *toReturn, int 
 		curIndex += 16;
 		memcpy(toReturn + curIndex, inputGW -> outputWire -> outputGarbleKeys -> key1, 16);
 		curIndex += 16;
-
 	}
 	else if(0xFF == inputGW -> outputWire -> wireOwner)
 	{
@@ -147,8 +148,8 @@ int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, i
 	if(0x00 == outputGW -> outputWire -> wireOwner)
 	{
 		outputGW -> outputWire -> wirePerm = serialGW[curIndex ++];
-
 		outputGW -> outputWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+		
 		outputGW -> outputWire -> outputGarbleKeys -> key0 = (unsigned char *) calloc(16, sizeof(unsigned char));
 		memcpy(outputGW -> outputWire -> outputGarbleKeys -> key0, serialGW + curIndex, 16);
 		curIndex += 16;
@@ -211,6 +212,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 	// Calloc space for gateOrWire, and for the outputWire.
 	toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	toReturn -> outputWire = (struct wire*) calloc(1, sizeof(struct wire));
+	toReturn -> gatePayload = NULL;
 
 	// Copy G_ID, wireMask, wireOwner from string. Initialise wirePerm to zero.
 	memcpy(&(toReturn -> G_ID), serialGW, 4);
@@ -257,7 +259,6 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 
 	return toReturn;
 }
-
 
 
 void testSerialisation(struct gateOrWire *inputGW)

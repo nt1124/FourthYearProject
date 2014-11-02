@@ -235,38 +235,52 @@ struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struc
 }
 
 
-
-void freeGateOrWire(struct gateOrWire *inputGW)
+void freeGate(struct gate *inputGate)
 {
 	int i;
 
-	if(NULL != inputGW -> gatePayload)
+	if(NULL != inputGate)
 	{
-		free(inputGW -> gatePayload -> inputIDs);
+		free(inputGate -> inputIDs);
 
-		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
+		for(i = 0; i < inputGate -> outputTableSize; i ++)
 		{
-			free(inputGW -> gatePayload -> encOutputTable[i]);
+			free(inputGate -> encOutputTable[i]);
+			inputGate -> encOutputTable[i] = NULL;
 		}
-		if(NULL != inputGW -> gatePayload)
-			free(inputGW -> gatePayload -> encOutputTable);
 
-		if(NULL != inputGW -> gatePayload -> rawOutputTable)
+		if(NULL != inputGate)
 		{
-			free(inputGW -> gatePayload -> rawOutputTable);
+			free(inputGate -> encOutputTable);
+			inputGate -> encOutputTable = NULL;
 		}
+
+		if(NULL != inputGate -> rawOutputTable)
+			free(inputGate -> rawOutputTable);
+		
+		free(inputGate);
 	}
-	free(inputGW -> gatePayload);
+}
 
+
+void freeGateOrWire(struct gateOrWire *inputGW)
+{
+	freeGate(inputGW -> gatePayload);
+	
 	if(NULL != inputGW -> outputWire -> outputGarbleKeys)
 	{
 		free(inputGW -> outputWire -> outputGarbleKeys -> key0);
 		free(inputGW -> outputWire -> outputGarbleKeys -> key1);
 		free(inputGW -> outputWire -> outputGarbleKeys);
 	}
-	if(NULL != inputGW -> outputWire -> wireOutputKey)
-		free(inputGW -> outputWire -> wireOutputKey);
-	free(inputGW -> outputWire);
+
+	if(NULL != inputGW -> outputWire)
+	{
+		if(NULL != inputGW -> outputWire -> wireOutputKey)
+			free(inputGW -> outputWire -> wireOutputKey);
+
+		free(inputGW -> outputWire);
+	}
 
 	free(inputGW);
 }

@@ -47,6 +47,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 	sendCircuit(inputCircuit, numGates, newSockFD);
 	runCircuitBuilder( inputCircuit, numGates, newSockFD );
 
+	shutdown(sockfd, 0);
 	for(i = 0; i < numGates; i ++)
 	{
 		freeGateOrWire(inputCircuit[i]);
@@ -77,8 +78,12 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 	printAllOutput(inputCircuit, numGates);
 
+	shutdown(sockfd, 0);
+
 	for(i = 0; i < numGates; i ++)
 	{
+		printf("-- %d\n", i);
+		fflush(stdout);
 		freeGateOrWire(inputCircuit[i]);
 	}
 	free(inputCircuit);
