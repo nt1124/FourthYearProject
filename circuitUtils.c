@@ -238,7 +238,6 @@ void sendGate(struct gateOrWire *inputGW, int sockfd)
 	int bufferLength, j;
 
 	buffer = serialiseGateOrWire(inputGW, &bufferLength);
-	//printf("Sending the %dth gate. Size is %d\n", inputGW -> G_ID, bufferLength);
 	
 	writeToSock(sockfd, (char*)buffer, bufferLength);
 	
@@ -265,7 +264,6 @@ void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int sockfd)
 	for(i = 0; i < numGates; i ++)
 	{
 		sendGate(inputCircuit[i], sockfd);
-		// printf("%dth gate has been sent.\n", i);
 	}
 	printf("Circuit sent.\n");
 }

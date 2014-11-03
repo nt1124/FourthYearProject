@@ -45,12 +45,11 @@ void printGateOrWire(struct gateOrWire *inputGW)
 			}
 			printf("\n");
 		}
-
 	}
 }
 
 
-
+// Encrypt the whole of the output table for a given gate.
 void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
 {
 	int numInputs = curGate -> gatePayload -> numInputs;
@@ -165,7 +164,6 @@ unsigned char getPermutation()
 {
 	unsigned char *toOutputPointer = generateRandBytes(1, 1);
 	unsigned char toReturn = *toOutputPointer;
-
 	free(toOutputPointer);
 
 	return toReturn;

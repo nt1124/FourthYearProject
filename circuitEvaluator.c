@@ -82,8 +82,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 	for(i = 0; i < numGates; i ++)
 	{
-		printf("-- %d\n", i);
-		fflush(stdout);
 		freeGateOrWire(inputCircuit[i]);
 	}
 	free(inputCircuit);

@@ -1,16 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <netdb.h>
-
-// #include <arpa/inet.h>
-
 /*  -+ USING THIS MINI-LIBRARY +-
 
     -+ SERVER +-
@@ -40,8 +27,23 @@
 
     writeToSock(sockfd, buffer, bufferLength);
     char *readFromSocket = readFromSock(sockfd);
-
 */
+
+#ifndef SOCKET_UTILS
+#define SOCKET_UTILS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h>
+
+// #include <arpa/inet.h>
 
 
 void error(const char *msg)
@@ -194,3 +196,4 @@ int acceptNextConnectOnSock(int sockfd, struct sockaddr_in *cli_addr, int *clile
     return newsockfd;
 }
 
+#endif

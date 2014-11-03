@@ -8,7 +8,7 @@ virtual int 	transfer() = 0;
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../rsa.c"
+#include "../cryptoUtil.h"
 #include "../../comms/socketUtils.c"
 
 
@@ -205,20 +205,3 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     } printf("\n");
 }
 
-
-
-int main(int argc, char *argv[])
-{
-	int mode = atoi(argv[1]);
-
-	if(0 == mode)
-	{
-		testSender_OT_SH_RSA(argv[2]);
-	}
-	else
-	{
-		testReceiver_OT_SH_RSA(argv[2]);
-	}
-
-	return 0;
-}
