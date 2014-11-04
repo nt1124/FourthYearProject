@@ -57,11 +57,8 @@ struct rsaPrivKey *generatePrivRSAKey(gmp_randstate_t state)
 
 	privKey = initPrivKeyRSA();
 
-	printf(">>>\n");
 	getPrimeGMP(privKey -> p, state, 1023);
-	printf("VVV\n");
 	getPrimeGMP(privKey -> q, state, 1023);
-	printf("<<<\n");
 
 	mpz_sub_ui(pMinus1, privKey -> p, 1);
 	mpz_sub_ui(qMinus1, privKey -> q, 1);
@@ -177,8 +174,8 @@ void updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pubKey, gmp_rand
 void pubKeyToBytes(struct rsaPubKey *input, unsigned char *N_Bytes, int *nLength,
 											unsigned char *e_Bytes, int *eLength)
 {
-	N_Bytes = convertMPZToBytes(input -> N, nLength);
-	e_Bytes = convertMPZToBytes(input -> e, eLength);
+	N_Bytes = convertMPZToBytesAlt(input -> N, nLength);
+	e_Bytes = convertMPZToBytesAlt(input -> e, eLength);
 }
 
 
@@ -190,8 +187,8 @@ struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, int nLength,
 	mpz_t *nNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *eNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 
-	convertBytesToMPZ(nNum, N_Bytes, nLength);
-	convertBytesToMPZ(eNum, e_Bytes, eLength);
+	convertBytesToMPZAlt(nNum, N_Bytes, nLength);
+	convertBytesToMPZAlt(eNum, e_Bytes, eLength);
 
 	mpz_set(outputKey -> N, *nNum);
 	mpz_set(outputKey -> e, *eNum);
@@ -254,12 +251,16 @@ void testRSA()
     }
 }
 
+
 void testByteConvert()
 {
     mpz_t inputMsg;
 
     mpz_init(inputMsg);
     mpz_set_ui(inputMsg, 1128);
+    mpz_mul(inputMsg, inputMsg, inputMsg);
+    mpz_mul(inputMsg, inputMsg, inputMsg);
+    mpz_mul(inputMsg, inputMsg, inputMsg);
 
     gmp_printf("%Zd\n", inputMsg);
    	int temporary = 0, temporary1 = 0;

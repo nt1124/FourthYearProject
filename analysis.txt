@@ -1,0 +1,80 @@
+Flat profile:
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  Ts/call  Ts/call  name    
+  0.00      0.00     0.00       48     0.00     0.00  aes_128_decrypt
+  0.00      0.00     0.00       32     0.00     0.00  deserialiseGateOrWire
+  0.00      0.00     0.00       32     0.00     0.00  freeGateOrWire
+  0.00      0.00     0.00       24     0.00     0.00  decryptionKeySchedule_128
+  0.00      0.00     0.00       24     0.00     0.00  expand_key
+  0.00      0.00     0.00       16     0.00     0.00  decryptGate
+  0.00      0.00     0.00       16     0.00     0.00  deserialiseInputWire
+  0.00      0.00     0.00       16     0.00     0.00  getUintKeySchedule
+  0.00      0.00     0.00        8     0.00     0.00  generateDudPubRSAKey
+  0.00      0.00     0.00        8     0.00     0.00  receiverOT_SH_RSA
+  0.00      0.00     0.00        1     0.00     0.00  generatePrivRSAKey
+  0.00      0.00     0.00        1     0.00     0.00  readInputDetailsFileExec
+  0.00      0.00     0.00        1     0.00     0.00  receiveCircuit
+  0.00      0.00     0.00        1     0.00     0.00  runCircuitExec
+  0.00      0.00     0.00        1     0.00     0.00  runExecutor
+  0.00      0.00     0.00        1     0.00     0.00  testRun
+
+			Call graph
+
+
+granularity: each sample hit covers 4 byte(s) no time propagated
+
+index % time    self  children    called     name
+                0.00    0.00      48/48          decryptGate [7]
+[2]      0.0    0.00    0.00      48         aes_128_decrypt [2]
+-----------------------------------------------
+                0.00    0.00      24/24          decryptGate [7]
+[5]      0.0    0.00    0.00      24         decryptionKeySchedule_128 [5]
+-----------------------------------------------
+                0.00    0.00       8/24          decryptGate [7]
+                0.00    0.00      16/24          getUintKeySchedule [9]
+[6]      0.0    0.00    0.00      24         expand_key [6]
+-----------------------------------------------
+                0.00    0.00      16/16          runCircuitExec [15]
+[7]      0.0    0.00    0.00      16         decryptGate [7]
+                0.00    0.00      48/48          aes_128_decrypt [2]
+                0.00    0.00      24/24          decryptionKeySchedule_128 [5]
+                0.00    0.00      16/16          getUintKeySchedule [9]
+                0.00    0.00       8/24          expand_key [6]
+-----------------------------------------------
+                0.00    0.00      16/16          decryptGate [7]
+[9]      0.0    0.00    0.00      16         getUintKeySchedule [9]
+                0.00    0.00      16/24          expand_key [6]
+-----------------------------------------------
+                0.00    0.00       8/8           receiverOT_SH_RSA [11]
+[10]     0.0    0.00    0.00       8         generateDudPubRSAKey [10]
+-----------------------------------------------
+                0.00    0.00       8/8           runCircuitExec [15]
+[11]     0.0    0.00    0.00       8         receiverOT_SH_RSA [11]
+                0.00    0.00       8/8           generateDudPubRSAKey [10]
+-----------------------------------------------
+                0.00    0.00       1/1           runCircuitExec [15]
+[12]     0.0    0.00    0.00       1         generatePrivRSAKey [12]
+-----------------------------------------------
+                0.00    0.00       1/1           runCircuitExec [15]
+[13]     0.0    0.00    0.00       1         readInputDetailsFileExec [13]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor (16)
+[15]     0.0    0.00    0.00       1         runCircuitExec [15]
+                0.00    0.00      16/16          decryptGate [7]
+                0.00    0.00       8/8           receiverOT_SH_RSA [11]
+                0.00    0.00       1/1           generatePrivRSAKey [12]
+                0.00    0.00       1/1           readInputDetailsFileExec [13]
+-----------------------------------------------
+
+Index by function name
+
+   [2] aes_128_decrypt         (4) freeGateOrWire         [11] receiverOT_SH_RSA
+   [7] decryptGate            [10] generateDudPubRSAKey   [15] runCircuitExec
+   [5] decryptionKeySchedule_128 [12] generatePrivRSAKey  (16) runExecutor
+   (3) deserialiseGateOrWire   [9] getUintKeySchedule     (17) testRun
+   (8) deserialiseInputWire   [13] readInputDetailsFileExec
+   [6] expand_key             (14) receiveCircuit

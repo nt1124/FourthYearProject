@@ -25,11 +25,8 @@ gmp_randstate_t *seedRandGen()
 void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 {
     mpz_urandomb(output, state, keySize);
-    printf("Key Size = %d\n", keySize);
     mpz_setbit (output, keySize);
     mpz_nextprime(output, output);
-    printf("###  -->  ###\n");
-    fflush(stdout);
 }
 
 
@@ -122,7 +119,6 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	int shift = 0;
 	*inputLength = numberOfHexChars(input, &shift);
 
-	printf("inputLength --> %d\n", *inputLength);
 	unsigned char *bytesToOutput = (unsigned char*) calloc( *inputLength, sizeof(unsigned char));
 	char *hexVersion = (char*) calloc(*inputLength, sizeof(char));
 
@@ -138,16 +134,13 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 
 unsigned char *convertMPZToBytesAlt(mpz_t input, int *inputLength)
 {
-	int sizeInLimbs;
 	unsigned char *bytesToOutput;
 
 	*inputLength = sizeof(mp_limb_t) * mpz_size(input);
 	bytesToOutput = (unsigned char*) calloc(*inputLength, sizeof(unsigned char));
 
 	// *rop, *countp, order, size, endian, nails, op
-	mpz_export(bytesToOutput, NULL, 1, sizeof( mp_limb_t ), 0, 2, input);
-
-	printf("inputLength ++--> %d  ==  %d\n", *inputLength, sizeInLimbs);
+	mpz_export(bytesToOutput, NULL, 1, sizeof( mp_limb_t ), 0, 0, input);
 
 	return bytesToOutput;
 }
@@ -157,7 +150,7 @@ void convertBytesToMPZAlt(	mpz_t *z, unsigned char *input, int inputLength)
 {
 	mpz_init(*z);
 
-	mpz_import(*z, inputLength, 1, sizeof( mp_limb_t ), 0, 0, input);
+	mpz_import(*z, inputLength / sizeof(mp_limb_t), 1, sizeof( mp_limb_t ), 0, 0, input);
 }
 
 #endif
