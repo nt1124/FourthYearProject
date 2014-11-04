@@ -94,7 +94,7 @@ void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int build
 	char tempAlice[] = "And.alice.input\0";
 	char tempBob[] = "And.bob.input\0";
 	// char ipAddress[] = "127.0.0.1\0";
-	// char ipAddress[] = "192.168.0.13\0";
+	// char ipAddress[] = "192.168.0.6\0";
 
 	if(0 == builder)
 	{

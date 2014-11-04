@@ -14,6 +14,7 @@
 int main(int argc, char *argv[])
 {
     int sockfd, portNum, n;
+    int length = 0;
     struct sockaddr_in serv_addr;
     char *buffer = calloc(257, sizeof(char));
 
@@ -36,7 +37,7 @@ int main(int argc, char *argv[])
     writeToSock(sockfd, buffer, 256);
 
     free(buffer);
-    buffer = readFromSock(sockfd);
+    buffer = readFromSock(sockfd, &length);
 
     printf("%s\n", buffer);
     return 0;

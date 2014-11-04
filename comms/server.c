@@ -15,6 +15,7 @@
 int main(int argc, char *argv[])
 {
     int sockfd, newsockfd, clilen;
+    int length = 0;
     char *buffer;
     struct sockaddr_in serv_addr, cli_addr;
 
@@ -32,7 +33,7 @@ int main(int argc, char *argv[])
     clilen = sizeof(cli_addr);
     newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
-    buffer = readFromSock(newsockfd);
+    buffer = readFromSock(newsockfd, &length);
     printf("Here is the message: %s\n",buffer);
 
     writeToSock(newsockfd, "I got your message", 18);
