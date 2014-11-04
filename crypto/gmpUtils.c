@@ -138,14 +138,16 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 
 unsigned char *convertMPZToBytesAlt(mpz_t input, int *inputLength)
 {
-	*inputLength = mpz_size(input);
-	int sizeInBytes = sizeof(mp_limb_t) * *inputLength;
+	int sizeInLimbs;
+	unsigned char *bytesToOutput;
 
-	printf("inputLength ++--> %d\n", *inputLength);
-	unsigned char *bytesToOutput = (unsigned char*) calloc( sizeInBytes, sizeof(unsigned char));
+	*inputLength = sizeof(mp_limb_t) * mpz_size(input);
+	bytesToOutput = (unsigned char*) calloc(*inputLength, sizeof(unsigned char));
 
-	mpz_export(bytesToOutput, NULL, 1, sizeof( mp_limb_t ), 0, 0, input);
+	// *rop, *countp, order, size, endian, nails, op
+	mpz_export(bytesToOutput, NULL, 1, sizeof( mp_limb_t ), 0, 2, input);
 
+	printf("inputLength ++--> %d  ==  %d\n", *inputLength, sizeInLimbs);
 
 	return bytesToOutput;
 }
@@ -155,7 +157,7 @@ void convertBytesToMPZAlt(	mpz_t *z, unsigned char *input, int inputLength)
 {
 	mpz_init(*z);
 
-	mpz_import(*z, inputLength, 1, sizeof( mp_limb_t ), 1, 0, input );
+	mpz_import(*z, inputLength, 1, sizeof( mp_limb_t ), 0, 0, input);
 }
 
 #endif

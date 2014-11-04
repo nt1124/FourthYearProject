@@ -85,13 +85,13 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 	}
 
 	// We send PK0, PK1 to sender here.
-	n0Bytes = convertMPZToBytes(PK0 -> N, &n0Length);
-	e0Bytes = convertMPZToBytes(PK0 -> e, &e0Length);
+	n0Bytes = convertMPZToBytesAlt(PK0 -> N, &n0Length);
+	e0Bytes = convertMPZToBytesAlt(PK0 -> e, &e0Length);
 	writeToSock(sockfd, (char*)n0Bytes, n0Length);
 	writeToSock(sockfd, (char*)e0Bytes, e0Length);
 
-	n1Bytes = convertMPZToBytes(PK1 -> N, &n1Length);
-	e1Bytes = convertMPZToBytes(PK1 -> e, &e1Length);
+	n1Bytes = convertMPZToBytesAlt(PK1 -> N, &n1Length);
+	e1Bytes = convertMPZToBytesAlt(PK1 -> e, &e1Length);
 	writeToSock(sockfd, (char*)n1Bytes, n1Length);
 	writeToSock(sockfd, (char*)e1Bytes, e1Length);
 
@@ -115,7 +115,7 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 
 	outputNum = decRSA(*tempEncNum, SKi);
 	printf("Decrypted, now converting to bytes.\n");
-	outputBytes = convertMPZToBytes(*outputNum, outputLength);
+	outputBytes = convertMPZToBytesAlt(*outputNum, outputLength);
 	printf("Successful decryption!\n");
 
 	free(tempEncNum);
@@ -145,7 +145,7 @@ void testSender_OT_SH_RSA(char *portNumStr)
     // We could use mpz_out_raw / mpz_in_raw to send raw bytes.
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 
-	senderOT_SH_RSA(sockfd, input0, input1, 16);
+	// senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
 
 
@@ -177,6 +177,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     free(buffer);
     printf("\nDone with round one.\n");
 
+    /*
     buffer2 = receiverOT_SH_RSA(state, newsockfd, 1, &bufferLength);
     printf("Requesting 1 gave us...\n");
     for(i = 0; i < bufferLength; i ++)
@@ -184,6 +185,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     	printf("%02X", buffer2[i]);
     } printf("\n");
     free(buffer2);
+    */
 }
 
 

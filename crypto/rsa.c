@@ -259,18 +259,31 @@ void testByteConvert()
     mpz_t inputMsg;
 
     mpz_init(inputMsg);
-    // mpz_urandomm(inputMsg, state, pubKey -> N);
-
     mpz_set_ui(inputMsg, 1128);
 
     gmp_printf("%Zd\n", inputMsg);
-   	int temporary = 0;
+   	int temporary = 0, temporary1 = 0;
     unsigned char *tempChars = convertMPZToBytes(inputMsg, &temporary);
-	printf("...\n");
+    unsigned char *tempCharsAlt = convertMPZToBytesAlt(inputMsg, &temporary1);
+
+    int i = 0;
+    for(i = 0; i < temporary; i ++)
+    {
+    	printf("%02X:", tempChars[i]);
+    }
+    printf("\n");
+    for(i = 0; i < temporary1; i ++)
+    {
+    	printf("%02X:", tempCharsAlt[i]);
+    }
+	printf("\n...\n");
 
 	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t));
 	mpz_init(*tempMPZ);
 	convertBytesToMPZ(tempMPZ, tempChars, temporary);
+	gmp_printf("%Zd\n", *tempMPZ);
+
+	convertBytesToMPZAlt(tempMPZ, tempCharsAlt, temporary1);
 	gmp_printf("%Zd\n", *tempMPZ);
     
 }
