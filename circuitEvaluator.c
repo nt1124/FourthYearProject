@@ -98,14 +98,14 @@ void testRun(char *circuitFilepath, char *portNumStr, int builder)
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
-		testSender_OT_SH_RSA(portNumStr);
-		// runExecutor(tempBob, ipAddress, portNumStr);
+		// testSender_OT_SH_RSA(portNumStr);
+		runExecutor(tempBob, ipAddress, portNumStr);
 	}
 	else
 	{
 		printf("Running Builder.\n");
-		testReceiver_OT_SH_RSA(portNumStr);
-		// runBuilder(circuitFilepath, tempAlice, portNumStr);
+		// testReceiver_OT_SH_RSA(portNumStr);
+		runBuilder(circuitFilepath, tempAlice, portNumStr);
 	}
 }
 

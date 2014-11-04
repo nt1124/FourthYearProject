@@ -57,8 +57,11 @@ struct rsaPrivKey *generatePrivRSAKey(gmp_randstate_t state)
 
 	privKey = initPrivKeyRSA();
 
+	printf(">>>\n");
 	getPrimeGMP(privKey -> p, state, 1023);
+	printf("VVV\n");
 	getPrimeGMP(privKey -> q, state, 1023);
+	printf("<<<\n");
 
 	mpz_sub_ui(pMinus1, privKey -> p, 1);
 	mpz_sub_ui(qMinus1, privKey -> q, 1);

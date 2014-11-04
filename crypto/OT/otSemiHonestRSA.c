@@ -108,10 +108,10 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 		convertBytesToMPZ(tempEncNum, enc1Bytes, enc1Length);
 	}
 
-	free(enc0Bytes); 	free(enc1Bytes);
+	free(enc0Bytes);	free(enc1Bytes);
 	free(n0Bytes);		free(e0Bytes);
 	free(n1Bytes);		free(e1Bytes);
-	free(PK0); free(PK1);
+	free(PK0);			free(PK1);
 
 	outputNum = decRSA(*tempEncNum, SKi);
 	printf("Decrypted, now converting to bytes.\n");
@@ -119,7 +119,7 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 	printf("Successful decryption!\n");
 
 	free(tempEncNum);
- 	free(SKi);
+	// free(SKi);
 
 	return outputBytes;
 }
@@ -175,7 +175,7 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     	printf("%02X", buffer[i]);
     } printf("\n");
     free(buffer);
-    printf("Done with round one.\n");
+    printf("\nDone with round one.\n");
 
     buffer2 = receiverOT_SH_RSA(state, newsockfd, 1, &bufferLength);
     printf("Requesting 1 gave us...\n");
