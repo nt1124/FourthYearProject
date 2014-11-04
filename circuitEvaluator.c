@@ -89,11 +89,12 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 
 
-void testRun(char *circuitFilepath, char *portNumStr, int builder)
+void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int builder)
 {
 	char tempAlice[] = "And.alice.input\0";
 	char tempBob[] = "And.bob.input\0";
-	char ipAddress[] = "127.0.0.1\0";
+	// char ipAddress[] = "127.0.0.1\0";
+	// char ipAddress[] = "192.168.0.13\0";
 
 	if(0 == builder)
 	{
@@ -115,9 +116,9 @@ int main(int argc, char *argv[])
 	srand( time(NULL) );
 
 	char *circuitFilepath = argv[1];
-	int builder = atoi(argv[3]);
+	int builder = atoi(argv[4]);
 
-	testRun(circuitFilepath, argv[2], builder);
+	testRun(circuitFilepath, argv[2], argv[3], builder);
 	// testByteConvert();
 
 	/*
