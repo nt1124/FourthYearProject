@@ -78,6 +78,31 @@ struct rsaPrivKey *generatePrivRSAKey(gmp_randstate_t state)
 }
 
 
+// Generates all but e/d of a Private Key.
+struct rsaPrivKey *generateHalfPrivRSAKey(gmp_randstate_t state)
+{
+	struct rsaPrivKey *privKey;
+	mpz_t pMinus1, qMinus1, gcdThetaNE;
+
+	mpz_init(gcdThetaNE);
+	mpz_init(pMinus1);
+	mpz_init(qMinus1);
+
+	privKey = initPrivKeyRSA();
+
+	getPrimeGMP(privKey -> p, state, 1023);
+	getPrimeGMP(privKey -> q, state, 1023);
+
+	mpz_sub_ui(pMinus1, privKey -> p, 1);
+	mpz_sub_ui(qMinus1, privKey -> q, 1);
+
+	mpz_mul(privKey -> N, privKey -> p, privKey -> q);
+	mpz_mul(privKey -> thetaN, pMinus1, qMinus1);
+
+    return privKey;
+}
+
+
 struct rsaPubKey *generatePubRSAKey(struct rsaPrivKey *privKey)
 {
 	struct rsaPubKey *pubKey;
@@ -121,14 +146,6 @@ struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
 		mpz_urandomm(pubKey -> e, state, thetaN);
 		mpz_gcd(gcdThetaNE, pubKey -> e, thetaN);
     } while( mpz_cmp_ui(gcdThetaNE, 1) );
-
-
- 	mpz_clear(thetaN);
- 	mpz_clear(gcdThetaNE);
-	// mpz_clear(pFactorMinus1);
-	// mpz_clear(qFactorMinus1);
-	// mpz_clear(pFactor);
-	mpz_clear(qFactor);
 
     return pubKey;
 }

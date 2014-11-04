@@ -49,8 +49,6 @@ void freeGateOrWire(struct gateOrWire *inputGW);
 
 #include "fileUtils.h"
 #include "serialisationUtils.c"
-#include "crypto/OT/otToy.c"
-#include "crypto/OT/otSemiHonestRSA.c"
 #include "gateOrWire.c"
 #include <math.h>
 

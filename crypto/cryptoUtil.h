@@ -6,6 +6,10 @@
 #include "elgamal.c"
 #include "rsa.c"
 
+#include "OT/otToy.c"
+#include "OT/otSemiHonestRSA.c"
+
+
 
 const int wireKeysLengths = 16;
 

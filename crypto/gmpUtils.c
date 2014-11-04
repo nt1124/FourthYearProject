@@ -129,8 +129,112 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 
 	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);
 
-
 	return bytesToOutput;
 }
 
 #endif
+
+
+/*
+==2977== Invalid write of size 1
+==2977==    at 0x408B8A1: __gmpn_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x4067C21: __gmpz_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x804BD7C: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297768 is 0 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+==2977== Invalid write of size 1
+==2977==    at 0x408B853: __gmpn_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x4067C21: __gmpz_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x804BD7C: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297769 is 1 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+==2977== Invalid read of size 1
+==2977==    at 0x4067C39: __gmpz_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x804BD7C: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297768 is 0 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+==2977== Invalid write of size 1
+==2977==    at 0x4067C40: __gmpz_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x804BD7C: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297768 is 0 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+==2977== Invalid write of size 1
+==2977==    at 0x4067C4C: __gmpz_get_str (in /usr/lib/i386-linux-gnu/libgmp.so.10.1.3)
+==2977==    by 0x804BD7C: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297868 is not stack'd, malloc'd or (recently) free'd
+==2977== 
+==2977== Invalid read of size 1
+==2977==    at 0x804BB6E: convertHexStringToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804BD99: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297769 is 1 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+==2977== Invalid read of size 1
+==2977==    at 0x804BB87: convertHexStringToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804BD99: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==  Address 0x4297768 is 0 bytes after a block of size 256 alloc'd
+==2977==    at 0x402C109: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==2977==    by 0x804BD52: convertMPZToBytes (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D491: receiverOT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x804D86D: testReceiver_OT_SH_RSA (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050A45: testRun (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977==    by 0x8050AB3: main (in /home/nick/Desktop/FourthYearProject/a.out)
+==2977== 
+*/

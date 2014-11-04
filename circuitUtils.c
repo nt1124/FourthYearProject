@@ -184,9 +184,12 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 		temp = start;
 		start = start -> next;
 		free(temp);
+
 		i = start -> id;
 		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
 		tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
+		// tempBuffer =  receiverOT_SH_RSA(sockfd, start -> value, &outputLength);
+
 		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
 	}
