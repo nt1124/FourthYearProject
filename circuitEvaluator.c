@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
 
 	char *circuitFilepath = argv[1];
 	int builder = atoi(argv[3]);
+
 	testRun(circuitFilepath, argv[2], builder);
 
 	/*

@@ -125,6 +125,7 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 
 	*(hexVersion) = '0';
 
+	printf("Shift = %d\n", shift);
 	mpz_get_str( (hexVersion + shift), -16, input);
 
 	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);

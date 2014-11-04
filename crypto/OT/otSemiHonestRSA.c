@@ -115,14 +115,16 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 	free(enc0Bytes); 	free(enc1Bytes);
 	free(n0Bytes);		free(e0Bytes);
 	free(n1Bytes);		free(e1Bytes);
-	free(PK0); free(PK1); free(SKi);
+	free(PK0); free(PK1);
 
 	printf("Decrypting answer\n");
 	outputNum = decRSA(*tempEncNum, SKi);
+	printf("Decrypted, now converting to bytes.\n");
 	outputBytes = convertMPZToBytes(*outputNum, outputLength);
 	printf("Successful decryption!\n");
 
 	free(tempEncNum);
+ 	free(SKi);
 
 	return outputBytes;
 }
