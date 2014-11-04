@@ -85,20 +85,17 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 	}
 
 	// We send PK0, PK1 to sender here.
-	printf("Sending PK0.\n");
 	n0Bytes = convertMPZToBytes(PK0 -> N, &n0Length);
 	e0Bytes = convertMPZToBytes(PK0 -> e, &e0Length);
 	writeToSock(sockfd, (char*)n0Bytes, n0Length);
 	writeToSock(sockfd, (char*)e0Bytes, e0Length);
 
-	printf("Sending PK1.\n");
 	n1Bytes = convertMPZToBytes(PK1 -> N, &n1Length);
 	e1Bytes = convertMPZToBytes(PK1 -> e, &e1Length);
 	writeToSock(sockfd, (char*)n1Bytes, n1Length);
 	writeToSock(sockfd, (char*)e1Bytes, e1Length);
 
 	// receive enc0Bytes and enc1Bytes from Receiver
-	printf("Reading encrypted bytes.\n");
 	enc0Bytes = (unsigned char*) readFromSock(sockfd, &enc0Length);
 	enc1Bytes = (unsigned char*) readFromSock(sockfd, &enc1Length);
 
@@ -111,13 +108,11 @@ unsigned char *receiverOT_SH_RSA(gmp_randstate_t *state, int sockfd, int inputBi
 		convertBytesToMPZ(tempEncNum, enc1Bytes, enc1Length);
 	}
 
-	printf("Converted valid bytes to MPZ\n");
 	free(enc0Bytes); 	free(enc1Bytes);
 	free(n0Bytes);		free(e0Bytes);
 	free(n1Bytes);		free(e1Bytes);
 	free(PK0); free(PK1);
 
-	printf("Decrypting answer\n");
 	outputNum = decRSA(*tempEncNum, SKi);
 	printf("Decrypted, now converting to bytes.\n");
 	outputBytes = convertMPZToBytes(*outputNum, outputLength);
