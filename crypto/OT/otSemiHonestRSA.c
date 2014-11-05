@@ -62,13 +62,13 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	{
 		PK0 = initPubKeyRSA();
 		updateRSAKey(SKi, PK0, *state);
-		PK1 = generateDudPubRSAKey(*state);
+		PK1 = generateDudPubRSAKey(*state, SKi -> N, SKi -> thetaN);
 	}
 	else
 	{
 		PK1 = initPubKeyRSA();
 		updateRSAKey(SKi, PK1, *state);
-		PK0 = generateDudPubRSAKey(*state);
+		PK0 = generateDudPubRSAKey(*state, SKi -> N, SKi -> thetaN);
 	}
 
 	// We send PK0 to sender here.
@@ -101,7 +101,7 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	outputBytes = convertMPZToBytesAlt(*outputNum, outputLength);
 
 	free(tempEncNum);
-
+		
 	return outputBytes;
 }
 

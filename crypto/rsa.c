@@ -117,29 +117,16 @@ struct rsaPubKey *generatePubRSAKey(struct rsaPrivKey *privKey)
 
 
 // Generate a valid RSA public key without conscious knowledge of secret key.
-struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state)
+struct rsaPubKey *generateDudPubRSAKey(gmp_randstate_t state, mpz_t N, mpz_t thetaN)
 {
 	struct rsaPubKey *pubKey;
 
 	pubKey = initPubKeyRSA();
-	mpz_t pFactorMinus1, qFactorMinus1;
-	mpz_t gcdThetaNE, pFactor, qFactor, thetaN;
+	mpz_t gcdThetaNE;
 
-	mpz_init(thetaN);
 	mpz_init(gcdThetaNE);
-	mpz_init(pFactor);
-	mpz_init(qFactor);
-	mpz_init(pFactorMinus1);
-	mpz_init(qFactorMinus1);
 
-	getPrimeGMP(pFactor, state, 1023);
-	getPrimeGMP(qFactor, state, 1023);
-
-	mpz_sub_ui(pFactorMinus1, pFactor, 1);
-	mpz_sub_ui(qFactorMinus1, qFactor, 1);
-
-	mpz_mul(pubKey -> N, pFactor, qFactor);
-	mpz_mul(thetaN, pFactorMinus1, qFactorMinus1);
+	mpz_set(pubKey -> N, N);
 
 	do
 	{

@@ -178,7 +178,8 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 	int i, outputLength = 0, j;
     gmp_randstate_t *state = seedRandGen();
     struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
-
+	
+	// clock_t startClock; int msec;
 
 	start = readInputDetailsFileExec(filepath, inputCircuit, sockfd);
 
@@ -190,8 +191,12 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 
 		i = start -> id;
 		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
+		
 		// tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
 		tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
+
+		// msec = (clock() - startClock) * 1000 / CLOCKS_PER_SEC;
+		// printf("Time taken %d seconds %d milliseconds\n", msec/1000, msec%1000);
 
 		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);

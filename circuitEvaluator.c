@@ -59,11 +59,14 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 {
+	clock_t startClock = clock(); int msec;
+
     int sockfd, portNum;
     struct sockaddr_in serv_addr;
 	int numGates = 0, i;
 	struct gateOrWire **inputCircuit;
     
+
     portNum = atoi(portNumStr);
     sockfd = openSock();
     serv_addr = getServerAddr(ipAddress, portNum);
@@ -75,7 +78,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 	printf("Received circuit.\n");
 
 	runCircuitExec( inputCircuit, numGates, sockfd, inputFilepath );
-
 	printAllOutput(inputCircuit, numGates);
 
 	shutdown(sockfd, 0);
@@ -85,17 +87,43 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 		freeGateOrWire(inputCircuit[i]);
 	}
 	free(inputCircuit);
+
+	msec = (clock() - startClock) * 1000 / CLOCKS_PER_SEC;
+	printf("Time taken %d seconds %d milliseconds\n", msec / 1000, msec % 1000);
 }
 
 
+void runLocally(char *circuitFilepath)
+{
+	char tempAlice[] = "And.alice.input\0";
+	char tempBob[] = "And.bob.input\0";
+	int numGates = count_lines_of_file(circuitFilepath);
+	int i;
+
+	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+
+
+	readInputDetailsFileBuilder( tempAlice, inputCircuit );
+	readInputDetailsFileBuilder( tempBob, inputCircuit );
+
+	runCircuitLocal( inputCircuit, numGates );
+	printAllOutput(inputCircuit, numGates);
+
+	for(i = 0; i < numGates; i ++)
+	{
+		printf("+++++  Gate %02d  +++++\n", i);
+		testSerialisation(inputCircuit[i]);
+		printf("\n");
+		freeGateOrWire(inputCircuit[i]);
+	}
+
+	free(inputCircuit);
+}
 
 void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int builder)
 {
 	char tempAlice[] = "And.alice.input\0";
 	char tempBob[] = "And.bob.input\0";
-	// char ipAddress[] = "127.0.0.1\0";
-	// char ipAddress[] = "192.168.0.6\0";
-
 
 	if(0 == builder)
 	{
@@ -120,31 +148,6 @@ int main(int argc, char *argv[])
 	int builder = atoi(argv[4]);
 
 	testRun(circuitFilepath, argv[2], argv[3], builder);
-	// testByteConvert();
-
-	/*
-	int numGates = count_lines_of_file(circuitFilepath);
-	int i;
-
-	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
-
-	char tempAlice[] = "And.alice.input";
-	char tempBob[] = "And.bob.input";
-	readInputDetailsFileBuilder( tempAlice, inputCircuit );
-	readInputDetailsFileBuilder( tempBob, inputCircuit );
-
-	runCircuitLocal( inputCircuit, numGates );
-	printAllOutput(inputCircuit, numGates);
-
-	for(i = 0; i < numGates; i ++)
-	{
-		printf("+++++  Gate %02d  +++++\n", i);
-		testSerialisation(inputCircuit[i]);
-		printf("\n");
-		freeGateOrWire(inputCircuit[i]);
-	}
-	free(inputCircuit);
-	*/
 
 	return 0;
 }
