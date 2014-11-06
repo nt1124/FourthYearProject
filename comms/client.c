@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sockets.cpp"
+#include "sockets.h"
 
 
 
@@ -21,10 +21,10 @@ int main(int argc, char *argv[])
     fgets(buffer, 256, stdin);
 
     sendBoth(mysocket, (octet*) buffer, strlen(buffer));
-    free(buffer);
+    bzero(buffer, 257);
 
     receiveBoth(mysocket, (octet*)buffer, length);
-    printf("%s\n", buffer);
+    printf("%d --> %s\n", length, buffer);
 
     close_client_socket(mysocket);
 

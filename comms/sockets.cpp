@@ -1,5 +1,5 @@
-#include "sockets.h"
-//#include "Exceptions/Exceptions.h"
+// #include "sockets.h"
+// #include "Exceptions/Exceptions.h"
 
 #include <iostream>
 using namespace std;
@@ -221,20 +221,20 @@ unsigned long long sent_amount = 0, sent_counter = 0;
 
 void sendBoth(int socket, octet *msg, int len)
 {
-    send(socket, len);
+    sendInt(socket, len);
     if (send(socket, msg, len, 0) != len)
     {
         error("Send error - 1 ");
     }
 
-    sent_amount += len;
-    sent_counter ++;
+    // get_ack(socket);
 }
 
-void receiveBoth(int socket, octet *msg, int& len)
+unsigned char *receiveBoth(int socket, int& len)
 {
-    int i = 0,j;
-    receive(socket, len);
+    int i = 0, j;
+    len = receiveInt(socket);
+    unsigned char *msg = (unsigned char*) calloc(len, sizeof(unsigned char));
 
     while (len - i > 0)
     {
@@ -245,6 +245,9 @@ void receiveBoth(int socket, octet *msg, int& len)
         }
         i = i + j;
     }
+
+    // send_ack(socket);
+    return msg;
 }
 
 
@@ -260,11 +263,13 @@ void send(int socket, octet *msg, int len)
     sent_counter ++;
 }
 
+
 // Receives an octet message given it already knows the length.
 void receive(int socket, octet *msg, int len)
 {
-    int i = 0,j;
-    while (len-i>0)
+    int i = 0, j;
+
+    while (len - i > 0)
     {
         j = recv(socket, msg + i, len - i, 0);
         if(j < 0)
@@ -275,7 +280,8 @@ void receive(int socket, octet *msg, int len)
     }
 }
 
-// Send an integer, used to tell the other end what length the message is that's coming.
+
+// Send a single byte.
 void send(int socket, int a)
 {
     unsigned char msg[1];
@@ -287,13 +293,14 @@ void send(int socket, int a)
     }
 }
 
-// Receive an integer telling us how long the next message will be.
+
+// Receive a single byte
 void receive(int socket, int& a)
 {
     unsigned char msg[1];
     int i = 0;
 
-    while (i==0)
+    while(i == 0)
     {
         i = recv(socket, msg, 1, 0);
         if(i < 0)
@@ -306,12 +313,50 @@ void receive(int socket, int& a)
 }
 
 
+void sendInt(int socket, int input)
+{
+    unsigned char *intBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
+
+    encode_length(intBuffer, input);
+
+    if (send(socket, intBuffer, sizeof(int), 0) != sizeof(int))
+    {
+        error("Send error - 1 ");
+    }
+
+    sent_amount += 4;
+    sent_counter ++;
+    free(intBuffer);
+}
+
+// Receives an octet message given it already knows the length.
+int receiveInt(int socket)
+{
+    unsigned char *intBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
+    int i = 0, j, len = 4, outputInt;
+
+    while (len - i > 0)
+    {
+        j = recv(socket, intBuffer + i, len - i, 0);
+        if(j < 0)
+        {
+            error("Receiving error - 1");
+        }
+        i = i + j;
+    }
+
+    outputInt = decode_length(intBuffer);
+    // memcpy(&outputInt, intBuffer, 4);
+    free(intBuffer);
+
+    return outputInt;
+}
 
 void send_ack(int socket)
 {
     char msg[]="OK";
 
-    if(send(socket,msg,2,0) != 2)
+    if(send(socket, msg, 2, 0) != 2)
     {
         error("Send Ack");
     }

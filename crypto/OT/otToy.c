@@ -6,38 +6,39 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../../comms/socketUtils.c"
+#include "../../comms/sockets.h"
 
 
-void senderOT_Toy(int sockfd, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
+void senderOT_Toy(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	unsigned char *bitRequested;
 	int bitRequestLength = 0;
 
-	bitRequested = (unsigned char*) readFromSock(sockfd, &bitRequestLength);
+    receiveBoth(writeSocket, (octet*) bitRequested, bitRequestLength);
 	
 	if(0x00 == *bitRequested)
-		writeToSock(sockfd, (char*)input0Bytes, inputLengths);
+		send(writeSocket, (octet*) input0Bytes, inputLengths);
 	else if(0x01 == *bitRequested)
-		writeToSock(sockfd, (char*)input1Bytes, inputLengths);
+		send(writeSocket, (octet*) input1Bytes, inputLengths);
 
     free(bitRequested);
 }
 
 
 
-unsigned char *receiverOT_Toy(int sockfd, unsigned char inputBit, int *outputLength)
+unsigned char *receiverOT_Toy(int writeSocket, unsigned char inputBit, int *outputLength)
 {
 	unsigned char *output;
 
-	writeToSock(sockfd, (char*)&inputBit, 1);
+	sendBoth(writeSocket, (octet*) &inputBit, 1);
 
-	output = (unsigned char*) readFromSock(sockfd, outputLength);
+	// output = (unsigned char*) 
+    receiveBoth(writeSocket, (octet*) output, *outputLength);
 
 	return output;
 }
 
-
+/*
 void testSender_OT_Toy(char *portNumStr)
 {
     int sockfd, portNum;
@@ -82,7 +83,7 @@ void testReceiver_OT_Toy(char *portNumStr)
     }
     printf("\n");
 }
-
+*/
 
 /*
 int main(int argc, char *argv[])

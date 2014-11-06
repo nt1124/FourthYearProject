@@ -238,57 +238,52 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
 
 
 
-void sendGate(struct gateOrWire *inputGW, int sockfd)
+void sendGate(struct gateOrWire *inputGW, int writeSocket)
 {
-	unsigned char *buffer;
+	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
 	int bufferLength, j;
 
 	buffer = serialiseGateOrWire(inputGW, &bufferLength);
-	
-	writeToSock(sockfd, (char*)buffer, bufferLength);
+	sendInt(writeSocket, bufferLength);
+	send(writeSocket, buffer, bufferLength);
+	free(buffer);
 	
 	if(NULL != inputGW -> gatePayload)
 	{
 		for(j = 0; j < inputGW -> gatePayload -> outputTableSize; j ++)
 		{
-			writeToSock(sockfd, (char*)inputGW -> gatePayload -> encOutputTable[j], 32);
+			send(writeSocket, (octet*)inputGW -> gatePayload -> encOutputTable[j], 32);
 		}
 	}
-	free(buffer);
 }
 
 
-void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int sockfd)
+void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int writeSocket)
 {
 	int i;
-	char *buffer = (char*) calloc(sizeof(int), sizeof(char));
-
-	memcpy(buffer, &numGates, sizeof(int));
-	writeToSock(sockfd, buffer, sizeof(int));
-	free(buffer);
+	
+	sendInt(writeSocket, numGates);
 
 	for(i = 0; i < numGates; i ++)
 	{
-		sendGate(inputCircuit[i], sockfd);
+		sendGate(inputCircuit[i], writeSocket);
 	}
+
 	printf("Circuit sent.\n");
 }
 
 
-int receiveNumGates(int sockfd)
+int receiveNumGates(int readSocket)
 {
-	int numGates, bufferLength = 0;
-	unsigned char *buffer;
+	int numGates;
 
-	buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
-	memcpy(&numGates, buffer, sizeof(int));
-	free(buffer);
+	numGates = receiveInt(readSocket);
 
 	return numGates;
 }
 
 
-struct gateOrWire **receiveCircuit(int numGates, int sockfd)
+struct gateOrWire **receiveCircuit(int numGates, int readSocket)
 {
 	int i, j, bufferLength = 0;
 	unsigned char *buffer = NULL;
@@ -300,18 +295,21 @@ struct gateOrWire **receiveCircuit(int numGates, int sockfd)
 
 	for(i = 0; i < numGates; i ++)
 	{
-		buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
+		bufferLength = receiveInt(readSocket);
+		buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+		receive(readSocket, buffer, bufferLength);
 		inputCircuit[i] = deserialiseGateOrWire(buffer);
 		free(buffer);
 
 		if(NULL != inputCircuit[i] -> gatePayload)
 		{
+			buffer = (unsigned char*) calloc(32, sizeof(unsigned char));
 			for(j = 0; j < inputCircuit[i] -> gatePayload -> outputTableSize; j ++)
 			{
-				buffer = (unsigned char*) readFromSock(sockfd, &bufferLength);
+				receive(readSocket, (octet*) buffer, 32);
 				memcpy(inputCircuit[i] -> gatePayload -> encOutputTable[j], buffer, 32);
-				free(buffer);
 			}
+			free(buffer);
 		}
 	}
 

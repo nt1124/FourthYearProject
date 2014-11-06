@@ -3,6 +3,7 @@
 
 #include "crypto/cryptoUtil.h"
 #include "gateOrWire.h"
+#include "comms/sockets.h"
 
 
 struct gateOrWire *processGateLine(char *line, struct gateOrWire **circuit);

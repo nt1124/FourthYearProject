@@ -30,7 +30,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
     int writeSocket, readSocket, mainWriteSock, mainReadSock, i;
     int writePort = atoi(portNumStr), readPort = writePort + 1;
-    struct sockaddr_in serv_addr, cli_addr;
+    struct sockaddr_in dest;
 
     set_up_server_socket(dest, writeSocket, mainWriteSock, writePort);
     // set_up_server_socket(dest, readSocket, mainReadSock, readPort);
@@ -39,11 +39,14 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 	int numGates = count_lines_of_file(circuitFilepath);
 	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+	
 	readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
 	printf("Ready to send circuit.\n");
 	sendCircuit(inputCircuit, numGates, writeSocket);
+
 	runCircuitBuilder( inputCircuit, numGates, writeSocket );
+
 
     close_server_socket(writeSocket, mainWriteSock);
     // close_server_socket(readSocket, mainReadSock);
@@ -71,19 +74,20 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     writePort = writePort + 1;
     
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr);
-    set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr);
+    // set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr);
 
     printf("Connected to builder.\n");
 
-	numGates =  receiveNumGates(sockfd);
-	inputCircuit = receiveCircuit(numGates, sockfd);
+	numGates = receiveNumGates(readSocket);
+	inputCircuit = receiveCircuit(numGates, readSocket);
 	printf("Received circuit.\n");
 
 	runCircuitExec( inputCircuit, numGates, readSocket, inputFilepath );
+
 	printAllOutput(inputCircuit, numGates);
 
     close_client_socket(readSocket);
-    close_client_socket(writeSocket);
+    // close_client_socket(writeSocket);
 
 	for(i = 0; i < numGates; i ++)
 	{

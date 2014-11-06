@@ -2,11 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../comms/socketUtils.c"
+#include "../../comms/sockets.h"
 
 
 
-void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
+void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	struct rsaPubKey *PK0, *PK1;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -14,20 +14,20 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 	mpz_t *enc0Num, *enc1Num;
 
 	unsigned char *n0Bytes, *e0Bytes, *n1Bytes, *e1Bytes;
-	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
 	unsigned char *enc0Bytes, *enc1Bytes;
+	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
 	int enc0Length = 0, enc1Length = 0;
 
 	convertBytesToMPZAlt(input0, input0Bytes, inputLengths);
 	convertBytesToMPZAlt(input1, input1Bytes, inputLengths);
 
 	// We get PK0, PK1 from receiver here. Receive!
-	n0Bytes = (unsigned char*) readFromSock(sockfd, &n0Length);
-	e0Bytes = (unsigned char*) readFromSock(sockfd, &e0Length);
+	n0Bytes = receiveBoth(writeSocket, n0Length);
+	e0Bytes = receiveBoth(writeSocket, e0Length);
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 
-	n1Bytes = (unsigned char*) readFromSock(sockfd, &n1Length);
-	e1Bytes = (unsigned char*) readFromSock(sockfd, &e1Length);
+	n1Bytes= receiveBoth(writeSocket, n1Length);
+	e1Bytes= receiveBoth(writeSocket, e1Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
 
 	enc0Num = encRSA(*input0, PK0);
@@ -37,8 +37,8 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 	enc1Bytes = convertMPZToBytesAlt(*enc1Num, &enc1Length);
 
 	// Send enc0Bytes and enc1Bytes to Receiver
-	writeToSock(sockfd, (char*)enc0Bytes, enc0Length);
-	writeToSock(sockfd, (char*)enc1Bytes, enc1Length);
+	sendBoth(writeSocket, (octet*) enc0Bytes, enc0Length);
+	sendBoth(writeSocket, (octet*) enc1Bytes, enc1Length);
 
 	free(enc0Bytes); 	free(enc1Bytes);
 	free(enc0Num); 		free(enc1Num);
@@ -48,7 +48,7 @@ void senderOT_SH_RSA(int sockfd, unsigned char *input0Bytes, unsigned char *inpu
 }
 
 
-unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state, int sockfd, int inputBit, int *outputLength)
+unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state, int readSocket, int inputBit, int *outputLength)
 {
 	struct rsaPubKey *PK0, *PK1;
 	unsigned char *enc0Bytes, *enc1Bytes, *outputBytes;
@@ -74,18 +74,18 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	// We send PK0 to sender here.
 	n0Bytes = convertMPZToBytesAlt(PK0 -> N, &n0Length);
 	e0Bytes = convertMPZToBytesAlt(PK0 -> e, &e0Length);
-	writeToSock(sockfd, (char*)n0Bytes, n0Length);
-	writeToSock(sockfd, (char*)e0Bytes, e0Length);
+	sendBoth(readSocket, (octet*) n0Bytes, n0Length);
+	sendBoth(readSocket, (octet*) e0Bytes, e0Length);
 
 	// We send PK1 to sender here.
 	n1Bytes = convertMPZToBytesAlt(PK1 -> N, &n1Length);
 	e1Bytes = convertMPZToBytesAlt(PK1 -> e, &e1Length);
-	writeToSock(sockfd, (char*)n1Bytes, n1Length);
-	writeToSock(sockfd, (char*)e1Bytes, e1Length);
+	sendBoth(readSocket, (octet*) n1Bytes, n1Length);
+	sendBoth(readSocket, (octet*) e1Bytes, e1Length);
 
 	// receive enc0Bytes and enc1Bytes from Receiver
-	enc0Bytes = (unsigned char*) readFromSock(sockfd, &enc0Length);
-	enc1Bytes = (unsigned char*) readFromSock(sockfd, &enc1Length);
+	enc0Bytes = receiveBoth(readSocket, enc0Length);
+	enc1Bytes = receiveBoth(readSocket, enc1Length);
 
 	if(0 == inputBit)
 		convertBytesToMPZAlt(tempEncNum, enc0Bytes, enc0Length);
@@ -107,6 +107,7 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 
 
 
+/*
 void testSender_OT_SH_RSA(char *portNumStr)
 {
     int sockfd, portNum, n;
@@ -128,8 +129,9 @@ void testSender_OT_SH_RSA(char *portNumStr)
 
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
+*/
 
-
+/*
 void testReceiver_OT_SH_RSA(char *portNumStr)
 {
 
@@ -168,9 +170,9 @@ void testReceiver_OT_SH_RSA(char *portNumStr)
     } printf("\n");
     free(buffer2);
 }
+*/
 
-
-
+/*
 int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
 {
     unsigned char input0[17] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -204,3 +206,4 @@ int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
 
     return 0;
 }
+*/
