@@ -217,6 +217,37 @@ using namespace std;
 
 unsigned long long sent_amount = 0, sent_counter = 0;
 
+
+
+void sendBoth(int socket, octet *msg, int len)
+{
+    send(socket, len);
+    if (send(socket, msg, len, 0) != len)
+    {
+        error("Send error - 1 ");
+    }
+
+    sent_amount += len;
+    sent_counter ++;
+}
+
+void receiveBoth(int socket, octet *msg, int& len)
+{
+    int i = 0,j;
+    receive(socket, len);
+
+    while (len - i > 0)
+    {
+        j = recv(socket, msg + i, len - i, 0);
+        if(j < 0)
+        {
+            error("Receiving error - 1");
+        }
+        i = i + j;
+    }
+}
+
+
 // Send an octet message given the length.
 void send(int socket, octet *msg, int len)
 {
