@@ -98,9 +98,8 @@ void runLocally(char *circuitFilepath)
 	char tempAlice[] = "And.alice.input\0";
 	char tempBob[] = "And.bob.input\0";
 	int numGates = count_lines_of_file(circuitFilepath);
-	int i;
-
 	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+	int i;
 
 
 	readInputDetailsFileBuilder( tempAlice, inputCircuit );

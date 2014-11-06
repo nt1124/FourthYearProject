@@ -9,10 +9,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
-#include "socketUtils.c"
+#include "sockets.cpp"
 
 
-int main(int argc, char *argv[])
+int notMain(int argc, char *argv[])
 {
     int sockfd, newsockfd, clilen;
     int length = 0;
@@ -40,3 +40,18 @@ int main(int argc, char *argv[])
 
     return 0;
 }
+
+
+int main(int argc, char *argv[])
+{
+    sockaddr_in dest;
+    int consocket;
+    int main_socket;
+    int Portnum = atoi(argv[4]);
+
+    set_up_server_socket(&dest, &consocket, &main_socket, Portnum);
+
+    close_server_socket(consocket, main_socket);
+}
+
+

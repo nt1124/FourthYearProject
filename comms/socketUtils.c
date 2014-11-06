@@ -42,8 +42,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
-
-// #include <arpa/inet.h>
+#include <arpa/inet.h>
 
 
 void error(const char *msg)

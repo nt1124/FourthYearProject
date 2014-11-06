@@ -7,16 +7,16 @@
 #include <netinet/in.h>
 #include <netdb.h>
 
-#include "socketUtils.c"
+#include "sockets.cpp"
 
 
 
-int main(int argc, char *argv[])
+int notMain(int argc, char *argv[])
 {
     int sockfd, portNum, n;
     int length = 0;
     struct sockaddr_in serv_addr;
-    char *buffer = calloc(257, sizeof(char));
+    char *buffer = (char*) calloc(257, sizeof(char));
 
     if (argc < 3)
     {
@@ -42,3 +42,34 @@ int main(int argc, char *argv[])
     printf("%s\n", buffer);
     return 0;
 }
+
+
+
+int main(int argc, char *argv[])
+{
+    int mysocket, portNum, n;
+    int length = 0;
+    struct sockaddr_in dest;
+    char *buffer = (char*) calloc(257, sizeof(char));
+    portNum = atoi(argv[2]);
+
+    set_up_client_socket(mysocket, argv[1], portNum, dest);
+
+    printf("Please enter the message: ");
+    bzero(buffer, 257);
+    fgets(buffer, 256, stdin);
+    writeToSock(sockfd, buffer, 256);
+    free(buffer);
+
+    buffer = readFromSock(sockfd, &length);
+
+    printf("%s\n", buffer);
+
+    close_client_socket(mysocket);
+
+    return 0;
+}
+
+
+
+
