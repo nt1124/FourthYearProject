@@ -10,7 +10,7 @@
 #include "sockets.cpp"
 
 
-
+/*
 int notMain(int argc, char *argv[])
 {
     int sockfd, portNum, n;
@@ -42,7 +42,7 @@ int notMain(int argc, char *argv[])
     printf("%s\n", buffer);
     return 0;
 }
-
+*/
 
 
 int main(int argc, char *argv[])
@@ -58,12 +58,14 @@ int main(int argc, char *argv[])
     printf("Please enter the message: ");
     bzero(buffer, 257);
     fgets(buffer, 256, stdin);
-    writeToSock(sockfd, buffer, 256);
+
+    send(mysocket, strlen(buffer));
+    send(mysocket, (octet*) buffer, strlen(buffer));
     free(buffer);
 
-    buffer = readFromSock(sockfd, &length);
+    // buffer = readFromSock(sockfd, &length);
 
-    printf("%s\n", buffer);
+    // printf("%s\n", buffer);
 
     close_client_socket(mysocket);
 

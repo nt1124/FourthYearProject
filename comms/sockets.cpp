@@ -130,7 +130,7 @@ void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sock
         error("set_up_socket:setsockopt");
     }
 
-    struct sockaddr_in dest;
+    // struct sockaddr_in dest;
     dest.sin_family = AF_INET;
     dest.sin_port = htons(Portnum);      // set destination port number 
 
@@ -217,6 +217,7 @@ using namespace std;
 
 unsigned long long sent_amount = 0, sent_counter = 0;
 
+// Send an octet message given the length.
 void send(int socket, octet *msg, int len)
 {
     if (send(socket, msg, len, 0) != len)
@@ -228,7 +229,7 @@ void send(int socket, octet *msg, int len)
     sent_counter ++;
 }
 
-
+// Receives an octet message given it already knows the length.
 void receive(int socket, octet *msg, int len)
 {
     int i = 0,j;
@@ -243,6 +244,7 @@ void receive(int socket, octet *msg, int len)
     }
 }
 
+// Send an integer, used to tell the other end what length the message is that's coming.
 void send(int socket, int a)
 {
     unsigned char msg[1];
@@ -254,7 +256,7 @@ void send(int socket, int a)
     }
 }
 
-
+// Receive an integer telling us how long the next message will be.
 void receive(int socket, int& a)
 {
     unsigned char msg[1];

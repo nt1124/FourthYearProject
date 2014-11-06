@@ -12,6 +12,7 @@
 #include "sockets.cpp"
 
 
+/*
 int notMain(int argc, char *argv[])
 {
     int sockfd, newsockfd, clilen;
@@ -40,16 +41,22 @@ int notMain(int argc, char *argv[])
 
     return 0;
 }
+*/
 
 
 int main(int argc, char *argv[])
 {
     sockaddr_in dest;
-    int consocket;
-    int main_socket;
-    int Portnum = atoi(argv[4]);
+    int consocket, main_socket, length;
+    int Portnum = atoi(argv[1]);
+    char *buffer = (char*) calloc(40, sizeof(char));
 
-    set_up_server_socket(&dest, &consocket, &main_socket, Portnum);
+
+    set_up_server_socket(dest, consocket, main_socket, Portnum);
+
+    receive(consocket, length);
+    receive(consocket, (octet*)buffer, length);
+    printf("Here is the message: %s\n",buffer);
 
     close_server_socket(consocket, main_socket);
 }
