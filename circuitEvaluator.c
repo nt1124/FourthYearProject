@@ -30,6 +30,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
     int writeSocket, readSocket, mainWriteSock, mainReadSock, i;
     int writePort = atoi(portNumStr), readPort = writePort + 1;
+	int numGates;
     struct sockaddr_in dest;
 
     set_up_server_socket(dest, writeSocket, mainWriteSock, writePort);
@@ -37,8 +38,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
-	int numGates = count_lines_of_file(circuitFilepath);
-	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+	struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
 	
 	readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
@@ -104,8 +104,8 @@ void runLocally(char *circuitFilepath)
 {
 	char tempAlice[] = "And.alice.input\0";
 	char tempBob[] = "And.bob.input\0";
-	int numGates = count_lines_of_file(circuitFilepath);
-	struct gateOrWire **inputCircuit = readInCircuit(circuitFilepath, numGates);
+	int numGates;
+	struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
 	int i;
 
 

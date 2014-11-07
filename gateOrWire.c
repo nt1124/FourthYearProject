@@ -48,6 +48,20 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	}
 }
 
+unsigned char **recursiveOutputTable(struct gate *curGate)
+{
+	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
+	int i;
+
+	for(i = 0; i < curGate -> outputTableSize; i ++)
+	{
+		toReturn[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
+		toReturn[i][16] = curGate -> rawOutputTable[i];
+	}
+
+	return toReturn;
+}
+
 
 // Encrypt the whole of the output table for a given gate.
 void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit)
@@ -166,69 +180,6 @@ unsigned char getPermutation()
 	unsigned char *toOutputPointer = generateRandBytes(1, 1);
 	unsigned char toReturn = *toOutputPointer;
 	free(toOutputPointer);
-
-	return toReturn;
-}
-
-
-struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit,
-						struct gateOrWire *curGate)
-{
-	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
-	int tempIndex, outputTableSize = 1;
-
-	while( line[++ strIndex] != ' ' ) {}
-	while( line[++ strIndex] != ' ' ) {}
-	tempIndex = ++ strIndex;
-	while( line[strIndex] != ' ' ) { strIndex ++; }
-
-	char *tempString = (char*) calloc((strIndex - tempIndex + 1), sizeof(char));
-	strncpy(tempString, line + tempIndex, (strIndex - tempIndex));
-	toReturn -> numInputs = atoi(tempString);
-
-	for(tempIndex = 0; tempIndex < toReturn -> numInputs; tempIndex ++)
-		outputTableSize *= 2;
-
-	toReturn -> outputTableSize = outputTableSize;
-	toReturn -> rawOutputTable = parseOutputTable(line, &strIndex, toReturn);
-	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
-	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
-	
-	free(tempString);
-
-	return toReturn;
-}
-
-
-struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit)
-{
-	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-
-	toReturn -> G_ID = idNum;
-	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
-	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
-	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
-
-	if( 'i' == line[*strIndex] )
-	{
-		toReturn -> gatePayload = NULL;
-		toReturn -> outputWire -> wireMask = 0xF0;
-	}
-	else
-	{
-		if('o' == line[*strIndex])
-		{
-			toReturn -> outputWire -> wireMask = 0x0F;
-			while( line[*strIndex] != ' ' )
-			{
-				*strIndex = *strIndex + 1;
-			}
-		}
-
-		toReturn -> gatePayload = processGate(line, *strIndex, circuit, toReturn);
-		encWholeOutTable(toReturn, circuit);
-	}
 
 	return toReturn;
 }

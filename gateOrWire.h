@@ -43,11 +43,9 @@ typedef struct gateOrWire
 
 
 // Missing so many functions here!
-struct gate *processGate(char* line, int strIndex, struct gateOrWire **circuit, struct gateOrWire *curGate);
-struct gateOrWire *processGateOrWire(char *line, int idNum, int *strIndex, struct gateOrWire **circuit);
 void freeGateOrWire(struct gateOrWire *inputGW);
 
-#include "fileUtils.h"
+//#include "fileUtils.h"
 #include "serialisationUtils.c"
 #include "gateOrWire.c"
 #include <math.h>

@@ -3,6 +3,8 @@
 
 #include "crypto/cryptoUtil.h"
 #include "gateOrWire.h"
+#include "fileUtils/fileUtilsFP.h"
+#include "fileUtils/fileUtilsRTL.h"
 #include "comms/sockets.h"
 
 
