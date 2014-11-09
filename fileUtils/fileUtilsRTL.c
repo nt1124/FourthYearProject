@@ -19,39 +19,70 @@ int getNumGW(char *line)
 */
 
 
-// RTL means the function deals with the Smart/Tillich style input.
-
-
-struct gate *processGateRTL(char* line, int strIndex, struct gateOrWire **circuit,
-						struct gateOrWire *curGate)
+// Returns an integer value when given a string with index pointing to start
+// of the integer to read. Assumes delimtation by spaces.
+int getIntFromString(char *inputStr, int& strIndex)
 {
-	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
-	int tempIndex, outputTableSize = 1;
+	int toReturn = 0;
 
-	while( line[++ strIndex] != ' ' ) {}
-	while( line[++ strIndex] != ' ' ) {}
-	tempIndex = ++ strIndex;
-	while( line[strIndex] != ' ' ) { strIndex ++; }
+	while(' ' != inputStr[strIndex])
+	{
+		toReturn *= 10;
+		toReturn += (inputStr[strIndex] - 48);
+		strIndex ++;
+	}
 
-	char *tempString = (char*) calloc((strIndex - tempIndex + 1), sizeof(char));
-	strncpy(tempString, line + tempIndex, (strIndex - tempIndex));
-	toReturn -> numInputs = atoi(tempString);
-
-	for(tempIndex = 0; tempIndex < toReturn -> numInputs; tempIndex ++)
-		outputTableSize *= 2;
-
-	toReturn -> outputTableSize = outputTableSize;
-	toReturn -> rawOutputTable = parseOutputTable(line, &strIndex, toReturn);
-	toReturn -> inputIDs = parseInputTable(line, toReturn -> numInputs, &strIndex);
-	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
-	
-	free(tempString);
+	while(' ' == inputStr[strIndex])
+	{
+		strIndex ++;
+	}
 
 	return toReturn;
 }
 
 
-struct gateOrWire *processGateOrWireRTL(char *line, int idNum, int *strIndex, struct gateOrWire **circuit)
+// RTL means the function deals with the Smart/Tillich style input.
+
+
+struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
+{
+	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
+	int i, outputTableSize = 1;
+
+	toReturn -> numInputs = numInputWires;
+	toReturn -> inputIDs = inputIDs;
+	for(i = 0; i < toReturn -> numInputs; i ++)
+		outputTableSize *= 2;
+
+	toReturn -> outputTableSize = outputTableSize;
+	if('I' == gateType)
+	{
+		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
+		toReturn -> rawOutputTable[1] = 1;
+	}
+	else
+	{
+		toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
+		if('A' == gateType)
+		{
+			toReturn -> rawOutputTable[3] = 1;
+		}
+		else if('X' == gateType)
+		{
+			toReturn -> rawOutputTable[1] = 1;
+			toReturn -> rawOutputTable[2] = 1;
+		}
+	}
+
+	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
+
+
+	return toReturn;
+}
+
+
+struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
+										char gateType, struct gateOrWire **circuit)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
@@ -61,25 +92,8 @@ struct gateOrWire *processGateOrWireRTL(char *line, int idNum, int *strIndex, st
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 
-	if( 'i' == line[*strIndex] )
-	{
-		toReturn -> gatePayload = NULL;
-		toReturn -> outputWire -> wireMask = 0xF0;
-	}
-	else
-	{
-		if('o' == line[*strIndex])
-		{
-			toReturn -> outputWire -> wireMask = 0x0F;
-			while( line[*strIndex] != ' ' )
-			{
-				*strIndex = *strIndex + 1;
-			}
-		}
-
-		toReturn -> gatePayload = processGateRTL(line, *strIndex, circuit, toReturn);
-		encWholeOutTable(toReturn, circuit);
-	}
+	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+	encWholeOutTable(toReturn, circuit);
 
 	return toReturn;
 }
@@ -87,28 +101,24 @@ struct gateOrWire *processGateOrWireRTL(char *line, int idNum, int *strIndex, st
 
 struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 {
-	int strIndex = 0, idNum;
+	int strIndex = 0, idNum, i;
+	int numInputWires, purposelessNumber;
+	int *inputIDs;
 
-	while( line[strIndex] != ' ' )
+	numInputWires = getIntFromString(line, strIndex);
+
+	// As of yet unsure of the purpose of this number. Ask Nigel.
+	purposelessNumber = getIntFromString(line, strIndex);
+
+	inputIDs = (int*) calloc(numInputWires, sizeof(int));
+	for(i = 0; i < numInputWires; i ++)
 	{
-		if( '/' == line[strIndex] )
-			return NULL;
-		strIndex ++;
+		inputIDs[i] = getIntFromString(line, strIndex);
 	}
 
-	char *idString = (char*) calloc(strIndex + 1, sizeof(char));
-	strncpy(idString, line, strIndex);
-	idNum = atoi(idString);
-	free(idString);
+	idNum = getIntFromString(line, strIndex);
 
-	while( line[strIndex] == ' ' )
-	{
-		if( '/' == line[strIndex] )
-			return NULL;
-		strIndex ++;
-	}
-
-	return processGateOrWireRTL(line, idNum, &strIndex, circuit);
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit);
 }
 
 
@@ -129,39 +139,67 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
 }
 
 
+// FOR NOW we assume party 1 is building the circuit.
+struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2)
+{
+	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
+	int i;
+
+	for(i = 0; i < numInputs1; i ++)
+	{
+		circuit[i] = initialiseInputWire(i, 0xFF);
+	}
+
+	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
+	{
+		circuit[i] = initialiseInputWire(i, 0x00);
+	}
+
+	return circuit;
+}
+
+
+
 struct gateOrWire **readInCircuiRTL(char* filepath, int *numGates)
 {
 	FILE *file = fopen ( filepath, "r" );
-	char line [ 512 ]; /* or other suitable maximum line size */
+	char line [ 512 ]; // Or other suitable maximum line size
 	int numInputs1, numInputs2, numOutputs;	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **circuit;
+	int i;
 
 	if ( file != NULL )
 	{
-		if(NULL != fgets ( line, sizeof(line), file ))
+		if(NULL != fgets(line, sizeof(line), file))
 			sscanf(line, "%d %d", &numInputs1, numGates);
 		else
 			return NULL;
 
-		if(NULL != fgets ( line, sizeof(line), file ))
+		if(NULL != fgets(line, sizeof(line), file))
 			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &numOutputs);
 		else
 			return NULL;
 
-		if(NULL == fgets ( line, sizeof(line), file ))
+		if(NULL == fgets(line, sizeof(line), file))
 			return NULL;
 
-	 	circuit = (struct gateOrWire**) calloc(*numGates, sizeof(struct gateOrWire*));
+		circuit = initialiseAllInputs(*numGates, numInputs1, numInputs2);
 
-		while ( fgets ( line, sizeof line, file ) != NULL ) /* read a line */
+		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
 			tempGateOrWire = processGateLineRTL(line, circuit);
 			if( NULL != tempGateOrWire )
 			{
+				gateIndex = tempGateOrWire -> G_ID;
 				*(circuit + gateIndex) = tempGateOrWire;
-				gateIndex ++;
 			}
+		}
+
+		for(i = 0; i < numOutputs; i ++)
+		{
+			gateIndex = numGates - i - 1;
+			circuit[gateIndex] -> outputWire -> wireMask = 0x0F;
 		}
 		fclose ( file );
 	}

@@ -47,7 +47,6 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 	runCircuitBuilder( inputCircuit, numGates, writeSocket );
 
-
     close_server_socket(writeSocket, mainWriteSock);
     // close_server_socket(readSocket, mainReadSock);
 
