@@ -160,7 +160,7 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 
 
 
-struct gateOrWire **readInCircuiRTL(char* filepath, int *numGates)
+struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates)
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
@@ -198,7 +198,7 @@ struct gateOrWire **readInCircuiRTL(char* filepath, int *numGates)
 
 		for(i = 0; i < numOutputs; i ++)
 		{
-			gateIndex = numGates - i - 1;
+			gateIndex = *numGates - i - 1;
 			circuit[gateIndex] -> outputWire -> wireMask = 0x0F;
 		}
 		fclose ( file );

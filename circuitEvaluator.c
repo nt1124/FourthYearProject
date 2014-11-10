@@ -38,7 +38,8 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
-	struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
+	// struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
 	
 	readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
@@ -125,6 +126,21 @@ void runLocally(char *circuitFilepath)
 	free(inputCircuit);
 }
 
+
+void testRTL_Read(char *circuitFilepath)
+{
+	int numGates, i;
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
+
+	printf("--++  %d  ++--\n", numGates);
+	for(i = 0; i < numGates; i ++)
+	{
+		printGateOrWire(inputCircuit[i]);
+		printf("\n");
+	}
+}
+
+
 void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int builder)
 {
 	char tempAlice[] = "And.alice.input\0";
@@ -134,13 +150,13 @@ void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int build
 	{
 		printf("Running Executor.\n");
 		// testSender_OT_SH_RSA(portNumStr);
-		runExecutor(tempBob, ipAddress, portNumStr);
+		runExecutor(tempAlice, ipAddress, portNumStr);
 	}
 	else
 	{
 		printf("Running Builder.\n");
 		// testReceiver_OT_SH_RSA(portNumStr);
-		runBuilder(circuitFilepath, tempAlice, portNumStr);
+		runBuilder(circuitFilepath, tempBob, portNumStr);
 	}
 }
 
@@ -152,6 +168,7 @@ int main(int argc, char *argv[])
 	char *circuitFilepath = argv[1];
 	int builder = atoi(argv[4]);
 
+	// testRTL_Read(circuitFilepath);
 	testRun(circuitFilepath, argv[2], argv[3], builder);
 
 	return 0;
