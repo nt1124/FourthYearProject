@@ -14,12 +14,12 @@ void senderOT_Toy(int writeSocket, unsigned char *input0Bytes, unsigned char *in
 	unsigned char *bitRequested;
 	int bitRequestLength = 0;
 
-    receiveBoth(writeSocket, (octet*) bitRequested, bitRequestLength);
+    bitRequested = receiveBoth(writeSocket, bitRequestLength);
 	
 	if(0x00 == *bitRequested)
-		send(writeSocket, (octet*) input0Bytes, inputLengths);
+		sendBoth(writeSocket, (octet*) input0Bytes, inputLengths);
 	else if(0x01 == *bitRequested)
-		send(writeSocket, (octet*) input1Bytes, inputLengths);
+		sendBoth(writeSocket, (octet*) input1Bytes, inputLengths);
 
     free(bitRequested);
 }
@@ -31,9 +31,8 @@ unsigned char *receiverOT_Toy(int writeSocket, unsigned char inputBit, int *outp
 	unsigned char *output;
 
 	sendBoth(writeSocket, (octet*) &inputBit, 1);
-
-	// output = (unsigned char*) 
-    receiveBoth(writeSocket, (octet*) output, *outputLength);
+    
+    output = receiveBoth(writeSocket, *outputLength);
 
 	return output;
 }

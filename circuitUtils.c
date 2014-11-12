@@ -35,6 +35,7 @@ void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 	strIndex ++;
 
 	outputWire = inputCircuit[gateID] -> outputWire;
+
 	outputWire -> wireOwner = 0xFF;
 	if( '1' == line[strIndex] )
 	{
@@ -136,8 +137,8 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 		i = start -> id;
 		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
 		
-		// tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
-		tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
+		tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
+		// tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
 
 		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
@@ -171,12 +172,18 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sock
 
 void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
 {
-	int i;
+	int i, j;
 
 	for(i = 0; i < numGates; i ++)
 	{
 		if( NULL != inputCircuit[i] -> gatePayload )
 		{
+			printf("--> %d + ", i);
+			for(j = 0; j < inputCircuit[i] -> gatePayload -> numInputs; j ++)
+			{
+				printf("%d, ", inputCircuit[i] -> gatePayload -> inputIDs[j]);
+			}
+			printf("\n");
 			decryptGate(inputCircuit[i], inputCircuit);
 		}
 	}

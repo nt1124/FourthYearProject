@@ -100,26 +100,24 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 }
 
 
-void runLocally(char *circuitFilepath)
+void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
-	char tempAlice[] = "And.alice.input\0";
-	char tempBob[] = "And.bob.input\0";
 	int numGates;
-	struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
 	int i;
 
 
-	readInputDetailsFileBuilder( tempAlice, inputCircuit );
-	readInputDetailsFileBuilder( tempBob, inputCircuit );
+	readInputDetailsFileBuilder( builderInput, inputCircuit );
+	readInputDetailsFileBuilder( execInput, inputCircuit );
 
 	runCircuitLocal( inputCircuit, numGates );
 	printAllOutput(inputCircuit, numGates);
 
 	for(i = 0; i < numGates; i ++)
 	{
-		printf("+++++  Gate %02d  +++++\n", i);
-		testSerialisation(inputCircuit[i]);
-		printf("\n");
+		// printf("+++++  Gate %02d  +++++\n", i);
+		// testSerialisation(inputCircuit[i]);
+		// printf("\n");
 		freeGateOrWire(inputCircuit[i]);
 	}
 
@@ -141,22 +139,22 @@ void testRTL_Read(char *circuitFilepath)
 }
 
 
-void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, int builder)
+void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
 {
-	char tempAlice[] = "And.alice.input\0";
-	char tempBob[] = "And.bob.input\0";
+	// char tempAlice[] = "And.alice.input\0";
+	// char tempBob[] = "And.bob.input\0";
 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
 		// testSender_OT_SH_RSA(portNumStr);
-		runExecutor(tempAlice, ipAddress, portNumStr);
+		runExecutor(inputFilename, ipAddress, portNumStr);
 	}
 	else
 	{
 		printf("Running Builder.\n");
 		// testReceiver_OT_SH_RSA(portNumStr);
-		runBuilder(circuitFilepath, tempBob, portNumStr);
+		runBuilder(circuitFilepath, inputFilename, portNumStr);
 	}
 }
 
@@ -166,10 +164,11 @@ int main(int argc, char *argv[])
 	srand( time(NULL) );
 
 	char *circuitFilepath = argv[1];
-	int builder = atoi(argv[4]);
+	// int builder = atoi(argv[5]);
 
+	runLocally(circuitFilepath, argv[2], argv[3]);
 	// testRTL_Read(circuitFilepath);
-	testRun(circuitFilepath, argv[2], argv[3], builder);
+	// testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
 
 	return 0;
 }
