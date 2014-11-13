@@ -184,6 +184,7 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
 				printf("%d, ", inputCircuit[i] -> gatePayload -> inputIDs[j]);
 			}
 			printf("\n");
+			fflush(stdout);
 			decryptGate(inputCircuit[i], inputCircuit);
 		}
 	}

@@ -33,12 +33,25 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 	unsigned char *plaintext = (unsigned char*) calloc(16 * blockCount, sizeof(unsigned char));
 	int i, j;
 
+	printf("1}}}\n");
+	fflush(stdout);
+
 	encRK = getUintKeySchedule(keyList[0]);
-	decRK = decryptionKeySchedule_128(encRK);
+	decRK = decryptionKeySchedule_128(encRK);	
+
+	printf("#  %d\n", *toDecrypt);
+	fflush(stdout);
+
 	free(encRK);
 	for(j = 0; j < blockCount; j ++)
+	{
+		//To Decrypt is null.
 		aes_128_decrypt( (toDecrypt + j*16), (plaintext + j*16), decRK );
+	}
 	free(decRK);
+
+	printf("4}}}\n");
+	fflush(stdout);
 
 	for(i = 1; i < numKeys; i ++)
 	{
@@ -46,9 +59,14 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 		decRK = decryptionKeySchedule_128(encRK);
 		free(encRK);
 		for(j = 0; j < blockCount; j ++)
+		{
 			aes_128_decrypt( (plaintext + j*16), (plaintext + j*16), decRK );
+		}
 		free(decRK);
 	}
+
+	printf("5}}}\n");
+	fflush(stdout);
 
 	return plaintext;
 }
