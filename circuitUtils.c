@@ -170,22 +170,27 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sock
 }
 
 
-void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates )
+void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execOrder )
 {
-	int i, j;
+	int i, j, gateID;
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( NULL != inputCircuit[i] -> gatePayload )
+		printf("%d\n", i);
+		fflush(stdout);
+		gateID = execOrder[i];
+		if( NULL != inputCircuit[gateID] -> gatePayload )
 		{
-			printf("--> %d + ", i);
-			for(j = 0; j < inputCircuit[i] -> gatePayload -> numInputs; j ++)
+			printf("%d -> ", gateID);
+			fflush(stdout);
+			
+			for(j = 0; j < inputCircuit[gateID] -> gatePayload -> numInputs; j ++)
 			{
-				printf("%d, ", inputCircuit[i] -> gatePayload -> inputIDs[j]);
+				printf("%d, ", inputCircuit[gateID] -> gatePayload -> inputIDs[j]);
 			}
 			printf("\n");
 			fflush(stdout);
-			decryptGate(inputCircuit[i], inputCircuit);
+			decryptGate(inputCircuit[gateID], inputCircuit);
 		}
 	}
 }

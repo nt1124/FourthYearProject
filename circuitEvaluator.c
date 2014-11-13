@@ -28,6 +28,7 @@ int compilationOfTests()
 
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
+	int *execOrder;
     int writeSocket, readSocket, mainWriteSock, mainReadSock, i;
     int writePort = atoi(portNumStr), readPort = writePort + 1;
 	int numGates;
@@ -39,7 +40,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     printf("Executor has connected to us.\n");
 
 	// struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates);
-	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
 	
 	readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
@@ -102,15 +103,16 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
+	int *execOrder;
 	int numGates;
-	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder, 1);
 	int i;
 
 
-	readInputDetailsFileBuilder( builderInput, inputCircuit );
-	readInputDetailsFileBuilder( execInput, inputCircuit );
+	// readInputDetailsFileBuilder( builderInput, inputCircuit );
+	// readInputDetailsFileBuilder( execInput, inputCircuit );
 
-	runCircuitLocal( inputCircuit, numGates );
+	runCircuitLocal( inputCircuit, numGates, execOrder );
 	printAllOutput(inputCircuit, numGates);
 
 	for(i = 0; i < numGates; i ++)
@@ -127,8 +129,9 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 
 void testRTL_Read(char *circuitFilepath)
 {
+	int *execOrder;
 	int numGates, i;
-	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder, 1);
 
 	printf("--++  %d  ++--\n", numGates);
 	for(i = 0; i < numGates; i ++)

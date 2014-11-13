@@ -39,9 +39,6 @@ unsigned char *decryptMultipleKeys(unsigned char **keyList, int numKeys, unsigne
 	encRK = getUintKeySchedule(keyList[0]);
 	decRK = decryptionKeySchedule_128(encRK);	
 
-	printf("#  %d\n", *toDecrypt);
-	fflush(stdout);
-
 	free(encRK);
 	for(j = 0; j < blockCount; j ++)
 	{

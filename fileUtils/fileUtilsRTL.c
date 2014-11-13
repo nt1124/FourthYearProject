@@ -140,7 +140,7 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
 
 
 // FOR NOW we assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2)
+struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2, int **execOrder)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 	int i;
@@ -148,11 +148,13 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 	for(i = 0; i < numInputs1; i ++)
 	{
 		circuit[i] = initialiseInputWire(i, 0xFF);
+		(*execOrder)[i] = i;
 	}
 
 	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
 	{
 		circuit[i] = initialiseInputWire(i, 0x00);
+		(*execOrder)[i] = i;
 	}
 
 	return circuit;
@@ -160,14 +162,14 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 
 
 
-struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates)
+struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOrder)
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
 	int numInputs1, numInputs2, numOutputs;	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **circuit;
-	int i;
+	int i, execIndex;
 
 	if ( file != NULL )
 	{
@@ -184,7 +186,9 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates)
 		if(NULL == fgets(line, sizeof(line), file))
 			return NULL;
 
-		circuit = initialiseAllInputs(*numGates, numInputs1, numInputs2);
+		*execOrder = (int*) calloc(*numGates, sizeof(int));
+		circuit = initialiseAllInputs(*numGates, numInputs1, numInputs2, execOrder);
+		execIndex = numInputs1 + numInputs2;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
@@ -193,6 +197,8 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates)
 			{
 				gateIndex = tempGateOrWire -> G_ID;
 				*(circuit + gateIndex) = tempGateOrWire;
+				printf("%d  -->  %d\n", execIndex, gateIndex);
+				(*execOrder)[execIndex++] = gateIndex;
 			}
 		}
 
