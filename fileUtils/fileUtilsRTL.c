@@ -197,7 +197,7 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 			{
 				gateIndex = tempGateOrWire -> G_ID;
 				*(circuit + gateIndex) = tempGateOrWire;
-				printf("%d  -->  %d\n", execIndex, gateIndex);
+				// printf("%d  -->  %d\n", execIndex, gateIndex);
 				(*execOrder)[execIndex++] = gateIndex;
 			}
 		}

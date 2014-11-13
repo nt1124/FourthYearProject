@@ -103,17 +103,23 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
-	int *execOrder;
+	int *execOrder = NULL;
 	int numGates;
-	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder, 1);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+	// struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates, &execOrder);
 	int i;
 
 
-	// readInputDetailsFileBuilder( builderInput, inputCircuit );
-	// readInputDetailsFileBuilder( execInput, inputCircuit );
+	readInputDetailsFileBuilder( builderInput, inputCircuit );
+	readInputDetailsFileBuilder( execInput, inputCircuit );
+
+	for(i = 0; i < numGates; i ++)
+	{
+		printGateOrWire(inputCircuit[i]);
+	}
 
 	runCircuitLocal( inputCircuit, numGates, execOrder );
-	printAllOutput(inputCircuit, numGates);
+	// printAllOutput(inputCircuit, numGates);
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -131,7 +137,7 @@ void testRTL_Read(char *circuitFilepath)
 {
 	int *execOrder;
 	int numGates, i;
-	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder, 1);
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
 
 	printf("--++  %d  ++--\n", numGates);
 	for(i = 0; i < numGates; i ++)

@@ -174,13 +174,20 @@ struct gateOrWire *processGateLineFP(char *line, struct gateOrWire **circuit)
 }
 
 
-struct gateOrWire **readInCircuitFP(char* filepath, int *numGates)
+struct gateOrWire **readInCircuitFP(char* filepath, int *numGates, int **execOrder)
 {
 	*numGates = count_lines_of_file(filepath);
-
+	int execIndex = 0, i;
 	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(*numGates, sizeof(struct gateOrWire*));
+	
+	*execOrder = (int*) calloc(*numGates, sizeof(int));
+
+	for(i = 0; i < *numGates; i ++)
+	{
+		(*execOrder)[i] = i;
+	}
 
 	FILE *file = fopen ( filepath, "r" );
 	if ( file != NULL )

@@ -29,7 +29,7 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	if(NULL != inputGW -> gatePayload)
 	{
 		printf("numInputs			=  %d\n", inputGW -> gatePayload -> numInputs);
-		printf("outputTableSize 	=  %d\n", inputGW -> gatePayload -> outputTableSize);
+		printf("outputTableSize 		=  %d\n", inputGW -> gatePayload -> outputTableSize);
 
 		for(i = 0; i < inputGW -> gatePayload -> numInputs; i ++)
 			printf("inputIDs[%d]			=  %d\n", i, inputGW -> gatePayload -> inputIDs[i]);
@@ -46,6 +46,7 @@ void printGateOrWire(struct gateOrWire *inputGW)
 			printf("\n");
 		}
 	}
+	printf("\n");
 }
 
 unsigned char **recursiveOutputTable(struct gate *curGate)

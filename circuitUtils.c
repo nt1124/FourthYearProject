@@ -176,11 +176,12 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execO
 
 	for(i = 0; i < numGates; i ++)
 	{
-		printf("%d\n", i);
-		fflush(stdout);
+		// printf("%d\n", i);
+		// fflush(stdout);
 		gateID = execOrder[i];
 		if( NULL != inputCircuit[gateID] -> gatePayload )
 		{
+			/*
 			printf("%d -> ", gateID);
 			fflush(stdout);
 			
@@ -190,6 +191,7 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execO
 			}
 			printf("\n");
 			fflush(stdout);
+			*/
 			decryptGate(inputCircuit[gateID], inputCircuit);
 		}
 	}
