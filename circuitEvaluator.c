@@ -113,23 +113,39 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 	readInputDetailsFileBuilder( builderInput, inputCircuit );
 	readInputDetailsFileBuilder( execInput, inputCircuit );
 
-	for(i = 0; i < numGates; i ++)
-	{
-		printGateOrWire(inputCircuit[i]);
-	}
-
 	runCircuitLocal( inputCircuit, numGates, execOrder );
-	// printAllOutput(inputCircuit, numGates);
+	printAllOutput(inputCircuit, numGates);
 
 	for(i = 0; i < numGates; i ++)
 	{
-		// printf("+++++  Gate %02d  +++++\n", i);
-		// testSerialisation(inputCircuit[i]);
-		// printf("\n");
 		freeGateOrWire(inputCircuit[i]);
 	}
 
 	free(inputCircuit);
+}
+
+
+void testRunZeroedInput(char *circuitFilepath)
+{
+	int *execOrder = NULL;
+	int numGates;
+	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+	int i;
+
+	
+	zeroAllInputs(inputCircuit, numGates);
+
+	runCircuitLocal( inputCircuit, numGates, execOrder );
+	printAllOutput(inputCircuit, numGates);
+
+	for(i = 0; i < numGates; i ++)
+	{
+		freeGateOrWire(inputCircuit[i]);
+	}
+
+	free(inputCircuit);
+
+	testAES_Zeroed();
 }
 
 
@@ -175,9 +191,10 @@ int main(int argc, char *argv[])
 	char *circuitFilepath = argv[1];
 	// int builder = atoi(argv[5]);
 
-	runLocally(circuitFilepath, argv[2], argv[3]);
+	// runLocally(circuitFilepath, argv[2], argv[3]);
 	// testRTL_Read(circuitFilepath);
 	// testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+	testRunZeroedInput(circuitFilepath);
 
 	return 0;
 }

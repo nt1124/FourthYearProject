@@ -19,6 +19,27 @@ int getNumGW(char *line)
 */
 
 
+// Function for use in testing, will set all inputs to zero and
+// initialise accordingly.
+void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
+{
+	struct wire* outputWire;
+	int i;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		outputWire = inputCircuit[i] -> outputWire;
+
+		outputWire -> wireOwner = 0xFF;
+		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
+		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
+		
+		if(0xF0 != inputCircuit[i] -> outputWire -> wireMask)
+			break;
+	}
+}
+
+
 // Returns an integer value when given a string with index pointing to start
 // of the integer to read. Assumes delimtation by spaces.
 int getIntFromString(char *inputStr, int& strIndex)
@@ -58,7 +79,7 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 	if('I' == gateType)
 	{
 		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
-		toReturn -> rawOutputTable[1] = 1;
+		toReturn -> rawOutputTable[0] = 1;
 	}
 	else
 	{

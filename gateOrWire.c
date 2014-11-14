@@ -3,41 +3,48 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	int i, j;
 	unsigned char *temp;
 
-	printf("G_ID				=  %d\n", inputGW -> G_ID);
-	printf("Wire Mask			=  %02X\n", inputGW -> outputWire -> wireMask);
-	printf("Wire Owner			=  %02X\n", inputGW -> outputWire -> wireOwner);
-	printf("Wire Perm			=  %02X\n", inputGW -> outputWire -> wirePerm);
-	printf("Out key 			=  ");
+	printf("G_ID                    =  %d\n", inputGW -> G_ID);
+	printf("Wire Mask               =  %02X\n", inputGW -> outputWire -> wireMask);
+	printf("Wire Owner              =  %02X\n", inputGW -> outputWire -> wireOwner);
+	printf("Wire Perm               =  %02X\n", inputGW -> outputWire -> wirePerm);
+	printf("Wire Value              =  %02X\n", inputGW -> outputWire -> wirePermedValue);
+	printf("Out key                 =  ");
 	for(i = 0; i < 16; i ++)
 		printf("%02X", inputGW -> outputWire -> wireOutputKey[i]);
 	printf("\n");
+	fflush(stdout);
+
 
 	if(0x00 == inputGW -> outputWire -> wireOwner &&
 	   0xF0 == inputGW -> outputWire -> wireMask)
 	{
-		printf("key0 				=  ");
+		printf("key0                 =  ");
 		for(i = 0; i < 16; i ++)
 			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key0[i]);
 		printf("\n");
+		fflush(stdout);
 
-		printf("key1 				=  ");
+		printf("key1                 =  ");
 		for(i = 0; i < 16; i ++)
 			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key1[i]);
 		printf("\n");
+		fflush(stdout);
 	}
 
 	if(NULL != inputGW -> gatePayload)
 	{
-		printf("numInputs			=  %d\n", inputGW -> gatePayload -> numInputs);
-		printf("outputTableSize 		=  %d\n", inputGW -> gatePayload -> outputTableSize);
+		printf("numInputs               =  %d\n", inputGW -> gatePayload -> numInputs);
+		printf("outputTableSize         =  %d\n", inputGW -> gatePayload -> outputTableSize);
+		fflush(stdout);
 
 		for(i = 0; i < inputGW -> gatePayload -> numInputs; i ++)
-			printf("inputIDs[%d]			=  %d\n", i, inputGW -> gatePayload -> inputIDs[i]);
+			printf("inputIDs[%d]             =  %d\n", i, inputGW -> gatePayload -> inputIDs[i]);
+		fflush(stdout);
 
 		temp = (unsigned char*) calloc(32, sizeof(unsigned char));
 		for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
 		{
-			printf("encOutputTable[%d]		=  ", i);
+			printf("encOutputTable[%d]       =  ", i);
 			memcpy(temp, inputGW -> gatePayload -> encOutputTable[i], 32);
 			for(j = 0; j < 32; j ++)
 			{
@@ -45,8 +52,10 @@ void printGateOrWire(struct gateOrWire *inputGW)
 			}
 			printf("\n");
 		}
+		fflush(stdout);
 	}
-	printf("\n");
+	printf("########################\n");
+	fflush(stdout);
 }
 
 unsigned char **recursiveOutputTable(struct gate *curGate)

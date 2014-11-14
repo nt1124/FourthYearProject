@@ -90,4 +90,21 @@ void testAES()
 }
 
 
+void testAES_Zeroed()
+{
+	unsigned char *encKeyList[1];
+	unsigned char *message = (unsigned char*) calloc(16, sizeof(unsigned char));
+	unsigned char *ciphertext;
+	int i;
 
+	encKeyList[0] = (unsigned char*) calloc(16, sizeof(unsigned char));
+	ciphertext = encryptMultipleKeys(encKeyList, 1, message, 1);
+
+	for(i = 0; i < 16; i ++)
+		printf("%02X", message[i]);
+	printf("\n");
+
+	for(i = 0; i < 16; i ++)
+		printf("%02X", ciphertext[i]);
+	printf("\n");
+}
