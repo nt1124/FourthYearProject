@@ -1,4 +1,4 @@
-
+// This needs -maes to compile correctly.
 /**********************
  *      C Version     *
  **********************/

@@ -101,10 +101,6 @@ void testAES_Zeroed()
 	ciphertext = encryptMultipleKeys(encKeyList, 1, message, 1);
 
 	for(i = 0; i < 16; i ++)
-		printf("%02X", message[i]);
-	printf("\n");
-
-	for(i = 0; i < 16; i ++)
 		printf("%02X", ciphertext[i]);
 	printf("\n");
 }

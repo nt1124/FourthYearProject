@@ -117,13 +117,13 @@ struct idAndValue *readInputDetailsFileExec(char *filepath, struct gateOrWire **
 }
 
 
-void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath )
+void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath, int *execOrder )
 {
 	unsigned char *tempBuffer;
 	struct idAndValue *start, *temp;
-	int i, outputLength = 0, j;
-    gmp_randstate_t *state = seedRandGen();
-    struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
+	int i, gateID, outputLength = 0, j;
+	gmp_randstate_t *state = seedRandGen();
+	struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 
 
 	start = readInputDetailsFileExec(filepath, inputCircuit, sockfd);
@@ -137,8 +137,8 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 		i = start -> id;
 		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
 		
-		tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
-		// tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
+		// tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
+		tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
 
 		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
@@ -147,9 +147,10 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 
 	for(i = 0; i < numGates; i ++)
 	{
-		if( NULL != inputCircuit[i] -> gatePayload )
+		gateID = execOrder[i];
+		if( NULL != inputCircuit[gateID] -> gatePayload )
 		{
-			decryptGate(inputCircuit[i], inputCircuit);
+			decryptGate(inputCircuit[gateID], inputCircuit);
 		}
 	}
 }
@@ -185,7 +186,6 @@ void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execO
 }
 
 
-
 void sendGate(struct gateOrWire *inputGW, int writeSocket)
 {
 	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
@@ -206,11 +206,18 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket)
 }
 
 
-void sendCircuit(struct gateOrWire **inputCircuit, int numGates, int writeSocket)
+void sendCircuit(int writeSocket, struct gateOrWire **inputCircuit, int numGates, int *execOrder)
 {
-	int i;
+	unsigned char *execOrderBuffer;
+	int i, bufferLength = numGates * sizeof(int);
 	
+	execOrderBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	memcpy(execOrderBuffer, execOrder, numGates * sizeof(int));
+
 	sendInt(writeSocket, numGates);
+
+	sendInt(writeSocket, bufferLength);
+	send(writeSocket, execOrderBuffer, bufferLength);
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -228,6 +235,21 @@ int receiveNumGates(int readSocket)
 	numGates = receiveInt(readSocket);
 
 	return numGates;
+}
+
+
+int *receiveExecOrder(int readSocket, int numGates)
+{
+	unsigned char *buffer;
+	int *toReturn = (int*) calloc(numGates, sizeof(int));
+	int bufferLength;
+
+	bufferLength = receiveInt(readSocket);
+	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	receive(readSocket, buffer, bufferLength);
+	memcpy(toReturn, buffer, bufferLength);
+
+	return toReturn;
 }
 
 

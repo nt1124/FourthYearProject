@@ -1,6 +1,8 @@
 	To Do
 
-	- Add permutation to output tables.
-	- Serialise Gates/Wires/Circuit.
-	- Send serialisation by socket.
+	- Collapse inversions.
+	- Free-XOR.
+	- Uni-directional sockets.
+	- Interweaving of sockets and computation.
+	- Split Executor and Builder into separate files.
 	- 

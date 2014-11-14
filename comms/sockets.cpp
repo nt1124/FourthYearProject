@@ -114,7 +114,7 @@ void close_server_socket(int consocket, int main_socket)
 }
 
 
-void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sockaddr_in& dest)
+void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sockaddr_in &dest)
 {
     mysocket = socket(AF_INET, SOCK_STREAM, 0);
     if(mysocket < 0)
@@ -180,7 +180,7 @@ void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sock
 
         if (ai->ai_family == AF_INET)
         {
-            memcpy((char *)&dest.sin_addr.s_addr,addr4,sizeof(in_addr));
+            memcpy((char *)&dest.sin_addr.s_addr, addr4, sizeof(in_addr));
             continue;
         }
     }
@@ -196,6 +196,7 @@ void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sock
         }
     }
     while (fl == -1 && errno == ECONNREFUSED);
+
 
     if(fl < 0)
     {
