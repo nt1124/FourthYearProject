@@ -106,9 +106,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 	int *execOrder = NULL;
 	int numGates;
 	struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
-	// struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates, &execOrder);
 	int i;
-
 
 	readInputDetailsFileBuilder( builderInput, inputCircuit );
 	readInputDetailsFileBuilder( execInput, inputCircuit );
