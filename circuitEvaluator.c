@@ -74,7 +74,7 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     readPort = atoi(portNumStr);
     writePort = writePort + 1;
-    
+
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     // set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
@@ -99,7 +99,7 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     free(inputCircuit);
 
     msec = (clock() - startClock) * 1000 / CLOCKS_PER_SEC;
-    printf("Time taken %d seconds %d milliseconds\n", msec / 1000, msec % 1000);
+    printf("Total time taken %d seconds %d milliseconds\n", msec / 1000, msec % 1000);
 }
 
 

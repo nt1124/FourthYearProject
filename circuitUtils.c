@@ -20,7 +20,6 @@ void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 {
 	int strIndex = 0, gateID = 0;
-	char *curCharStr = (char*) calloc( 2, sizeof(char) );
 	struct wire *outputWire;
 
 	while( ' ' != line[strIndex++] ){}
@@ -28,8 +27,7 @@ void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 	while( ' ' != line[strIndex] )
 	{
 		gateID *= 10;
-		curCharStr[0] = line[strIndex];
-		gateID += atoi(curCharStr);
+		gateID += line[strIndex] - 48;
 		strIndex ++;
 	}
 	strIndex ++;
@@ -47,8 +45,6 @@ void readInputLinesBuilder(char *line, struct gateOrWire **inputCircuit)
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
 		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 	}
-
-	free(curCharStr);
 }
 
 
@@ -67,39 +63,40 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 }
 
 
-struct idAndValue *readInputLinesExec(char *line, struct gateOrWire **inputCircuit, int sockfd)
+void readInputLinesExec(int sockfd, char *line, struct gateOrWire **inputCircuit,
+									gmp_randstate_t *state, struct rsaPrivKey *SKi)
 {
-	struct idAndValue *toReturn = (struct idAndValue*) calloc(1, sizeof(struct idAndValue));
 	int strIndex = 0, gateID = 0, outputLength = 0, i;
-	char *curCharStr = (char*) calloc( 2, sizeof(char) );
-	struct wire *outputWire;
+	unsigned char *tempBuffer;
+	unsigned char value;
 
 	while( ' ' != line[strIndex++] ){}
 	while( ' ' != line[strIndex] )
 	{
 		gateID *= 10;
-		curCharStr[0] = line[strIndex];
-		gateID += atoi(curCharStr);
+		gateID += line[strIndex] - 48;
 		strIndex ++;
 	}
 	strIndex ++;
 
-	toReturn -> id = gateID;
 	if( '1' == line[strIndex] )
-		toReturn -> value = 1;
+		value = 0x01;
 	else if( '0' == line[strIndex] )
-		toReturn -> value = 0;
+		value = 0x00;
 
-	free(curCharStr);
+	inputCircuit[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit[gateID] -> outputWire -> wirePerm & 0x01);
 
-	return toReturn;
+	tempBuffer = receiverOT_Toy(sockfd, value, &outputLength);
+	// tempBuffer = receiverOT_SH_RSA(SKi, state, sockfd, value, &outputLength);
+	memcpy(inputCircuit[gateID] -> outputWire -> wireOutputKey, tempBuffer, 16);
+
+	free(tempBuffer);
 }
 
 
-struct idAndValue *readInputDetailsFileExec(char *filepath, struct gateOrWire **inputCircuit, int sockfd)
+void readInputDetailsFileExec(int sockfd, char *filepath, struct gateOrWire **inputCircuit,
+											gmp_randstate_t *state, struct rsaPrivKey *SKi)
 {
-	struct idAndValue *start = (struct idAndValue*) calloc(1, sizeof(struct idAndValue));
-	struct idAndValue *insertion = start;
 	FILE *file = fopen ( filepath, "r" );
 
 	if ( file != NULL )
@@ -107,43 +104,21 @@ struct idAndValue *readInputDetailsFileExec(char *filepath, struct gateOrWire **
 		char line [ 512 ];
 		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
-			insertion -> next = readInputLinesExec(line, inputCircuit, sockfd);
-			insertion = insertion -> next;
+			readInputLinesExec(sockfd, line, inputCircuit, state, SKi);
 		}
 		fclose ( file );
 	}
-
-	return start;
 }
 
 
 void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath, int *execOrder )
 {
 	unsigned char *tempBuffer;
-	struct idAndValue *start, *temp;
 	int i, gateID, outputLength = 0, j;
 	gmp_randstate_t *state = seedRandGen();
 	struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 
-
-	start = readInputDetailsFileExec(filepath, inputCircuit, sockfd);
-
-	while(NULL != start -> next)
-	{
-		temp = start;
-		start = start -> next;
-		free(temp);
-
-		i = start -> id;
-		inputCircuit[i] -> outputWire -> wirePermedValue = start -> value ^ (inputCircuit[i] -> outputWire -> wirePerm & 0x01);
-		
-		// tempBuffer = receiverOT_Toy(sockfd, start -> value, &outputLength);
-		tempBuffer =  receiverOT_SH_RSA(SKi, state, sockfd, start -> value, &outputLength);
-
-		memcpy(inputCircuit[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
-		free(tempBuffer);
-	}
-	free(start);
+	readInputDetailsFileExec(sockfd, filepath, inputCircuit, state, SKi);
 
 	for(i = 0; i < numGates; i ++)
 	{

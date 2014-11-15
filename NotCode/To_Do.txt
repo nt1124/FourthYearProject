@@ -1,8 +1,8 @@
-	To Do
+	--+ To Do +--
 
 	- Collapse inversions.
 	- Free-XOR.
 	- Uni-directional sockets.
-	- Interweaving of sockets and computation.
+	+ Interweaving of sockets and computation.
 	- Split Executor and Builder into separate files.
 	- 

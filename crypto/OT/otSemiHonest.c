@@ -19,24 +19,6 @@ Send runs the following protocol:
 	OUTPUT nothing
 */
 
-class otSemiHonestSender : public otBaseSender
-{
-		void 	preCompute();
-		int  	send(unsigned char *buffer, int bufferSize);	// Will need to also pass a socket in future
-		int 	listen(unsigned char *buffer, int bufferSize);	// Ditto
-		int 	transfer();
-
-		mpz_t dlogGroupOrder;
-		mpz_t gen;
-
-		mpz_t qMinusOne;
-		gmp_randstate_t state;
-
-		private:
-			void otSemiHonestSender::computeU(mpz_t *u, mpz_t r);
-			void otSemiHonestSender::computeK0(mpz_t *k0, mpz_t r, mpz_t message);
-			void otSemiHonestSender::computeK1(mpz_t *k1, mpz_t r, mpz_t message);
-};
 
 
 void preCompute()
@@ -51,13 +33,13 @@ void preCompute()
 }
 
 
-int otSemiHonestSender::send(unsigned char *buffer, int bufferSize)
+int send(unsigned char *buffer, int bufferSize)
 {
 
 }
 
 
-int otSemiHonestSender::transfer(mpz_t message)
+int transfer(mpz_t message)
 {
 	//WAIT for message (h0,h1) from R
 	
@@ -81,27 +63,27 @@ int otSemiHonestSender::transfer(mpz_t message)
 }
 
 
-void otSemiHonestSender::computeU(mpz_t *u, mpz_t r)
+void computeU(mpz_t *u, mpz_t r)
 {
 	//Calculate u = g^r.
 	mpz_powm(*u, gen, r, dlogGroupOrder);
 }
 
-void otSemiHonestSender::computeK0(mpz_t *k0, mpz_t r, mpz_t h0)
+void computeK0(mpz_t *k0, mpz_t r, mpz_t h0)
 {
 	//Calculate k0 = h0^r.
 	mpz_powm(*k0, h0, r, dlogGroupOrder);
 }
 
 
-void otSemiHonestSender::computeK1(mpz_t *k1, mpz_t r, mpz_t h1) 
+void computeK1(mpz_t *k1, mpz_t r, mpz_t h1) 
 {	
 	//Calculate k1 = h1^r.
 	mpz_powm(*k1, h1, r, dlogGroupOrder);
 }
 
 
-int otSemiHonestSender::otSemiHonestSender()
+int otSemiHonestSender()
 {
     unsigned long int seed = time(NULL);
     gmp_randinit_default(state);
