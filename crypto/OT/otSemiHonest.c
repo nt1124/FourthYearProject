@@ -1,7 +1,5 @@
-#include "crypto/OT/otBase.cpp"
-#include "crypto/gmpUtils.cpp"
+#include "crypto/gmpUtils.c"
 
-#include <gmp.h>
 
 /*	
 Send runs the following protocol:
@@ -15,13 +13,13 @@ Send runs the following protocol:
 		+	k1 = h1^r
 		+	v1 = x1 XOR KDF(|x1|,k1) - in byteArray scenario.
 				OR x1*k1 			 - in GroupElement scenario.
-	SEND (u,v0,v1) to R
+	SEND (u, v0, v1) to R
 	OUTPUT nothing
 */
 
 
 
-void preCompute()
+void preCompute(gmp_randstate_t *state)
 {
 	mpz_init(dlogGroupOrder);
 	mpz_init(gen);
@@ -39,46 +37,50 @@ int send(unsigned char *buffer, int bufferSize)
 }
 
 
-int transfer(mpz_t message)
+int transfer(int readSocket, gmp_randstate_t *state, mpz_t q)
 {
-	//WAIT for message (h0,h1) from R
+	unsigned char *h0Buffer, *h1Buffer;
+	int h0Length, h1Length;
+
+	//WAIT for message (h0, h1) from R
+	h0Buffer = receiveBoth(readSocket, h0Length);
+	h1Buffer = receiveBoth(readSocket, h1Length);
 	
-	//SAMPLE a random value r in  [0, . . . , q-1] 
+	//SAMPLE a random value r in  [0, ..., q-1] 
 	mpz_t r, u, k0, k1;
-	mpz_init(r);
-	mpz_init(u);
-	mpz_init(k0);
-	mpz_init(k1);
+	mpz_init(r);	mpz_init(u);
+	mpz_init(k0);	mpz_init(k1);
 
 	mpz_urandomm(r, state, qMinusOne);
 	
 	//Compute u, k0, k1
-	computeU(u, r);
+	computeU(u, r, q);
 	computeK0(k0, r, message);
 	computeK1(k1, r, message);
 	
-	// OTSMsg messageToSend = computeTuple(input, u, k0, k1);
-	// sendTupleToReceiver(channel, messageToSend);
+	// k0 = h0 ^ r;		v0 = x0 * k0;
+	// k1 = h1 ^ r;		v1 = x1 * k1;
+
 	// Send our reply!
 }
 
 
 void computeU(mpz_t *u, mpz_t r)
 {
-	//Calculate u = g^r.
+	//Calculate u = g ^ r.
 	mpz_powm(*u, gen, r, dlogGroupOrder);
 }
 
 void computeK0(mpz_t *k0, mpz_t r, mpz_t h0)
 {
-	//Calculate k0 = h0^r.
+	//Calculate k0 = h0 ^ r.
 	mpz_powm(*k0, h0, r, dlogGroupOrder);
 }
 
 
 void computeK1(mpz_t *k1, mpz_t r, mpz_t h1) 
 {	
-	//Calculate k1 = h1^r.
+	//Calculate k1 = h1 ^ r.
 	mpz_powm(*k1, h1, r, dlogGroupOrder);
 }
 
@@ -93,6 +95,7 @@ int otSemiHonestSender()
 }
 
 
+/*
 // OTSMsg
 void computeTuple(OTSInput input, mpz_t u, mpz_t k0, mpz_t k1)
 {
@@ -129,7 +132,7 @@ void computeTuple(OTSInput input, mpz_t u, mpz_t k0, mpz_t k1)
 	byte[] k1Bytes = dlog.mapAnyGroupElementToByteArray(k1);
 	byte[] v1 = kdf.deriveKey(k1Bytes, 0, k1Bytes.length, len).getEncoded();
 	
-	//Xores the result from the kdf with x1.
+	//XORs the result from the KDF with x1.
 	for(int i = 0; i < len; i ++)
 	{
 		v1[i] = (byte) (v1[i] ^ x1[i]);
@@ -138,6 +141,7 @@ void computeTuple(OTSInput input, mpz_t u, mpz_t k0, mpz_t k1)
 	//Create and return sender message.
 	return new OTSemiHonestDDHOnByteArraySenderMsg(u.generateSendableData(), v0, v1);
 }
+*/
 
 
 /*	
