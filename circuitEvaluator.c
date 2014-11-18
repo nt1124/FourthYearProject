@@ -28,11 +28,13 @@ int compilationOfTests()
 
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
-    int *execOrder;
-    int writeSocket, readSocket, mainWriteSock, mainReadSock, i;
-    int writePort = atoi(portNumStr), readPort = writePort + 1;
-    int numGates;
+    unsigned char *nBytes;
+    mpz_t *N = (mpz_t*) calloc(1, sizeof(mpz_t));
     struct sockaddr_in destWrite, destRead;
+    int *execOrder;
+    int writeSocket, readSocket, mainWriteSock, mainReadSock;
+    int writePort = atoi(portNumStr), readPort = writePort + 1;
+    int numGates, i, nLength;
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
     // set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -43,10 +45,14 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
+    mpz_init(*N);
+    // nBytes = receiveBoth(writeSocket, nLength);
+    // convertBytesToMPZAlt(N, nBytes, nLength);
+
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
 
-    runCircuitBuilder( inputCircuit, numGates, writeSocket );
+    runCircuitBuilder( inputCircuit, numGates, writeSocket, *N );
 
     close_server_socket(writeSocket, mainWriteSock);
     // close_server_socket(readSocket, mainReadSock);
@@ -56,6 +62,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
         freeGateOrWire(inputCircuit[i]);
     }
     free(inputCircuit);
+    free(N);
 }
 
 
@@ -70,7 +77,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct sockaddr_in serv_addr_read;
     int numGates = 0, i;
     struct gateOrWire **inputCircuit;
-
 
     readPort = atoi(portNumStr);
     writePort = writePort + 1;
@@ -183,7 +189,7 @@ void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
     }
 }
 
-
+// Useage. Circuit, IP, Port, Input file, builder flag
 int main(int argc, char *argv[])
 {
     srand( time(NULL) );

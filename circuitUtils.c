@@ -86,8 +86,8 @@ void readInputLinesExec(int sockfd, char *line, struct gateOrWire **inputCircuit
 
 	inputCircuit[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit[gateID] -> outputWire -> wirePerm & 0x01);
 
-	tempBuffer = receiverOT_Toy(sockfd, value, &outputLength);
-	// tempBuffer = receiverOT_SH_RSA(SKi, state, sockfd, value, &outputLength);
+	// tempBuffer = receiverOT_Toy(sockfd, value, &outputLength);
+	tempBuffer = receiverOT_SH_RSA(SKi, state, sockfd, value, &outputLength);
 	memcpy(inputCircuit[gateID] -> outputWire -> wireOutputKey, tempBuffer, 16);
 
 	free(tempBuffer);
@@ -114,9 +114,13 @@ void readInputDetailsFileExec(int sockfd, char *filepath, struct gateOrWire **in
 void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd, char *filepath, int *execOrder )
 {
 	unsigned char *tempBuffer;
-	int i, gateID, outputLength = 0, j;
+	int i, gateID, outputLength = 0, j, nLength;
 	gmp_randstate_t *state = seedRandGen();
 	struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
+	unsigned char *nBytes;
+
+	// nBytes = convertMPZToBytesAlt(SKi -> N, &nLength);
+	// sendBoth(sockfd, (octet*) nBytes, nLength);
 
 	readInputDetailsFileExec(sockfd, filepath, inputCircuit, state, SKi);
 
@@ -131,7 +135,7 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 }
 
 
-void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sockfd )
+void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sockfd, mpz_t N )
 {
 	int i;
 
@@ -140,7 +144,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sock
 		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
 			0xF0 == inputCircuit[i] -> outputWire -> wireMask )
 		{
-			provideKeyForGate(inputCircuit[i], sockfd);
+			provideKeyForGate(inputCircuit[i], sockfd, N);
 		}
 	}
 }
