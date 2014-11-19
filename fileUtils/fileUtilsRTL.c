@@ -103,14 +103,31 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 	}
 	else
 	{	
-		if('A' == gateType)
+		if('1' == gateType)
 		{
 			toReturn -> rawOutputTable[3] = 1;
+		}
+		else if('2' == gateType)
+		{
+			toReturn -> rawOutputTable[2] = 1;
+		}
+		else if('3' == gateType)
+		{
+			toReturn -> rawOutputTable[1] = 1;
+		}
+		else if('4' == gateType)
+		{
+			toReturn -> rawOutputTable[0] = 1;
 		}
 		else if('X' == gateType)
 		{
 			toReturn -> rawOutputTable[1] = 1;
 			toReturn -> rawOutputTable[2] = 1;
+		}
+		else if('N' == gateType)
+		{
+			toReturn -> rawOutputTable[0] = 1;
+			toReturn -> rawOutputTable[3] = 1;
 		}
 	}
 	// toReturn -> rawOutputTable = getRawOutputTable(gateType, inputIDs, circuit)
@@ -133,6 +150,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+
 	encWholeOutTable(toReturn, circuit);
 
 	return toReturn;
@@ -144,6 +162,7 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
 	int *inputIDs;
+	unsigned char gateType;
 
 	numInputWires = getIntFromString(line, strIndex);
 
@@ -157,8 +176,15 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 	}
 
 	idNum = getIntFromString(line, strIndex);
+	gateType = line[strIndex];
+	fflush(stdout);
 
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit);
+	if('A' == gateType)
+	{
+		gateType = line[strIndex + 3];
+	}
+
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, gateType, circuit);
 }
 
 
