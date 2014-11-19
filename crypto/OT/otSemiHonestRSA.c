@@ -24,12 +24,12 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	// We get PK0, PK1 from receiver here. Receive!
 	n0Bytes = receiveBoth(writeSocket, n0Length);
 	e0Bytes = receiveBoth(writeSocket, e0Length);
-	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
-	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
+	n1Bytes = receiveBoth(writeSocket, n1Length);
+	e1Bytes = receiveBoth(writeSocket, e1Length);
 
-	n1Bytes= receiveBoth(writeSocket, n1Length);
-	e1Bytes= receiveBoth(writeSocket, e1Length);
+	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
+	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
 	// PK1 = bytesToPubKeyAlt(N, e1Bytes, e1Length);
 
 	enc0Num = encRSA(*input0, PK0);

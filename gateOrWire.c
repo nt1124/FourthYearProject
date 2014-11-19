@@ -56,7 +56,23 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	}
 }
 
+
 unsigned char **recursiveOutputTable(struct gate *curGate)
+{
+	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
+	int i;
+
+	for(i = 0; i < curGate -> outputTableSize; i ++)
+	{
+		toReturn[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
+		toReturn[i][16] = curGate -> rawOutputTable[i];
+	}
+
+	return toReturn;
+}
+
+
+unsigned char **recursiveOutputTableAlt(struct gate *curGate)
 {
 	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
 	int i;

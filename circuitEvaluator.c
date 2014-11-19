@@ -3,27 +3,40 @@
 #include <string.h>
 #include <time.h>
 
-#include "circuitUtils.h"
+#include "circuitBuilder.h"
+#include "circuitExecutor.h"
 
 
-int compilationOfTests()
+void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 {
-    // testAES();
-    // testElgamal();
-    // testRSA();
-    // testByteConvert();
+    int i;
+    unsigned char tempBit;
 
-    /*
     for(i = 0; i < numGates; i ++)
     {
-        printf("+++++  Gate %02d  +++++\n", i);
-        testSerialisation(inputCircuit[i]);
-        printf("\n");
+        if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
+        {
+            tempBit = inputCircuit[i] -> outputWire -> wirePermedValue;
+            tempBit = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
+            printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, tempBit);
+        }
     }
-    */
-    return 1;
 }
 
+
+void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execOrder )
+{
+    int i, j, gateID;
+
+    for(i = 0; i < numGates; i ++)
+    {
+        gateID = execOrder[i];
+        if( NULL != inputCircuit[gateID] -> gatePayload )
+        {
+            decryptGate(inputCircuit[gateID], inputCircuit);
+        }
+    }
+}
 
 
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
@@ -45,12 +58,12 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
-    mpz_init(*N);
-    // nBytes = receiveBoth(writeSocket, nLength);
-    // convertBytesToMPZAlt(N, nBytes, nLength);
-
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
+
+    mpz_init(*N);
+    nBytes = receiveBoth(writeSocket, nLength);
+    convertBytesToMPZAlt(N, nBytes, nLength);
 
     runCircuitBuilder( inputCircuit, numGates, writeSocket, *N );
 

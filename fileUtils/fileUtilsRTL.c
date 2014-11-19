@@ -1,24 +1,3 @@
-
-/*
-int getNumGW(char *line)
-{
-	int strIndex = 0;
-	int toReturn = 0;
-
-	while( line[++ strIndex] != ' ' ) {}
-	while( line[++ strIndex] == ' ' ) {}
-
-	while( line[strIndex] != ' ')
-	{
-		toReturn *= 10;
-		toReturn += atoi(line[strIndex++]);
-	}
-
-	return toReturn;
-}
-*/
-
-
 // Function for use in testing, will set all inputs to zero and
 // initialise accordingly.
 void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
@@ -62,7 +41,46 @@ int getIntFromString(char *inputStr, int& strIndex)
 }
 
 
-// RTL means the function deals with the Smart/Tillich style input.
+/*
+int *getRawOutputTable(char gateType, int *inputIDs)
+{
+	int *toReturn = (int*) calloc(4, sizeof(int));
+	
+	if('A' == gateType)
+	{
+		toReturn[3] = 1;
+
+		if(0 > inputIDs[0])
+		{
+			toReturn[0] = 1;
+			toReturn[1] = 1;
+		}
+		if(0 > inputIDs[1])
+		{
+			toReturn[2] = 1;
+			toReturn[3] = 0;
+		}
+	}
+	else if('X' == gateType)
+	{
+		toReturn[1] = 1;
+		toReturn[2] = 1;
+
+		if(0 > inputIDs[0])
+		{
+			toReturn[0] = 1;
+			toReturn[1] = 0;
+		}
+		if(0 > inputIDs[1])
+		{
+			toReturn[2] = 0;
+			toReturn[3] = 1;
+		}
+	}
+
+	return toReturn;
+}
+*/
 
 
 struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
@@ -76,14 +94,15 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 		outputTableSize *= 2;
 
 	toReturn -> outputTableSize = outputTableSize;
+	
+	toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
 	if('I' == gateType)
 	{
 		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
 		toReturn -> rawOutputTable[0] = 1;
 	}
 	else
-	{
-		toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
+	{	
 		if('A' == gateType)
 		{
 			toReturn -> rawOutputTable[3] = 1;
@@ -94,9 +113,9 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 			toReturn -> rawOutputTable[2] = 1;
 		}
 	}
+	// toReturn -> rawOutputTable = getRawOutputTable(gateType, inputIDs, circuit)
 
-	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
-
+	toReturn -> encOutputTable = recursiveOutputTableAlt(toReturn);
 
 	return toReturn;
 }
@@ -187,9 +206,9 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
-	int numInputs1, numInputs2, numOutputs;	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **circuit;
+	int numInputs1, numInputs2, numOutputs, gateIndex = 0;
 	int i, execIndex;
 
 	if ( file != NULL )
@@ -216,10 +235,12 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 			tempGateOrWire = processGateLineRTL(line, circuit);
 			if( NULL != tempGateOrWire )
 			{
-				gateIndex = tempGateOrWire -> G_ID;
-				*(circuit + gateIndex) = tempGateOrWire;
-				// printf("%d  -->  %d\n", execIndex, gateIndex);
-				(*execOrder)[execIndex++] = gateIndex;
+				if(1 != tempGateOrWire -> gatePayload -> numInputs)
+				{
+					gateIndex = tempGateOrWire -> G_ID;
+					*(circuit + gateIndex) = tempGateOrWire;
+					(*execOrder)[execIndex++] = gateIndex;
+				}
 			}
 		}
 
@@ -233,3 +254,67 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 
 	return circuit;
 }
+
+
+
+/*
+int isLineINV(char *line, int outputCutoff)
+{
+	int i = 0, idNum, ditchThisNumber, numInputs;
+
+
+	numInputs = getIntFromString(line, strIndex);
+	ditchThisNumber = getIntFromString(line, strIndex);
+	for(i = 0; i < numInputs; i ++)
+		ditchThisNumber = getIntFromString(line, strIndex);
+
+	idNum = getIntFromString(line, strIndex);
+
+	if(idNum < outputCutoff)
+	{
+		while('\0' != line[i])
+		{
+			if('I' == line[i])
+				return 1;
+		}
+	}
+
+	return 0;
+}
+
+
+int numberOfRemovedINVs(char* filepath, int *numGates)
+{
+	FILE *file = fopen ( filepath, "r" );
+	char line [ 512 ];
+	int numInputs1, numInputs2, numOutputs;
+	int countINV = 0, i;
+
+	if ( file != NULL )
+	{
+		if(NULL != fgets(line, sizeof(line), file))
+			sscanf(line, "%d %d", &numInputs1, numGates);
+		else
+			return NULL;
+
+		if(NULL != fgets(line, sizeof(line), file))
+			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &numOutputs);
+		else
+			return NULL;
+
+		if(NULL == fgets(line, sizeof(line), file))
+			return NULL;
+
+
+		// Read a line
+		while ( fgets(line, sizeof(line), file) != NULL )
+		{
+			countINV += isLineINV(line, numGates - numOutputs);
+		}
+
+		fclose ( file );
+	}
+
+	return countINV;
+}
+*/
