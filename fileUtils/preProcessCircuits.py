@@ -31,7 +31,7 @@ for line in fileStr:
 		if( gateID < (numGatesWire - numOutputs) ):
 			invCount += 1
 		readingOrder.append(gateID)
-		gatesDict[gateID] = [0, "INV", int(temp[2]), int(temp[3])]
+		gatesDict[gateID] = [0, "INV", int(temp[2])]
 
 	if("AND" in line or "XOR" in line):
 		temp = line.split(" ")
@@ -44,17 +44,26 @@ outputGate = {}
 
 for gateID in gatesDict.keys():
 	if("INV" in gatesDict[gateID][1]):
-		tempInvCount += 1
-		gatesDict[gateID][0] = gateID - tempInvCount
+		if(gateID >= numGatesWire - numOutputs):
+			tempInvCount += 1
 	else:
 		gatesDict[gateID][0] = gateID - tempInvCount
 
+for gateID in gatesDict.keys():
+	if("INV" in gatesDict[gateID][1]):
+		# This is
+		if(gatesDict[gateID][2] >= numInputs):
+			gatesDict[gateID][0] = gatesDict[gatesDict[gateID][2]][0]
+			gatesDict[gateID][2] = -gatesDict[gateID][0]
+		else:
+			gatesDict[gateID][0] = gatesDict[gateID][2]
+			gatesDict[gateID][2] = gatesDict[gateID][2]
 
 for gateID in gatesDict.keys():
 	if("INV" not in gatesDict[gateID][1]):
 		inputID1 = gatesDict[gateID][2]
 		inputID2 = gatesDict[gateID][3]
-		temp = [gatesDict[gateID][0], gatesDict[gateID][1], inputID1, inputID2]
+		temp = [gatesDict[gateID][0], gatesDict[gateID][1], inputID1, inputID2, 1, 1]
 
 		if(inputID1 >= numInputs):
 			temp[2] = gatesDict[inputID1][0]
@@ -62,31 +71,64 @@ for gateID in gatesDict.keys():
 				if(gatesDict[inputID1][2] >= numInputs):
 					temp[2] = gatesDict[ gatesDict[inputID1][2] ][0]
 
-				temp[2] *= -1
+				temp[4] = -1
 
 		if(inputID2 >= numInputs):
 			temp[3] = gatesDict[inputID2][0]
 			if("INV" in gatesDict[inputID2][1]):
 				if(gatesDict[inputID2][2] >= numInputs):
-					temp[2] = gatesDict[ gatesDict[inputID2][2] ][0]
+					temp[3] = gatesDict[ gatesDict[inputID2][2] ][0]
 
-				temp[3] *= -1
-
+				temp[5] = -1
 		outputGate[gateID] = temp
-
+	else:
+		if(gateID >= numGatesWire - numOutputs):
+			inputID = gatesDict[gateID][2]
+			temp = [inputID, gatesDict[gateID][1], -inputID]
+			if(inputID >= numInputs):
+				temp[0] = gatesDict[inputID][0]
+				temp[3] = -1
+			
+			outputGate[gateID] = temp
 
 
 for key in outputGate.keys():
 	print str(key) + "  -  " + str(outputGate[key])
 
 
-'''
 outs = open( sys.argv[2], "w" )
 outs.write( str(numGates - invCount) + " " + str(numGatesWire - invCount) )
-for line in fileStr:
-	if("INV" not in line):
-		outs.write(line)
 
+for key in outputGate.keys():
+	if("XOR" in outputGate[key][1]):
+		gateID = outputGate[key][0]
+		inputID1 = outputGate[key][2]
+		inputID2 = outputGate[key][3]
+		outputStr = "2 1 " + str(inputID1) + " " + str(inputID2) + " " + str(gateID)
+
+		if(1 == outputGate[key][4] * outputGate[key][5]):
+			outs.write(outputStr + " XOR\n")
+		else:
+			outs.write(outputStr + " NXOR\n")
+	elif("AND" in outputGate[key][1]):
+		gateID = outputGate[key][0]
+		inputID1 = outputGate[key][2]
+		inputID2 = outputGate[key][3]
+		outputStr = "2 1 " + str(inputID1) + " " + str(inputID2) + " " + str(gateID)
+
+		if(1 == outputGate[key][4] and 1 == outputGate[key][5]):
+			outputStr = outputStr + " AND1\n"
+		elif(1 == outputGate[key][4] and -1 == outputGate[key][5]):
+			outputStr = outputStr + " AND2\n"
+		elif(-1 == outputGate[key][4] and 1 == outputGate[key][5]):
+			outputStr = outputStr + " AND3\n"
+		elif(-1 == outputGate[key][4] and -1 == outputGate[key][5]):
+			outputStr = outputStr + " AND4\n"
+		outs.write(outputStr)
+	elif("INV" in outputGate[key][1]):
+		if(key >= numGates - numOutputs):
+			outputStr = "2 1 " + str(outputGate[key][2]) + " " + str(outputGate[key][2]) + " INV\n"
+			outs.write(outputStr)
 
 outs.close()
-'''
+
