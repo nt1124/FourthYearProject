@@ -1,8 +1,5 @@
 import sys
 
-
-
-
 def populateGatesDict(fileStr, gatesDict, readingOrder, numGatesWire, numOutputs):
 	invCount = 0
 	fileStr.pop(0); fileStr.pop(0); fileStr.pop(0)
@@ -76,16 +73,17 @@ def collapseInversionGates(gatesDict, outputGate, numGatesWire, numInputs, numOu
 				outputGate[gateID] = temp
 
 
-def writeGate(outs, outputGate, key, numGates, numOutputs):
-	if("XOR" in outputGate[key][1]):
-		writeXOR(outs, outputGate, key)
+def writeGate(outs, tempDict, key, numGatesWire, numOutputs):
+	print tempDict[key]
+	if("XOR" in tempDict[key][1]):
+		writeXOR(outs, tempDict, key)
 
-	elif("AND" in outputGate[key][1]):
-		writeAND(outs, outputGate, key)
+	elif("AND" in tempDict[key][1]):
+		writeAND(outs, tempDict, key)
 
-	elif("INV" in outputGate[key][1]):
-		if(key >= numGates - numOutputs):
-			outputStr = "2 1 " + str(outputGate[key][2]) + " " + str(outputGate[key][0]) + " INV\n"
+	elif("INV" in tempDict[key][1]):
+		if(key >= numGatesWire - numOutputs):
+			outputStr = "2 1 " + str(tempDict[key][2]) + " " + str(tempDict[key][0]) + " INV\n"
 			outs.write(outputStr)
 
 
@@ -117,9 +115,44 @@ def writeAND(outs, outputGate, key):
 	outs.write(outputStr)
 
 
+
+def recursiveWrite(key, outs, numGatesWire, numOutputs, tempDict, alreadyWritten):
+	writeFlag = 1
+	print key
+
+	if( "INV" not in tempDict[ key ][1] ):
+		inputID1 = tempDict[ key ][2]
+		inputID2 = tempDict[ key ][3]
+
+		if( inputID1 not in alreadyWritten ):
+			writeFlag = 0
+			recursiveWrite(inputID1, outs, numGatesWire, numOutputs, tempDict, alreadyWritten)
+
+		if( inputID2 not in alreadyWritten ):
+			writeFlag = 0
+			recursiveWrite(inputID2, outs, numGatesWire, numOutputs, tempDict, alreadyWritten)
+	
+		if (1 == writeFlag):
+			writeGate(outs, tempDict, key, numGatesWire, numOutputs)
+			alreadyWritten.append(key)
+	else:
+		inputID1 = tempDict[ tempList[0] ][2]
+
+		if( inputID1 not in alreadyWritten ):
+			writeFlag = 0
+			recursiveWrite(inputID1, outs, numGatesWire, numOutputs, tempDict, alreadyWritten)
+	
+		if (1 == writeFlag):
+			writeGate(outs, tempDict, key, numGatesWire, numOutputs)
+			alreadyWritten.append(key)
+
+
 def writeOutput(fileName, numGates, numGatesWire, numInputs1, numInputs2, numOutputs, outputGate, readingOrder, invCount):
 	index = 0
 	alreadyWritten = []
+	tempDict = {}
+	tempList = []
+
 	for x in range(0, numInputs1 + numInputs2):
 		alreadyWritten.append(x)
 
@@ -128,11 +161,51 @@ def writeOutput(fileName, numGates, numGatesWire, numInputs1, numInputs2, numOut
 	outs.write( str(numInputs1) + " " + str(numInputs2) + " " + str(numOutputs) + "\n\n" )
 
 	for key in outputGate.keys():
-		writeGate(outs, outputGate, key, numGates, numOutputs)
+		tempDict[ outputGate[key][0] ] = outputGate[ key ]
+	unwrittenKeys = tempDict.keys()
 
-	# while(index < numGates):
-	# 	writeGate(outs, outputGate, key, numGates, numOutputs)
+	for key in tempDict.keys():
+		print tempDict[key]
+		#if(key not in alreadyWritten):
+		#	recursiveWrite(key, outs, numGatesWire - invCount, numOutputs, tempDict, alreadyWritten)
+	
+	'''
+	while([] != unwrittenKeys):
+		tempList.insert( 0, unwrittenKeys.pop(0) )
 
+		while( [] != tempList ):
+			writeFlag = 1
+			if( "INV" not in tempDict[ tempList[0] ][1] ):
+				inputID1 = tempDict[ tempList[0] ][2]
+				inputID2 = tempDict[ tempList[0] ][3]
+
+				if( inputID1 in  ):
+					writeFlag = 0
+					index = unwrittenKeys.index(inputID1)
+					tempList.insert( 0, unwrittenKeys.pop(index) )
+
+				if( inputID2 in unwrittenKeys ):
+					writeFlag = 0
+					index = unwrittenKeys.index(inputID2)
+					tempList.insert( 0, unwrittenKeys.pop(index) )
+			
+				#print tempDict[tempList[0]]
+				if (1 == writeFlag):
+					tempGate = tempList.pop(0)
+					writeGate(outs, tempDict, tempGate, numGatesWire, numOutputs)
+					alreadyWritten.append(tempGate)
+			else:
+				inputID1 = tempDict[ tempList[0] ][2]
+
+				if( inputID1 in unwrittenKeys ):
+					writeFlag = 0
+					index = unwrittenKeys.index(inputID1)
+					tempList.insert( 0, unwrittenKeys.pop(index) )
+			
+				if (1 == writeFlag):
+					writeGate(outs, tempDict, tempList.pop(0), numGatesWire, numOutputs)
+					alreadyWritten.append(tempGate)
+	'''
 
 	outs.close()
 
@@ -154,7 +227,7 @@ temp = fileStr[1]
 temp = temp.split(" ")
 numInputs1 = int(temp[0])
 numInputs2 = int(temp[1])
-numInputs = int( temp[0] ) + int( temp[1] )
+numInputs = numInputs1 + numInputs2
 numOutputs = int( temp[4] )
 
 
@@ -167,5 +240,10 @@ invCount = populateGatesDict(fileStr, gatesDict, readingOrder, numGatesWire, num
 shiftOutInvGates(gatesDict, numGatesWire, numOutputs)
 
 collapseInversionGates(gatesDict, outputGate, numGatesWire, numInputs, numOutputs)
+
+'''
+for key in outputGate.keys():
+	print outputGate[key]
+'''
 
 writeOutput(sys.argv[2], numGates, numGatesWire, numInputs1, numInputs2, numOutputs, outputGate, readingOrder, invCount)

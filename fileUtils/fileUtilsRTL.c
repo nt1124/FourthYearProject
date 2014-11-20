@@ -258,6 +258,8 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
+			printf("%s", line);
+			fflush(stdout);
 			tempGateOrWire = processGateLineRTL(line, circuit);
 			if( NULL != tempGateOrWire )
 			{
