@@ -29,13 +29,19 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	e1Bytes = receiveBoth(writeSocket, e1Length);
 =======
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
+<<<<<<< HEAD
+>>>>>>> parent of 402c8f5... Ready for multi machien test
+=======
 >>>>>>> parent of 402c8f5... Ready for multi machien test
 
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
 <<<<<<< HEAD
+<<<<<<< HEAD
 	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
 	// PK1 = bytesToPubKeyAlt(N, e1Bytes, e1Length);
+=======
+>>>>>>> parent of 402c8f5... Ready for multi machien test
 =======
 >>>>>>> parent of 402c8f5... Ready for multi machien test
 

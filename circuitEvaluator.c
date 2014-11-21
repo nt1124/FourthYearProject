@@ -61,11 +61,15 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     mpz_init(*N);
     nBytes = receiveBoth(writeSocket, nLength);
     convertBytesToMPZAlt(N, nBytes, nLength);
 
     runCircuitBuilder( inputCircuit, numGates, writeSocket, *N );
+=======
+    runCircuitBuilder( inputCircuit, numGates, writeSocket );
+>>>>>>> parent of 402c8f5... Ready for multi machien test
 =======
     runCircuitBuilder( inputCircuit, numGates, writeSocket );
 >>>>>>> parent of 402c8f5... Ready for multi machien test
