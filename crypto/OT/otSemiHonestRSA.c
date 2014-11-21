@@ -6,7 +6,7 @@
 
 
 
-void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths, mpz_t N)
+void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	struct rsaPubKey *PK0, *PK1;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -24,13 +24,20 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	// We get PK0, PK1 from receiver here. Receive!
 	n0Bytes = receiveBoth(writeSocket, n0Length);
 	e0Bytes = receiveBoth(writeSocket, e0Length);
+<<<<<<< HEAD
 	n1Bytes = receiveBoth(writeSocket, n1Length);
 	e1Bytes = receiveBoth(writeSocket, e1Length);
+=======
+	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
+>>>>>>> parent of 402c8f5... Ready for multi machien test
 
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
+<<<<<<< HEAD
 	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
 	// PK1 = bytesToPubKeyAlt(N, e1Bytes, e1Length);
+=======
+>>>>>>> parent of 402c8f5... Ready for multi machien test
 
 	enc0Num = encRSA(*input0, PK0);
 	enc1Num = encRSA(*input1, PK1);
@@ -44,8 +51,8 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 
 	free(enc0Bytes); 	free(enc1Bytes);
 	free(enc0Num); 		free(enc1Num);
-	free(n0Bytes);		free(n1Bytes);
-	free(e0Bytes);		free(e1Bytes);
+	free(n0Bytes);		free(e0Bytes);
+	free(n1Bytes);		free(e1Bytes);
 	free(PK0); 			free(PK1);
 }
 

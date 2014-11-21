@@ -184,21 +184,6 @@ struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, int nLength,
 }
 
 
-struct rsaPubKey *bytesToPubKeyAlt(mpz_t nNum, unsigned char *e_Bytes, int eLength)
-{
-	struct rsaPubKey *outputKey = initPubKeyRSA();
-
-	mpz_t *eNum = (mpz_t*) calloc(1, sizeof(mpz_t));
-
-	convertBytesToMPZAlt(eNum, e_Bytes, eLength);
-
-	mpz_set(outputKey -> N, nNum);
-	mpz_set(outputKey -> e, *eNum);
-	
-	return outputKey;
-}
-
-
 mpz_t *encRSA(mpz_t inputPT, struct rsaPubKey *pubKey)
 {
 	mpz_t *cipherText = (mpz_t*) calloc(1, sizeof(mpz_t));
