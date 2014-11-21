@@ -177,7 +177,6 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 
 	idNum = getIntFromString(line, strIndex);
 	gateType = line[strIndex];
-	fflush(stdout);
 
 	if('A' == gateType)
 	{
@@ -258,17 +257,13 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
-			printf("%s", line);
-			fflush(stdout);
 			tempGateOrWire = processGateLineRTL(line, circuit);
+
 			if( NULL != tempGateOrWire )
-			{
-				if(1 != tempGateOrWire -> gatePayload -> numInputs)
-				{
-					gateIndex = tempGateOrWire -> G_ID;
-					*(circuit + gateIndex) = tempGateOrWire;
-					(*execOrder)[execIndex++] = gateIndex;
-				}
+			{				
+				gateIndex = tempGateOrWire -> G_ID;
+				*(circuit + gateIndex) = tempGateOrWire;
+				(*execOrder)[execIndex++] = gateIndex;
 			}
 		}
 
@@ -277,72 +272,9 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 			gateIndex = *numGates - i - 1;
 			circuit[gateIndex] -> outputWire -> wireMask = 0x0F;
 		}
+
 		fclose ( file );
 	}
 
 	return circuit;
 }
-
-
-
-/*
-int isLineINV(char *line, int outputCutoff)
-{
-	int i = 0, idNum, ditchThisNumber, numInputs;
-
-
-	numInputs = getIntFromString(line, strIndex);
-	ditchThisNumber = getIntFromString(line, strIndex);
-	for(i = 0; i < numInputs; i ++)
-		ditchThisNumber = getIntFromString(line, strIndex);
-
-	idNum = getIntFromString(line, strIndex);
-
-	if(idNum < outputCutoff)
-	{
-		while('\0' != line[i])
-		{
-			if('I' == line[i])
-				return 1;
-		}
-	}
-
-	return 0;
-}
-
-
-int numberOfRemovedINVs(char* filepath, int *numGates)
-{
-	FILE *file = fopen ( filepath, "r" );
-	char line [ 512 ];
-	int numInputs1, numInputs2, numOutputs;
-	int countINV = 0, i;
-
-	if ( file != NULL )
-	{
-		if(NULL != fgets(line, sizeof(line), file))
-			sscanf(line, "%d %d", &numInputs1, numGates);
-		else
-			return NULL;
-
-		if(NULL != fgets(line, sizeof(line), file))
-			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &numOutputs);
-		else
-			return NULL;
-
-		if(NULL == fgets(line, sizeof(line), file))
-			return NULL;
-
-
-		// Read a line
-		while ( fgets(line, sizeof(line), file) != NULL )
-		{
-			countINV += isLineINV(line, numGates - numOutputs);
-		}
-
-		fclose ( file );
-	}
-
-	return countINV;
-}
-*/

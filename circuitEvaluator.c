@@ -6,7 +6,7 @@
 #include "circuitBuilder.h"
 #include "circuitExecutor.h"
 
-
+// Need to check outputs go in the correct order
 void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
 {
     int i;
@@ -54,7 +54,8 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
-    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    // struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates, &execOrder);
     
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
