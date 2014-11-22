@@ -1,28 +1,17 @@
-typedef struct DDH_Group
+struct u_v_Pair *init_U_V()
 {
-	mpz_t p;		// Basically the group size, should be prime.
-	mpz_t pOrder;	// Basically the group size, should be prime.
-	mpz_t g;		// Generator of group.
-}  DDH_Group;
+	struct u_v_Pair *u_v = (struct u_v_Pair*) calloc(1, sizeof(struct u_v_Pair));
+
+	mpz_init(u_v -> u);
+	mpz_init(u_v -> v);
+
+	return u_v;
+}
 
 
-typedef struct DDH_PK
+struct DDH_Group *initGroupStruct()
 {
-	mpz_t g;
-	mpz_t h;
-	mpz_t g_x;
-	mpz_t h_x;
-}  DDH_PK;
-
-
-typedef mpz_t  DDH_SK;
-
-
-
-
-struct *DDH_Group initGroupStruct()
-{
-	struct *DDH_Group group = (struct DDH_Group*) calloc(1, sizeof(struct DDH_Group));
+	struct DDH_Group *group = (struct DDH_Group*) calloc(1, sizeof(struct DDH_Group));
 
 	mpz_init(group -> p);
 	mpz_init(group -> pOrder);
@@ -31,9 +20,10 @@ struct *DDH_Group initGroupStruct()
 	return group;
 }
 
-struct *DDK_PK initPublicKey()
+
+struct DDH_PK *initPublicKey()
 {
-	struct *DDK_PK pk = (struct DDK_PK*) calloc(1, sizeof(struct DDK_PK));
+	struct DDH_PK *pk = (struct DDH_PK*) calloc(1, sizeof(struct DDH_PK));
 
 	mpz_init(pk -> g);
 	mpz_init(pk -> h);
@@ -44,10 +34,40 @@ struct *DDK_PK initPublicKey()
 }
 
 
-// SecurityParam is the number of bits for p.
-struct *DDH_Group generateGroup(int securityParam, gmp_randstate_t state)
+
+// Used to generate some randomness for use in encryption.
+struct u_v_Pair *randomiseDDH(struct DDH_PK *pk, struct DDH_Group *group, gmp_randstate_t state)
 {
-	struct *DDH_Group group = initGroupStruct();
+	struct u_v_Pair *toReturn = (struct u_v_Pair*) calloc(1, sizeof(struct u_v_Pair));
+	mpz_t s, t;
+	mpz_t tempPowS, tempPowT;
+
+	mpz_init(s);
+	mpz_init(t);
+	mpz_init(tempPowS);
+	mpz_init(tempPowT);
+
+	mpz_urandomm(s, state, group -> p);
+	mpz_urandomm(t, state, group -> p);
+
+	mpz_powm(tempPowS, pk -> g, s, group -> p);
+	mpz_powm(tempPowT, pk -> h, t, group -> p);
+	mpz_mul(toReturn -> u, tempPowS, tempPowT);
+	mpz_mod(toReturn -> u, toReturn -> u, group -> p);
+
+	mpz_powm(tempPowS, pk -> g_x, s, group -> p);
+	mpz_powm(tempPowT, pk -> h_x, t, group -> p);
+	mpz_mul(toReturn -> u, tempPowS, tempPowT);
+	mpz_mod(toReturn -> u, toReturn -> u, group -> p);
+
+	return toReturn;
+}
+
+
+// SecurityParam is the number of bits for p.
+struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
+{
+	struct DDH_Group *group = initGroupStruct();
 
 	getPrimeGMP(group -> p, state, securityParam);
 	do
@@ -61,11 +81,12 @@ struct *DDH_Group generateGroup(int securityParam, gmp_randstate_t state)
 }
 
 
-void generateKeys(struct DDH_PK *pk, DDH_SK *sk, gmp_randstate_t state)
+// Generate the keys given a group.
+void generateKeys(struct DDH_PK *pk, DDH_SK *sk, struct DDH_Group *group, gmp_randstate_t state)
 {
-	struct DDH_PK *pk = initPublicKey();
-	DDH_SK *sk = (DDH_SK) calloc(1, sizeof(mpz_t));
-	mpz_init(sk);
+	pk = initPublicKey();
+	sk = (DDH_SK*) calloc(1, sizeof(mpz_t));
+	mpz_init(*sk);
 
 	mpz_set(pk -> g, group -> g);
 	do
@@ -75,7 +96,45 @@ void generateKeys(struct DDH_PK *pk, DDH_SK *sk, gmp_randstate_t state)
 
 	do
 	{
-		mpz_urandomm(sk, state, group -> p);
-	} while( 0 != mpz_cmp_ui(sk, 0) );
+		mpz_urandomm(*sk, state, group -> p);
+	} while( 0 != mpz_cmp_ui(*sk, 0) );
 
+	mpz_powm(pk -> g_x, pk -> g, *sk, group -> p);
+	mpz_powm(pk -> h_x, pk -> h, *sk, group -> p);
+}
+
+
+struct u_v_Pair *encDDH(struct DDH_PK *pk, struct DDH_Group *group, mpz_t m, gmp_randstate_t state)
+{
+	struct u_v_Pair *C = randomiseDDH(pk, group, state);
+
+	// Temp variable to hold value of v*m before modulo applied. 
+	mpz_t tempVM;
+	mpz_init(tempVM);
+
+	mpz_mul(tempVM, C -> v, m);
+	mpz_mul(C -> v, tempVM, group -> p);
+
+	return C;
+}
+
+
+// (c_0, c_1) = (C -> u, C -> v)
+mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
+{
+	mpz_t *M = (mpz_t *) calloc(1, sizeof(mpz_t));
+	mpz_t c1_sk, c1_sk_inv;
+
+	mpz_init(*M);
+	mpz_init(c1_sk);
+	mpz_init(c1_sk_inv);
+
+	mpz_powm(c1_sk, C -> u, *sk, group -> p);
+
+    mpz_invert(c1_sk_inv, c1_sk, group -> p);
+
+    // M = c_1 * (c_0 ^ sk) ^ -1
+	mpz_mul(*M, c1_sk_inv, C -> v);
+
+	return M;
 }

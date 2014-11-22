@@ -75,8 +75,10 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     int writeSocket, readSocket, writePort, readPort;
     struct sockaddr_in serv_addr_write;
     struct sockaddr_in serv_addr_read;
-    int numGates = 0, i;
+    int numGates = 0, numOutputs = 0, i;
+
     struct gateOrWire **inputCircuit;
+    unsigned char *output;
 
     readPort = atoi(portNumStr);
     writePort = writePort + 1;
@@ -93,10 +95,18 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     runCircuitExec( inputCircuit, numGates, readSocket, inputFilepath, execOrder );
 
-    printAllOutput(inputCircuit, numGates);
+    // printAllOutput(inputCircuit, numGates);
 
     close_client_socket(readSocket);
     // close_client_socket(writeSocket);
+
+    output = outputAsBinaryString(inputCircuit, numGates, &numOutputs);
+
+    for(i = 0; i < numOutputs; i ++)
+    {
+        printf("%d", output[i]);
+    }
+    printf("\n");
 
     for(i = 0; i < numGates; i ++)
     {
@@ -203,12 +213,12 @@ int main(int argc, char *argv[])
     srand( time(NULL) );
 
     char *circuitFilepath = argv[1];
-    // int builder = atoi(argv[5]);
+    int builder = atoi(argv[5]);
 
     // runLocally(circuitFilepath, argv[2], argv[3]);
     // testRTL_Read(circuitFilepath, argv[2]);
-    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
-    testRunZeroedInput(circuitFilepath);
+    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    // testRunZeroedInput(circuitFilepath);
 
     return 0;
 }
