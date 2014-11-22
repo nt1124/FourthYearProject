@@ -1,3 +1,24 @@
+
+/*
+int getNumGW(char *line)
+{
+	int strIndex = 0;
+	int toReturn = 0;
+
+	while( line[++ strIndex] != ' ' ) {}
+	while( line[++ strIndex] == ' ' ) {}
+
+	while( line[strIndex] != ' ')
+	{
+		toReturn *= 10;
+		toReturn += atoi(line[strIndex++]);
+	}
+
+	return toReturn;
+}
+*/
+
+
 // Function for use in testing, will set all inputs to zero and
 // initialise accordingly.
 void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
@@ -41,46 +62,7 @@ int getIntFromString(char *inputStr, int& strIndex)
 }
 
 
-/*
-int *getRawOutputTable(char gateType, int *inputIDs)
-{
-	int *toReturn = (int*) calloc(4, sizeof(int));
-	
-	if('A' == gateType)
-	{
-		toReturn[3] = 1;
-
-		if(0 > inputIDs[0])
-		{
-			toReturn[0] = 1;
-			toReturn[1] = 1;
-		}
-		if(0 > inputIDs[1])
-		{
-			toReturn[2] = 1;
-			toReturn[3] = 0;
-		}
-	}
-	else if('X' == gateType)
-	{
-		toReturn[1] = 1;
-		toReturn[2] = 1;
-
-		if(0 > inputIDs[0])
-		{
-			toReturn[0] = 1;
-			toReturn[1] = 0;
-		}
-		if(0 > inputIDs[1])
-		{
-			toReturn[2] = 0;
-			toReturn[3] = 1;
-		}
-	}
-
-	return toReturn;
-}
-*/
+// RTL means the function deals with the Smart/Tillich style input.
 
 
 struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
@@ -94,45 +76,27 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 		outputTableSize *= 2;
 
 	toReturn -> outputTableSize = outputTableSize;
-	
-	toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
 	if('I' == gateType)
 	{
 		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
 		toReturn -> rawOutputTable[0] = 1;
 	}
 	else
-	{	
-		if('1' == gateType)
+	{
+		toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
+		if('A' == gateType)
 		{
 			toReturn -> rawOutputTable[3] = 1;
-		}
-		else if('2' == gateType)
-		{
-			toReturn -> rawOutputTable[2] = 1;
-		}
-		else if('3' == gateType)
-		{
-			toReturn -> rawOutputTable[1] = 1;
-		}
-		else if('4' == gateType)
-		{
-			toReturn -> rawOutputTable[0] = 1;
 		}
 		else if('X' == gateType)
 		{
 			toReturn -> rawOutputTable[1] = 1;
 			toReturn -> rawOutputTable[2] = 1;
 		}
-		else if('N' == gateType)
-		{
-			toReturn -> rawOutputTable[0] = 1;
-			toReturn -> rawOutputTable[3] = 1;
-		}
 	}
-	// toReturn -> rawOutputTable = getRawOutputTable(gateType, inputIDs, circuit)
 
-	toReturn -> encOutputTable = recursiveOutputTableAlt(toReturn);
+	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
+
 
 	return toReturn;
 }
@@ -150,7 +114,6 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
-
 	encWholeOutTable(toReturn, circuit);
 
 	return toReturn;
@@ -162,7 +125,6 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
 	int *inputIDs;
-	unsigned char gateType;
 
 	numInputWires = getIntFromString(line, strIndex);
 
@@ -176,14 +138,8 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 	}
 
 	idNum = getIntFromString(line, strIndex);
-	gateType = line[strIndex];
 
-	if('A' == gateType)
-	{
-		gateType = line[strIndex + 3];
-	}
-
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, gateType, circuit);
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit);
 }
 
 
@@ -231,9 +187,9 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
+	int numInputs1, numInputs2, numOutputs;	int gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **circuit;
-	int numInputs1, numInputs2, numOutputs, gateIndex = 0;
 	int i, execIndex;
 
 	if ( file != NULL )
@@ -258,11 +214,11 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
 			tempGateOrWire = processGateLineRTL(line, circuit);
-
 			if( NULL != tempGateOrWire )
-			{				
+			{
 				gateIndex = tempGateOrWire -> G_ID;
 				*(circuit + gateIndex) = tempGateOrWire;
+				// printf("%d  -->  %d\n", execIndex, gateIndex);
 				(*execOrder)[execIndex++] = gateIndex;
 			}
 		}
@@ -272,7 +228,6 @@ struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOr
 			gateIndex = *numGates - i - 1;
 			circuit[gateIndex] -> outputWire -> wireMask = 0x0F;
 		}
-
 		fclose ( file );
 	}
 

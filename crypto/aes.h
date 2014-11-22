@@ -10,7 +10,7 @@ typedef unsigned int  uint;
 #include "randUtils.c"
 #include <string.h>
 #include <wmmintrin.h>
-#include "aes.c"
+#include "aes.cpp"
 
 #define AES_BLK_SIZE 16
 

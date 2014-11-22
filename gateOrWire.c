@@ -18,13 +18,13 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	if(0x00 == inputGW -> outputWire -> wireOwner &&
 	   0xF0 == inputGW -> outputWire -> wireMask)
 	{
-		printf("key0                 =  ");
+		printf("key0                    =  ");
 		for(i = 0; i < 16; i ++)
 			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key0[i]);
 		printf("\n");
 		fflush(stdout);
 
-		printf("key1                 =  ");
+		printf("key1                    =  ");
 		for(i = 0; i < 16; i ++)
 			printf("%02X", inputGW -> outputWire -> outputGarbleKeys -> key1[i]);
 		printf("\n");
@@ -56,23 +56,7 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	}
 }
 
-
 unsigned char **recursiveOutputTable(struct gate *curGate)
-{
-	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
-	int i;
-
-	for(i = 0; i < curGate -> outputTableSize; i ++)
-	{
-		toReturn[i] = (unsigned char*) calloc(32, sizeof(unsigned char));
-		toReturn[i][16] = curGate -> rawOutputTable[i];
-	}
-
-	return toReturn;
-}
-
-
-unsigned char **recursiveOutputTableAlt(struct gate *curGate)
 {
 	unsigned char **toReturn = (unsigned char**) calloc(curGate -> outputTableSize, sizeof(unsigned char*));
 	int i;
@@ -174,12 +158,12 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
-int provideKeyForGate(struct gateOrWire *inputGW, int sockfd)
+int provideKeyForGate(struct gateOrWire *inputGW, int sockfd, mpz_t N)
 {
 	struct wire *tempWire = inputGW -> outputWire;
 
-	senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
-	// senderOT_SH_RSA(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
+	// senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
+	senderOT_SH_RSA(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, N);
 
 	return 1;
 }

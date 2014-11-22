@@ -905,7 +905,7 @@ void aes_128_decrypt(unsigned char *C, unsigned char *M, uint *RK)
 
 /**********************
  *    M-Code Version  *
- **********************
+ **********************/
 
 
 int Check_CPU_support_AES() 
@@ -1000,4 +1000,3 @@ void aes_256_encrypt(unsigned char* out, const unsigned char* in, const unsigned
     tmp = _mm_aesenclast_si128 (tmp,((__m128i*)key)[j]); 
     _mm_storeu_si128 (&((__m128i*)out)[0],tmp); 
 }
-*/

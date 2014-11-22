@@ -3,76 +3,56 @@
 #include <string.h>
 #include <time.h>
 
-#include "circuitBuilder.h"
-#include "circuitExecutor.h"
+#include "circuitUtils.h"
 
-// Need to check outputs go in the correct order
-void printAllOutput(struct gateOrWire **inputCircuit, int numGates)
+
+int compilationOfTests()
 {
-    int i;
-    unsigned char tempBit;
+    // testAES();
+    // testElgamal();
+    // testRSA();
+    // testByteConvert();
 
+    /*
     for(i = 0; i < numGates; i ++)
     {
-        if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
-        {
-            tempBit = inputCircuit[i] -> outputWire -> wirePermedValue;
-            tempBit = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
-            printf("Gate %d = %d\n", inputCircuit[i] -> G_ID, tempBit);
-        }
+        printf("+++++  Gate %02d  +++++\n", i);
+        testSerialisation(inputCircuit[i]);
+        printf("\n");
     }
+    */
+    return 1;
 }
 
-
-void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execOrder )
-{
-    int i, j, gateID;
-
-    for(i = 0; i < numGates; i ++)
-    {
-        gateID = execOrder[i];
-        if( NULL != inputCircuit[gateID] -> gatePayload )
-        {
-            decryptGate(inputCircuit[gateID], inputCircuit);
-        }
-    }
-}
 
 
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
-    int *execOrder;
-    int writeSocket, readSocket, mainWriteSock, mainReadSock, i;
-    int writePort = atoi(portNumStr), readPort = writePort + 1;
-    int numGates;
+    unsigned char *nBytes;
+    mpz_t *N = (mpz_t*) calloc(1, sizeof(mpz_t));
     struct sockaddr_in destWrite, destRead;
+    int *execOrder;
+    int writeSocket, readSocket, mainWriteSock, mainReadSock;
+    int writePort = atoi(portNumStr), readPort = writePort + 1;
+    int numGates, i, nLength;
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
     // set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
     printf("Executor has connected to us.\n");
 
-    // struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
-    struct gateOrWire **inputCircuit = readInCircuitFP(circuitFilepath, &numGates, &execOrder);
+    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
     
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
+
+    mpz_init(*N);
+    // nBytes = receiveBoth(writeSocket, nLength);
+    // convertBytesToMPZAlt(N, nBytes, nLength);
 
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-    mpz_init(*N);
-    nBytes = receiveBoth(writeSocket, nLength);
-    convertBytesToMPZAlt(N, nBytes, nLength);
-
     runCircuitBuilder( inputCircuit, numGates, writeSocket, *N );
-=======
-    runCircuitBuilder( inputCircuit, numGates, writeSocket );
->>>>>>> parent of 402c8f5... Ready for multi machien test
-=======
-    runCircuitBuilder( inputCircuit, numGates, writeSocket );
->>>>>>> parent of 402c8f5... Ready for multi machien test
 
     close_server_socket(writeSocket, mainWriteSock);
     // close_server_socket(readSocket, mainReadSock);
@@ -82,6 +62,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
         freeGateOrWire(inputCircuit[i]);
     }
     free(inputCircuit);
+    free(N);
 }
 
 
@@ -96,7 +77,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct sockaddr_in serv_addr_read;
     int numGates = 0, i;
     struct gateOrWire **inputCircuit;
-
 
     readPort = atoi(portNumStr);
     writePort = writePort + 1;
@@ -154,15 +134,21 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 void testRunZeroedInput(char *circuitFilepath)
 {
     int *execOrder = NULL;
-    int numGates;
+    int numGates, i, numOutputs;
     struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
-    int i;
-
+    unsigned char *output;
     
     zeroAllInputs(inputCircuit, numGates);
 
     runCircuitLocal( inputCircuit, numGates, execOrder );
-    printAllOutput(inputCircuit, numGates);
+    // printAllOutput(inputCircuit, numGates);
+    output = outputAsBinaryString(inputCircuit, numGates, &numOutputs);
+
+    for(i = 0; i < numOutputs; i ++)
+    {
+        printf("%d", output[i]);
+    }
+    printf("\n");
 
     for(i = 0; i < numGates; i ++)
     {
@@ -175,11 +161,13 @@ void testRunZeroedInput(char *circuitFilepath)
 }
 
 
-void testRTL_Read(char *circuitFilepath)
+void testRTL_Read(char *circuitFilepath, char *inputFile)
 {
     int *execOrder;
     int numGates, i;
     struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+
+    readInputDetailsFileBuilder( inputFile, inputCircuit );
 
     printf("--++  %d  ++--\n", numGates);
     for(i = 0; i < numGates; i ++)
@@ -209,18 +197,18 @@ void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
     }
 }
 
-
+// Useage. Circuit, IP, Port, Input file, builder flag
 int main(int argc, char *argv[])
 {
     srand( time(NULL) );
 
     char *circuitFilepath = argv[1];
-    int builder = atoi(argv[5]);
+    // int builder = atoi(argv[5]);
 
     // runLocally(circuitFilepath, argv[2], argv[3]);
-    // testRTL_Read(circuitFilepath);
-    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
-    // testRunZeroedInput(circuitFilepath);
+    // testRTL_Read(circuitFilepath, argv[2]);
+    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    testRunZeroedInput(circuitFilepath);
 
     return 0;
 }
