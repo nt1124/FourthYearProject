@@ -73,7 +73,7 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 	do
 	{
 		mpz_urandomm(group -> g, state, group -> p);
-	} while( 0 != mpz_cmp_ui(group -> g, 0) );
+	} while( 0 < mpz_cmp_ui(group -> g, 1) );
 
 	mpz_sub_ui(group -> pOrder, group -> p, 1);
 
@@ -92,12 +92,12 @@ void generateKeys(struct DDH_PK *pk, DDH_SK *sk, struct DDH_Group *group, gmp_ra
 	do
 	{
 		mpz_urandomm(pk -> h, state, group -> p);
-	} while( 0 != mpz_cmp_ui(pk -> h, 0) );
+	} while( 0 < mpz_cmp_ui(pk -> h, 1) );
 
 	do
 	{
 		mpz_urandomm(*sk, state, group -> p);
-	} while( 0 != mpz_cmp_ui(*sk, 0) );
+	} while( 0 < mpz_cmp_ui(*sk, 1) );
 
 	mpz_powm(pk -> g_x, pk -> g, *sk, group -> p);
 	mpz_powm(pk -> h_x, pk -> h, *sk, group -> p);

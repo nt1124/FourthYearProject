@@ -3,38 +3,69 @@
 #include <string.h>
 #include <time.h>
 #include "../../comms/sockets.h"
+#include "../DDH_Primitive.h"
 
 
 struct CRS
 {
-	mpz_t g0;
-	mpz_t g1;
-	mpz_t h0;
-	mpz_t h1;
+	mpz_t g_0;
+	mpz_t g_1;
+	mpz_t h_0;
+	mpz_t h_1;
 } CRS;
 
-typedef struct DlogGroup
+
+/*
+void precompute(struct DDH_Group *group, mpz_t g0, mpz_t g1, mpz_t h0, mpz_t h1, gmp_randstate_t *state)
 {
-	mpz_t gen;
-	mpz_t groupOrder;
-} DlogGroup;
+	group = (struct DDH_Group*) calloc(1, sizeof(struct DDH_Group));
 
+	mpz_init(group -> p);
+	mpz_init(group -> g);
 
-void precompute(struct DlogGroup *dlog, mpz_t g0, mpz_t g1, mpz_t h0, mpz_t h1, gmp_randstate_t *state)
-{
-	dlog = (struct DlogGroup) calloc(1, sizeof(struct DlogGroup));
+	getPrimeGMP(group -> p, state, 1024);
+	mpz_urandomm(group -> g, state, group -> p);
 
-	mpz_init(dlog -> groupOrder);
-	mpz_init(dlog -> gen);
-
-	getPrimeGMP(dlog -> groupOrder, state, 1024);
-	mpz_urandomm(dlog -> gen, state, dlog -> groupOrder);
-
-	CRS -> g0 = g0;
-	CRS -> g1 = g1;
-	CRS -> h0 = h0;
-	CRS -> h1 = h1;
+	CRS -> g_0 = g0;
+	CRS -> g_1 = g1;
+	CRS -> h_0 = h0;
+	CRS -> h_1 = h1;
 }
+*/
+
+void setupMessy(int securityParam, struct DDH_Group *group,
+				gmp_randstate_t state)
+{
+	struct CRS *crs = (struct CRS*) calloc(1, sizeof(struct CRS));
+	mpz_t x, y;
+
+	group = generateGroup(securityParam, state);
+	mpz_init(x);
+	mpz_init(y);
+
+	do
+	{
+		mpz_urandomm(crs -> g_0, state, group -> p);
+	} while( 0 < mpz_cmp_ui(crs -> g_0, 1) );
+
+	do
+	{
+		mpz_urandomm(crs -> g_1, state, group -> p);
+	} while( 0 < mpz_cmp_ui(crs -> g_1, 1) );
+	
+	do
+	{
+		mpz_urandomm(x, state, group -> p);
+	} while( 0 < mpz_cmp_ui(x, 1) );
+
+	do
+	{
+		mpz_urandomm(y, state, group -> p);
+	} while( 0 < mpz_cmp_ui(y, 1) );
+
+
+}
+
 
 
 /*  SENDER

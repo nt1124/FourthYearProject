@@ -5,10 +5,10 @@
 #include "gmpUtils.c"
 #include "elgamal.c"
 #include "rsa.c"
-#include "DDH_Primitive.h"
 
 #include "OT/otToy.c"
 #include "OT/otSemiHonestRSA.c"
+#include "OT/otPVW_DDH.c"
 
 
 
