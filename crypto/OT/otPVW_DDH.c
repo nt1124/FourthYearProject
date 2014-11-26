@@ -6,13 +6,52 @@
 #include "../DDH_Primitive.h"
 
 
-struct CRS
+
+typedef struct otPK
+{
+	mpz_t g;
+	mpz_t h;
+} otPK;
+
+typedef struct CRS
 {
 	mpz_t g_0;
 	mpz_t g_1;
 	mpz_t h_0;
 	mpz_t h_1;
 } CRS;
+
+typedef struct TrapdoorMessy
+{
+	mpz_t x_0;
+	mpz_t x_1;
+} TrapdoorMessy;
+
+typedef mpz_t  TrapdoorDec;
+
+
+
+struct CRS *initCRS()
+{
+	struct CRS *crs = (struct CRS*) calloc(1, sizeof(struct CRS));
+
+	mpz_init(crs -> g_0);
+	mpz_init(crs -> g_1);
+	mpz_init(crs -> h_0);
+	mpz_init(crs -> h_1);
+
+	return crs;
+}
+
+struct TrapdoorMessy *initTrapdoorMessy()
+{
+	struct TrapdoorMessy *t = (struct TrapdoorMessy*) calloc(1, sizeof(struct TrapdoorMessy));
+
+	mpz_init(t -> x_0);
+	mpz_init(t -> x_1);
+
+	return t;
+}
 
 
 /*
@@ -33,15 +72,15 @@ void precompute(struct DDH_Group *group, mpz_t g0, mpz_t g1, mpz_t h0, mpz_t h1,
 }
 */
 
-void setupMessy(int securityParam, struct DDH_Group *group,
+// Generates a group 
+void setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
+				int securityParam, struct DDH_Group *group,
 				gmp_randstate_t state)
 {
-	struct CRS *crs = (struct CRS*) calloc(1, sizeof(struct CRS));
-	mpz_t x, y;
+	crs = initCRS()
+	tMessy = initTrapdoorMessy();
 
 	group = generateGroup(securityParam, state);
-	mpz_init(x);
-	mpz_init(y);
 
 	do
 	{
@@ -55,13 +94,67 @@ void setupMessy(int securityParam, struct DDH_Group *group,
 	
 	do
 	{
+		mpz_urandomm(tMessy -> x_0, state, group -> p);
+	} while( 0 != mpz_cmp_ui(tMessy -> x_0, 0) );
+
+	do
+	{
+		mpz_urandomm(tMessy -> x_1, state, group -> p);
+	} while( 0 != mpz_cmp_ui(tMessy -> x_1, 0) &&
+			 0 == mpz_cmp_ui(tMessy -> x_0, tMessy -> x_1) );
+
+	mpz_powm(crs -> h_0, crs -> g_0, x_0, group -> p);
+	mpz_powm(crs -> h_1, crs -> g_1, x_1, group -> p);
+}
+
+
+void setupDec(struct CRS *crs, TrapdoorDec *t,
+			int securityParam, struct DDH_Group *group,
+			gmp_randstate_t state)
+{
+	mpz_t x, y;
+
+	crs = initCRS()
+	t = calloc(1, sizeof(TrapdoorDec));
+
+	group = generateGroup(securityParam, state);
+	mpz_init(x);
+	mpz_init(y);
+	mpz_init(*t);
+
+	do
+	{
+		mpz_urandomm(crs -> g_0, state, group -> p);
+	} while( 0 < mpz_cmp_ui(crs -> g_0, 1) );
+
+	do
+	{
 		mpz_urandomm(x, state, group -> p);
 	} while( 0 < mpz_cmp_ui(x, 1) );
 
 	do
 	{
-		mpz_urandomm(y, state, group -> p);
-	} while( 0 < mpz_cmp_ui(y, 1) );
+		mpz_urandomm(*t, state, group -> p);
+	} while( 0 != mpz_cmp_ui(*t, 0) );
+
+	mpz_powm(crs -> g_1, crs -> g_0, *t, group -> p);
+
+	mpz_powm(crs -> h_0, crs -> g_0, x, group -> p);
+	mpz_powm(crs -> h_1, crs -> g_1, x, group -> p);
+}
+
+
+void keyGen(struct CRS *crs, unsigned char sigmaBit,
+			gmp_randstate_t state)
+{
+	mpz_t r;
+
+	mpz_init(r);
+
+	do
+	{
+		mpz_urandomm(r, state, group -> p);
+	} while( 0 != mpz_cmp_ui(r, 0) );
 
 
 }
