@@ -8,7 +8,7 @@
 
 #include "OT/otToy.c"
 #include "OT/otSemiHonestRSA.c"
-#include "OT/otPVW_DDH.c"
+#include "OT/otPVW_DDH.h"
 
 
 

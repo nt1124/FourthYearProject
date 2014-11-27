@@ -1,36 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include "../../comms/sockets.h"
-#include "../DDH_Primitive.h"
-
-
-
-typedef struct otPK
-{
-	mpz_t g;
-	mpz_t h;
-} otPK;
-
-typedef struct CRS
-{
-	mpz_t g_0;
-	mpz_t g_1;
-	mpz_t h_0;
-	mpz_t h_1;
-} CRS;
-
-typedef struct TrapdoorMessy
-{
-	mpz_t x_0;
-	mpz_t x_1;
-} TrapdoorMessy;
-
-typedef mpz_t  TrapdoorDec;
-
-
-
 struct CRS *initCRS()
 {
 	struct CRS *crs = (struct CRS*) calloc(1, sizeof(struct CRS));
@@ -77,7 +44,7 @@ void setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
 				int securityParam, struct DDH_Group *group,
 				gmp_randstate_t state)
 {
-	crs = initCRS()
+	crs = initCRS();
 	tMessy = initTrapdoorMessy();
 
 	group = generateGroup(securityParam, state);
@@ -101,21 +68,21 @@ void setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
 	{
 		mpz_urandomm(tMessy -> x_1, state, group -> p);
 	} while( 0 != mpz_cmp_ui(tMessy -> x_1, 0) &&
-			 0 == mpz_cmp_ui(tMessy -> x_0, tMessy -> x_1) );
+			 0 == mpz_cmp(tMessy -> x_0, tMessy -> x_1) );
 
-	mpz_powm(crs -> h_0, crs -> g_0, x_0, group -> p);
-	mpz_powm(crs -> h_1, crs -> g_1, x_1, group -> p);
+	mpz_powm(crs -> h_0, crs -> g_0, tMessy -> x_0, group -> p);
+	mpz_powm(crs -> h_1, crs -> g_1, tMessy -> x_1, group -> p);
 }
 
 
 void setupDec(struct CRS *crs, TrapdoorDec *t,
-			int securityParam, struct DDH_Group *group,
-			gmp_randstate_t state)
+			int securityParam,
+			struct DDH_Group *group, gmp_randstate_t state)
 {
 	mpz_t x, y;
 
-	crs = initCRS()
-	t = calloc(1, sizeof(TrapdoorDec));
+	crs = initCRS();
+	t = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
 
 	group = generateGroup(securityParam, state);
 	mpz_init(x);
@@ -144,20 +111,82 @@ void setupDec(struct CRS *crs, TrapdoorDec *t,
 }
 
 
-void keyGen(struct CRS *crs, unsigned char sigmaBit,
-			gmp_randstate_t state)
+void keyGen(struct PVM_OT_PK *pk, PVM_OT_SK *sk,
+			struct CRS *crs, unsigned char sigmaBit,
+			struct DDH_Group *group, gmp_randstate_t state)
 {
-	mpz_t r;
+	pk = (struct PVM_OT_PK*) calloc(1, sizeof(struct PVM_OT_PK));
+	mpz_init(pk -> g);
+	mpz_init(pk -> h);
 
-	mpz_init(r);
+	sk = (PVM_OT_SK*) calloc(1, sizeof(PVM_OT_SK));
+	mpz_init(*sk);
 
 	do
 	{
-		mpz_urandomm(r, state, group -> p);
-	} while( 0 != mpz_cmp_ui(r, 0) );
+		mpz_urandomm(*sk, state, group -> p);
+	} while( 0 != mpz_cmp_ui(*sk, 0) );
 
-
+	// Potential to change crs to {g[2], h[2]} and then avoid branching.
+	if(0 == sigmaBit)
+	{
+		mpz_powm(pk -> g, crs -> g_0, *sk, group -> p);
+		mpz_powm(pk -> h, crs -> h_0, *sk, group -> p);
+	}
+	else if(1 == sigmaBit)
+	{
+		mpz_powm(pk -> g, crs -> g_1, *sk, group -> p);
+		mpz_powm(pk -> h, crs -> h_1, *sk, group -> p);
+	}
 }
+
+
+struct DDH_PK *setPrimitivePK(struct CRS *crs, struct PVM_OT_PK *otPK, int sigmaBit)
+{
+	struct DDH_PK *pk = initPublicKey();
+
+	mpz_init(pk -> g);
+	mpz_init(pk -> h);
+
+	mpz_init_set(pk -> g_x, otPK -> g);
+	mpz_init_set(pk -> h_x, otPK -> h);
+
+	if(0 == sigmaBit)
+	{
+		mpz_set(pk -> g, crs -> g_0);
+		mpz_set(pk -> h, crs -> h_0);
+	}
+	else
+	{
+		mpz_set(pk -> g, crs -> g_1);
+		mpz_set(pk -> h, crs -> h_1);
+	}
+
+	return pk;
+}
+
+
+// Could we speed up by passing in the DDH_PK Blue Peter-ed?
+struct u_v_Pair *PVW_OT_Enc(struct CRS *crs, struct PVM_OT_PK *otPK, unsigned char sigmaBit, mpz_t M,
+							struct DDH_Group *group, gmp_randstate_t state)
+{
+	struct u_v_Pair *CT = init_U_V();
+	struct DDH_PK *pk = setPrimitivePK(crs, otPK, sigmaBit);
+
+	CT = encDDH(pk, group, M, state);
+
+	return CT;
+}
+
+
+mpz_t *PVW_OT_Dec(struct CRS *crs, PVM_OT_SK *sk, struct u_v_Pair *CT,
+							struct DDH_Group *group)
+{
+	mpz_t *M_Prime = decDDH(sk, group, CT);
+
+	return M_Prime;
+}
+
 
 
 
@@ -184,7 +213,7 @@ void senderOT_UC(int writeSocket, unsigned char *input0Bytes, unsigned char *inp
 /*  RECEIVER
  *  Runs the transfer phase of the OT protocol
  *  ------------------------------------------
- *  Transfer Phase (with input sigma) 
+ *  Transfer Phase (with input sigma)  
  * 	SAMPLE a random value r <- {0, . . . , q-1} 
  * 	COMPUTE
  * 	4.	g = (gSigma) ^ r
