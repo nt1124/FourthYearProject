@@ -108,104 +108,100 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 }
 
 
-
 /*
 void testSender_OT_SH_RSA(char *portNumStr)
 {
-    int sockfd, portNum, n;
-    struct sockaddr_in serv_addr;
-    char *ipAddress = (char*) calloc(10, sizeof(char));
-    strncpy(ipAddress, "127.0.0.1", 9);
+	int sockfd, portNum, n;
+	struct sockaddr_in serv_addr;
+	char *ipAddress = (char*) calloc(10, sizeof(char));
+	strncpy(ipAddress, "127.0.0.1", 9);
 
-    portNum = atoi(portNumStr);
-    sockfd = openSock();
+	portNum = atoi(portNumStr);
+	sockfd = openSock();
 
-    serv_addr = getServerAddr(ipAddress, portNum);
-    connectToServer(&sockfd, serv_addr);
+	serv_addr = getServerAddr(ipAddress, portNum);
+	connectToServer(&sockfd, serv_addr);
 
-    unsigned char input0[17] = "1111111111111111";
-    unsigned char input1[17] = "2222222222222222";
+	unsigned char input0[17] = "1111111111111111";
+	unsigned char input1[17] = "2222222222222222";
 
-    // We could use mpz_out_raw / mpz_in_raw to send raw bytes.
+	// We could use mpz_out_raw / mpz_in_raw to send raw bytes.
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 
 	senderOT_SH_RSA(sockfd, input0, input1, 16);
 }
-*/
 
-/*
+
 void testReceiver_OT_SH_RSA(char *portNumStr)
 {
 
-    int sockfd, newsockfd, clilen;
-    struct sockaddr_in serv_addr, cli_addr;
-    unsigned char *buffer, *buffer2;
-    int bufferLength = 0, i;
-    struct rsaPrivKey *SKi;
+	int sockfd, newsockfd, clilen;
+	struct sockaddr_in serv_addr, cli_addr;
+	unsigned char *buffer, *buffer2;
+	int bufferLength = 0, i;
+	struct rsaPrivKey *SKi;
 
 	printf("Random state initialised and seeded\n");
-    gmp_randstate_t *state = seedRandGen();
+	gmp_randstate_t *state = seedRandGen();
 
-    sockfd = openSock();
-    serv_addr = getSelfAsServer(portNumStr);
+	sockfd = openSock();
+	serv_addr = getSelfAsServer(portNumStr);
 
-    bindAndListenToSock(sockfd, serv_addr);
-    clilen = sizeof(cli_addr);
-    newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
+	bindAndListenToSock(sockfd, serv_addr);
+	clilen = sizeof(cli_addr);
+	newsockfd = acceptNextConnectOnSock(sockfd, &cli_addr, &clilen);
 
 	SKi = generatePrivRSAKey(*state);
 
-    buffer = receiverOT_SH_RSA(SKi, state, newsockfd, 0, &bufferLength);
-    printf("Requesting 0 gave us...\n");
-    for(i = 0; i < bufferLength; i ++)
-    {
-    	printf("%02X", buffer[i]);
-    } printf("\n");
-    free(buffer);
-    printf("\nDone with round one.\n");
+	buffer = receiverOT_SH_RSA(SKi, state, newsockfd, 0, &bufferLength);
+	printf("Requesting 0 gave us...\n");
+	for(i = 0; i < bufferLength; i ++)
+	{
+		printf("%02X", buffer[i]);
+	} printf("\n");
+	free(buffer);
+	printf("\nDone with round one.\n");
 
-    buffer2 = receiverOT_SH_RSA(SKi, state, newsockfd, 1, &bufferLength);
-    printf("Requesting 1 gave us...\n");
-    for(i = 0; i < bufferLength; i ++)
-    {
-    	printf("%02X", buffer2[i]);
-    } printf("\n");
-    free(buffer2);
+	buffer2 = receiverOT_SH_RSA(SKi, state, newsockfd, 1, &bufferLength);
+	printf("Requesting 1 gave us...\n");
+	for(i = 0; i < bufferLength; i ++)
+	{
+		printf("%02X", buffer2[i]);
+	} printf("\n");
+	free(buffer2);
 }
 */
 
-/*
 int testEncDec(struct rsaPubKey *PK, struct rsaPrivKey *SK)
 {
-    unsigned char input0[17] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    mpz_t *inputInt = (mpz_t*) calloc(1, sizeof(mpz_t));
-    mpz_t *encInt = (mpz_t*) calloc(1, sizeof(mpz_t));
-    mpz_t *decInt = (mpz_t*) calloc(1, sizeof(mpz_t));
-    unsigned char *outputBytes1, *outputBytes2;
-    int tempInt1, tempInt2;
- 
- 	strncpy((char*)input0, "1111111111111111", 16);
+	unsigned char input0[17] = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+								0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	mpz_t *inputInt = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *encInt = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *decInt = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *outputBytes1, *outputBytes2;
+	int tempInt1, tempInt2;
 
-    convertBytesToMPZ(inputInt, input0, 16);
+	strncpy((char*)input0, "1111111111111111", 16);
+
+	convertBytesToMPZ(inputInt, input0, 16);
 	gmp_printf("%Zd\n", *inputInt);
-    encInt = encRSA(*inputInt, PK);
-    decInt = decRSA(*encInt, SK);
+	encInt = encRSA(*inputInt, PK);
+	decInt = decRSA(*encInt, SK);
 
-    outputBytes2 = convertMPZToBytes(*inputInt, &tempInt2);
-    outputBytes1 = convertMPZToBytes(*decInt, &tempInt1);
+	outputBytes2 = convertMPZToBytes(*inputInt, &tempInt2);
+	outputBytes1 = convertMPZToBytes(*decInt, &tempInt1);
 
-    if(16 == tempInt1)
-    	if(strncmp((char*)outputBytes1, (char*)input0, tempInt1) == 0)
-    		return 1;
+	if(16 == tempInt1)
+		if(strncmp((char*)outputBytes1, (char*)input0, tempInt1) == 0)
+			return 1;
 
-    int i;
-    printf("%d = %d\n", 16, tempInt1);
-    for(i = 0; i < tempInt1; i ++)
-    {    	
-    	printf("%u + %u + %u\n", input0[i], outputBytes1[i], outputBytes2[i]);
-    }
+	int i;
+	printf("%d = %d\n", 16, tempInt1);
+	for(i = 0; i < tempInt1; i ++)
+	{    	
+		printf("%u + %u + %u\n", input0[i], outputBytes1[i], outputBytes2[i]);
+	}
 
-    return 0;
+	return 0;
 }
-*/

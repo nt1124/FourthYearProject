@@ -73,7 +73,7 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 	do
 	{
 		mpz_urandomm(group -> g, state, group -> p);
-	} while( 0 < mpz_cmp_ui(group -> g, 1) );
+	} while( 0 > mpz_cmp_ui(group -> g, 1) );
 
 	mpz_sub_ui(group -> pOrder, group -> p, 1);
 

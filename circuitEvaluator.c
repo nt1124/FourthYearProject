@@ -213,11 +213,12 @@ int main(int argc, char *argv[])
     srand( time(NULL) );
 
     char *circuitFilepath = argv[1];
-    int builder = atoi(argv[5]);
+    // int builder = atoi(argv[5]);
 
     // runLocally(circuitFilepath, argv[2], argv[3]);
     // testRTL_Read(circuitFilepath, argv[2]);
-    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    testOT_PWV_DDH_Local();
     // testRunZeroedInput(circuitFilepath);
 
     return 0;
