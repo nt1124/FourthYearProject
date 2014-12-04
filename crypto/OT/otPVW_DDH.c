@@ -33,126 +33,141 @@ struct TrapdoorDecKey *initTrapdoorDecKey()
 }
 
 
-// Generates a group 
-struct DDH_Group *setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
-				int securityParam,
-				gmp_randstate_t state)
+struct messyParams *initMessyParams()
 {
-	struct DDH_Group *group;
-	crs = initCRS();
-	tMessy = initTrapdoorMessy();
+	struct messyParams *params = (struct messyParams*) calloc(1, sizeof(struct messyParams));
 
-	group = generateGroup(securityParam, state);
+	params -> crs = initCRS();
+	params -> group = initGroupStruct();
+	params -> trapdoor = initTrapdoorMessy();
 
-	do
-	{
-		mpz_urandomm(crs -> g_0, state, group -> p);
-	} while( 0 < mpz_cmp_ui(crs -> g_0, 1) );
-
-	do
-	{
-		mpz_urandomm(crs -> g_1, state, group -> p);
-	} while( 0 < mpz_cmp_ui(crs -> g_1, 1) );
-	
-	do
-	{
-		mpz_urandomm(tMessy -> x_0, state, group -> p);
-	} while( 0 != mpz_cmp_ui(tMessy -> x_0, 0) );
-
-	do
-	{
-		mpz_urandomm(tMessy -> x_1, state, group -> p);
-	} while( 0 != mpz_cmp_ui(tMessy -> x_1, 0) &&
-			 0 == mpz_cmp(tMessy -> x_0, tMessy -> x_1) );
-
-	mpz_powm(crs -> h_0, crs -> g_0, tMessy -> x_0, group -> p);
-	mpz_powm(crs -> h_1, crs -> g_1, tMessy -> x_1, group -> p);
-
-	return group;
+	return params;
 }
 
 
-struct DDH_Group *setupDec(struct CRS *crs, TrapdoorDec *t,
-							int securityParam,
-							gmp_randstate_t state)
+struct decParams *initDecParams()
+{
+	struct decParams *params = (struct decParams*) calloc(1, sizeof(struct messyParams));
+
+	params -> crs = initCRS();
+	params -> group = initGroupStruct();
+	params -> trapdoor = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
+	mpz_init( *(params -> trapdoor) );
+
+	return params;
+}
+
+
+struct otKeyPair *initKeyPair()
+{
+	struct otKeyPair *keyPair = (struct otKeyPair*) calloc(1, sizeof(struct otKeyPair));
+	
+	keyPair -> pk = (PVM_OT_PK*) calloc(1, sizeof(PVM_OT_PK));
+	mpz_init(keyPair -> pk -> g);
+	mpz_init(keyPair -> pk -> h);
+
+	keyPair -> sk = (PVM_OT_SK*) calloc(1, sizeof(PVM_OT_SK));
+	mpz_init( *(keyPair -> sk) );
+
+	return keyPair;
+}
+
+
+
+
+// Generates a group 
+struct messyParams *setupMessy(int securityParam, gmp_randstate_t state)
+{
+	struct messyParams *params = initMessyParams();
+
+	params -> group = generateGroup(securityParam, state);
+
+	do
+	{
+		mpz_urandomm(params -> crs -> g_0, state, params -> group -> p);
+	} while( 0 < mpz_cmp_ui(params -> crs -> g_0, 1) );
+
+	do
+	{
+		mpz_urandomm(params -> crs -> g_1, state, params -> group -> p);
+	} while( 0 < mpz_cmp_ui(params -> crs -> g_1, 1) );
+	
+	do
+	{
+		mpz_urandomm(params -> trapdoor -> x_0, state, params -> group -> p);
+	} while( 0 != mpz_cmp_ui(params -> trapdoor -> x_0, 0) );
+
+	do
+	{
+		mpz_urandomm(params -> trapdoor -> x_1, state, params -> group -> p);
+	} while( 0 != mpz_cmp_ui(params -> trapdoor -> x_1, 0) &&
+			 0 == mpz_cmp(params -> trapdoor -> x_0, params -> trapdoor -> x_1) );
+
+	mpz_powm(params -> crs -> h_0, params -> crs -> g_0, params -> trapdoor -> x_0, params -> group -> p);
+	mpz_powm(params -> crs -> h_1, params -> crs -> g_1, params -> trapdoor -> x_1, params -> group -> p);
+
+	return params;
+}
+
+
+struct decParams *setupDec(int securityParam, gmp_randstate_t state)
 {
 	mpz_t x, y;
-	struct DDH_Group *group;
+	struct decParams *params = initDecParams();
+	params -> group = generateGroup(securityParam, state);
 
-	crs = initCRS();
-	t = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
-
-	printf("Checkpoint A\n");
-	fflush(stdout);
-
-	group = generateGroup(securityParam, state);
 	mpz_init(x);
 	mpz_init(y);
-	mpz_init(*t);
 
 	do
 	{
-		mpz_urandomm(crs -> g_0, state, group -> p);
-	} while( 0 > mpz_cmp_ui(crs -> g_0, 1) );
-
-	printf("Checkpoint B\n");
-	fflush(stdout);
+		mpz_urandomm(params -> crs -> g_0, state, params -> group -> p);
+	} while( 0 > mpz_cmp_ui(params -> crs -> g_0, 1) );
 
 	do
 	{
-		mpz_urandomm(x, state, group -> p);
+		mpz_urandomm(x, state, params -> group -> p);
 	} while( 0 > mpz_cmp_ui(x, 1) );
 
 	do
 	{
-		mpz_urandomm(*t, state, group -> p);
-	} while( 0 == mpz_cmp_ui(*t, 0) );
-
-	mpz_powm(crs -> g_1, crs -> g_0, *t, group -> p);
-
-	mpz_powm(crs -> h_0, crs -> g_0, x, group -> p);
-	mpz_powm(crs -> h_1, crs -> g_1, x, group -> p);
+		mpz_urandomm(*(params -> trapdoor), state, params -> group -> p);
+	} while( 0 == mpz_cmp_ui( *(params -> trapdoor), 0) );
 
 
-	return group;
+	mpz_powm(params -> crs -> g_1, params -> crs -> g_0, *(params -> trapdoor), params -> group -> p);
+	mpz_powm(params -> crs -> h_0, params -> crs -> g_0, x, params -> group -> p);
+	mpz_powm(params -> crs -> h_1, params -> crs -> g_1, x, params -> group -> p);
+
+
+	return params;
 }
 
 
-void keyGen(struct PVM_OT_PK *pk, PVM_OT_SK *sk,
-			struct CRS *crs, unsigned char sigmaBit,
-			struct DDH_Group *group, gmp_randstate_t state)
+struct otKeyPair *keyGen(struct CRS *crs, unsigned char sigmaBit,
+						struct DDH_Group *group, gmp_randstate_t state)
 {
-	pk = (struct PVM_OT_PK*) calloc(1, sizeof(struct PVM_OT_PK));
-	mpz_init(pk -> g);
-	mpz_init(pk -> h);
-
-	sk = (PVM_OT_SK*) calloc(1, sizeof(PVM_OT_SK));
-	mpz_init(*sk);
-
+	struct otKeyPair *keyPair = initKeyPair();
 
 	do
 	{
-		mpz_urandomm(*sk, state, group -> p);
-	} while( 0 == mpz_cmp_ui(*sk, 0) );
+		mpz_urandomm( *(keyPair -> sk), state, group -> p);
+	} while( 0 == mpz_cmp_ui(*(keyPair -> sk), 0) );
 
 	// CRS is null here. Need to use those structs for messyparams etc.
 	// Potential to change crs to {g[2], h[2]} and then avoid branching.
 	if(0 == sigmaBit)
 	{
-		mpz_powm(pk -> g, crs -> g_0, *sk, group -> p);
-		printf("Checkpoint Meh 1\n");
-		fflush(stdout);
-		mpz_powm(pk -> h, crs -> h_0, *sk, group -> p);
+		mpz_powm(keyPair -> pk -> g, crs -> g_0, *(keyPair -> sk), group -> p);
+		mpz_powm(keyPair -> pk -> h, crs -> h_0, *(keyPair -> sk), group -> p);
 	}
 	else if(1 == sigmaBit)
 	{
-		mpz_powm(pk -> g, crs -> g_1, *sk, group -> p);
-		printf("Checkpoint Meh 2\n");
-		fflush(stdout);
-		mpz_powm(pk -> h, crs -> h_1, *sk, group -> p);
+		mpz_powm(keyPair -> pk -> g, crs -> g_1, *(keyPair -> sk), group -> p);
+		mpz_powm(keyPair -> pk -> h, crs -> h_1, *(keyPair -> sk), group -> p);
 	}
-	printf("Checkpoint Meh\n");
-	fflush(stdout);
+
+	return keyPair;
 }
 
 
@@ -161,11 +176,9 @@ struct DDH_PK *setPrimitivePK(struct CRS *crs,
 {
 	struct DDH_PK *pk = initPublicKey();
 
-	mpz_init(pk -> g);
-	mpz_init(pk -> h);
 
-	mpz_init_set(pk -> g_x, otPK -> g);
-	mpz_init_set(pk -> h_x, otPK -> h);
+	mpz_set(pk -> g_x, otPK -> g);
+	mpz_set(pk -> h_x, otPK -> h);
 
 	if(0 == sigmaBit)
 	{
@@ -201,7 +214,7 @@ mpz_t *PVW_OT_Dec(struct u_v_Pair *CT,
 				PVM_OT_SK *sk)
 {
 	mpz_t *M_Prime = decDDH(sk, group, CT);
-
+	
 	return M_Prime;
 }
 
@@ -302,6 +315,7 @@ int testOT_PWV_DDH_Local()
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *decSigma = (mpz_t*) calloc(1, sizeof(mpz_t));
 	struct u_v_Pair *y0, *y1;
+	struct otKeyPair *keyPair;
 	
 	unsigned char *input0Bytes = generateRandBytes(16, 16);
 	unsigned char *input1Bytes = generateRandBytes(16, 16);
@@ -309,37 +323,19 @@ int testOT_PWV_DDH_Local()
 	int tempInt1, tempInt2;
 
 	gmp_randstate_t *state = seedRandGen();
-	struct DDH_Group *group;
-	struct CRS *crs;
-	struct PVM_OT_PK *pk;
-	PVM_OT_SK *sk;
-	TrapdoorDec *t;
+	struct decParams *params;
 
-	group = setupDec( crs, t, 1024, *state );
-	printf("Checkpoint 1\n");
-	fflush(stdout);
+	params = setupDec( 1024, *state );
+
 	convertBytesToMPZ(input0, input0Bytes, 16);
 	convertBytesToMPZ(input1, input1Bytes, 16);
 
-	keyGen(pk, sk, crs, 0x00, group, *state);
+	keyPair = keyGen(params -> crs, 0x00, params -> group, *state);
 
-	printf("Checkpoint 2\n");
-	fflush(stdout);
+	y0 = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
+	y1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
 
-	y0 = PVW_OT_Enc(*input0, crs, group, *state, pk, 0x00);
-
-	printf("Checkpoint 3\n");
-	fflush(stdout);
-
-	y1 = PVW_OT_Enc(*input1, crs, group, *state, pk, 0x01);
-
-	printf("Checkpoint 4\n");
-	fflush(stdout);
-
-	gmp_printf("%Zd\n", *input0);
-	gmp_printf("%Zd\n", *input1);
-
-	decSigma = PVW_OT_Dec(y0, crs, group, sk);
+	decSigma = PVW_OT_Dec(y0, params -> crs, params -> group, keyPair -> sk);
 
 	outputBytes1 = convertMPZToBytes(*decSigma, &tempInt1);
 	outputBytes2 = convertMPZToBytes(*input0, &tempInt2);
@@ -354,6 +350,33 @@ int testOT_PWV_DDH_Local()
 	{	
 		printf("%u + %u + %u\n", input0Bytes[i], outputBytes1[i], outputBytes2[i]);
 	}
+
+	return 0;
+}
+
+
+int test_DDH_Local()
+{
+	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *decSigma = (mpz_t*) calloc(1, sizeof(mpz_t));
+
+	struct u_v_Pair *y0;
+	struct DDH_Group *group = initGroupStruct();
+	struct DDH_KeyPair *keyPair;
+	
+	unsigned char *outputBytes1;
+	int tempInt1, tempInt2, i;
+
+	gmp_randstate_t *state = seedRandGen();
+
+	group = generateGroup(1024, *state);
+	mpz_urandomm(*input0, *state, group -> p);
+	keyPair = generateKeys(group, *state);
+
+	y0 = encDDH(keyPair -> pk, group, *input0, *state);
+	decSigma = decDDH(keyPair -> sk, group, y0);
+
+	printf("-- %d\n", mpz_cmp(*decSigma, *input0));
 
 	return 0;
 }

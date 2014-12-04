@@ -41,24 +41,28 @@ struct u_v_Pair *randomiseDDH(struct DDH_PK *pk, struct DDH_Group *group, gmp_ra
 	struct u_v_Pair *toReturn = (struct u_v_Pair*) calloc(1, sizeof(struct u_v_Pair));
 	mpz_t s, t;
 	mpz_t tempPowS, tempPowT;
+	mpz_t temp;
 
 	mpz_init(s);
 	mpz_init(t);
+	mpz_init(temp);
 	mpz_init(tempPowS);
 	mpz_init(tempPowT);
+	mpz_init(toReturn -> u);
+	mpz_init(toReturn -> v);
 
 	mpz_urandomm(s, state, group -> p);
 	mpz_urandomm(t, state, group -> p);
 
 	mpz_powm(tempPowS, pk -> g, s, group -> p);
 	mpz_powm(tempPowT, pk -> h, t, group -> p);
-	mpz_mul(toReturn -> u, tempPowS, tempPowT);
-	mpz_mod(toReturn -> u, toReturn -> u, group -> p);
+	mpz_mul(temp, tempPowS, tempPowT);
+	mpz_mod(toReturn -> u, temp, group -> p);
 
 	mpz_powm(tempPowS, pk -> g_x, s, group -> p);
 	mpz_powm(tempPowT, pk -> h_x, t, group -> p);
-	mpz_mul(toReturn -> u, tempPowS, tempPowT);
-	mpz_mod(toReturn -> u, toReturn -> u, group -> p);
+	mpz_mul(temp, tempPowS, tempPowT);
+	mpz_mod(toReturn -> v, temp, group -> p);
 
 	return toReturn;
 }
@@ -76,7 +80,6 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 		mpz_urandomm(group -> g, state, group -> p);
 	} while( 0 > mpz_cmp_ui(group -> g, 1) );
 
-
 	mpz_sub_ui(group -> pOrder, group -> p, 1);
 
 	return group;
@@ -84,25 +87,28 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 
 
 // Generate the keys given a group.
-void generateKeys(struct DDH_PK *pk, DDH_SK *sk, struct DDH_Group *group, gmp_randstate_t state)
+struct DDH_KeyPair *generateKeys(struct DDH_Group *group, gmp_randstate_t state)
 {
-	pk = initPublicKey();
-	sk = (DDH_SK*) calloc(1, sizeof(mpz_t));
-	mpz_init(*sk);
+	struct DDH_KeyPair *DDH_keyPair = (struct DDH_KeyPair*) calloc(1, sizeof(struct DDH_KeyPair));
+	DDH_keyPair -> pk = initPublicKey();
+	DDH_keyPair -> sk = (DDH_SK*) calloc(1, sizeof(mpz_t));
+	mpz_init( *(DDH_keyPair -> sk) );
 
-	mpz_set(pk -> g, group -> g);
+	mpz_set(DDH_keyPair -> pk -> g, group -> g);
 	do
 	{
-		mpz_urandomm(pk -> h, state, group -> p);
-	} while( 0 < mpz_cmp_ui(pk -> h, 1) );
+		mpz_urandomm(DDH_keyPair -> pk -> h, state, group -> p);
+	} while( 0 > mpz_cmp_ui(DDH_keyPair -> pk -> h, 1) );
 
 	do
 	{
-		mpz_urandomm(*sk, state, group -> p);
-	} while( 0 < mpz_cmp_ui(*sk, 1) );
+		mpz_urandomm( *(DDH_keyPair -> sk), state, group -> p);
+	} while( 0 > mpz_cmp_ui( *(DDH_keyPair -> sk), 1) );
 
-	mpz_powm(pk -> g_x, pk -> g, *sk, group -> p);
-	mpz_powm(pk -> h_x, pk -> h, *sk, group -> p);
+	mpz_powm(DDH_keyPair -> pk -> g_x, DDH_keyPair -> pk -> g, *(DDH_keyPair -> sk), group -> p);
+	mpz_powm(DDH_keyPair -> pk -> h_x, DDH_keyPair -> pk -> h, *(DDH_keyPair -> sk), group -> p);
+
+	return DDH_keyPair;
 }
 
 
@@ -115,7 +121,7 @@ struct u_v_Pair *encDDH(struct DDH_PK *pk, struct DDH_Group *group, mpz_t m, gmp
 	mpz_init(tempVM);
 
 	mpz_mul(tempVM, C -> v, m);
-	mpz_mul(C -> v, tempVM, group -> p);
+	mpz_mod(C -> v, tempVM, group -> p);
 
 	return C;
 }
@@ -126,8 +132,10 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
 {
 	mpz_t *M = (mpz_t *) calloc(1, sizeof(mpz_t));
 	mpz_t c1_sk, c1_sk_inv;
+	mpz_t M_unmodded;
 
 	mpz_init(*M);
+	mpz_init(M_unmodded);
 	mpz_init(c1_sk);
 	mpz_init(c1_sk_inv);
 
@@ -136,7 +144,8 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
     mpz_invert(c1_sk_inv, c1_sk, group -> p);
 
     // M = c_1 * (c_0 ^ sk) ^ -1
-	mpz_mul(*M, c1_sk_inv, C -> v);
+	mpz_mul(M_unmodded, c1_sk_inv, C -> v);
+	mpz_mod(*M, M_unmodded, group -> p);
 
 	return M;
 }

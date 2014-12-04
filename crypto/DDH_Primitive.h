@@ -26,6 +26,14 @@ typedef struct u_v_Pair
 
 typedef mpz_t  DDH_SK;
 
+
+typedef struct DDH_KeyPair
+{
+	struct DDH_PK *pk;
+	DDH_SK *sk;
+}  DDH_KeyPair;
+
+
 #include "gmpUtils.c"
 #include "DDH_Primitive.c"
 

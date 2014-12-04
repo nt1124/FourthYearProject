@@ -219,6 +219,8 @@ int main(int argc, char *argv[])
     // testRTL_Read(circuitFilepath, argv[2]);
     // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
     testOT_PWV_DDH_Local();
+    // test_DDH_Local();
+    // testElgamal();
     // testRunZeroedInput(circuitFilepath);
 
     return 0;

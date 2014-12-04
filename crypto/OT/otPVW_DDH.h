@@ -43,7 +43,6 @@ typedef struct TrapdoorDecKey
 	mpz_t r_yInv;
 } TrapdoorDecKey;
 
-
 typedef struct messyParams
 {
 	struct CRS *crs;
@@ -51,13 +50,19 @@ typedef struct messyParams
 	struct TrapdoorMessy *trapdoor;
 } messyParams;
 
-
 typedef struct decParams
 {
 	struct CRS *crs;
 	struct DDH_Group *group;
 	TrapdoorDec *trapdoor;
 } decParams;
+
+typedef struct otKeyPair
+{
+	struct PVM_OT_PK *pk;
+	PVM_OT_SK *sk;
+} otKeyPair;
+
 
 
 
