@@ -34,10 +34,11 @@ struct TrapdoorDecKey *initTrapdoorDecKey()
 
 
 // Generates a group 
-void setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
-				int securityParam, struct DDH_Group *group,
+struct DDH_Group *setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
+				int securityParam,
 				gmp_randstate_t state)
 {
+	struct DDH_Group *group;
 	crs = initCRS();
 	tMessy = initTrapdoorMessy();
 
@@ -66,14 +67,17 @@ void setupMessy(struct CRS *crs, struct TrapdoorMessy *tMessy,
 
 	mpz_powm(crs -> h_0, crs -> g_0, tMessy -> x_0, group -> p);
 	mpz_powm(crs -> h_1, crs -> g_1, tMessy -> x_1, group -> p);
+
+	return group;
 }
 
 
-void setupDec(struct CRS *crs, TrapdoorDec *t,
-			int securityParam,
-			struct DDH_Group *group, gmp_randstate_t state)
+struct DDH_Group *setupDec(struct CRS *crs, TrapdoorDec *t,
+							int securityParam,
+							gmp_randstate_t state)
 {
 	mpz_t x, y;
+	struct DDH_Group *group;
 
 	crs = initCRS();
 	t = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
@@ -108,6 +112,9 @@ void setupDec(struct CRS *crs, TrapdoorDec *t,
 
 	mpz_powm(crs -> h_0, crs -> g_0, x, group -> p);
 	mpz_powm(crs -> h_1, crs -> g_1, x, group -> p);
+
+
+	return group;
 }
 
 
@@ -122,25 +129,30 @@ void keyGen(struct PVM_OT_PK *pk, PVM_OT_SK *sk,
 	sk = (PVM_OT_SK*) calloc(1, sizeof(PVM_OT_SK));
 	mpz_init(*sk);
 
-	// SEG FAULT HERE
+
 	do
 	{
 		mpz_urandomm(*sk, state, group -> p);
 	} while( 0 == mpz_cmp_ui(*sk, 0) );
 
-	printf("Checkpoint Meh\n");
-	fflush(stdout);
+	// CRS is null here. Need to use those structs for messyparams etc.
 	// Potential to change crs to {g[2], h[2]} and then avoid branching.
 	if(0 == sigmaBit)
 	{
 		mpz_powm(pk -> g, crs -> g_0, *sk, group -> p);
+		printf("Checkpoint Meh 1\n");
+		fflush(stdout);
 		mpz_powm(pk -> h, crs -> h_0, *sk, group -> p);
 	}
 	else if(1 == sigmaBit)
 	{
 		mpz_powm(pk -> g, crs -> g_1, *sk, group -> p);
+		printf("Checkpoint Meh 2\n");
+		fflush(stdout);
 		mpz_powm(pk -> h, crs -> h_1, *sk, group -> p);
 	}
+	printf("Checkpoint Meh\n");
+	fflush(stdout);
 }
 
 
@@ -303,7 +315,7 @@ int testOT_PWV_DDH_Local()
 	PVM_OT_SK *sk;
 	TrapdoorDec *t;
 
-	setupDec( crs, t, 1024, group, *state );
+	group = setupDec( crs, t, 1024, *state );
 	printf("Checkpoint 1\n");
 	fflush(stdout);
 	convertBytesToMPZ(input0, input0Bytes, 16);
