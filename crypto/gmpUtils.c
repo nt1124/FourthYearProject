@@ -103,36 +103,7 @@ char *convertBytesToHex(unsigned char *input, int inputLength)
 }
 
 
-// We assume that memory for *z has already been calloc-ed
-void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
-{
-	mpz_init(*z);
-
-	char *hexStr = convertBytesToHex(input, inputLength);
-	mpz_set_str(*z, hexStr, 16);
-	free(hexStr);
-}
-
-
 unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
-{
-	int shift = 0;
-	*inputLength = numberOfHexChars(input, &shift);
-
-	unsigned char *bytesToOutput = (unsigned char*) calloc( *inputLength, sizeof(unsigned char));
-	char *hexVersion = (char*) calloc(*inputLength, sizeof(char));
-
-	*(hexVersion) = '0';
-
-	mpz_get_str( (hexVersion + shift), -16, input);
-
-	convertHexStringToBytes(bytesToOutput, hexVersion, (*inputLength) * 2);
-
-	return bytesToOutput;
-}
-
-
-unsigned char *convertMPZToBytesAlt(mpz_t input, int *inputLength)
 {
 	unsigned char *bytesToOutput;
 
@@ -146,7 +117,7 @@ unsigned char *convertMPZToBytesAlt(mpz_t input, int *inputLength)
 }
 
 // We assume space has already been calloc-ed for z.
-void convertBytesToMPZAlt(	mpz_t *z, unsigned char *input, int inputLength)
+void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 {
 	mpz_init(*z);
 

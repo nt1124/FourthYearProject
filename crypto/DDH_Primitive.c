@@ -14,7 +14,6 @@ struct DDH_Group *initGroupStruct()
 	struct DDH_Group *group = (struct DDH_Group*) calloc(1, sizeof(struct DDH_Group));
 
 	mpz_init(group -> p);
-	mpz_init(group -> pOrder);
 	mpz_init(group -> g);
 
 	return group;
@@ -79,8 +78,6 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 	{
 		mpz_urandomm(group -> g, state, group -> p);
 	} while( 0 > mpz_cmp_ui(group -> g, 1) );
-
-	mpz_sub_ui(group -> pOrder, group -> p, 1);
 
 	return group;
 }
@@ -148,4 +145,45 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
 	mpz_mod(*M, M_unmodded, group -> p);
 
 	return M;
+}
+
+
+int sendGroupAsBytes(int writeSocket, struct DDH_Group *group)
+{
+	unsigned char *curBytes;
+	int curLength;
+
+	curBytes = convertMPZToBytes( group -> p, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes( group -> g, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	return 1;
+}
+
+
+
+
+int test_DDH_Local()
+{
+	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *decSigma = (mpz_t*) calloc(1, sizeof(mpz_t));
+
+	struct u_v_Pair *y0;
+	struct DDH_Group *group = initGroupStruct();
+	struct DDH_KeyPair *keyPair;
+
+	gmp_randstate_t *state = seedRandGen();
+	group = generateGroup(1024, *state);
+
+	mpz_urandomm(*input0, *state, group -> p);
+	keyPair = generateKeys(group, *state);
+
+	y0 = encDDH(keyPair -> pk, group, *input0, *state);
+	decSigma = decDDH(keyPair -> sk, group, y0);
+
+	printf("-- %d\n", mpz_cmp(*decSigma, *input0));
+
+	return 0;
 }

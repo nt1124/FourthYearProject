@@ -146,8 +146,6 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 	struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 	unsigned char *nBytes;
 
-	// nBytes = convertMPZToBytesAlt(SKi -> N, &nLength);
-	// sendBoth(sockfd, (octet*) nBytes, nLength);
 
 	readInputDetailsFileExec(sockfd, filepath, inputCircuit, state, SKi);
 

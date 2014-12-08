@@ -6,26 +6,6 @@
 #include "circuitUtils.h"
 
 
-int compilationOfTests()
-{
-    // testAES();
-    // testElgamal();
-    // testRSA();
-    // testByteConvert();
-
-    /*
-    for(i = 0; i < numGates; i ++)
-    {
-        printf("+++++  Gate %02d  +++++\n", i);
-        testSerialisation(inputCircuit[i]);
-        printf("\n");
-    }
-    */
-    return 1;
-}
-
-
-
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
     unsigned char *nBytes;
@@ -107,6 +87,9 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
         printf("%d", output[i]);
     }
     printf("\n");
+
+    testAES_Zeroed();
+
 
     for(i = 0; i < numGates; i ++)
     {
@@ -190,9 +173,6 @@ void testRTL_Read(char *circuitFilepath, char *inputFile)
 
 void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
 {
-    // char tempAlice[] = "And.alice.input\0";
-    // char tempBob[] = "And.bob.input\0";
-
     if(0 == builder)
     {
         printf("Running Executor.\n");
@@ -213,14 +193,13 @@ int main(int argc, char *argv[])
     srand( time(NULL) );
 
     char *circuitFilepath = argv[1];
-    // int builder = atoi(argv[5]);
+    int builder = atoi(argv[5]);
 
     // runLocally(circuitFilepath, argv[2], argv[3]);
     // testRTL_Read(circuitFilepath, argv[2]);
-    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
-    testOT_PWV_DDH_Local();
+    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    // testOT_PWV_DDH_Local();
     // test_DDH_Local();
-    // testElgamal();
     // testRunZeroedInput(circuitFilepath);
 
     return 0;

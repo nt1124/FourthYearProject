@@ -18,8 +18,8 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	int n0Length = 0, e0Length = 0, n1Length = 0, e1Length = 0;
 	int enc0Length = 0, enc1Length = 0;
 
-	convertBytesToMPZAlt(input0, input0Bytes, inputLengths);
-	convertBytesToMPZAlt(input1, input1Bytes, inputLengths);
+	convertBytesToMPZ(input0, input0Bytes, inputLengths);
+	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
 	// We get PK0, PK1 from receiver here. Receive!
 	n0Bytes = receiveBoth(writeSocket, n0Length);
@@ -35,8 +35,8 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	enc0Num = encRSA(*input0, PK0);
 	enc1Num = encRSA(*input1, PK1);
 
-	enc0Bytes = convertMPZToBytesAlt(*enc0Num, &enc0Length);
-	enc1Bytes = convertMPZToBytesAlt(*enc1Num, &enc1Length);
+	enc0Bytes = convertMPZToBytes(*enc0Num, &enc0Length);
+	enc1Bytes = convertMPZToBytes(*enc1Num, &enc1Length);
 
 	// Send enc0Bytes and enc1Bytes to Receiver
 	sendBoth(writeSocket, (octet*) enc0Bytes, enc0Length);
@@ -74,14 +74,14 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	}
 
 	// We send PK0 to sender here.
-	n0Bytes = convertMPZToBytesAlt(PK0 -> N, &n0Length);
-	e0Bytes = convertMPZToBytesAlt(PK0 -> e, &e0Length);
+	n0Bytes = convertMPZToBytes(PK0 -> N, &n0Length);
+	e0Bytes = convertMPZToBytes(PK0 -> e, &e0Length);
 	sendBoth(readSocket, (octet*) n0Bytes, n0Length);
 	sendBoth(readSocket, (octet*) e0Bytes, e0Length);
 
 	// We send PK1 to sender here.
-	n1Bytes = convertMPZToBytesAlt(PK1 -> N, &n1Length);
-	e1Bytes = convertMPZToBytesAlt(PK1 -> e, &e1Length);
+	n1Bytes = convertMPZToBytes(PK1 -> N, &n1Length);
+	e1Bytes = convertMPZToBytes(PK1 -> e, &e1Length);
 	sendBoth(readSocket, (octet*) n1Bytes, n1Length);
 	sendBoth(readSocket, (octet*) e1Bytes, e1Length);
 
@@ -90,9 +90,9 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	enc1Bytes = receiveBoth(readSocket, enc1Length);
 
 	if(0 == inputBit)
-		convertBytesToMPZAlt(tempEncNum, enc0Bytes, enc0Length);
+		convertBytesToMPZ(tempEncNum, enc0Bytes, enc0Length);
 	else
-		convertBytesToMPZAlt(tempEncNum, enc1Bytes, enc1Length);
+		convertBytesToMPZ(tempEncNum, enc1Bytes, enc1Length);
 
 	free(enc0Bytes);	free(enc1Bytes);
 	free(n0Bytes);		free(e0Bytes);
@@ -100,7 +100,7 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	free(PK0);			free(PK1);
 
 	outputNum = decRSA(*tempEncNum, SKi);
-	outputBytes = convertMPZToBytesAlt(*outputNum, outputLength);
+	outputBytes = convertMPZToBytes(*outputNum, outputLength);
 
 	free(tempEncNum);
 		

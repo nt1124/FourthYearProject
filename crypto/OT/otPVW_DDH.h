@@ -1,5 +1,6 @@
 // An implementation of the DDH realisation of Dual mode system laid out in...
 // "A framework for Efficient and Composable Oblivious Transfer", Peikert, Vaikuntanthan and Waters. 
+// CRYPTO 2008
 
 #ifndef PVM_DDH_OT
 #define PVM_DDH_OT

@@ -161,8 +161,8 @@ void updateRSAKey(struct rsaPrivKey *privKey, struct rsaPubKey *pubKey, gmp_rand
 void pubKeyToBytes(struct rsaPubKey *input, unsigned char *N_Bytes, int *nLength,
 											unsigned char *e_Bytes, int *eLength)
 {
-	N_Bytes = convertMPZToBytesAlt(input -> N, nLength);
-	e_Bytes = convertMPZToBytesAlt(input -> e, eLength);
+	N_Bytes = convertMPZToBytes(input -> N, nLength);
+	e_Bytes = convertMPZToBytes(input -> e, eLength);
 }
 
 
@@ -174,8 +174,8 @@ struct rsaPubKey *bytesToPubKey(unsigned char *N_Bytes, int nLength,
 	mpz_t *nNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *eNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 
-	convertBytesToMPZAlt(nNum, N_Bytes, nLength);
-	convertBytesToMPZAlt(eNum, e_Bytes, eLength);
+	convertBytesToMPZ(nNum, N_Bytes, nLength);
+	convertBytesToMPZ(eNum, e_Bytes, eLength);
 
 	mpz_set(outputKey -> N, *nNum);
 	mpz_set(outputKey -> e, *eNum);
@@ -190,7 +190,7 @@ struct rsaPubKey *bytesToPubKeyAlt(mpz_t nNum, unsigned char *e_Bytes, int eLeng
 
 	mpz_t *eNum = (mpz_t*) calloc(1, sizeof(mpz_t));
 
-	convertBytesToMPZAlt(eNum, e_Bytes, eLength);
+	convertBytesToMPZ(eNum, e_Bytes, eLength);
 
 	mpz_set(outputKey -> N, nNum);
 	mpz_set(outputKey -> e, *eNum);
@@ -267,7 +267,7 @@ void testByteConvert()
     gmp_printf("%Zd\n", inputMsg);
    	int temporary = 0, temporary1 = 0;
     unsigned char *tempChars = convertMPZToBytes(inputMsg, &temporary);
-    unsigned char *tempCharsAlt = convertMPZToBytesAlt(inputMsg, &temporary1);
+    unsigned char *tempCharsAlt = convertMPZToBytes(inputMsg, &temporary1);
 
     int i = 0;
     for(i = 0; i < temporary; i ++)
@@ -286,7 +286,7 @@ void testByteConvert()
 	convertBytesToMPZ(tempMPZ, tempChars, temporary);
 	gmp_printf("%Zd\n", *tempMPZ);
 
-	convertBytesToMPZAlt(tempMPZ, tempCharsAlt, temporary1);
+	convertBytesToMPZ(tempMPZ, tempCharsAlt, temporary1);
 	gmp_printf("%Zd\n", *tempMPZ);
     
 }

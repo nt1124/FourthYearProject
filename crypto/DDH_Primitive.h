@@ -1,10 +1,11 @@
 #ifndef DDH_PRIMS
 #define DDH_PRIMS
 
+
+
 typedef struct DDH_Group
 {
-	mpz_t p;		// Basically the group size, should be prime.
-	mpz_t pOrder;	// Basically the group size, should be prime.
+	mpz_t p;		// The group modulus.
 	mpz_t g;		// Generator of group.
 }  DDH_Group;
 
@@ -35,6 +36,7 @@ typedef struct DDH_KeyPair
 
 
 #include "gmpUtils.c"
+#include "../comms/sockets.h"
 #include "DDH_Primitive.c"
 
 

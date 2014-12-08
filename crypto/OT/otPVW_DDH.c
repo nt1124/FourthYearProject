@@ -10,6 +10,64 @@ struct CRS *initCRS()
 	return crs;
 }
 
+
+// Converts CRS into bytes and then sends to the provided socket.
+int sendCRS(int writeSocket, struct CRS *crs)
+{
+	unsigned char *curBytes;
+	int curLength;
+
+	curBytes = convertMPZToBytes( crs -> g_0, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes( crs -> h_0, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes( crs -> g_1, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes( crs -> h_1, &curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	return 1;
+}
+
+
+// Receives the CRS as bytes and creates a CRS from these bytes.
+// Probably potential for efficiency gains here if we did the whole CRS in one go.
+// Would need to send lengths of each section for that though.
+struct CRS *receiveCRS(int readSocket)
+{
+	struct CRS *crs = initCRS();
+	unsigned char *curBytes;
+	int curLength;
+	
+	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_init(*tempMPZ);
+
+
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(crs -> g_0, *tempMPZ);
+
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(crs -> h_0, *tempMPZ);
+
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(crs -> g_1, *tempMPZ);
+
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(crs -> h_1, *tempMPZ);
+
+	free(tempMPZ);
+
+	return crs;
+}
+
+
 struct TrapdoorMessy *initTrapdoorMessy()
 {
 	struct TrapdoorMessy *t = (struct TrapdoorMessy*) calloc(1, sizeof(struct TrapdoorMessy));
@@ -265,6 +323,14 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
 
 
 
+// All the infrastructre is now complete, now we use what we have to perform OT.
+
+
+struct decParams *senderSetup(int writeSocket, gmp_randstate_t state)
+{
+
+}
+
 /*  SENDER
  *  Runs the transfer phase of the OT protocol
  *  ------------------------------------------
@@ -279,17 +345,25 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
  *	OUTPUT nothing
 */
 
+
 void senderOT_UC(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 
 }
 
 
+struct decParams *receiverSetup(int writeSocket, int securityParam, gmp_randstate_t state)
+{
+	struct decParams *params = setupDec( securityParam, state );
+
+	return params;
+}
+
 /*  RECEIVER
  *  Runs the transfer phase of the OT protocol
  *  ------------------------------------------
  *  Transfer Phase (with input sigma)  
- * 	SAMPLE a random value r <- {0, . . . , q-1} 
+ * 	SAMPLE a random value r <- {0, ... , q - 1} 
  * 	COMPUTE
  * 	4.	g = (g_Sigma) ^ r
  * 	5.	h = (h_Sigma) ^ r
@@ -302,6 +376,7 @@ void senderOT_UC(int writeSocket, unsigned char *input0Bytes, unsigned char *inp
 
 unsigned char *receiverOT_UC(gmp_randstate_t *state, int readSocket, int inputBit, int *outputLength)
 {
+
 
 }
 
@@ -350,33 +425,6 @@ int testOT_PWV_DDH_Local()
 	{	
 		printf("%u + %u + %u\n", input0Bytes[i], outputBytes1[i], outputBytes2[i]);
 	}
-
-	return 0;
-}
-
-
-int test_DDH_Local()
-{
-	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
-	mpz_t *decSigma = (mpz_t*) calloc(1, sizeof(mpz_t));
-
-	struct u_v_Pair *y0;
-	struct DDH_Group *group = initGroupStruct();
-	struct DDH_KeyPair *keyPair;
-	
-	unsigned char *outputBytes1;
-	int tempInt1, tempInt2, i;
-
-	gmp_randstate_t *state = seedRandGen();
-
-	group = generateGroup(1024, *state);
-	mpz_urandomm(*input0, *state, group -> p);
-	keyPair = generateKeys(group, *state);
-
-	y0 = encDDH(keyPair -> pk, group, *input0, *state);
-	decSigma = decDDH(keyPair -> sk, group, y0);
-
-	printf("-- %d\n", mpz_cmp(*decSigma, *input0));
 
 	return 0;
 }
