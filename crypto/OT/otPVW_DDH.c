@@ -116,6 +116,23 @@ struct decParams *initDecParams()
 }
 
 
+int sendDecParams(int writeSocket, struct decParams *paramsToSend)
+{
+	unsigned char *trapdoorBytes;
+	int trapdoorBytesLen;
+
+	sendCRS(writeSocket, params -> crs);
+
+	sendDDH_Group(writeSocket, params -> group);
+
+	trapdoorBytes = convertMPZToBytes( params -> trapdoor, &trapdoorBytesLen);
+	sendBoth(writeSocket, (octet*) trapdoorBytes, trapdoorBytesLen);
+
+	//
+}
+
+
+
 struct otKeyPair *initKeyPair()
 {
 	struct otKeyPair *keyPair = (struct otKeyPair*) calloc(1, sizeof(struct otKeyPair));

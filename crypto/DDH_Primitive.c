@@ -148,7 +148,7 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
 }
 
 
-int sendGroupAsBytes(int writeSocket, struct DDH_Group *group)
+int sendDDH_Group(int writeSocket, struct DDH_Group *group)
 {
 	unsigned char *curBytes;
 	int curLength;
@@ -162,7 +162,27 @@ int sendGroupAsBytes(int writeSocket, struct DDH_Group *group)
 	return 1;
 }
 
+struct DDH_Group *receiveDDH_Group(int readSocket)
+{
+	struct DDH_Group *group = initGroupStruct();
+	unsigned char *curBytes;
+	int curLength;
+	
+	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_init(*tempMPZ);
 
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(group -> p, *tempMPZ);
+
+	curBytes = receiveBoth(readSocket, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(group -> g, *tempMPZ);
+
+	free(tempMPZ);
+
+	return group;
+}
 
 
 int test_DDH_Local()
