@@ -373,35 +373,59 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
 
 // Request a set of params from the Receiver who will run setupDec.
 // Note that the sender will NOT be in possession of the TrapdoorDec.
-struct decParams *senderCRS_Syn(int writeSocket, gmp_randstate_t state)
+struct decParams *senderCRS_Syn(int writeSocket)
 {
 	struct decParams *params = receiveDecParams(writeSocket);
 
 	return params;
 }
 
-/*  SENDER
- *  Runs the transfer phase of the OT protocol
- *  ------------------------------------------
- *	Transfer Phase (with inputs x_0, x_1)
- *	WAIT for message from R
- *	DENOTE the values received by (g,h) 
- *	COMPUTE (u_0,v_0) = RAND(g_0, g, h_0, h)
- *	COMPUTE (u_1,v_1) = RAND(g_1, g, h_1, h)
- *	COMPUTE c_0 = x_0 * v_0
- *	COMPUTE c_1 = x_1 * v_1
- *	SEND (u_0, c_0) and (u_1, c_1) to R
- *	OUTPUT nothing
-*/
 
-
-void senderOT_UC(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
+void senderOT_UC(int sockfd, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
+				struct decParams *params, gmp_randstate_t *state)
 {
+	struct otKeyPair *keyPair = initKeyPair();
+	struct u_v_Pair *c_0, *c_1;
+	mpz_t *outputMPZ, *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *outputBytes, *curBytes;
+	int curLength;
 
+	mpz_init(*tempMPZ);
+	mpz_init(*input0);
+	mpz_init(*input1);
+	
+
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(keyPair -> pk -> g, *tempMPZ);
+
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(keyPair -> pk -> h, *tempMPZ);
+
+	convertBytesToMPZ(input0, input0Bytes, inputLengths);
+	convertBytesToMPZ(input1, input1Bytes, inputLengths);
+
+	c_0 = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
+	c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
+
+	curBytes = convertMPZToBytes(c_0 -> u, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
+	curBytes = convertMPZToBytes(c_0 -> v, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes(c_1 -> u, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
+	curBytes = convertMPZToBytes(c_1 -> v, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
+
+	free(tempMPZ);
 }
 
 
-struct decParams *receiverSetup(int writeSocket, int securityParam, gmp_randstate_t state)
+struct decParams *receiverCRS_Syn(int writeSocket, int securityParam, gmp_randstate_t state)
 {
 	struct decParams *params = setupDec( securityParam, state );
 
@@ -410,66 +434,53 @@ struct decParams *receiverSetup(int writeSocket, int securityParam, gmp_randstat
 	return params;
 }
 
-/*  RECEIVER
- *  Runs the transfer phase of the OT protocol
- *  ------------------------------------------
- *  Transfer Phase (with input sigma)  
- * 	SAMPLE a random value r <- {0, ... , q - 1} 
- * 	COMPUTE
- * 	4.	g = (g_Sigma) ^ r
- * 	5.	h = (h_Sigma) ^ r
- * 	SEND (g, h) to S
- * 	WAIT for messages (u0,c0) and (u1,c1) from S
- * 	IF  NOT	(u0, u1, c0, c1) in G
- * 		REPORT ERROR
- * 	OUTPUT  xSigma = cSigma * (uSigma)^(-r)
-*/
 
 unsigned char *receiverOT_UC(int sockfd, unsigned char inputBit, struct decParams *params,
 							int *outputLength, gmp_randstate_t *state)
 {
-	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);	
-	unsigned char *curBytes;
-	int curLength;
+	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);
 	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
-	mpz_t output;
+	mpz_t *outputMPZ, *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *outputBytes, *curBytes;
+	int curLength;
 	
-	mpz_t *tempMPZ;
 	mpz_init(*tempMPZ);
 
-	// Send Public key to the sender.
-	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
 
 	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
 	sendBoth(sockfd, (octet*) curBytes, curLength);
-
+	curBytes = convertMPZToBytes(keyPair -> pk -> h, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
 
 	curBytes = receiveBoth(sockfd, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_0 -> u, *tempMPZ);
-
 	curBytes = receiveBoth(sockfd, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_0 -> v, *tempMPZ);
 
-
 	curBytes = receiveBoth(sockfd, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_1 -> u, *tempMPZ);
-
 	curBytes = receiveBoth(sockfd, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_1 -> v, *tempMPZ);
 
+	if(0x00 == inputBit)
+		outputMPZ = PVW_OT_Dec(c_0, params -> crs, params -> group, keyPair -> sk);
+	else
+		outputMPZ = PVW_OT_Dec(c_1, params -> crs, params -> group, keyPair -> sk);
+
 	free(tempMPZ);
+
+	outputBytes = convertMPZToBytes(*outputMPZ, outputLength);
+
+	return outputBytes;
 }
 
 
 
-
-
-int testOT_PWV_DDH_Local()
+int testOT_PWV_DDH_Local(int receiverOrSender)
 {
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -512,4 +523,50 @@ int testOT_PWV_DDH_Local()
 	}
 
 	return 0;
+}
+
+
+void testSender_OT_PVW()
+{
+	struct sockaddr_in destWrite, destRead;
+	int writeSocket, readSocket, mainWriteSock, mainReadSock;
+	int writePort = 7654, i;
+	gmp_randstate_t *state = seedRandGen();
+
+	unsigned char *input0Bytes = generateRandBytes(16, 16);
+	unsigned char *input1Bytes = generateRandBytes(16, 16);
+	struct decParams *params;
+
+	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
+
+
+	params = senderCRS_Syn(writeSocket); 
+	senderOT_UC(writeSocket, input0Bytes, input1Bytes, 16, params, state);
+
+	close_server_socket(writeSocket, mainWriteSock);
+}
+
+
+void testReceive_OT_PVW(char *ipAddress)
+{
+	int writeSocket, readSocket, writePort, readPort;
+	struct sockaddr_in serv_addr_write;
+	struct sockaddr_in serv_addr_read;
+
+	readPort = 7654;
+	unsigned char inputBit = 0x01;
+	unsigned char *output;
+	struct decParams *params;
+	int outputLength;
+	int i;
+
+	gmp_randstate_t *state = seedRandGen();
+
+	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
+
+	params = receiverCRS_Syn(readSocket, 1024, *state);
+
+	output = receiverOT_UC(readSocket, inputBit, params, &outputLength, state);
+
+	close_client_socket(readSocket);
 }
