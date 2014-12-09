@@ -116,21 +116,49 @@ struct decParams *initDecParams()
 }
 
 
+// Whoops, pretty sure we shouldn't be sending the Trapdoor value...
 int sendDecParams(int writeSocket, struct decParams *paramsToSend)
 {
+	/*
 	unsigned char *trapdoorBytes;
 	int trapdoorBytesLen;
+	*/
+	sendCRS(writeSocket, paramsToSend -> crs);
 
-	sendCRS(writeSocket, params -> crs);
+	sendDDH_Group(writeSocket, paramsToSend -> group);
 
-	sendDDH_Group(writeSocket, params -> group);
-
-	trapdoorBytes = convertMPZToBytes( params -> trapdoor, &trapdoorBytesLen);
+	/*
+	trapdoorBytes = convertMPZToBytes( *(paramsToSend -> trapdoor), &trapdoorBytesLen);
 	sendBoth(writeSocket, (octet*) trapdoorBytes, trapdoorBytesLen);
-
-	//
+	*/
+	return 1;
 }
 
+
+// Whoops, pretty sure we shouldn't be getting the Trapdoor value...
+struct decParams *receiveDecParams(int readSocket)
+{
+	struct decParams *params = (struct decParams*) calloc(1, sizeof(struct decParams));
+
+	/*
+	unsigned char *trapdoorBytes;
+	int trapdoorBytesLen;
+	TrapdoorDec *trapdoor = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
+	mpz_init(*trapdoor);
+	*/
+
+	params -> crs = receiveCRS(readSocket);
+
+	params -> group = receiveDDH_Group(readSocket);
+
+	/*
+	trapdoorBytes = receiveBoth(readSocket, trapdoorBytesLen);
+	convertBytesToMPZ(trapdoor, trapdoorBytes, trapdoorBytesLen);
+	params -> trapdoor = trapdoor;
+	*/
+
+	return params;
+}
 
 
 struct otKeyPair *initKeyPair()
@@ -343,9 +371,13 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
 // All the infrastructre is now complete, now we use what we have to perform OT.
 
 
-struct decParams *senderSetup(int writeSocket, gmp_randstate_t state)
+// Request a set of params from the Receiver who will run setupDec.
+// Note that the sender will NOT be in possession of the TrapdoorDec.
+struct decParams *senderCRS_Syn(int writeSocket, gmp_randstate_t state)
 {
+	struct decParams *params = receiveDecParams(writeSocket);
 
+	return params;
 }
 
 /*  SENDER
@@ -373,6 +405,8 @@ struct decParams *receiverSetup(int writeSocket, int securityParam, gmp_randstat
 {
 	struct decParams *params = setupDec( securityParam, state );
 
+	sendDecParams(writeSocket, params);
+
 	return params;
 }
 
@@ -391,10 +425,44 @@ struct decParams *receiverSetup(int writeSocket, int securityParam, gmp_randstat
  * 	OUTPUT  xSigma = cSigma * (uSigma)^(-r)
 */
 
-unsigned char *receiverOT_UC(gmp_randstate_t *state, int readSocket, int inputBit, int *outputLength)
+unsigned char *receiverOT_UC(int sockfd, unsigned char inputBit, struct decParams *params,
+							int *outputLength, gmp_randstate_t *state)
 {
+	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);	
+	unsigned char *curBytes;
+	int curLength;
+	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
+	mpz_t output;
+	
+	mpz_t *tempMPZ;
+	mpz_init(*tempMPZ);
+
+	// Send Public key to the sender.
+	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
+
+	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
+	sendBoth(sockfd, (octet*) curBytes, curLength);
 
 
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(c_0 -> u, *tempMPZ);
+
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(c_0 -> v, *tempMPZ);
+
+
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(c_1 -> u, *tempMPZ);
+
+	curBytes = receiveBoth(sockfd, curLength);
+	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	mpz_set(c_1 -> v, *tempMPZ);
+
+	free(tempMPZ);
 }
 
 
