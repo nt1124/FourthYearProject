@@ -6,7 +6,7 @@
 
 
 
-void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths, mpz_t N)
+void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	struct rsaPubKey *PK0, *PK1;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -27,8 +27,8 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
 
-	n1Bytes= receiveBoth(writeSocket, n1Length);
-	e1Bytes= receiveBoth(writeSocket, e1Length);
+	n1Bytes = receiveBoth(writeSocket, n1Length);
+	e1Bytes = receiveBoth(writeSocket, e1Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
 	// PK1 = bytesToPubKeyAlt(N, e1Bytes, e1Length);
 

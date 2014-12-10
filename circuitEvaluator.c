@@ -8,8 +8,6 @@
 
 void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
-    unsigned char *nBytes;
-    mpz_t *N = (mpz_t*) calloc(1, sizeof(mpz_t));
     struct sockaddr_in destWrite, destRead;
     int *execOrder;
     int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -25,14 +23,10 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
-    mpz_init(*N);
-    // nBytes = receiveBoth(writeSocket, nLength);
-    // convertBytesToMPZAlt(N, nBytes, nLength);
-
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
 
-    runCircuitBuilder( inputCircuit, numGates, writeSocket, *N );
+    runCircuitBuilder( inputCircuit, numGates, writeSocket );
 
     close_server_socket(writeSocket, mainWriteSock);
     // close_server_socket(readSocket, mainReadSock);
@@ -42,7 +36,6 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
         freeGateOrWire(inputCircuit[i]);
     }
     free(inputCircuit);
-    free(N);
 }
 
 

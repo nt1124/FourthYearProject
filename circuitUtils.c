@@ -91,7 +91,7 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 
 
 void readInputLinesExec(int sockfd, char *line, struct gateOrWire **inputCircuit,
-									gmp_randstate_t *state, struct rsaPrivKey *SKi)
+									gmp_randstate_t *state, struct decParams *params)
 {
 	int strIndex = 0, gateID = 0, outputLength = 0, i;
 	unsigned char *tempBuffer;
@@ -114,24 +114,27 @@ void readInputLinesExec(int sockfd, char *line, struct gateOrWire **inputCircuit
 	inputCircuit[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit[gateID] -> outputWire -> wirePerm & 0x01);
 
 	// tempBuffer = receiverOT_Toy(sockfd, value, &outputLength);
-	tempBuffer = receiverOT_SH_RSA(SKi, state, sockfd, value, &outputLength);
+	// tempBuffer = receiverOT_SH_RSA(SKi, state, sockfd, value, &outputLength);
+	tempBuffer = receiverOT_UC(sockfd, value, params, &outputLength, state);
 	memcpy(inputCircuit[gateID] -> outputWire -> wireOutputKey, tempBuffer, 16);
 
 	free(tempBuffer);
 }
 
 
-void readInputDetailsFileExec(int sockfd, char *filepath, struct gateOrWire **inputCircuit,
-											gmp_randstate_t *state, struct rsaPrivKey *SKi)
+void readInputDetailsFileExec(int sockfd, char *filepath, struct gateOrWire **inputCircuit)
 {
 	FILE *file = fopen ( filepath, "r" );
+	gmp_randstate_t *state = seedRandGen();
+	// struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
+	struct decParams *params = receiverCRS_Syn(sockfd, 1024, *state);
 
 	if ( file != NULL )
 	{
 		char line [ 512 ];
 		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
-			readInputLinesExec(sockfd, line, inputCircuit, state, SKi);
+			readInputLinesExec(sockfd, line, inputCircuit, state, params);
 		}
 		fclose ( file );
 	}
@@ -142,12 +145,8 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 {
 	unsigned char *tempBuffer;
 	int i, gateID, outputLength = 0, j, nLength;
-	gmp_randstate_t *state = seedRandGen();
-	struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
-	unsigned char *nBytes;
 
-
-	readInputDetailsFileExec(sockfd, filepath, inputCircuit, state, SKi);
+	readInputDetailsFileExec(sockfd, filepath, inputCircuit);
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -160,16 +159,23 @@ void runCircuitExec( struct gateOrWire **inputCircuit, int numGates, int sockfd,
 }
 
 
-void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sockfd, mpz_t N )
+void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int sockfd)
 {
+	struct wire *tempWire;
 	int i;
+	
+	gmp_randstate_t *state = seedRandGen();
+	struct decParams *params = senderCRS_Syn(sockfd);
 
 	for(i = 0; i < numGates; i ++)
 	{
 		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
 			0xF0 == inputCircuit[i] -> outputWire -> wireMask )
 		{
-			provideKeyForGate(inputCircuit[i], sockfd, N);
+			tempWire = inputCircuit[i] -> outputWire;
+			// senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
+			// senderOT_SH_RSA(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
+			senderOT_UC(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state);
 		}
 	}
 }
