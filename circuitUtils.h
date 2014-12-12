@@ -14,6 +14,9 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 
 typedef struct Circuit
 {
+	int circuitID;
+	int numInputs;
+	int numOutputs;
 	int numGates;
 	struct gateOrWire **gates;
 } Circuit;

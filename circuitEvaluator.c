@@ -15,7 +15,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     int numGates, i, nLength;
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
-    // set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
+    set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
     printf("Executor has connected to us.\n");
 
@@ -24,12 +24,12 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     readInputDetailsFileBuilder( inputFilepath, inputCircuit );
 
     printf("Ready to send circuit.\n");
-    sendCircuit(writeSocket, inputCircuit, numGates, execOrder);
+    sendCircuit(writeSocket, readSocket, inputCircuit, numGates, execOrder);
 
-    runCircuitBuilder( inputCircuit, numGates, writeSocket );
+    runCircuitBuilder( inputCircuit, numGates, writeSocket, readSocket );
 
     close_server_socket(writeSocket, mainWriteSock);
-    // close_server_socket(readSocket, mainReadSock);
+    close_server_socket(readSocket, mainReadSock);
 
     for(i = 0; i < numGates; i ++)
     {
@@ -42,56 +42,41 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 {
-    clock_t startClock = clock(); int msec;
-
-    int *execOrder;
-    int writeSocket, readSocket, writePort, readPort;
-    struct sockaddr_in serv_addr_write;
-    struct sockaddr_in serv_addr_read;
-    int numGates = 0, numOutputs = 0, i;
+    struct sockaddr_in serv_addr_write, serv_addr_read;
+    int writeSocket, readSocket;
+    int readPort = atoi(portNumStr), writePort = readPort + 1;
+    int numGates = 0, numOutputs = 0, *execOrder;
+    int i;
 
     struct gateOrWire **inputCircuit;
     unsigned char *output;
 
-    readPort = atoi(portNumStr);
-    writePort = writePort + 1;
-
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
-    // set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
+    set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
     printf("Connected to builder.\n");
 
-    numGates = receiveNumGates(readSocket);
-    execOrder = receiveExecOrder(readSocket, numGates);
-    inputCircuit = receiveCircuit(numGates, readSocket);
+    numGates = receiveNumGates(writeSocket, readSocket);
+    execOrder = receiveExecOrder(writeSocket, readSocket, numGates);
+    inputCircuit = receiveCircuit(numGates, writeSocket, readSocket);
     printf("Received circuit.\n");
 
-    runCircuitExec( inputCircuit, numGates, readSocket, inputFilepath, execOrder );
+    runCircuitExec( inputCircuit, numGates, writeSocket, readSocket, inputFilepath, execOrder );
 
     // printAllOutput(inputCircuit, numGates);
 
     close_client_socket(readSocket);
-    // close_client_socket(writeSocket);
+    close_client_socket(writeSocket);
 
-    output = outputAsBinaryString(inputCircuit, numGates, &numOutputs);
-
-    for(i = 0; i < numOutputs; i ++)
-    {
-        printf("%d", output[i]);
-    }
-    printf("\n");
+    outputAsBinaryString(inputCircuit, numGates, &numOutputs);
 
     testAES_Zeroed();
-
 
     for(i = 0; i < numGates; i ++)
     {
         freeGateOrWire(inputCircuit[i]);
     }
     free(inputCircuit);
-
-    msec = (clock() - startClock) * 1000 / CLOCKS_PER_SEC;
-    printf("Total time taken %d seconds %d milliseconds\n", msec / 1000, msec % 1000);
 }
 
 
@@ -127,14 +112,7 @@ void testRunZeroedInput(char *circuitFilepath)
     zeroAllInputs(inputCircuit, numGates);
 
     runCircuitLocal( inputCircuit, numGates, execOrder );
-    // printAllOutput(inputCircuit, numGates);
-    output = outputAsBinaryString(inputCircuit, numGates, &numOutputs);
-
-    for(i = 0; i < numOutputs; i ++)
-    {
-        printf("%d", output[i]);
-    }
-    printf("\n");
+    outputAsBinaryString(inputCircuit, numGates, &numOutputs);
 
     for(i = 0; i < numGates; i ++)
     {

@@ -158,17 +158,6 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
-int provideKeyForGate(struct gateOrWire *inputGW, int sockfd, mpz_t N)
-{
-	struct wire *tempWire = inputGW -> outputWire;
-
-	// senderOT_Toy(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
-	senderOT_SH_RSA(sockfd, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);
-
-	return 1;
-}
-
-
 struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)
 {
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));

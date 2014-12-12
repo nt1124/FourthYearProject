@@ -1,9 +1,3 @@
-
-#include <string.h>
-#include <time.h>
-#include "aes.h"
-
-
 unsigned char *encryptMultipleKeys(unsigned char **keyList, int numKeys, unsigned char *toEncrypt, int blockCount)
 {
 	unsigned int *RK;
@@ -100,6 +94,8 @@ void testAES_Zeroed()
 	encKeyList[0] = (unsigned char*) calloc(16, sizeof(unsigned char));
 	ciphertext = encryptMultipleKeys(encKeyList, 1, message, 1);
 
+
+	printf("  Correct output as Hex: ");
 	for(i = 0; i < 16; i ++)
 		printf("%02X", ciphertext[i]);
 	printf("\n");

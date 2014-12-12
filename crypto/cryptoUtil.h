@@ -1,9 +1,12 @@
 #ifndef CRYPTO_UTIL
 #define CRYPTO_UTIL
 
+#include "aes.h"
+#include <string.h>
+#include <time.h>
+
 #include "cryptoUtil.c"
 #include "gmpUtils.c"
-#include "elgamal.c"
 #include "rsa.c"
 
 #include "OT/otToy.c"

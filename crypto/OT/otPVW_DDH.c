@@ -12,7 +12,7 @@ struct CRS *initCRS()
 
 
 // Converts CRS into bytes and then sends to the provided socket.
-int sendCRS(int writeSocket, struct CRS *crs)
+int sendCRS(int writeSocket, int readSocket, struct CRS *crs)
 {
 	unsigned char *curBytes;
 	int curLength;
@@ -36,7 +36,7 @@ int sendCRS(int writeSocket, struct CRS *crs)
 // Receives the CRS as bytes and creates a CRS from these bytes.
 // Probably potential for efficiency gains here if we did the whole CRS in one go.
 // Would need to send lengths of each section for that though.
-struct CRS *receiveCRS(int readSocket)
+struct CRS *receiveCRS(int writeSocket, int readSocket)
 {
 	struct CRS *crs = initCRS();
 	unsigned char *curBytes;
@@ -117,15 +117,15 @@ struct decParams *initDecParams()
 
 
 // Whoops, pretty sure we shouldn't be sending the Trapdoor value...
-int sendDecParams(int writeSocket, struct decParams *paramsToSend)
+int sendDecParams(int writeSocket, int readSocket, struct decParams *paramsToSend)
 {
 	/*
 	unsigned char *trapdoorBytes;
 	int trapdoorBytesLen;
 	*/
-	sendCRS(writeSocket, paramsToSend -> crs);
+	sendCRS(writeSocket, readSocket, paramsToSend -> crs);
 
-	sendDDH_Group(writeSocket, paramsToSend -> group);
+	sendDDH_Group(writeSocket, readSocket, paramsToSend -> group);
 
 	/*
 	trapdoorBytes = convertMPZToBytes( *(paramsToSend -> trapdoor), &trapdoorBytesLen);
@@ -135,27 +135,14 @@ int sendDecParams(int writeSocket, struct decParams *paramsToSend)
 }
 
 
-// Whoops, pretty sure we shouldn't be getting the Trapdoor value...
-struct decParams *receiveDecParams(int readSocket)
+
+struct decParams *receiveDecParams(int writeSocket, int readSocket)
 {
 	struct decParams *params = (struct decParams*) calloc(1, sizeof(struct decParams));
 
-	/*
-	unsigned char *trapdoorBytes;
-	int trapdoorBytesLen;
-	TrapdoorDec *trapdoor = (TrapdoorDec*) calloc(1, sizeof(TrapdoorDec));
-	mpz_init(*trapdoor);
-	*/
+	params -> crs = receiveCRS(writeSocket, readSocket);
 
-	params -> crs = receiveCRS(readSocket);
-
-	params -> group = receiveDDH_Group(readSocket);
-
-	/*
-	trapdoorBytes = receiveBoth(readSocket, trapdoorBytesLen);
-	convertBytesToMPZ(trapdoor, trapdoorBytes, trapdoorBytesLen);
-	params -> trapdoor = trapdoor;
-	*/
+	params -> group = receiveDDH_Group(writeSocket, readSocket);
 
 	return params;
 }
@@ -373,15 +360,16 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
 
 // Request a set of params from the Receiver who will run setupDec.
 // Note that the sender will NOT be in possession of the TrapdoorDec.
-struct decParams *senderCRS_Syn(int writeSocket)
+struct decParams *senderCRS_Syn(int writeSocket, int readSocket)
 {
-	struct decParams *params = receiveDecParams(writeSocket);
+	struct decParams *params = receiveDecParams(writeSocket, readSocket);
 
 	return params;
 }
 
 
-void senderOT_UC(int sockfd, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
+void senderOT_UC(int writeSocket, int readSocket,
+				unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
 				struct decParams *params, gmp_randstate_t *state)
 {
 	struct otKeyPair *keyPair = initKeyPair();
@@ -397,11 +385,11 @@ void senderOT_UC(int sockfd, unsigned char *input0Bytes, unsigned char *input1By
 	mpz_init(*input1);
 	
 
-	curBytes = receiveBoth(sockfd, curLength);
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(keyPair -> pk -> g, *tempMPZ);
 
-	curBytes = receiveBoth(sockfd, curLength);
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(keyPair -> pk -> h, *tempMPZ);
 
@@ -412,30 +400,31 @@ void senderOT_UC(int sockfd, unsigned char *input0Bytes, unsigned char *input1By
 	c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
 
 	curBytes = convertMPZToBytes(c_0 -> u, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 	curBytes = convertMPZToBytes(c_0 -> v, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
 	curBytes = convertMPZToBytes(c_1 -> u, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 	curBytes = convertMPZToBytes(c_1 -> v, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
 	free(tempMPZ);
 }
 
 
-struct decParams *receiverCRS_Syn(int writeSocket, int securityParam, gmp_randstate_t state)
+struct decParams *receiverCRS_Syn(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state)
 {
 	struct decParams *params = setupDec( securityParam, state );
 
-	sendDecParams(writeSocket, params);
+	sendDecParams(writeSocket, readSocket, params);
 
 	return params;
 }
 
 
-unsigned char *receiverOT_UC(int sockfd, unsigned char inputBit, struct decParams *params,
+unsigned char *receiverOT_UC(int writeSocket, int readSocket,
+							unsigned char inputBit, struct decParams *params,
 							int *outputLength, gmp_randstate_t *state)
 {
 	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);
@@ -448,21 +437,24 @@ unsigned char *receiverOT_UC(int sockfd, unsigned char inputBit, struct decParam
 
 
 	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 	curBytes = convertMPZToBytes(keyPair -> pk -> h, &curLength);
-	sendBoth(sockfd, (octet*) curBytes, curLength);
+	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
-	curBytes = receiveBoth(sockfd, curLength);
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_0 -> u, *tempMPZ);
-	curBytes = receiveBoth(sockfd, curLength);
+
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_0 -> v, *tempMPZ);
 
-	curBytes = receiveBoth(sockfd, curLength);
+
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_1 -> u, *tempMPZ);
-	curBytes = receiveBoth(sockfd, curLength);
+
+	curBytes = receiveBoth(readSocket, curLength);
 	convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(c_1 -> v, *tempMPZ);
 
@@ -530,20 +522,24 @@ void testSender_OT_PVW()
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
-	int writePort = 7654, i;
+	int writePort, readPort, i;
 	gmp_randstate_t *state = seedRandGen();
+
+	writePort = 7654;
+	readPort = writePort + 1;
 
 	unsigned char *input0Bytes = generateRandBytes(16, 16);
 	unsigned char *input1Bytes = generateRandBytes(16, 16);
 	struct decParams *params;
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
+	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-
-	params = senderCRS_Syn(writeSocket); 
-	senderOT_UC(writeSocket, input0Bytes, input1Bytes, 16, params, state);
+	params = senderCRS_Syn(writeSocket, readSocket); 
+	senderOT_UC(writeSocket, readSocket, input0Bytes, input1Bytes, 16, params, state);
 
 	close_server_socket(writeSocket, mainWriteSock);
+	close_server_socket(readSocket, mainReadSock);
 }
 
 
@@ -554,6 +550,7 @@ void testReceive_OT_PVW(char *ipAddress)
 	struct sockaddr_in serv_addr_read;
 
 	readPort = 7654;
+	writePort = readPort + 1;
 	unsigned char inputBit = 0x01;
 	unsigned char *output;
 	struct decParams *params;
@@ -562,11 +559,14 @@ void testReceive_OT_PVW(char *ipAddress)
 
 	gmp_randstate_t *state = seedRandGen();
 
-	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
+    set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
+    set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
-	params = receiverCRS_Syn(readSocket, 1024, *state);
 
-	output = receiverOT_UC(readSocket, inputBit, params, &outputLength, state);
+	params = receiverCRS_Syn(writeSocket, readSocket, 1024, *state);
+
+	output = receiverOT_UC(writeSocket, readSocket, inputBit, params, &outputLength, state);
 
 	close_client_socket(readSocket);
+	close_client_socket(writeSocket);
 }

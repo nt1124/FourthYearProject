@@ -6,7 +6,7 @@
 
 
 
-void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
+void senderOT_SH_RSA(int writeSocket, int readSocket, unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths)
 {
 	struct rsaPubKey *PK0, *PK1;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -22,13 +22,13 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
 	// We get PK0, PK1 from receiver here. Receive!
-	n0Bytes = receiveBoth(writeSocket, n0Length);
-	e0Bytes = receiveBoth(writeSocket, e0Length);
+	n0Bytes = receiveBoth(readSocket, n0Length);
+	e0Bytes = receiveBoth(readSocket, e0Length);
 	PK0 = bytesToPubKey(n0Bytes, n0Length, e0Bytes, e0Length);
 	// PK0 = bytesToPubKeyAlt(N, e0Bytes, e0Length);
 
-	n1Bytes = receiveBoth(writeSocket, n1Length);
-	e1Bytes = receiveBoth(writeSocket, e1Length);
+	n1Bytes = receiveBoth(readSocket, n1Length);
+	e1Bytes = receiveBoth(readSocket, e1Length);
 	PK1 = bytesToPubKey(n1Bytes, n1Length, e1Bytes, e1Length);
 	// PK1 = bytesToPubKeyAlt(N, e1Bytes, e1Length);
 
@@ -50,7 +50,7 @@ void senderOT_SH_RSA(int writeSocket, unsigned char *input0Bytes, unsigned char 
 }
 
 
-unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state, int readSocket, int inputBit, int *outputLength)
+unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state, int writeSocket, int readSocket, int inputBit, int *outputLength)
 {
 	struct rsaPubKey *PK0, *PK1;
 	unsigned char *enc0Bytes, *enc1Bytes, *outputBytes;
@@ -76,14 +76,14 @@ unsigned char *receiverOT_SH_RSA(struct rsaPrivKey *SKi, gmp_randstate_t *state,
 	// We send PK0 to sender here.
 	n0Bytes = convertMPZToBytes(PK0 -> N, &n0Length);
 	e0Bytes = convertMPZToBytes(PK0 -> e, &e0Length);
-	sendBoth(readSocket, (octet*) n0Bytes, n0Length);
-	sendBoth(readSocket, (octet*) e0Bytes, e0Length);
+	sendBoth(writeSocket, (octet*) n0Bytes, n0Length);
+	sendBoth(writeSocket, (octet*) e0Bytes, e0Length);
 
 	// We send PK1 to sender here.
 	n1Bytes = convertMPZToBytes(PK1 -> N, &n1Length);
 	e1Bytes = convertMPZToBytes(PK1 -> e, &e1Length);
-	sendBoth(readSocket, (octet*) n1Bytes, n1Length);
-	sendBoth(readSocket, (octet*) e1Bytes, e1Length);
+	sendBoth(writeSocket, (octet*) n1Bytes, n1Length);
+	sendBoth(writeSocket, (octet*) e1Bytes, e1Length);
 
 	// receive enc0Bytes and enc1Bytes from Receiver
 	enc0Bytes = receiveBoth(readSocket, enc0Length);
