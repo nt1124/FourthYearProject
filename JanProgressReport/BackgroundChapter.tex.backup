@@ -56,21 +56,9 @@
 
       This model is held up as the ideal to which any SMPC protocol should aspire to, both in terms of functionality and in terms of security.
 	
-    \subsection{Security levels}\label{securityLevels}
+    \subsection{Security levels}
 	
     \subsection{Applications} \label{Applications}
-      At first it might appear that SMPC lacks applications beyond those like the trivial example provided in ref{InformalProbDef}. In fact as this is often the first example given leads many to dismiss SMPC as of limited usefulness. Here we shall provide a number of other active applications either already in use or in the process of emerging.\\
-      
-      
-      \subsubsection{Secret Auctions - Netherlands Beets} \label{BeetsAuctionApplication}
-
-      \subsubsection{Legal cases - Database queries} \label{LegalDatabaseApplication}
-
-      \subsubsection{Distributed encryption} \label{DistributedEncApplication}
-
-      % Should this be a subsubsub?
-      \subsubsection{Secret sharing} \label{SecretSharingApplication}
-
     
     \subsection{Yao Garbled Circuits} \label{Yao_Introduction}
     
