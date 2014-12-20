@@ -1,33 +1,33 @@
-void outputAsBinaryString(struct gateOrWire **inputCircuit, int numGates, int *numOutputs)
+void outputAsHexString(struct Circuit *inputCircuit)//, int numGates, int *numOutputs)
 {
 	int i, j = 0, k;
 	unsigned char *binaryOutput, *hexOutput;
 	unsigned char tempBit, tempHex;
-	*numOutputs = 0;
+	int numOutputs = 0;
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
-			(*numOutputs) ++;
+		if( 0x0F == inputCircuit -> gates[i] -> outputWire -> wireMask )
+			numOutputs ++;
 	}
 
-	binaryOutput = (unsigned char*) calloc(*numOutputs, sizeof(unsigned char));
+	binaryOutput = (unsigned char*) calloc(numOutputs, sizeof(unsigned char));
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		if( 0x0F == inputCircuit[i] -> outputWire -> wireMask )
+		if( 0x0F == inputCircuit -> gates[i] -> outputWire -> wireMask )
 		{
-			tempBit = inputCircuit[i] -> outputWire -> wirePermedValue;
-			binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit[i] -> outputWire -> wirePerm);
+			tempBit = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+			binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
 		}
 	}
 
-	hexOutput = (unsigned char*) calloc( (*numOutputs / 8) + 2, sizeof(unsigned char) );
+	hexOutput = (unsigned char*) calloc( (numOutputs / 8) + 2, sizeof(unsigned char) );
 
 	j = 0;
 	k = 7;
 	tempHex = 0;
-	for(i = 0; i < *numOutputs; i ++)
+	for(i = 0; i < numOutputs; i ++)
 	{
 		hexOutput[j] += (binaryOutput[i] << k);
 		k --;
@@ -203,16 +203,16 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 }
 
 
-void runCircuitLocal( struct gateOrWire **inputCircuit, int numGates, int *execOrder )
+void runCircuitLocal( struct Circuit *inputCircuit)//, int numGates, int *execOrder )
 {
 	int i, j, gateID;
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		gateID = execOrder[i];
-		if( NULL != inputCircuit[gateID] -> gatePayload )
+		gateID = inputCircuit -> execOrder[i];
+		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
-			decryptGate(inputCircuit[gateID], inputCircuit);
+			decryptGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 	}
 }
@@ -316,4 +316,26 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	}
 
 	return inputCircuit;
+}
+
+
+
+struct Circuit *initBasicCircuit()
+{
+	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
+
+	return outputCircuit;
+}
+
+
+void freeCircuitStruct(struct Circuit *toFree)
+{
+	int i;
+    for(i = 0; i < toFree -> numGates; i ++)
+    {
+        freeGateOrWire(toFree -> gates[i]);
+    }
+
+    free(toFree -> gates);
+    free(toFree);
 }

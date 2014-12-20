@@ -19,23 +19,23 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
-    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    // struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
+
+    inputCircuit = readInCircuitRTL(circuitFilepath);
     
-    readInputDetailsFileBuilder( inputFilepath, inputCircuit );
+    readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
 
     printf("Ready to send circuit.\n");
-    sendCircuit(writeSocket, readSocket, inputCircuit, numGates, execOrder);
+    sendCircuit(writeSocket, readSocket, inputCircuit -> gates, inputCircuit -> numGates, inputCircuit -> execOrder);
 
-    runCircuitBuilder( inputCircuit, numGates, writeSocket, readSocket );
+    runCircuitBuilder( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket );
 
     close_server_socket(writeSocket, mainWriteSock);
     close_server_socket(readSocket, mainReadSock);
 
-    for(i = 0; i < numGates; i ++)
-    {
-        freeGateOrWire(inputCircuit[i]);
-    }
-    free(inputCircuit);
+    
+    freeCircuitStruct(inputCircuit);
 }
 
 
@@ -45,10 +45,11 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct sockaddr_in serv_addr_write, serv_addr_read;
     int writeSocket, readSocket;
     int readPort = atoi(portNumStr), writePort = readPort + 1;
-    int numGates = 0, numOutputs = 0, *execOrder;
+    int numGates = 0, numOutputs = 0;
     int i;
 
-    struct gateOrWire **inputCircuit;
+    // struct gateOrWire **inputCircuit;
+    struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
     unsigned char *output;
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
@@ -56,27 +57,22 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     printf("Connected to builder.\n");
 
-    numGates = receiveNumGates(writeSocket, readSocket);
-    execOrder = receiveExecOrder(writeSocket, readSocket, numGates);
-    inputCircuit = receiveCircuit(numGates, writeSocket, readSocket);
+    inputCircuit -> numGates = receiveNumGates(writeSocket, readSocket);
+    inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
+    inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
     printf("Received circuit.\n");
 
-    runCircuitExec( inputCircuit, numGates, writeSocket, readSocket, inputFilepath, execOrder );
+    runCircuitExec( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket, inputFilepath, inputCircuit -> execOrder );
 
-    // printAllOutput(inputCircuit, numGates);
 
     close_client_socket(readSocket);
     close_client_socket(writeSocket);
 
-    outputAsBinaryString(inputCircuit, numGates, &numOutputs);
+    outputAsHexString(inputCircuit);// -> gates, inputCircuit -> numGates, &numOutputs);
 
     testAES_Zeroed();
 
-    for(i = 0; i < numGates; i ++)
-    {
-        freeGateOrWire(inputCircuit[i]);
-    }
-    free(inputCircuit);
+    freeCircuitStruct(inputCircuit);
 }
 
 
@@ -84,21 +80,16 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
     int *execOrder = NULL;
     int numGates;
-    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
     int i;
 
-    readInputDetailsFileBuilder( builderInput, inputCircuit );
-    readInputDetailsFileBuilder( execInput, inputCircuit );
+    readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
+    readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
 
-    runCircuitLocal( inputCircuit, numGates, execOrder );
-    printAllOutput(inputCircuit, numGates);
+    runCircuitLocal( inputCircuit );// -> gates, inputCircuit -> numGates, inputCircuit -> execOrder );
+    printAllOutput(inputCircuit -> gates, inputCircuit -> numGates);
 
-    for(i = 0; i < numGates; i ++)
-    {
-        freeGateOrWire(inputCircuit[i]);
-    }
-
-    free(inputCircuit);
+    freeCircuitStruct(inputCircuit);
 }
 
 
@@ -106,21 +97,15 @@ void testRunZeroedInput(char *circuitFilepath)
 {
     int *execOrder = NULL;
     int numGates, i, numOutputs;
-    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
     unsigned char *output;
     
-    zeroAllInputs(inputCircuit, numGates);
+    zeroAllInputs(inputCircuit -> gates, inputCircuit -> numGates);
 
-    runCircuitLocal( inputCircuit, numGates, execOrder );
-    outputAsBinaryString(inputCircuit, numGates, &numOutputs);
+    runCircuitLocal( inputCircuit );//, numGates, execOrder );
+    outputAsHexString(inputCircuit);//, numGates, &numOutputs);
 
-    for(i = 0; i < numGates; i ++)
-    {
-        freeGateOrWire(inputCircuit[i]);
-    }
-
-    free(inputCircuit);
-
+    freeCircuitStruct(inputCircuit);
     testAES_Zeroed();
 }
 
@@ -129,14 +114,14 @@ void testRTL_Read(char *circuitFilepath, char *inputFile)
 {
     int *execOrder;
     int numGates, i;
-    struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
 
-    readInputDetailsFileBuilder( inputFile, inputCircuit );
+    readInputDetailsFileBuilder( inputFile, inputCircuit -> gates );
 
-    printf("--++  %d  ++--\n", numGates);
-    for(i = 0; i < numGates; i ++)
+    printf("--++  %d  ++--\n", inputCircuit -> numGates);
+    for(i = 0; i < inputCircuit -> numGates; i ++)
     {
-        printGateOrWire(inputCircuit[i]);
+        printGateOrWire(inputCircuit -> gates[i]);
         printf("\n");
     }
 }

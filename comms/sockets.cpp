@@ -74,10 +74,12 @@ void set_up_server_socket(sockaddr_in& dest, int& consocket, int& main_socket, i
             cout << "Binding to socket failed, trying again in a second ..." << endl;
             sleep(1);
         }
+        /*
         else
         {
             printf("Bound on port %d\n", Portnum);
         }
+        */
     }
 
     if(fl < 0)

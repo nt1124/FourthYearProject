@@ -41,30 +41,35 @@
 
   \section{Background Chapter}
     \subsection{Problem definition} \label{InformalProbDef}
-      Secure multi-party computation(SMPC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2PC), but most two party approaches can be generalised to the multi-party case.\\
+      Secure multi-party computation(SMC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2PC), but most two party approaches can be generalised to the multi-party case.\\
       
-      A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worths and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about anothers inputs, apart from what the can infer from their own input and the output.\\
+      A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worths and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about anothers inputs, apart from what the parties can infer from their own input and the output.\\
       
       So for example Whilst this is not exactly an inspiring application, it does explain convey the problem concisely. We shall cover further applications later in \ref{Applications}.\\
 
       Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.
+
+    \subsection{Security levels}\label{securityLevels}
+
 
     \subsection{Formal ideal model}
       Formally speaking any solution developed to the problem of secure two party computation should be equivalent to the following model, which we refer to as the \emph{ideal}.\\
 
       The obvious solution to our problem would be to find an external individual, trusted by both parties. Such a trusted individual could receive the inputs from each party, compute the function and then inform both parties of the output of the function.\\
 
-      This model is held up as the ideal to which any SMPC protocol should aspire to, both in terms of functionality and in terms of security.
+      This model is held up as the ideal to which any SMC protocol should aspire to, both in terms of functionality and in terms of security.
 	
-    \subsection{Security levels}\label{securityLevels}
-	
+
+
     \subsection{Applications} \label{Applications}
-      At first it might appear that SMPC lacks applications beyond those like the trivial example provided in ref{InformalProbDef}. In fact as this is often the first example given leads many to dismiss SMPC as of limited usefulness. Here we shall provide a number of other active applications either already in use or in the process of emerging.\\
+      At first it might appear that SMC lacks applications beyond those like the trivial example provided in \ref{InformalProbDef}. In fact as this is often the first example given leads many to dismiss SMC as of limited usefulness. Here we shall provide a number of other active applications either already in use or in the process of emerging.\\
       
       
       \subsubsection{Secret Auctions - Netherlands Beets} \label{BeetsAuctionApplication}
+			
 
       \subsubsection{Legal cases - Database queries} \label{LegalDatabaseApplication}
+
 
       \subsubsection{Distributed encryption} \label{DistributedEncApplication}
 
@@ -73,8 +78,23 @@
 
     
     \subsection{Yao Garbled Circuits} \label{Yao_Introduction}
-    
+
+
     \subsection{Oblivious Transfer} \label{OT_Intro}
 
-  
+
+
+
+\begin{thebibliography}{5}
+
+\bibitem{SugarBeets}
+Trading Sugar Beet Quotas,\\
+Secure Multiparty Computation in Practice,\\
+ECRIM News 73,\\
+Ivan Damgard and Tomas Toft.
+
+\end{thebibliography}
+
 \end{document}
+
+

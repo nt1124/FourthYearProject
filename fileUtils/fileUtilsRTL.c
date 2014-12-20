@@ -1,24 +1,4 @@
 
-/*
-int getNumGW(char *line)
-{
-	int strIndex = 0;
-	int toReturn = 0;
-
-	while( line[++ strIndex] != ' ' ) {}
-	while( line[++ strIndex] == ' ' ) {}
-
-	while( line[strIndex] != ' ')
-	{
-		toReturn *= 10;
-		toReturn += atoi(line[strIndex++]);
-	}
-
-	return toReturn;
-}
-*/
-
-
 // Function for use in testing, will set all inputs to zero and
 // initialise accordingly.
 void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
@@ -128,7 +108,7 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 
 	numInputWires = getIntFromString(line, strIndex);
 
-	// As of yet unsure of the purpose of this number. Ask Nigel.
+	// As of yet unsure of the purpose of this number. Ask Nigel? Otherwise we just ignore it.
 	purposelessNumber = getIntFromString(line, strIndex);
 
 	inputIDs = (int*) calloc(numInputWires, sizeof(int));
@@ -183,53 +163,57 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 
 
 
-struct gateOrWire **readInCircuitRTL(char* filepath, int *numGates, int **execOrder)
+struct Circuit *readInCircuitRTL(char* filepath)
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
-	int numInputs1, numInputs2, numOutputs;	int gateIndex = 0;
+	int numInputs1, numInputs2, numOutputs, gateIndex = 0;
 	struct gateOrWire *tempGateOrWire;
-	struct gateOrWire **circuit;
-	int i, execIndex;
+	struct gateOrWire **gatesList;
+	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
+	int i, execIndex, *execOrder;
 
 	if ( file != NULL )
 	{
 		if(NULL != fgets(line, sizeof(line), file))
-			sscanf(line, "%d %d", &numInputs1, numGates);
+			sscanf( line, "%d %d", &numInputs1, &(outputCircuit -> numGates) );
 		else
 			return NULL;
 
 		if(NULL != fgets(line, sizeof(line), file))
-			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &numOutputs);
+			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &(outputCircuit -> numOutputs));
 		else
 			return NULL;
 
 		if(NULL == fgets(line, sizeof(line), file))
 			return NULL;
 
-		*execOrder = (int*) calloc(*numGates, sizeof(int));
-		circuit = initialiseAllInputs(*numGates, numInputs1, numInputs2, execOrder);
+		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
+		gatesList = initialiseAllInputs( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder );
 		execIndex = numInputs1 + numInputs2;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
-			tempGateOrWire = processGateLineRTL(line, circuit);
+			tempGateOrWire = processGateLineRTL(line, gatesList);
 			if( NULL != tempGateOrWire )
 			{
 				gateIndex = tempGateOrWire -> G_ID;
-				*(circuit + gateIndex) = tempGateOrWire;
-				// printf("%d  -->  %d\n", execIndex, gateIndex);
-				(*execOrder)[execIndex++] = gateIndex;
+				*(gatesList + gateIndex) = tempGateOrWire;
+				*(execOrder + execIndex) = gateIndex;
+				execIndex++;
 			}
 		}
 
-		for(i = 0; i < numOutputs; i ++)
+		for(i = 0; i < outputCircuit -> numOutputs; i ++)
 		{
-			gateIndex = *numGates - i - 1;
-			circuit[gateIndex] -> outputWire -> wireMask = 0x0F;
+			gateIndex = outputCircuit -> numGates - i - 1;
+			gatesList[gateIndex] -> outputWire -> wireMask = 0x0F;
 		}
 		fclose ( file );
 	}
 
-	return circuit;
+	outputCircuit -> gates = gatesList;
+	outputCircuit -> execOrder = execOrder;
+
+	return outputCircuit;
 }
