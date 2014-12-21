@@ -19,7 +19,6 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
-    // struct gateOrWire **inputCircuit = readInCircuitRTL(circuitFilepath, &numGates, &execOrder);
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 
     inputCircuit = readInCircuitRTL(circuitFilepath);
@@ -48,7 +47,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     int numGates = 0, numOutputs = 0;
     int i;
 
-    // struct gateOrWire **inputCircuit;
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
     unsigned char *output;
 
@@ -60,15 +58,15 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     inputCircuit -> numGates = receiveNumGates(writeSocket, readSocket);
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
     inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
+
     printf("Received circuit.\n");
 
-    runCircuitExec( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket, inputFilepath, inputCircuit -> execOrder );
-
+    runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
     close_client_socket(readSocket);
     close_client_socket(writeSocket);
 
-    outputAsHexString(inputCircuit);// -> gates, inputCircuit -> numGates, &numOutputs);
+    outputAsHexString(inputCircuit);
 
     testAES_Zeroed();
 
@@ -86,8 +84,8 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
     readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
 
-    runCircuitLocal( inputCircuit );// -> gates, inputCircuit -> numGates, inputCircuit -> execOrder );
-    printAllOutput(inputCircuit -> gates, inputCircuit -> numGates);
+    runCircuitLocal( inputCircuit );
+    printAllOutput(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
 }
@@ -102,8 +100,8 @@ void testRunZeroedInput(char *circuitFilepath)
     
     zeroAllInputs(inputCircuit -> gates, inputCircuit -> numGates);
 
-    runCircuitLocal( inputCircuit );//, numGates, execOrder );
-    outputAsHexString(inputCircuit);//, numGates, &numOutputs);
+    runCircuitLocal( inputCircuit );
+    outputAsHexString(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
     testAES_Zeroed();

@@ -1,7 +1,5 @@
-// #include "sockets.h"
-// #include "Exceptions/Exceptions.h"
-
 #include <iostream>
+
 using namespace std;
 
 void error(const char *str)
@@ -29,7 +27,7 @@ void error(const char *str1,const char *str2)
 }
 
 
-// main socket is the socket we use to set up the server and lsiten for connection attemps.
+// Main socket is the socket we use to set up the server and lsiten for connection attemps.
 // consocket is the socket we assign for this conversation?
 void set_up_server_socket(sockaddr_in& dest, int& consocket, int& main_socket, int Portnum)
 {
@@ -62,7 +60,7 @@ void set_up_server_socket(sockaddr_in& dest, int& consocket, int& main_socket, i
         error("set_up_socket:setsockopt");
     }
 
-    /* bind serv information to mysocket 
+    /* Bind serv information to mysocket 
     *   - Just assume it will eventually wake up
     */
     fl = 1;
@@ -74,12 +72,6 @@ void set_up_server_socket(sockaddr_in& dest, int& consocket, int& main_socket, i
             cout << "Binding to socket failed, trying again in a second ..." << endl;
             sleep(1);
         }
-        /*
-        else
-        {
-            printf("Bound on port %d\n", Portnum);
-        }
-        */
     }
 
     if(fl < 0)
@@ -132,7 +124,6 @@ void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sock
         error("set_up_socket:setsockopt");
     }
 
-    // struct sockaddr_in dest;
     dest.sin_family = AF_INET;
     dest.sin_port = htons(Portnum);      // set destination port number 
 
@@ -232,6 +223,7 @@ void sendBoth(int socket, octet *msg, int len)
 
     // get_ack(socket);
 }
+
 
 unsigned char *receiveBoth(int socket, int& len)
 {

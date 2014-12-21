@@ -68,6 +68,7 @@ struct CRS *receiveCRS(int writeSocket, int readSocket)
 }
 
 
+// Initialise the messy side of the trapdoor.
 struct TrapdoorMessy *initTrapdoorMessy()
 {
 	struct TrapdoorMessy *t = (struct TrapdoorMessy*) calloc(1, sizeof(struct TrapdoorMessy));
@@ -79,6 +80,7 @@ struct TrapdoorMessy *initTrapdoorMessy()
 }
 
 
+// Initialise the dec side of the trapdoor.
 struct TrapdoorDecKey *initTrapdoorDecKey()
 {
 	struct TrapdoorDecKey *tDecKey = (struct TrapdoorDecKey*) calloc(1, sizeof(struct TrapdoorDecKey));
@@ -91,6 +93,7 @@ struct TrapdoorDecKey *initTrapdoorDecKey()
 }
 
 
+// Initialise the messy side of the params.
 struct messyParams *initMessyParams()
 {
 	struct messyParams *params = (struct messyParams*) calloc(1, sizeof(struct messyParams));
@@ -103,6 +106,7 @@ struct messyParams *initMessyParams()
 }
 
 
+// Initialise the dec side of the params
 struct decParams *initDecParams()
 {
 	struct decParams *params = (struct decParams*) calloc(1, sizeof(struct messyParams));
@@ -116,26 +120,19 @@ struct decParams *initDecParams()
 }
 
 
-// Whoops, pretty sure we shouldn't be sending the Trapdoor value...
+
 int sendDecParams(int writeSocket, int readSocket, struct decParams *paramsToSend)
 {
-	/*
-	unsigned char *trapdoorBytes;
-	int trapdoorBytesLen;
-	*/
+
 	sendCRS(writeSocket, readSocket, paramsToSend -> crs);
 
 	sendDDH_Group(writeSocket, readSocket, paramsToSend -> group);
 
-	/*
-	trapdoorBytes = convertMPZToBytes( *(paramsToSend -> trapdoor), &trapdoorBytesLen);
-	sendBoth(writeSocket, (octet*) trapdoorBytes, trapdoorBytesLen);
-	*/
 	return 1;
 }
 
 
-
+// Receive the dec params, note that we do NOT get the trapdoor.
 struct decParams *receiveDecParams(int writeSocket, int readSocket)
 {
 	struct decParams *params = (struct decParams*) calloc(1, sizeof(struct decParams));
@@ -148,6 +145,7 @@ struct decParams *receiveDecParams(int writeSocket, int readSocket)
 }
 
 
+// Initialise the key pair.
 struct otKeyPair *initKeyPair()
 {
 	struct otKeyPair *keyPair = (struct otKeyPair*) calloc(1, sizeof(struct otKeyPair));

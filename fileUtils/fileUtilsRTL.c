@@ -75,13 +75,14 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 		}
 	}
 
-	toReturn -> encOutputTable = recursiveOutputTable(toReturn);
+	toReturn -> encOutputTable = createOutputTable(toReturn);
 
 
 	return toReturn;
 }
 
 
+// Process a gateOrWire struct given the data.
 struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
 										char gateType, struct gateOrWire **circuit)
 {
@@ -100,6 +101,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 }
 
 
+// Take a line of the input file and make a gateOrWire struct from it.
 struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 {
 	int strIndex = 0, idNum, i;
@@ -123,6 +125,8 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 }
 
 
+// Initialises an input wire, needed because input wires don't feature in the input file.
+// Therefore they need to initialised separately.
 struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
@@ -162,7 +166,7 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 }
 
 
-
+// Create a circuit given a file in RTL format.
 struct Circuit *readInCircuitRTL(char* filepath)
 {
 	FILE *file = fopen ( filepath, "r" );

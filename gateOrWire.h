@@ -42,14 +42,15 @@ typedef struct gateOrWire
 } gateOrWire;
 
 
+
 // Missing so many functions here!
 void freeGateOrWire(struct gateOrWire *inputGW);
+
+
 
 #include "serialisationUtils.c"
 #include "gateOrWire.c"
 #include <math.h>
-
-
 
 
 #endif

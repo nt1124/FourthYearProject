@@ -35,6 +35,8 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 
 
 #include "circuitUtils.c"
+#include "circuitExecutor.c"
+#include "circuitBuilder.c"
 
 
 #endif

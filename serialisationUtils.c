@@ -3,6 +3,7 @@
 
 
 
+// Get the size of the character buffer we need to store the input gateOrWire in.
 int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInputs)
 {
 	int serialisedSize = 8;
@@ -41,6 +42,8 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 }
 
 
+// Does the actual serialisation of an input wire into a buffer of uchars. Returns length of
+// the buffer.
 int serialiseInputWire(struct gateOrWire *inputGW, unsigned char *toReturn, int offset)
 {
 	int curIndex = offset;
@@ -64,6 +67,7 @@ int serialiseInputWire(struct gateOrWire *inputGW, unsigned char *toReturn, int 
 }
 
 
+// Handles the serialisation of the gate part of a gateOrWire. Returns length of buffer.
 int serialiseGate(struct gate *inputGate, unsigned char *toReturn, int offset)
 {
 	int i, j, curIndex = offset;
@@ -91,6 +95,7 @@ int serialiseGate(struct gate *inputGate, unsigned char *toReturn, int offset)
 }
 
 
+// Handles the serialisation of a gateOrWire. Returns length of buffer.
 unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength)
 {
 	unsigned char *toReturn;
@@ -141,6 +146,7 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 
 
 
+// Deserialise a uchar buffer into an input gateOrWire
 int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, int offset)
 {
 	int curIndex = offset;
@@ -169,6 +175,7 @@ int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, i
 }
 
 
+// Deserialise a section of a (offset) uchar buffer into a gate.
 int deserialiseGate(struct gate **outputGate, unsigned char *serialGW, int offset)
 {
 	int i, j, curIndex = offset;
@@ -255,6 +262,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 }
 
 
+// Runs tests to make sure correctness of serialisation and deserialisation.
 void testSerialisation(struct gateOrWire *inputGW)
 {
 	unsigned char *serialGW;
