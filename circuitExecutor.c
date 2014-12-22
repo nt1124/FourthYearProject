@@ -31,7 +31,7 @@ void readInputLinesExec(int writeSocket, int readSocket,
 }
 
 
-
+// Read the file containing our input data.
 void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, struct Circuit *inputCircuit)
 {
 	FILE *file = fopen ( filepath, "r" );
@@ -51,7 +51,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 }
 
 
-
+// Run the circuit, executor style.
 void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSocket, char *filepath )
 {
 	unsigned char *tempBuffer;
@@ -64,13 +64,14 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 		gateID = inputCircuit -> execOrder[i];
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
-			decryptGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
+			// decryptGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
+			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 	}
 }
 
 
-
+// Receive the number of gates we can expect in this circuit.
 int receiveNumGates(int writeSocket, int readSocket)
 {
 	int numGates;
@@ -82,6 +83,7 @@ int receiveNumGates(int writeSocket, int readSocket)
 
 
 
+// Receive the order in which to execute the gates
 int *receiveExecOrder(int writeSocket, int readSocket, int numGates)
 {
 	unsigned char *buffer;
@@ -97,7 +99,7 @@ int *receiveExecOrder(int writeSocket, int readSocket, int numGates)
 }
 
 
-
+// Receive the actual circuit.
 struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket)
 {
 	int i, j, bufferLength = 0;

@@ -14,6 +14,7 @@ typedef struct gate
 	unsigned char numInputs;		// Number of input wires to gate.
 	int *inputIDs;					// ID of the input wires to gate.
 
+	unsigned char gateType;			// 
 	unsigned short outputTableSize;	// 2 ^ numInputs.
 	unsigned char **encOutputTable; // The encrypted and permutated output table.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.
@@ -24,7 +25,7 @@ typedef struct gate
 typedef struct wire
 {
 	unsigned char wireOwner; 				 // 0xFF indicates owned by circuit builder. 0x00 else.
-	unsigned char wireMask;					 // 0xF0 = input wire; 0x0F = output wire.
+	unsigned char wireMask;					 // 0xF0 = input wire; 0x0F = output wire. 0x01 = input wire; 0x02 = output wire.
 	unsigned char wirePerm;					 // Only the first bit matters. Not efficient but...
 	unsigned char wirePermedValue;			 // The bit value of the wire permutated.
 	unsigned char *wireOutputKey;			 // 16 bytes, the key to be used in keyList.

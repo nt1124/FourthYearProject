@@ -11,12 +11,12 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 	if(NULL != inputGW -> gatePayload)
 		serialisedSize += (32 * outputTableSize) + (4 * numInputs);
 
-	if(0x0F == inputGW -> outputWire -> wireMask)
+	if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
 		serialisedSize ++;
 	else if (0xFF == inputGW -> outputWire -> wireOwner)
 		serialisedSize += 32;
 	
-	if(0xF0 == inputGW -> outputWire -> wireMask)
+	if(0x01 == (0x0F & inputGW -> outputWire -> wireMask))
 	{
 		serialisedSize ++;
 		serialisedSize += 16;
@@ -32,7 +32,7 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 			serialisedSize += (3 + 4 * numInputs + 32 * outputTableSize);
 		}
 
-		if(0x0F == inputGW -> outputWire -> wireMask)
+		if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
 		{
 			serialisedSize ++;
 		}
@@ -120,7 +120,7 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 	toReturn[5] = inputGW -> outputWire -> wireMask;
 	toReturn[6] = inputGW -> outputWire -> wireOwner;
 
-	if(0xF0 == inputGW -> outputWire -> wireMask)
+	if(0x01 == (0x0F & inputGW -> outputWire -> wireMask))
 	{
 		curIndex = serialiseInputWire(inputGW, toReturn, curIndex);
 	}
@@ -131,7 +131,7 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 			curIndex = serialiseGate(inputGW -> gatePayload, toReturn, curIndex);
 		}
 
-		if(0x0F == inputGW -> outputWire -> wireMask)
+		if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
 		{
 			toReturn[curIndex] = inputGW -> outputWire -> wirePerm;
 			curIndex ++;
@@ -144,9 +144,7 @@ unsigned char *serialiseGateOrWire(struct gateOrWire *inputGW, int *outputLength
 }
 
 
-
-
-// Deserialise a uchar buffer into an input gateOrWire
+// Deserialise a unsigned char buffer into an input gateOrWire
 int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, int offset)
 {
 	int curIndex = offset;
@@ -227,7 +225,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// If the wire is an input wire.
-	if(0xF0 == toReturn -> outputWire -> wireMask)
+	if(0x01 == (0x0F & toReturn -> outputWire -> wireMask))
 	{
 		curIndex = deserialiseInputWire(toReturn, serialGW, curIndex);
 	}
@@ -247,7 +245,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 			curIndex += (32 * tempGate -> outputTableSize);
 		}
 
-		if(0x0F == toReturn -> outputWire -> wireMask)
+		if(0x02 == (0x0F & toReturn -> outputWire -> wireMask))
 		{
 			toReturn -> outputWire -> wirePerm = serialGW[curIndex];
 			curIndex ++;
@@ -287,7 +285,7 @@ void testSerialisation(struct gateOrWire *inputGW)
 	printf("\n");
 
 	if(0x00 == inputGW -> outputWire -> wireOwner &&
-	   0xF0 == inputGW -> outputWire -> wireMask)
+	   0x01 == (0x0F & inputGW -> outputWire -> wireMask))
 	{
 		printf("key0 				=  ");
 		for(i = 0; i < 16; i ++)
@@ -334,7 +332,7 @@ void testSerialisation(struct gateOrWire *inputGW)
 	printf("\n");
 
 	if(0x00 == outputGW -> outputWire -> wireOwner &&
-	   0xF0 == outputGW -> outputWire -> wireMask)
+	   0x01 == (0x0F & outputGW -> outputWire -> wireMask))
 	{
 		printf("key0 				=  ");
 		for(i = 0; i < 16; i ++)

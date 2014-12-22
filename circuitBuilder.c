@@ -57,7 +57,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 	for(i = 0; i < numGates; i ++)
 	{
 		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
-			0xF0 == inputCircuit[i] -> outputWire -> wireMask )
+			0x01 == (0x0F & inputCircuit[i] -> outputWire -> wireMask) )
 		{
 			tempWire = inputCircuit[i] -> outputWire;
 			// senderOT_Toy(writeSocket, readSocket, tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16);

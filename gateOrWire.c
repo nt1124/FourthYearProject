@@ -17,7 +17,7 @@ void printGateOrWire(struct gateOrWire *inputGW)
 
 
 	if(0x00 == inputGW -> outputWire -> wireOwner &&
-	   0xF0 == inputGW -> outputWire -> wireMask)
+	   0x01 == (0x0F & inputGW -> outputWire -> wireMask) )
 	{
 		printf("key0                    =  ");
 		for(i = 0; i < 16; i ++)
@@ -163,6 +163,7 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	// Get the row of the output table indexed by the values of our input wires.
 	tempRow = curGate -> gatePayload -> encOutputTable[outputIndex];
+
 	// Then decrypt this row using the key list, copy first 16 bits into the output key field.
 	toReturn = decryptMultipleKeys(keyList, numInputs, tempRow, 2);
 	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
@@ -177,6 +178,22 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	}
 	free(toReturn);
 }
+
+
+void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
+{
+	if(1)
+	{
+		decryptGate(curGate, inputCircuit);
+	}
+	else
+	{
+		printf(">>>\n");
+		fflush(stdout);
+		decryptGate(curGate, inputCircuit);
+	}
+}
+
 
 
 // Generate two RANDOM garble keys. This should not be uused when doing the Free-XOR as
@@ -207,10 +224,13 @@ struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
 	toReturn -> key0[16] = 0x00 ^ (0x01 & perm);
 	
 	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));
-	for(i = 0; i < 17; i ++)
+
+	for(i = 0; i < 16; i ++)
 	{
 		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
 	}
+	toReturn -> key1[16] = 0x01 ^ (0x01 & perm);
+
 
 	return toReturn;
 }

@@ -63,6 +63,7 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
+
     close_client_socket(readSocket);
     close_client_socket(writeSocket);
 

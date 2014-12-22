@@ -14,7 +14,7 @@ void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
 		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
 		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 		
-		if(0xF0 != inputCircuit[i] -> outputWire -> wireMask)
+		if( 0x01 != (0x0F & inputCircuit[i] -> outputWire -> wireMask) )
 			break;
 	}
 }
@@ -43,8 +43,6 @@ int getIntFromString(char *inputStr, int& strIndex)
 
 
 // RTL means the function deals with the Smart/Tillich style input.
-
-
 struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 {
 	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
@@ -84,7 +82,8 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 
 // Process a gateOrWire struct given the data.
 struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
-										char gateType, struct gateOrWire **circuit)
+										char gateType, struct gateOrWire **circuit,
+										unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
@@ -92,7 +91,9 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wirePerm = getPermutation();
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
-	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
+
+	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
+	toReturn -> outputWire -> outputGarbleKeys = generateFreeXORPair(toReturn -> outputWire -> wirePerm, R);
 
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
 	encWholeOutTable(toReturn, circuit);
@@ -102,7 +103,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
+struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R)
 {
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
@@ -121,13 +122,13 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit)
 
 	idNum = getIntFromString(line, strIndex);
 
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit);
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R);
 }
 
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
-struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
+struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
@@ -135,9 +136,12 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wirePerm = getPermutation();
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
-	toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
+
+	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
+	toReturn -> outputWire -> outputGarbleKeys = generateFreeXORPair(toReturn -> outputWire -> wirePerm, R);
+
 	toReturn -> gatePayload = NULL;
-	toReturn -> outputWire -> wireMask = 0xF0;
+	toReturn -> outputWire -> wireMask = 0x01;
 	toReturn -> outputWire -> wireOwner = owner;
 
 	return toReturn;
@@ -145,20 +149,20 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner)
 
 
 // FOR NOW we assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2, int **execOrder)
+struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 	int i;
 
 	for(i = 0; i < numInputs1; i ++)
 	{
-		circuit[i] = initialiseInputWire(i, 0xFF);
+		circuit[i] = initialiseInputWire(i, 0xFF, R);
 		(*execOrder)[i] = i;
 	}
 
 	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
 	{
-		circuit[i] = initialiseInputWire(i, 0x00);
+		circuit[i] = initialiseInputWire(i, 0x00, R);
 		(*execOrder)[i] = i;
 	}
 
@@ -176,6 +180,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 	struct gateOrWire **gatesList;
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, execIndex, *execOrder;
+	unsigned char *R = generateRandBytes(16, 17);
 
 	if ( file != NULL )
 	{
@@ -193,12 +198,12 @@ struct Circuit *readInCircuitRTL(char* filepath)
 			return NULL;
 
 		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
-		gatesList = initialiseAllInputs( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder );
+		gatesList = initialiseAllInputs( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
 		execIndex = numInputs1 + numInputs2;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
-			tempGateOrWire = processGateLineRTL(line, gatesList);
+			tempGateOrWire = processGateLineRTL(line, gatesList, R);
 			if( NULL != tempGateOrWire )
 			{
 				gateIndex = tempGateOrWire -> G_ID;
@@ -211,13 +216,15 @@ struct Circuit *readInCircuitRTL(char* filepath)
 		for(i = 0; i < outputCircuit -> numOutputs; i ++)
 		{
 			gateIndex = outputCircuit -> numGates - i - 1;
-			gatesList[gateIndex] -> outputWire -> wireMask = 0x0F;
+			gatesList[gateIndex] -> outputWire -> wireMask = 0x02;
 		}
 		fclose ( file );
 	}
 
 	outputCircuit -> gates = gatesList;
 	outputCircuit -> execOrder = execOrder;
+
+	free(R);
 
 	return outputCircuit;
 }

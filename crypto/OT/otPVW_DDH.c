@@ -121,6 +121,7 @@ struct decParams *initDecParams()
 
 
 
+// Ronseal
 int sendDecParams(int writeSocket, int readSocket, struct decParams *paramsToSend)
 {
 

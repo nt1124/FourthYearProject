@@ -8,7 +8,7 @@ void outputAsHexString(struct Circuit *inputCircuit)
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		if( 0x0F == inputCircuit -> gates[i] -> outputWire -> wireMask )
+		if( 0x02 == inputCircuit -> gates[i] -> outputWire -> wireMask )
 			numOutputs ++;
 	}
 
@@ -16,7 +16,7 @@ void outputAsHexString(struct Circuit *inputCircuit)
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		if( 0x0F == inputCircuit -> gates[i] -> outputWire -> wireMask )
+		if( 0x02 == inputCircuit -> gates[i] -> outputWire -> wireMask )
 		{
 			tempBit = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 			binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
@@ -57,7 +57,7 @@ void printAllOutput(struct Circuit *inputCircuit)
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		if( 0x0F == inputCircuit -> gates[i] -> outputWire -> wireMask )
+		if( 0x02 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
 		{
 			tempBit = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 			tempBit = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
