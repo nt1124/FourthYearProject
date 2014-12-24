@@ -180,15 +180,25 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
+//
+void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
+{
+
+}
+
+
+// Are we dealing with an XOR gate.
 void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
-	if(1)
+	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) )
 	{
+		printf("000  ");
+		fflush(stdout);
 		decryptGate(curGate, inputCircuit);
 	}
 	else
 	{
-		printf(">>>\n");
+		printf("---  ");
 		fflush(stdout);
 		decryptGate(curGate, inputCircuit);
 	}
@@ -212,7 +222,6 @@ struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)
 }
 
 
-
 // Generate one random garble keys, create the other using this first one and a global random called R.
 // This is the essence of the Free-XOR optimisation.
 struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
@@ -220,12 +229,12 @@ struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 	int i;
 
-	toReturn -> key0 = generateRandBytes(16, 17);
+	toReturn -> key0 = generateRandBytes(17, 17);
 	toReturn -> key0[16] = 0x00 ^ (0x01 & perm);
 	
 	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));
 
-	for(i = 0; i < 16; i ++)
+	for(i = 0; i < 17; i ++)
 	{
 		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
 	}

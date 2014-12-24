@@ -95,6 +95,11 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 	toReturn -> outputWire -> outputGarbleKeys = generateFreeXORPair(toReturn -> outputWire -> wirePerm, R);
 
+	if('X' == gateType)
+	{
+		toReturn -> outputWire -> wireMask ^= 0xF0;
+	}
+
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
 	encWholeOutTable(toReturn, circuit);
 
