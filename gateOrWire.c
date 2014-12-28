@@ -146,7 +146,7 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	unsigned char *tempRow;
 
 
-	// For the all the input bits 
+	// For the all the input bits
 	for(j = 0; j < numInputs; j ++)
 	{
 		// Get the index of the j^th input wire, then get that wires permutated output value.
@@ -170,7 +170,14 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	// Get the decrypted permutated wire value.
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
-	
+		
+
+	for(j = 0; j < 16; j ++)
+	{
+		printf("%02X", toReturn[j]);
+	}
+	printf("\n%02X\n", curGate -> outputWire -> wirePermedValue);
+
 	// Housekeeping.
 	for(j = 0; j < numInputs; j ++)
 	{
@@ -181,25 +188,60 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 
 //
-void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
+void freeXOR_Evaluate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
+	int numInputs = curGate -> gatePayload -> numInputs;
+	int i, j, tempBit, tempIndex;
+	unsigned char *toReturn = (unsigned char*) calloc(16, sizeof(unsigned char));;
+	unsigned char outputC = 0;
 
+
+
+	// For the all the input bits
+	for(j = 0; j < numInputs; j ++)
+	{
+		// Get the index of the j^th input wire, then get that wires permutated output value.
+		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - j - 1];
+		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
+
+		// Get the next bit of the outputIndex.
+		outputC ^= tempBit;
+
+		// Copy into our key list
+		for(i = 0; i < 16; i ++)
+		{
+			printf("%02X", inputCircuit[tempIndex] -> outputWire -> wireOutputKey[i]);
+			toReturn[i] ^= inputCircuit[tempIndex] -> outputWire -> wireOutputKey[i];
+		}
+		printf("\n");
+	}
+
+	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
+	curGate -> outputWire -> wirePermedValue = outputC;
+	
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", curGate -> outputWire -> wireOutputKey[i]);
+	}
+	printf("\n%02X\n", curGate -> outputWire -> wirePermedValue);
+
+	free(toReturn);
 }
 
 
 // Are we dealing with an XOR gate.
 void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
+	printf("\n+++  %06d  +++\n", curGate -> G_ID);
+	fflush(stdout);
+
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) )
 	{
-		printf("000  ");
-		fflush(stdout);
 		decryptGate(curGate, inputCircuit);
 	}
 	else
 	{
-		printf("---  ");
-		fflush(stdout);
+		// freeXOR_Evaluate(curGate, inputCircuit);
 		decryptGate(curGate, inputCircuit);
 	}
 }
@@ -229,7 +271,7 @@ struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 	int i;
 
-	toReturn -> key0 = generateRandBytes(17, 17);
+	toReturn -> key0 = generateRandBytes(16, 17);
 	toReturn -> key0[16] = 0x00 ^ (0x01 & perm);
 	
 	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));

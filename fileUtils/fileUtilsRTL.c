@@ -86,10 +86,11 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 										unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
+	int i, inputID;
+	unsigned char permC = 0;
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
@@ -97,10 +98,29 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 	if('X' == gateType)
 	{
-		toReturn -> outputWire -> wireMask ^= 0xF0;
+		toReturn -> outputWire -> wirePerm = getPermutation();
+	}
+	else
+	{
+		toReturn -> outputWire -> wirePerm = getPermutation();
 	}
 
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+
+
+	/*
+	if('X' == gateType)
+	{
+		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
+		{
+			// Get the ID of the input wire for the current bit.
+			inputID = toReturn -> gatePayload -> inputIDs[i];
+			permC ^= circuit[inputID] -> outputWire -> wirePerm;
+		}
+		toReturn -> outputWire -> wirePerm = permC;
+	}
+	*/
+
 	encWholeOutTable(toReturn, circuit);
 
 	return toReturn;
@@ -185,7 +205,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 	struct gateOrWire **gatesList;
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, execIndex, *execOrder;
-	unsigned char *R = generateRandBytes(16, 17);
+	unsigned char *R = generateRandBytes(16, 16);
 
 	if ( file != NULL )
 	{
