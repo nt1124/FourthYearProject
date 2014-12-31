@@ -86,21 +86,34 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 										unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
+	unsigned char permC = 0x00;
+	int inputID, i;
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
-	toReturn -> outputWire -> outputGarbleKeys = generateFreeXORPair(toReturn -> outputWire -> wirePerm, R);
+	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
 
 	if('X' == gateType)
 	{
 		toReturn -> outputWire -> wireMask ^= 0xF0;
+		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
+		{
+			inputID = toReturn -> gatePayload -> inputIDs[i];
+			permC ^= circuit[inputID] -> outputWire -> wirePerm;
+		}
+
+		toReturn -> outputWire -> wirePerm = permC;
+	}
+	else
+	{
+		toReturn -> outputWire -> wirePerm = getPermutation();
 	}
 
-	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(toReturn, R, circuit);
+
 	encWholeOutTable(toReturn, circuit);
 
 	return toReturn;
@@ -143,7 +156,7 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned 
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
-	toReturn -> outputWire -> outputGarbleKeys = generateFreeXORPair(toReturn -> outputWire -> wirePerm, R);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
 
 	toReturn -> gatePayload = NULL;
 	toReturn -> outputWire -> wireMask = 0x01;

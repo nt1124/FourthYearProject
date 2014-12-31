@@ -180,30 +180,50 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
-//
+// Free XOR
 void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
+	int numInputs = curGate -> gatePayload -> numInputs;
+	int i, j, tempIndex, outputIndex = 0;
+	unsigned char *toReturn = (unsigned char *) calloc(16, sizeof(unsigned char));
+	unsigned char outputBit = 0x00;
 
+	// For the all the input bits 
+	for(i = 0; i < numInputs; i ++)
+	{
+		// Get the index of the i^th input wire, then get that wires permutated output value.
+		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - i - 1];
+		outputBit ^= inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
+
+		for(j = 0; j < 16; j ++)
+		{
+			toReturn[j] ^= inputCircuit[tempIndex] -> outputWire -> wireOutputKey[j];
+		}
+	}
+
+	// Get the decrypted permutated wire value.
+	curGate -> outputWire -> wirePermedValue = outputBit;
+
+	// Housekeeping.
+	memcpy(curGate -> outputWire -> wireOutputKey, toReturn, 16);
+	free(toReturn);
 }
 
 
 // Are we dealing with an XOR gate.
 void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
+	unsigned char temp;
+
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) )
 	{
-		printf("000  ");
-		fflush(stdout);
 		decryptGate(curGate, inputCircuit);
 	}
 	else
 	{
-		printf("---  ");
-		fflush(stdout);
-		decryptGate(curGate, inputCircuit);
+		freeXOR_Gate(curGate, inputCircuit);
 	}
 }
-
 
 
 // Generate two RANDOM garble keys. This should not be uused when doing the Free-XOR as
@@ -224,7 +244,7 @@ struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)
 
 // Generate one random garble keys, create the other using this first one and a global random called R.
 // This is the essence of the Free-XOR optimisation.
-struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
+struct bitsGarbleKeys *genFreeXORPairInput(unsigned char perm, unsigned char *R)
 {
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 	int i;
@@ -239,6 +259,44 @@ struct bitsGarbleKeys *generateFreeXORPair(unsigned char perm, unsigned char *R)
 		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
 	}
 	toReturn -> key1[16] = 0x01 ^ (0x01 & perm);
+
+
+	return toReturn;
+}
+
+
+// Slightly different from the case of the Input wire as we need to use the XORing of all input wires key0.
+struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char *R, struct gateOrWire **circuit)
+{
+	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+	int i, j, tempIndex;
+
+	toReturn -> key0 = (unsigned char*) calloc(17, sizeof(unsigned char));
+
+
+	// Get key0, using the key0 of all input wires to this gate XORed.
+	for(i = 0; i < curGate -> gatePayload -> numInputs; i ++)
+	{
+		// Get the i^th input wire.
+		tempIndex = curGate -> gatePayload -> inputIDs[i];
+
+		// XOR the 16 bytes.
+		for(j = 0; j < 16; j ++)
+		{
+			toReturn -> key0[j] ^= circuit[tempIndex] -> outputWire -> outputGarbleKeys ->key0[j];
+		}
+	}
+	
+	// Permutation added onto the 
+	toReturn -> key0[16] = 0x00 ^ (0x01 & curGate -> outputWire -> wirePerm);
+
+	// XOR the key with R
+	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));
+	for(i = 0; i < 16; i ++)
+	{
+		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
+	}
+	toReturn -> key1[16] = 0x01 ^ (0x01 & curGate -> outputWire -> wirePerm);
 
 
 	return toReturn;
