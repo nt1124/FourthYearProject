@@ -100,9 +100,24 @@
 		A classic test/benchmark for any general S2PC protocol is to perform an AES encryption where the message and key are held by two parties, so $P_A$ can input a message to be encrypted, $P_B$ without knowing the message will encrypt it using it's key, returning the encrypted ciphertext to $P_A$ and at no point did $P_A$ know what key was used, nor $P_B$ what the plaintext was.
 
     
-    \subsection{Yao Garbled Circuits} \label{Yao_Introduction}
+    \subsection{Yao Garbled Circuits} \label{Yao_Circuits}
 
-	Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. The concept being that we take the function and convert it into a binary circuit. We then ``garble'' this circuit
+	\subsubsection{Overview} \label{Yao_Overview}
+		Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. The concept being that we represent the function we wish to compute as a binary circuit. We then ``garble'' this circuit in such that it can still be executed, all while neither party knows what the others input was.
+
+	\subsubsection{Details} \label{Yao_Details}
+		As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is constructing the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i$ be the value of $w_i$ where $b_i \in \{0, 1\}$. Here we will take the case where $w_i$ is an input wire for which $P_i$ holds the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. Next we garble this gate.\\
+
+		$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered our security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$, we define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$.
+
+		$$ c_1, c_2 : E_{k_1^{b_1}, k_2^{b_2}} (k_3^{ G(b_1, b_2) } \Vert c_3) $$
+
+		Where $E_{k_i, k_j}(m)$ is some encryption function taking the keys $k_i$ and $k_j$ and the plaintext $m$. Since the advent of AES-NI and the cheapness of using AES we will use AES with 128 bit keys to make this function. Suppose that $AES_k(m)$ denotes the AES encryption of the plaintext $m$ under the 128 bit key $k$. We define $E_K$ (and it's inverse $D_K$)  as follows,
+
+		$$ E_K(m) = AES_{k_n}( AES_{k_{n-1}}( ...AES_{k_1}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
+		$$ D_K(m) = AES^{-1}_{k_1}( AES^{-1}_{k_{2}}( ...AES^{-1}_{k_n}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
+
+		We extend both the encryption function and the truth table this to a gate with more than two inputs in the obvious fashions.
 
     \subsection{Oblivious Transfer} \label{OT_Intro}
 
