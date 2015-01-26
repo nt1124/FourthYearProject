@@ -42,6 +42,146 @@ int getSerialiseSize(struct gateOrWire *inputGW, int outputTableSize, int numInp
 }
 
 
+// Get the size of the character buffer we need to store the input gateOrWire in.
+int getSerialiseSizeAlt(struct gateOrWire *inputGW, int outputTableSize, int numInputs)
+{
+	int serialisedSize = 8, i;
+
+	if(NULL != inputGW -> gatePayload)
+		serialisedSize += (32 * outputTableSize) + (4 * numInputs);
+
+	if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
+		serialisedSize ++;
+	else if (0xFF == inputGW -> outputWire -> wireOwner)
+		serialisedSize += 32;
+	
+	if(0x01 == (0x0F & inputGW -> outputWire -> wireMask))
+	{
+		serialisedSize ++;
+		serialisedSize += 16;
+		if(0x00 == inputGW -> outputWire -> wireOwner)
+		{
+			serialisedSize += 16;
+			for(i = 0; i < inputGW -> gatePayload -> outputTableSize; i ++)
+			{
+				serialisedSize += 32;
+			}
+		}
+	}
+	else 
+	{
+		if(NULL != inputGW -> gatePayload)
+		{
+			serialisedSize += (3 + 4 * numInputs + 32 * outputTableSize);
+		}
+
+		if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
+		{
+			serialisedSize ++;
+		}
+	}
+
+	return serialisedSize;
+}
+
+
+// Does the actual serialisation of an input wire into a buffer of uchars. Returns length of
+// the buffer.
+int serialiseInputWireAlt(struct gateOrWire *inputGW, unsigned char *toReturn, int offset)
+{
+	int curIndex = offset;
+
+	if(0x00 == inputGW -> outputWire -> wireOwner)
+	{
+		toReturn[curIndex ++] = inputGW -> outputWire -> wirePerm;
+		memcpy(toReturn + curIndex, inputGW -> outputWire -> outputGarbleKeys -> key0, 16);
+		curIndex += 16;
+		memcpy(toReturn + curIndex, inputGW -> outputWire -> outputGarbleKeys -> key1, 16);
+		curIndex += 16;
+	}
+	else if(0xFF == inputGW -> outputWire -> wireOwner)
+	{
+		toReturn[curIndex ++] = inputGW -> outputWire -> wirePermedValue;
+		memcpy(toReturn + curIndex, inputGW -> outputWire -> wireOutputKey, 16);
+		curIndex += 16;
+	}
+
+	return curIndex;
+}
+
+
+// Handles the serialisation of the gate part of a gateOrWire. Returns length of buffer.
+int serialiseGateAlt(struct gate *inputGate, unsigned char *toReturn, int offset)
+{
+	int i, j, curIndex = offset;
+
+	toReturn[curIndex++] = inputGate -> numInputs;
+	
+	memcpy(toReturn + curIndex, &inputGate -> outputTableSize, 2);
+	curIndex += 2;
+
+	for(i = 0; i < inputGate -> numInputs; i ++)
+	{
+		j = curIndex + 4 * i;
+		memcpy(toReturn + j, inputGate -> inputIDs + i, 4);
+	}
+
+	for(i = 0; i < inputGate -> outputTableSize; i ++)
+	{
+		j = curIndex + 4 * inputGate -> numInputs + 32 * i;
+		memcpy(toReturn + j, inputGate -> encOutputTable[i], 32);
+	}
+	curIndex = curIndex + (4 * inputGate -> numInputs)
+						+ (32 * inputGate -> outputTableSize);
+
+	return curIndex;
+}
+
+
+// Handles the serialisation of a gateOrWire. Returns length of buffer.
+int serialiseGateOrWireAlt(struct gateOrWire *inputGW, unsigned char *toReturn, int offset)
+{
+	int outputTableSize = 0, numInputs = 0;
+	int serialisedSize = 0, curIndex = offset + 7;
+
+	if(NULL != inputGW -> gatePayload)
+	{
+		outputTableSize = inputGW -> gatePayload -> outputTableSize;
+		numInputs = inputGW -> gatePayload -> numInputs;
+	}
+
+	memcpy(toReturn, &(inputGW -> G_ID), 4);
+	if(NULL == inputGW -> gatePayload)
+		toReturn[4] = 0x00;
+	else
+		toReturn[4] = 0xFF;
+	toReturn[5] = inputGW -> outputWire -> wireMask;
+	toReturn[6] = inputGW -> outputWire -> wireOwner;
+
+	if(0x01 == (0x0F & inputGW -> outputWire -> wireMask))
+	{
+		curIndex = serialiseInputWireAlt(inputGW, toReturn, curIndex);
+	}
+	else 
+	{
+		if(NULL != inputGW -> gatePayload)
+		{
+			curIndex = serialiseGateAlt(inputGW -> gatePayload, toReturn, curIndex);
+		}
+
+		if(0x02 == (0x0F & inputGW -> outputWire -> wireMask))
+		{
+			toReturn[curIndex] = inputGW -> outputWire -> wirePerm;
+			curIndex ++;
+		}
+	}
+
+	// *outputLength = serialisedSize;
+
+	return curIndex;
+}
+
+
 // Does the actual serialisation of an input wire into a buffer of uchars. Returns length of
 // the buffer.
 int serialiseInputWire(struct gateOrWire *inputGW, unsigned char *toReturn, int offset)
@@ -173,7 +313,7 @@ int deserialiseInputWire(struct gateOrWire *outputGW, unsigned char *serialGW, i
 }
 
 
-// Deserialise a section of a (offset) uchar buffer into a gate.
+// Deserialise a section of an (offset) uchar buffer into a gate.
 int deserialiseGate(struct gate **outputGate, unsigned char *serialGW, int offset)
 {
 	int i, j, curIndex = offset;
@@ -369,6 +509,22 @@ void testSerialisation(struct gateOrWire *inputGW)
 
 	freeGateOrWire(outputGW);
 }
+
+
+unsigned char *serialiseCircuit(struct gateOrWire *inputCircuit, int numGates, int bufferLength)
+{
+	int i = 0;
+	unsigned char *toReturn;
+
+	bufferLength = 0;
+
+	for(i = 0; i < numGates; i ++)
+	{
+		bufferLength += getSerialiseSizeAlt();
+	}
+
+}
+
 
 
 

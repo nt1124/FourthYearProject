@@ -78,7 +78,8 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, buffer, bufferLength);
 	free(buffer);
-	
+
+	// This bit of code was a hack fix. Will not be needed when bulk sending?
 	if(NULL != inputGW -> gatePayload)
 	{
 		for(j = 0; j < inputGW -> gatePayload -> outputTableSize; j ++)
@@ -87,7 +88,6 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 		}
 	}
 }
-
 
 
 void sendCircuit(int writeSocket, int readSocket, struct gateOrWire **inputCircuit, int numGates, int *execOrder)

@@ -1,0 +1,1 @@
+time ./a.out circuits/AES-non-expanded.rtl.circuit 127.0.0.1 5678 inputs/AES-Non-Expanded.builder.input 1
