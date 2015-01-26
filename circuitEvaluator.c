@@ -78,15 +78,16 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
     int *execOrder = NULL;
-    int numGates;
     struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
-    int i;
+    int i, bufferLength = 0;
 
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
     readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
 
-    runCircuitLocal( inputCircuit );
-    printAllOutput(inputCircuit);
+    serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
+
+    // runCircuitLocal( inputCircuit );
+    // printAllOutput(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
 }
@@ -150,11 +151,8 @@ int main(int argc, char *argv[])
     char *circuitFilepath = argv[1];
     int builder = atoi(argv[5]);
 
-    // runLocally(circuitFilepath, argv[2], argv[3]);
-    // testRTL_Read(circuitFilepath, argv[2]);
-    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
-    // testOT_PWV_DDH_Local();
-    // test_DDH_Local();
+    runLocally(circuitFilepath, argv[2], argv[3]);
+    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
     // testRunZeroedInput(circuitFilepath);
 
     return 0;
