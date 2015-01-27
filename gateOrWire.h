@@ -45,6 +45,20 @@ typedef struct gateOrWire
 
 
 // Missing so many functions here!
+void printGateOrWire(struct gateOrWire *inputGW);
+
+unsigned char **createOutputTable(struct gate *curGate);
+void encWholeOutTable(struct gateOrWire *curGate, struct gateOrWire **circuit);
+
+void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit);
+void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit);
+void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit);
+
+struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm);
+struct bitsGarbleKeys *genFreeXORPairInput(unsigned char perm, unsigned char *R);
+struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char *R, struct gateOrWire **circuit);
+unsigned char getPermutation();
+
 void freeGateOrWire(struct gateOrWire *inputGW);
 
 
