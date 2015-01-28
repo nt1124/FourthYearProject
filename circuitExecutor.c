@@ -104,12 +104,16 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 {
 	int i, j, bufferLength = 0;
 	unsigned char *buffer = NULL;
-	struct gateOrWire **inputCircuit;
-
-	inputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
+	// struct gateOrWire **inputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
 
 	printf("Circuit has %d gates!\n", numGates);
 
+	bufferLength = receiveInt(readSocket);
+	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	receive(readSocket, buffer, bufferLength);
+
+	return deserialiseCircuit(buffer, numGates);
+	/*
 	for(i = 0; i < numGates; i ++)
 	{
 		bufferLength = receiveInt(readSocket);
@@ -131,5 +135,6 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	}
 
 	return inputCircuit;
+	*/
 }
 

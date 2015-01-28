@@ -79,15 +79,22 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
     int *execOrder = NULL;
     struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
+    struct Circuit *outputCircuit;
     int i, bufferLength = 0;
+    unsigned char *buffer;
+
+    outputCircuit = readInCircuitRTL(circuitFilepath);
+    outputCircuit -> gates = NULL;
 
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
     readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
 
-    serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
+    buffer = serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
 
-    // runCircuitLocal( inputCircuit );
-    // printAllOutput(inputCircuit);
+    outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates);
+
+    runCircuitLocal( inputCircuit );
+    printAllOutput(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
 }
@@ -151,8 +158,8 @@ int main(int argc, char *argv[])
     char *circuitFilepath = argv[1];
     int builder = atoi(argv[5]);
 
-    runLocally(circuitFilepath, argv[2], argv[3]);
-    // testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    // runLocally(circuitFilepath, argv[2], argv[3]);
+    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
     // testRunZeroedInput(circuitFilepath);
 
     return 0;

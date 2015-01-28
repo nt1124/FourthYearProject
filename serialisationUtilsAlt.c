@@ -7,20 +7,20 @@
 
 int serialisedSizeInputWire(struct gateOrWire *inputGW)
 {
-	int serialisedSize = 0;
+	int bitsForInputWire = 0;
 
 	if(0x00 == inputGW -> outputWire -> wireOwner)
 	{
-		serialisedSize ++; 	// One for the permutation.
+		bitsForInputWire ++; 	// One for the permutation.
 	}
 	else if(0xFF == inputGW -> outputWire -> wireOwner)
 	{
-		serialisedSize ++;	// One for the wirePermedValue.
-		serialisedSize += 16;	// 16 Bytes for the hardcoded output key.
+		bitsForInputWire ++;	// One for the permutation.
+		bitsForInputWire += 16;	// 16 Bytes for the hardcoded output key.
 								// As we own this wire we give executor the correct key.
 	}
 
-	return serialisedSize;
+	return bitsForInputWire;
 }
 
 
@@ -311,7 +311,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 	return toReturn;
 }
 
-/*
+
 // Runs tests to make sure correctness of serialisation and deserialisation.
 void testSerialisation(struct gateOrWire *inputGW)
 {
@@ -421,23 +421,26 @@ void testSerialisation(struct gateOrWire *inputGW)
 
 	freeGateOrWire(outputGW);
 }
-*/
 
 
 unsigned char *serialiseCircuit(struct gateOrWire **inputCircuit, int numGates, int *bufferLength)
 {
-	int i = 0, offset = 0, tempSerialiseSize = 0;
+	int i = 0, offset = 0, tempSerialiseSize = 0, tempSerialiseSize1;
 	unsigned char *toReturn;
 
 	*bufferLength = 0;
 
+	printf("%d\n", numGates);
+
 	for(i = 0; i < numGates; i ++)
 	{
 		(*bufferLength) += getSerialiseSizeAlt(inputCircuit[i]);
+		// printf("%d  -> %d\n", i, (*bufferLength));
 		(*bufferLength) += 4;
 	}
 
 	toReturn = (unsigned char*) calloc(*bufferLength, sizeof(unsigned char));
+	printf(">>>------> %d\n", (*bufferLength));
 
 	for(i = 0; i < numGates; i ++)
 	{
@@ -447,29 +450,34 @@ unsigned char *serialiseCircuit(struct gateOrWire **inputCircuit, int numGates, 
 
 		serialiseGateOrWireAlt(inputCircuit[i], toReturn, offset);
 		offset = offset + tempSerialiseSize;
+		printf("\n%d  -  %d\n", tempSerialiseSize, offset);
 	}
 
-	return toReturn;
-}
-
-
-struct gateOrWire **deserialiseCircuit(unsigned char *inputBuffer, int numGates)
-{
-	int i, offset, tempSerialiseSize;
 	struct gateOrWire **outputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
 
 	offset = 0;
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < 65; i ++)
 	{
+		// printf("\n---+++ %d +++---\n", i);
 		tempSerialiseSize = 0;
-		memcpy(&tempSerialiseSize, inputBuffer + offset, 4);
+		memcpy(&tempSerialiseSize, toReturn + offset, 4);
+
+		// printf("%02X,%02X,%02X,%02X,\n%d\n", toReturn[offset], toReturn[offset + 1], toReturn[offset + 2], toReturn[offset + 3], tempSerialiseSize);
 
 		offset += 4;
-		outputCircuit[i] = deserialiseGateOrWire(inputBuffer + offset);
+		outputCircuit[i] = deserialiseGateOrWire(toReturn + offset);
 		offset += tempSerialiseSize;
+
+		if(i < 5 || i > 63)
+		{
+			printGateOrWire(inputCircuit[i]);
+			printGateOrWire(outputCircuit[i]);
+		}
 	}
 
-	return outputCircuit;
+
+
+	return NULL;
 }
 
 

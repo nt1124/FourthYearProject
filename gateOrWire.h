@@ -14,7 +14,7 @@ typedef struct gate
 	unsigned char numInputs;		// Number of input wires to gate.
 	int *inputIDs;					// ID of the input wires to gate.
 
-	unsigned char gateType;			// 
+	unsigned char gateType;			// XOR, AND, INV.
 	unsigned short outputTableSize;	// 2 ^ numInputs.
 	unsigned char **encOutputTable; // The encrypted and permutated output table.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.

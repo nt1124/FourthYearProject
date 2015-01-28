@@ -69,12 +69,13 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 
 
 
+/*
 void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 {
 	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
 	int bufferLength, j;
 
-	buffer = serialiseGateOrWire(inputGW, &bufferLength);
+	//buffer = serialiseGateOrWire(inputGW, &bufferLength);
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, buffer, bufferLength);
 	free(buffer);
@@ -88,25 +89,34 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 		}
 	}
 }
+*/
 
 
 void sendCircuit(int writeSocket, int readSocket, struct gateOrWire **inputCircuit, int numGates, int *execOrder)
 {
-	unsigned char *execOrderBuffer;
+	unsigned char *bufferToSend;
 	int i, bufferLength = numGates * sizeof(int);
 	
-	execOrderBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
-	memcpy(execOrderBuffer, execOrder, numGates * sizeof(int));
+	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	memcpy(bufferToSend, execOrder, numGates * sizeof(int));
 
 	sendInt(writeSocket, numGates);
 
 	sendInt(writeSocket, bufferLength);
-	send(writeSocket, execOrderBuffer, bufferLength);
+	send(writeSocket, bufferToSend, bufferLength);
 
+	free(bufferToSend);
+
+	bufferToSend = 0;
+	bufferToSend = serialiseCircuit(inputCircuit, numGates, &bufferLength);
+	/*
 	for(i = 0; i < numGates; i ++)
 	{
 		sendGate(inputCircuit[i], writeSocket, readSocket);
 	}
+	*/
+	sendInt(writeSocket, bufferLength);
+	send(writeSocket, bufferToSend, bufferLength);
 
 	printf("Circuit sent.\n");
 }
