@@ -26,7 +26,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
 
     printf("Ready to send circuit.\n");
-    sendCircuit(writeSocket, readSocket, inputCircuit -> gates, inputCircuit -> numGates, inputCircuit -> execOrder);
+    sendCircuit(writeSocket, readSocket, inputCircuit);
 
     runCircuitBuilder( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket );
 
@@ -55,7 +55,8 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     printf("Connected to builder.\n");
 
-    inputCircuit -> numGates = receiveNumGates(writeSocket, readSocket);
+    inputCircuit -> numGates = receiveInt(readSocket);
+
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
     inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
 

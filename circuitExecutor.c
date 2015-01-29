@@ -1,6 +1,5 @@
 void readInputLinesExec(int writeSocket, int readSocket,
-						char *line, struct Circuit *inputCircuit,
-						gmp_randstate_t *state, struct decParams *params)
+						char *line, struct Circuit *inputCircuit)
 {
 	int strIndex = 0, gateID = 0, outputLength = 0, i;
 	unsigned char *tempBuffer;
@@ -21,31 +20,26 @@ void readInputLinesExec(int writeSocket, int readSocket,
 		value = 0x00;
 
 	inputCircuit -> gates[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit -> gates[gateID] -> outputWire -> wirePerm & 0x01);
-
-	// tempBuffer = receiverOT_Toy(writeSocket, readSocket, value, &outputLength);
-	// tempBuffer = receiverOT_SH_RSA(SKi, state, writeSocket, readSocket, value, &outputLength);
-
-	tempBuffer = receiverOT_UC(writeSocket, readSocket, value, params, &outputLength, state);
-	memcpy(inputCircuit -> gates[gateID] -> outputWire -> wireOutputKey, tempBuffer, 16);
-
-	free(tempBuffer);
 }
 
 
 // Read the file containing our input data.
 void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, struct Circuit *inputCircuit)
 {
-	FILE *file = fopen ( filepath, "r" );
+	FILE *file = fopen( filepath, "r" );
 	gmp_randstate_t *state = seedRandGen();
-	int i, outputLength = 0;
+	int i, outputLength = 0, tempSize = 0, j = 0;
 	unsigned char value, *tempBuffer;
 	// struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 
-	time_t t_0, t_1;
+	unsigned char *receivedBuffer, *toSendBuffer;
+	int bufferOffset = 0;
+
+	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
-	t_0 = time(NULL);
 	c_0 = clock();
 
+	struct otKeyPair **otKeyPairs;
 	struct decParams *params = receiverCRS_Syn(writeSocket, readSocket, 1024, *state);
 
 
@@ -54,37 +48,63 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 		char line [ 512 ];
 		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
-			readInputLinesExec(writeSocket, readSocket, line, inputCircuit, state, params);
+			readInputLinesExec(writeSocket, readSocket, line, inputCircuit);
 		}
 		fclose ( file );
 
-		printf("++  %d\n", inputCircuit -> numInputs);
-		fflush(stdout);
-		for(i = 0; i < inputCircuit -> numInputs; i ++)
+		for(i = 0; i < inputCircuit -> numGates; i ++)
 		{
-			/*
-			printf("+   %d\n", i);
-			fflush(stdout);
-			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner)
+			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
 			{
-				printf(">>>   %d\n", i);
-				fflush(stdout);
+				tempSize ++;
+			}
+		}
+
+		otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
+		tempSize *= 2 * (136 + 4);
+		toSendBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
+
+		for(i = 0; i < inputCircuit -> numGates; i ++)
+		{
+			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
+			{
+				otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
+			}
+		}
+
+		sendInt(writeSocket, bufferOffset);
+		send(writeSocket, toSendBuffer, bufferOffset);
+
+		bufferOffset = receiveInt(readSocket);
+		receivedBuffer = (unsigned char*) calloc(bufferOffset, sizeof(unsigned char));
+		receive(readSocket, receivedBuffer, bufferOffset);
+
+
+		bufferOffset = 0;
+		j = 0;
+		for(i = 0; i < inputCircuit -> numGates; i ++)
+		{
+			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
+			{
 				value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 				value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
-				tempBuffer = receiverOT_UC(writeSocket, readSocket, value, params, &outputLength, state);
-				memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 
-				// free(tempBuffer);
+				tempBuffer = bulk_two_receiverOT_UC(receivedBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
+				memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
+				free(tempBuffer);
 			}
-			*/
 		}
 	}
 
-	t_1 = time(NULL);
-	c_1 = clock();
 
-	printf("\tOT wall clock time: %ld\n", (long) (t_1 - t_0));
-	printf("\tOT CPU time:        %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("OT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("OT Custom time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 
@@ -94,39 +114,18 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	unsigned char *tempBuffer;
 	int i, gateID, outputLength = 0, j, nLength;
 
-	printf("--  %d\n", inputCircuit -> numGates);
-	printf("--  %d\n", inputCircuit -> numInputs);
 	readInputDetailsFileExec(writeSocket, readSocket, filepath, inputCircuit);
 
-
-	time_t t_0, t_1;
-	t_0 = time(NULL);
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
-			// decryptGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 	}
-	t_1 = time(NULL);
-
-	printf ("\tCircuit Execution wall clock time: %ld\n", (long) (t_1 - t_0));
 }
-
-
-// Receive the number of gates we can expect in this circuit.
-int receiveNumGates(int writeSocket, int readSocket)
-{
-	int numGates;
-
-	numGates = receiveInt(readSocket);
-
-	return numGates;
-}
-
 
 
 // Receive the order in which to execute the gates
@@ -148,9 +147,14 @@ int *receiveExecOrder(int writeSocket, int readSocket, int numGates)
 // Receive the actual circuit.
 struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket)
 {
+	struct timespec timestamp_0 = timestamp(), timestamp_1;
+	clock_t c_0, c_1;
+	c_0 = clock();
+
+
 	int i, j, bufferLength = 0;
 	unsigned char *buffer = NULL;
-	// struct gateOrWire **inputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
+	struct gateOrWire **inputCircuit;
 
 	printf("Circuit has %d gates!\n", numGates);
 
@@ -158,29 +162,17 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 	receive(readSocket, buffer, bufferLength);
 
-	return deserialiseCircuit(buffer, numGates);
-	/*
-	for(i = 0; i < numGates; i ++)
-	{
-		bufferLength = receiveInt(readSocket);
-		buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
-		receive(readSocket, buffer, bufferLength);
-		inputCircuit[i] = deserialiseGateOrWire(buffer);
-		free(buffer);
+	inputCircuit = deserialiseCircuit(buffer, numGates);
 
-		if(NULL != inputCircuit[i] -> gatePayload)
-		{
-			buffer = (unsigned char*) calloc(32, sizeof(unsigned char));
-			for(j = 0; j < inputCircuit[i] -> gatePayload -> outputTableSize; j ++)
-			{
-				receive(readSocket, (octet*) buffer, 32);
-				memcpy(inputCircuit[i] -> gatePayload -> encOutputTable[j], buffer, 32);
-			}
-			free(buffer);
-		}
-	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
+
+	printf("Received Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Received Circuit Custom time :     %lf\n\n", temp);
+
 
 	return inputCircuit;
-	*/
 }
 

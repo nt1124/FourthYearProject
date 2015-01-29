@@ -3,6 +3,7 @@
 
 #include "crypto/cryptoUtil.h"
 #include "gateOrWire.h"
+#include "timingUtils.c"
 
 
 typedef struct Circuit
