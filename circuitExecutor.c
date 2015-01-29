@@ -37,6 +37,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 {
 	FILE *file = fopen ( filepath, "r" );
 	gmp_randstate_t *state = seedRandGen();
+	int i, outputLength = 0;
+	unsigned char value, *tempBuffer;
 	// struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 
 	time_t t_0, t_1;
@@ -55,6 +57,27 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 			readInputLinesExec(writeSocket, readSocket, line, inputCircuit, state, params);
 		}
 		fclose ( file );
+
+		printf("++  %d\n", inputCircuit -> numInputs);
+		fflush(stdout);
+		for(i = 0; i < inputCircuit -> numInputs; i ++)
+		{
+			/*
+			printf("+   %d\n", i);
+			fflush(stdout);
+			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner)
+			{
+				printf(">>>   %d\n", i);
+				fflush(stdout);
+				value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+				value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+				tempBuffer = receiverOT_UC(writeSocket, readSocket, value, params, &outputLength, state);
+				memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
+
+				// free(tempBuffer);
+			}
+			*/
+		}
 	}
 
 	t_1 = time(NULL);
@@ -71,6 +94,8 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	unsigned char *tempBuffer;
 	int i, gateID, outputLength = 0, j, nLength;
 
+	printf("--  %d\n", inputCircuit -> numGates);
+	printf("--  %d\n", inputCircuit -> numInputs);
 	readInputDetailsFileExec(writeSocket, readSocket, filepath, inputCircuit);
 
 
