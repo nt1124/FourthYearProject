@@ -24,6 +24,7 @@ void readInputLinesExec(int writeSocket, int readSocket,
 
 	// tempBuffer = receiverOT_Toy(writeSocket, readSocket, value, &outputLength);
 	// tempBuffer = receiverOT_SH_RSA(SKi, state, writeSocket, readSocket, value, &outputLength);
+
 	tempBuffer = receiverOT_UC(writeSocket, readSocket, value, params, &outputLength, state);
 	memcpy(inputCircuit -> gates[gateID] -> outputWire -> wireOutputKey, tempBuffer, 16);
 
@@ -37,7 +38,14 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	FILE *file = fopen ( filepath, "r" );
 	gmp_randstate_t *state = seedRandGen();
 	// struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
+
+	time_t t_0, t_1;
+	clock_t c_0, c_1;
+	t_0 = time(NULL);
+	c_0 = clock();
+
 	struct decParams *params = receiverCRS_Syn(writeSocket, readSocket, 1024, *state);
+
 
 	if ( file != NULL )
 	{
@@ -48,6 +56,12 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 		}
 		fclose ( file );
 	}
+
+	t_1 = time(NULL);
+	c_1 = clock();
+
+	printf("\tOT wall clock time: %ld\n", (long) (t_1 - t_0));
+	printf("\tOT CPU time:        %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 }
 
 
@@ -59,6 +73,10 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 
 	readInputDetailsFileExec(writeSocket, readSocket, filepath, inputCircuit);
 
+
+	time_t t_0, t_1;
+	t_0 = time(NULL);
+
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];
@@ -68,6 +86,9 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 	}
+	t_1 = time(NULL);
+
+	printf ("\tCircuit Execution wall clock time: %ld\n", (long) (t_1 - t_0));
 }
 
 
