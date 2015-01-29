@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.12.29)  24 JAN 2015 19:53
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (MiKTeX 2.9) (preloaded format=pdflatex 2014.12.29)  29 JAN 2015 00:00
 entering extended mode
 **BackgroundChapter.tex
 
@@ -440,7 +440,22 @@ Underfull \hbox (badness 10000) in paragraph at lines 109--110
 
  []
 
-[3] [4]
+[3]
+Underfull \hbox (badness 10000) in paragraph at lines 120--121
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 122--123
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 124--125
+
+ []
+
+[4]
 (C:\Users\Nicholas\Desktop\FourthYearProject\JanProgressReport\BackgroundChapte
 r.aux)
 
@@ -450,7 +465,7 @@ LaTeX Font Warning: Some font shapes were not available, defaults substituted.
 Here is how much of TeX's memory you used:
  1610 strings out of 493921
  21760 string characters out of 3146470
- 84890 words of memory out of 3000000
+ 86890 words of memory out of 3000000
  4912 multiletter control sequences out of 15000+200000
  7622 words of font info for 27 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
@@ -468,7 +483,7 @@ s/cm/cmr7.pfb><C:/Program Files (x86)/MikTex/fonts/type1/public/amsfonts/cm/cms
 y10.pfb><C:/Program Files (x86)/MikTex/fonts/type1/public/amsfonts/cm/cmsy5.pfb
 ><C:/Program Files (x86)/MikTex/fonts/type1/public/amsfonts/cm/cmsy7.pfb><C:/Pr
 ogram Files (x86)/MikTex/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on BackgroundChapter.pdf (5 pages, 276576 bytes).
+Output written on BackgroundChapter.pdf (5 pages, 278292 bytes).
 PDF statistics:
  77 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)
