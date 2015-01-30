@@ -21,8 +21,18 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 
+    struct timespec timestamp_0 = timestamp(), timestamp_1;
+    clock_t c_0, c_1;
+    c_0 = clock();
+
     inputCircuit = readInCircuitRTL(circuitFilepath);
-    
+
+
+    c_1 = clock();
+    timestamp_1 = timestamp();
+    double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
+
+
     readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
 
     printf("Ready to send circuit.\n");
@@ -33,7 +43,10 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     close_server_socket(writeSocket, mainWriteSock);
     close_server_socket(readSocket, mainReadSock);
 
-    
+
+    printf("\nBuilding Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+    printf("Building Circuit Custom time :     %lf\n", temp);
+
     freeCircuitStruct(inputCircuit);
 }
 

@@ -103,8 +103,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("OT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("OT Custom time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	printf("\nOT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("OT Custom time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 
@@ -113,8 +113,13 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 {
 	unsigned char *tempBuffer;
 	int i, gateID, outputLength = 0, j, nLength;
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
 
 	readInputDetailsFileExec(writeSocket, readSocket, filepath, inputCircuit);
+
+	timestamp_0 = timestamp();
+	c_0 = clock();
 
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
@@ -125,6 +130,12 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nCircuit Evalutation CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Circuit Evalutation Custom time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 
@@ -169,8 +180,8 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	timestamp_1 = timestamp();
 	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
 
-	printf("Received Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Received Circuit Custom time :     %lf\n\n", temp);
+	printf("\nReceived Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Received Circuit Custom time :     %lf\n", temp);
 
 
 	return inputCircuit;
