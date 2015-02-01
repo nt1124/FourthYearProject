@@ -44,7 +44,6 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 }
 
 
-// Runs the full Circuit builder side of the protocol, starting from the point where the circuit has been built. 
 void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writeSocket, int readSocket)
 {
 	struct wire *tempWire;
@@ -104,21 +103,30 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 }
 
 
-// Function to take a single gateOrWire structure and send it via writeSocket.
+
+/*
 void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 {
-	int bufferLength = getSerialiseSizeAlt(inputGW);
-	unsigned char *buffer = (unsigned char*) calloc(bufferLength , sizeof(unsigned char));
+	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
+	int bufferLength, j;
 
-
-	serialiseGateOrWireAlt(inputGW, buffer, 0);
+	//buffer = serialiseGateOrWire(inputGW, &bufferLength);
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, buffer, bufferLength);
 	free(buffer);
+
+	// This bit of code was a hack fix. Will not be needed when bulk sending?
+	if(NULL != inputGW -> gatePayload)
+	{
+		for(j = 0; j < inputGW -> gatePayload -> outputTableSize; j ++)
+		{
+			send(writeSocket, (octet*)inputGW -> gatePayload -> encOutputTable[j], 32);
+		}
+	}
 }
+*/
 
 
-// Function that takes a Circuit Structure and sends it via the writeSocket.
 void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 {
 	unsigned char *bufferToSend;
@@ -127,27 +135,13 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
 	c_0 = clock();
-
-	// Sending the numGates, numInputs, numOutputs and execOrder.
-	// bufferToSend = (unsigned char*) calloc(bufferLength + 4 * sizeof(int), sizeof(unsigned char));
+	
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
-
-	/*
-	memcpy(bufferToSend + 0 * sizeof(int), &(inputCircuit -> numGates), sizeof(int));
-	memcpy(bufferToSend + 1 * sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
-	memcpy(bufferToSend + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
-	memcpy(bufferToSend + 3 * sizeof(int), &bufferLength, sizeof(int));
-	memcpy(bufferToSend + 4 * sizeof(int), inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
-	*/
-
 	memcpy(bufferToSend, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
 
 	sendInt(writeSocket, inputCircuit -> numGates);
-	sendInt(writeSocket, inputCircuit -> numInputs);
-	sendInt(writeSocket, inputCircuit -> numOutputs);
 
 	sendInt(writeSocket, bufferLength);
-	// send(writeSocket, bufferToSend, bufferLength + 4 * sizeof(int));
 	send(writeSocket, bufferToSend, bufferLength);
 
 	free(bufferToSend);
@@ -161,7 +155,7 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	c_1 = clock();
 	timestamp_1 = timestamp();
 	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
-	// printf("Circuit sent.\n");
+	printf("Circuit sent.\n");
 
 	printf("\nCircuit Sending CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Circuit Sending Wall time :     %lf\n", temp);

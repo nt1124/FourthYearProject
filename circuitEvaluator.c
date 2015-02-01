@@ -17,7 +17,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
     set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-    // printf("Executor has connected to us.\n");
+    printf("Executor has connected to us.\n");
 
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 
@@ -27,15 +27,15 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     inputCircuit = readInCircuitRTL(circuitFilepath);
 
+
     c_1 = clock();
     timestamp_1 = timestamp();
-    printf("\nBuilding Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-    printf("Building Circuit Custom time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+    double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
 
 
     readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
 
-    // printf("Ready to send circuit.\n");
+    printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, readSocket, inputCircuit);
 
     runCircuitBuilder( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket );
@@ -44,6 +44,8 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     close_server_socket(readSocket, mainReadSock);
 
 
+    printf("\nBuilding Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+    printf("Building Circuit Custom time :     %lf\n", temp);
 
     freeCircuitStruct(inputCircuit);
 }
@@ -64,17 +66,14 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
-    // printf("Connected to builder.\n");
+    printf("Connected to builder.\n");
 
     inputCircuit -> numGates = receiveInt(readSocket);
-    inputCircuit -> numInputs = receiveInt(readSocket);
-    inputCircuit -> numOutputs = receiveInt(readSocket);
+
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
-    //inputCircuit -> gates = 
+    inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
 
-    receiveCircuit(inputCircuit, writeSocket, readSocket);
-
-    // printf("Received circuit.\n");
+    printf("Received circuit.\n");
 
     runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
@@ -106,7 +105,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 
     buffer = serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
 
-    outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates, inputCircuit -> numInputs);
+    outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates);
 
     runCircuitLocal( inputCircuit );
     printAllOutput(inputCircuit);

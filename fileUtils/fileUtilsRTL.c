@@ -241,7 +241,6 @@ struct Circuit *readInCircuitRTL(char* filepath)
 
 	outputCircuit -> gates = gatesList;
 	outputCircuit -> execOrder = execOrder;
-	outputCircuit -> numInputs = numInputs1 + numInputs2;
 
 	free(R);
 

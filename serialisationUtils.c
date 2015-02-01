@@ -327,7 +327,7 @@ unsigned char *serialiseCircuit(struct gateOrWire **inputCircuit, int numGates, 
 }
 
 
-struct gateOrWire **deserialiseCircuit(unsigned char *inputBuffer, int numGates, int numInputs)
+struct gateOrWire **deserialiseCircuit(unsigned char *inputBuffer, int numGates)
 {
 	int i, offset, tempSerialiseSize;
 	struct gateOrWire **outputCircuit = (struct gateOrWire **) calloc(numGates, sizeof(struct gateOrWire*));
