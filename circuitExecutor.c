@@ -156,7 +156,8 @@ int *receiveExecOrder(int writeSocket, int readSocket, int numGates)
 
 
 // Receive the actual circuit.
-struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket)
+//struct gateOrWire **
+void receiveCircuit(struct Circuit *inputCircuit, int writeSocket, int readSocket)
 {
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
@@ -165,15 +166,30 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 
 	int i, j, bufferLength = 0;
 	unsigned char *buffer = NULL;
-	struct gateOrWire **inputCircuit;
+	// struct gateOrWire **gates;
 
-	printf("Circuit has %d gates!\n", numGates);
+	/*
+	bufferLength = receiveInt(readSocket);
+	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	receive(readSocket, buffer, bufferLength);
+
+	memcpy(&(inputCircuit -> numGates), buffer + 0 * sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> numInputs), buffer + 1 * sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> numOutputs), buffer + 2 * sizeof(int), sizeof(int));
+	memcpy(&bufferLength, buffer + 3 * sizeof(int), sizeof(int));
+
+	memcpy(inputCircuit -> execOrder, buffer + 4 * sizeof(int), inputCircuit -> numGates * sizeof(int));
+
+	free(buffer);
+	*/
+
+	printf("Circuit has %d gates!\n", inputCircuit -> numGates);
 
 	bufferLength = receiveInt(readSocket);
 	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 	receive(readSocket, buffer, bufferLength);
 
-	inputCircuit = deserialiseCircuit(buffer, numGates);
+	inputCircuit -> gates = deserialiseCircuit(buffer + 4 * sizeof(int), inputCircuit -> numGates, inputCircuit -> numInputs);
 
 
 	c_1 = clock();
@@ -184,6 +200,6 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	printf("Received Circuit Custom time :     %lf\n", temp);
 
 
-	return inputCircuit;
+	free(buffer);
 }
 
