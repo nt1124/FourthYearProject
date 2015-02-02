@@ -111,7 +111,10 @@
     \subsection{Yao Garbled Circuits} \label{Yao_Circuits}
 
 	\subsubsection{Overview} \label{Yao_Overview}
-		Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. The concept being that we represent the function we wish to compute as a binary circuit. We then ``garble'' this circuit in such that it can still be executed, all while neither party knows what the others input was.
+		Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. Yao proposed in \cite{YaoOriginal} that the two parties are designated the Builder and the Executor. The Builder then constructs a circuit representing the function the parties wish to compute, this circuit is ``garbled'' in such a way that it can stil be executed.\\
+
+		 This garbled circuit, hardcoded with the Builders input data, is sent to the Executing party who then obtains the data representing their input form the Builder via Oblivious Transfer. The Executor then evaluates the circuit and obtains the output of the function.
+
 
 	\subsubsection{Details} \label{Yao_Details}
 		As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is constructing the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i$ be the value of $w_i$ where $b_i \in \{0, 1\}$. Here we will take the case where $w_i$ is an input wire for which $P_i$ provides the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. Next we garble this gate.\\
@@ -132,6 +135,17 @@
 		$P_2$ can then look up the entry in the encrypted truth table indexed by $c_1$ and $c_2$ and decrypt it with using $k_1^{b_1}$ and  $k_2^{b_2}$. This will give $P_2$ a value for $k_3^{G(b_1, b_2)} \Vert c_3$. Then by using $\pi_3^{-1}$, $P_2$ can extract a value for $G(b_1, b_2)$.\\
 
 		This can be extended to a full circuit, the input wires belonging to the circuits builder are hard coded and their garble keys and permutated values are sent to the executor. The values for the input wires belonging to the executor are obtained by the executor via Oblivious transfer with the builder. The executor is only given the permutations for the output wires, and therefore the intermediate values are protected.
+
+	\subsubsection{Security of Yao Garbled Circuits}
+		A naive implementation of a protocol using Yao Garbled Circuits only provides Semi-honest security. For a formal proof of Semi-honest security see \cite{ProofOfYaoSecurity}, we shall briefly give an intuitional explaination of why naive Yao Garbled Circuits are not secure in the presence of Malicious or Covert adversaries.\\
+		
+		Consider the case where the circuit building party is Malicious, at no point does the executing party verify that the garbled circuit provided by the builder actually computes the function the builder claims it does. This clearly breaks the Correctness requirement, but also opens up an attack on the Privacy and Independence of inputs.\\
+
+		There is nothing to stop the Builder providing a circuit that outputs the input of the Executor in a way that the Builder can recover, as such the Privacy of the Executor's inputs fails in the presence of a Malicious Builder. Furthermore, the Builder could provide a circuit where its input is a function of the Executor's input, thus defeating the Independence of inputs requirement.
+
+
+	\subsubsection{Security against Malicious and Covert Adversaries}
+		Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Whilst 
 
 
   \subsection{Oblivious Transfer} \label{OT_Intro}
@@ -190,6 +204,7 @@
 
 
 
+
 \begin{thebibliography}{5}
   \bibitem{Lindell_CnC_2014}
     Fast Cut-and-Choose Based Protocols for Malicious and Covert Adversaries,\\
@@ -199,6 +214,10 @@
     Multiparty Computation Goes Live,\\
     Peter Bogetoft et al. (2008)
 
+  \bibitem{ProofOfYaoSecurity}
+    A Proof of Security of Yao’s Protocol for Two-Party Computation,\\
+    Lindell and Pinkas (2006).
+    
   \bibitem{Rabin81}
     How to Exchange Secrets with Oblivious Transfer,\\
     Michael O. Rabin (1981)
@@ -216,6 +235,10 @@
     A Framework for Efficient and Composable Oblivious Transfer,\\
     Peikert, Vaikuntanathan and Waters (2008)
 
+  \bibitem{YaoOriginal}
+    How to Generate and Exchange Secrets,
+    A. Yao (1986).
+    
 \end{thebibliography}
 
 \end{document}

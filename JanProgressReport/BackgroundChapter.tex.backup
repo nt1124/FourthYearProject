@@ -133,20 +133,92 @@
 
 		This can be extended to a full circuit, the input wires belonging to the circuits builder are hard coded and their garble keys and permutated values are sent to the executor. The values for the input wires belonging to the executor are obtained by the executor via Oblivious transfer with the builder. The executor is only given the permutations for the output wires, and therefore the intermediate values are protected.
 
+	\subsubsection{Security of Yao Garbled Circuits}
+		Yao garbled circuits only provide Semi-honest security, 
 
 
-    \subsection{Oblivious Transfer} \label{OT_Intro}
+  \subsection{Oblivious Transfer} \label{OT_Intro}
+    \subsubsection{Introduction to Oblivious Transfer}
+      Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to out-of-n) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+
+      Oblivious Transfers (OTs) were first suggested by Rabin in \cite{Rabin81}. We formally define the functionality of a 1 out of 2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit executor the garble keys representing its inputs, without telling the circuit builder what those inputs were.\\
+
+      \begin{figure}[!htb]
+	\centering
+	\begin{minipage}{0.45\textwidth}
+	  \centering
+	  \textbf{Receiver}\\
+	  Inputs : $b \in \{0, 1\}$\\
+	  Outputs : $X_b$\\
+	\end{minipage}
+	\begin{minipage}{0.45\textwidth}
+	  \centering
+	  \textbf{Sender}\\
+	  Inputs : $X_1$, $X_2$\\
+	  Outputs : $\emptyset$\\
+	\end{minipage}
+	\caption{ Formal definition of the functionality of a one out of two OT protocol.\label{fig:OTformalDef}}
+      \end{figure}
+      
+      The security of Oblivious Transfers is defined in a similar way to that of SMPC, adversaries have three main levels of power, Semi-honest, Malicious and Covert. These adversaries are analogues to the adversaries we defined in \ref{sub:securityLevels}.\\
+
+      A protocol is considered secure Semi-honest adversaries if it a semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a semi-honest adversary in the role of the receiver learn anything about values other than the one it requested. The protocol being secure against Malicious or Covert adversaries is defined by the naive extension of the Semi-honest case.\\
+
+    \subsubsection{Even-Goldreich-Lempel SH OT Protocol}
+      Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}.\\
+
+      \begin{tabular}[!htb]{p{6cm} p{6cm}}
+	\textbf{Receiver} & \textbf{Sender}\\
+	Inputs : $b \in \{0, 1\}$ & Inputs : $X_1$, $X_2$\\
+	Outputs : $X_b$ & Outputs : $\emptyset$\\
+      \end{tabular}
+
+      \begin{itemize}
+	\setlength{\itemsep}{0.5pt}
+	\setlength{\parskip}{0pt}
+	\setlength{\parsep}{0pt}
+
+	\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
+	\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ tp the Sender.\\
+	\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Recevier.\\
+	\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
+      \end{itemize}
+
+      This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key. However, so long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to.
+ 
+    \subsection{Oblivious Transfer using dual-mode cryptosystem}
+      The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
+
+      The Dual-mode cryptosystem uses a Common Reference String(CRS), creating this during setup when it also chooses a one of two modes, called \emph{messy} mode and the \emph{decryption} mode.
 
 
 
 
 \begin{thebibliography}{5}
+  \bibitem{Lindell_CnC_2014}
+    Fast Cut-and-Choose Based Protocols for Malicious and Covert Adversaries,\\
+    Lindell (2014).
 
+  \bibitem{SugarBeets}
+    Multiparty Computation Goes Live,\\
+    Peter Bogetoft et al. (2008)
 
-\bibitem{SugarBeets}
-Multiparty Computation Goes Live,\\
-Peter Bogetoft et al. (2008)
+  \bibitem{Rabin81}
+    How to Exchange Secrets with Oblivious Transfer,\\
+    Michael O. Rabin (1981)
 
+  \bibitem{PinkasSlides2014}
+    Secure Computation Lecture Series,\\
+    Lecture 5 - Oblivious Transfer,\\
+    Pinkas (2014)
+
+  \bibitem{EvenEtAl85}
+    A randomized protocol for signing contracts,\\
+    Even, Goldreich and Lempel (1985)
+
+  \bibitem{PVW_OT_2008}
+    A Framework for Efficient and Composable Oblivious Transfer,\\
+    Peikert, Vaikuntanathan and Waters (2008)
 
 \end{thebibliography}
 
