@@ -2,7 +2,11 @@
 \usepackage[utf8]{inputenc}
 \usepackage{color}
 \usepackage{graphicx}
-\usepackage[margin=1.5in]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+
+\usepackage[margin=1.2in]{geometry}
 \setcounter{tocdepth}{2}
 
 
@@ -27,6 +31,10 @@
     \textsc{ \huge \bfseries Secure two party computation}
     \HRule \\[0.4cm]
     
+    \begin{abstract}
+      We shall be producing an implementation of the Secure Two Party Computation protocol using Cut-and-choose put forward by Prof. Lindell in \cite{Lindell_CnC_2014}. We shall also implement other previous protocols that are also secure against Malicious and Covert adversaries for the purposes of comparison.
+    \end{abstract}
+    
     \vspace{5cm}
     \noindent\rule{12cm}{0.2pt}\\[0.2cm]
     \textsc{\Large Author: Nicholas Tutte (nt1124)}\\[0.2cm]
@@ -41,28 +49,107 @@
 
   \section{Background Chapter}
     \subsection{Problem definition} \label{InformalProbDef}
-      Secure multi-party computation(SMPC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2PC), but most two party approaches can be generalised to the multi-party case.\\
+      Secure multi-party computation(SMC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2PC), but most two party approaches can be generalised to the multi-party case.\\
       
-      A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worths and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about anothers inputs, apart from what the can infer from their own input and the output.\\
+      A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worths and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about anothers inputs, apart from what the parties can infer from their own input and the output.\\
       
-      So for example Whilst this is not exactly an inspiring application, it does explain convey the problem concisely. We shall cover further applications later in \ref{Applications}.\\
+      Whilst this is not exactly an inspiring application, it does explain convey the problem concisely. We shall cover further applications later in \ref{Applications}.\\
 
       Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.
 
+
     \subsection{Formal ideal model}
-      Formally speaking any solution developed to the problem of secure two party computation should be equivalent to the following model, which we refer to as the \emph{ideal}.\\
+	There are three main properties that we wish to achieve with any SMP protocol,
+	\begin{itemize}
+		\item Privacy, the only knowledge parties gain from participating is the output.
+		\item Correctness, the output is indeed that of the intended function.
+		\item Independence of inputs, no party can choose it's inputs as the function of other parties inputs.
+	\end{itemize}
 
-      The obvious solution to our problem would be to find an external individual, trusted by both parties. Such a trusted individual could receive the inputs from each party, compute the function and then inform both parties of the output of the function.\\
+	In this sense we define the goal of an adversary to compromise any one of these properties.\\
 
-      This model is held up as the ideal to which any SMPC protocol should aspire to, both in terms of functionality and in terms of security.
-	
-    \subsection{Security levels}
-	
+      We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party who then computes the value of the function and returns the output to the parties. We say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve than the ideal model.\\
+
+
+    \subsection{Security levels}\label{sub:securityLevels}
+	Having established what goals the adversary wishes to achieve and how we can measure if said adversary has a valid attack, we next deal with the question of the capabilities of the adversary. We use three main models to describe the threat level of the adversary.\\
+
+	\subsubsection{Semi-honest Adversary}
+		The Semi Honest(SH) adversary is the weakest adversary, and requires the strongest limitations on their capabilities. The SH adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol in any way (i.e. they play fair/are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
+
+	\subsubsection{Malicious Model}
+		The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), but we assume that for the adversary to be successful they must be able to guarantee they will not be detected. This is in some ways analogous to the classic ``active'' adversary.
+
+	\subsubsection{Covert Model}
+		The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol, however in this case the adversary is willing to take a risk and is happy with avoiding detection a certain percentage of the time. Effectively in this case the adversary is playing a cost-benefit trade off and to achieve security we need ensure the adversary's attack is detected with a high enough probability that the adversary will not consider it worth the risk.\\
+
+		We call the probability that such an adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$.
+
+
     \subsection{Applications} \label{Applications}
+      At first it might appear that SMC lacks applications beyond those like the trivial example provided in \ref{InformalProbDef}. In fact as this is often the first example given many dismiss SMC as of limited usefulness or as a pointless toy. Here we shall provide a number of other applications either already in use or in development.
+
+
+      \subsubsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
+		In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''. Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer, similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been run multiple times \\
+
+		As far as team behind this auction are aware this is the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
+
+      \subsubsection{Database queries} \label{LegalDatabaseApplication}
+		Imagine the case where one party holds a database, and the other wishes to perform a query upon this database. However, for whatever reason the querying party does not wish to reveal what their query is, nor does the holder of the database wish to give the database to the querier. This particular problem and related problems have attracted significant attention in the academic community.
+
+      \subsubsection{Distributed secrets} \label{DistributedSecretApplication}
+		Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front costs and reputation.\\
+
+		In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Nigel Smart is a co-founder of Dyadic).
+
+      % Should this be a subsubsub?
+      \subsubsection{AES Encryption} \label{AES_Application}
+		A classic test/benchmark for any general S2PC protocol is to perform an AES encryption where the message and key are held by two parties, so $P_A$ can input a message to be encrypted, $P_B$ without knowing the message will encrypt it using it's key, returning the encrypted ciphertext to $P_A$ and at no point did $P_A$ know what key was used, nor $P_B$ what the plaintext was.
+
     
-    \subsection{Yao Garbled Circuits} \label{Yao_Introduction}
-    
+    \subsection{Yao Garbled Circuits} \label{Yao_Circuits}
+
+	\subsubsection{Overview} \label{Yao_Overview}
+		Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. The concept being that we represent the function we wish to compute as a binary circuit. We then ``garble'' this circuit in such that it can still be executed, all while neither party knows what the others input was.
+
+	\subsubsection{Details} \label{Yao_Details}
+		As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is constructing the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i$ be the value of $w_i$ where $b_i \in \{0, 1\}$. Here we will take the case where $w_i$ is an input wire for which $P_i$ provides the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. Next we garble this gate.\\
+
+		$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered our security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$, we define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$.
+
+		$$ c_1, c_2 : E_{k_1^{b_1}, k_2^{b_2}} (k_3^{ G(b_1, b_2) } \Vert c_3) $$
+
+		Where $E_{k_i, k_j}(m)$ is some encryption function taking the keys $k_i$ and $k_j$ and the plaintext $m$. Since the advent of AES-NI and the cheapness of using AES we will use AES with 128 bit keys to make this function. Suppose that $AES_k(m)$ denotes the AES encryption of the plaintext $m$ under the 128 bit key $k$. We define $E_K$ (and it's inverse $D_K$)  as follows,
+
+		$$ E_K(m) = AES_{k_n}( AES_{k_{n-1}}( ...AES_{k_1}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
+		$$ D_K(m) = AES^{-1}_{k_1}( AES^{-1}_{k_{2}}( ...AES^{-1}_{k_n}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
+
+		We extend both the encryption function and the truth table this to a gate with more than two inputs in the obvious fashion.\\
+
+		Then $P_1$ (the builder of the circuit) sends this garbled version of the circuit to $P_2$ (the executor of the circuit). $P_1$ should send the garbling key for it's input bit ($k_1^{b_1}$), the full encrypted truth table and $c_1 = \pi(b_1)$. Then $P_2$ needs to get $k_2^{b_2} \Vert c_2$ from $P_2$ without revealing the value of $b_2$. This is done by an Oblivious Transfer where $P_1$ inputs $k_2^0$ and $k_2^1$ and $P_2$ inputs $b_2$. $P_2$ receives the output $k_2^{b_2} \Vert c_2$ from the OT and learns nothing about $k_2^{(b_2 \oplus 1)} $, $P_1$ gets no output and learns nothing about the value of $b_2$.\\
+
+		$P_2$ can then look up the entry in the encrypted truth table indexed by $c_1$ and $c_2$ and decrypt it with using $k_1^{b_1}$ and  $k_2^{b_2}$. This will give $P_2$ a value for $k_3^{G(b_1, b_2)} \Vert c_3$. Then by using $\pi_3^{-1}$, $P_2$ can extract a value for $G(b_1, b_2)$.\\
+
+		This can be extended to a full circuit, the input wires belonging to the circuits builder are hard coded and their garble keys and permutated values are sent to the executor. The values for the input wires belonging to the executor are obtained by the executor via Oblivious transfer with the builder. The executor is only given the permutations for the output wires, and therefore the intermediate values are protected.
+
+
+
     \subsection{Oblivious Transfer} \label{OT_Intro}
 
-  
+
+
+
+\begin{thebibliography}{5}
+
+
+\bibitem{SugarBeets}
+Multiparty Computation Goes Live,\\
+Peter Bogetoft et al. (2008)
+
+
+\end{thebibliography}
+
 \end{document}
+
+
