@@ -298,28 +298,28 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 }
 
 
-unsigned char *serialiseCircuit(struct gateOrWire **inputCircuit, int numGates, int *bufferLength)
+unsigned char *serialiseCircuit(struct Circuit **inputCircuit, int *bufferLength)
 {
 	int i = 0, offset = 0, tempSerialiseSize = 0;
 	unsigned char *toReturn;
 
 	*bufferLength = 0;
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		(*bufferLength) += getSerialiseSizeAlt(inputCircuit[i]);
+		(*bufferLength) += getSerialiseSizeAlt(inputCircuit -> gates[i]);
 		(*bufferLength) += 4;
 	}
 
 	toReturn = (unsigned char*) calloc(*bufferLength, sizeof(unsigned char));
 
-	for(i = 0; i < numGates; i ++)
+	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
-		tempSerialiseSize = getSerialiseSizeAlt(inputCircuit[i]);
+		tempSerialiseSize = getSerialiseSizeAlt(inputCircuit -> gates[i]);
 		memcpy(toReturn + offset, &tempSerialiseSize, 4);
 		offset = offset + 4;
 
-		serialiseGateOrWireAlt(inputCircuit[i], toReturn, offset);
+		serialiseGateOrWireAlt(inputCircuit -> gates[i], toReturn, offset);
 		offset = offset + tempSerialiseSize;
 	}
 

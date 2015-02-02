@@ -61,14 +61,24 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     int i;
 
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-    unsigned char *output;
+    unsigned char *output, *gateParamsBuffer = (unsigned char*) calloc(3 * sizeof(int), sizeof(unsigned char));
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
     printf("Connected to builder.\n");
 
+
+    receive(readSocket, gateParamsBuffer, 3*sizeof(int));
+
+    memcpy(&(inputCircuit -> numGates), gateParamsBuffer, sizeof(int));
+    memcpy(&(inputCircuit -> numInputs), gateParamsBuffer + sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> numOutputs), gateParamsBuffer + 2 * sizeof(int), sizeof(int));
+    /*
     inputCircuit -> numGates = receiveInt(readSocket);
+    inputCircuit -> numInputs = receiveInt(readSocket);
+    inputCircuit -> numOutputs = receiveInt(readSocket);
+    */
 
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
     inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);

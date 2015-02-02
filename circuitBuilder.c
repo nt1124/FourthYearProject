@@ -104,7 +104,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 
 
 
-/*
+// Function send a single gate.
 void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 {
 	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
@@ -115,31 +115,35 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 	send(writeSocket, buffer, bufferLength);
 	free(buffer);
 
-	// This bit of code was a hack fix. Will not be needed when bulk sending?
-	if(NULL != inputGW -> gatePayload)
-	{
-		for(j = 0; j < inputGW -> gatePayload -> outputTableSize; j ++)
-		{
-			send(writeSocket, (octet*)inputGW -> gatePayload -> encOutputTable[j], 32);
-		}
-	}
 }
-*/
 
 
 void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 {
-	unsigned char *bufferToSend;
+	unsigned char *bufferToSend, *gateParamsBuffer = (unsigned char *) calloc(3 * sizeof(int), sizeof(unsigned char));
 	int i, bufferLength = inputCircuit -> numGates * sizeof(int);
 
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
 	c_0 = clock();
-	
+
+
+
+    memcpy(gateParamsBuffer, &(inputCircuit -> numGates), sizeof(int));
+    memcpy(gateParamsBuffer + sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
+    memcpy(gateParamsBuffer + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
+
+	send(writeSocket, gateParamsBuffer, 3 * sizeof(int));
+
+
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 	memcpy(bufferToSend, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
 
+	/*
 	sendInt(writeSocket, inputCircuit -> numGates);
+	sendInt(writeSocket, inputCircuit -> numInputs);
+	sendInt(writeSocket, inputCircuit -> numOutputs);
+	*/
 
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, bufferToSend, bufferLength);
