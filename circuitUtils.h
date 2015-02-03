@@ -6,15 +6,6 @@
 #include "timingUtils.c"
 
 
-typedef struct Circuit
-{
-	int circuitID;
-	int numInputs;
-	int numOutputs;
-	int numGates;
-	int *execOrder;
-	struct gateOrWire **gates;
-} Circuit;
 
 
 typedef struct idAndValue

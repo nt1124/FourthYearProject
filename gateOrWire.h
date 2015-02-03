@@ -43,6 +43,16 @@ typedef struct gateOrWire
 } gateOrWire;
 
 
+typedef struct Circuit
+{
+	int circuitID;
+	int numInputs;
+	int numOutputs;
+	int numGates;
+	int *execOrder;
+	struct gateOrWire **gates;
+} Circuit;
+
 
 // Missing so many functions here!
 void printGateOrWire(struct gateOrWire *inputGW);

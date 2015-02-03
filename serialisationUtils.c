@@ -298,7 +298,7 @@ struct gateOrWire *deserialiseGateOrWire(unsigned char *serialGW)
 }
 
 
-unsigned char *serialiseCircuit(struct Circuit **inputCircuit, int *bufferLength)
+unsigned char *serialiseCircuit(struct Circuit *inputCircuit, int *bufferLength)
 {
 	int i = 0, offset = 0, tempSerialiseSize = 0;
 	unsigned char *toReturn;

@@ -113,7 +113,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
     readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
 
-    buffer = serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
+    buffer = serialiseCircuit(inputCircuit, &bufferLength);
 
     outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates);
 
@@ -121,6 +121,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     printAllOutput(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
+    freeCircuitStruct(outputCircuit);
 }
 
 

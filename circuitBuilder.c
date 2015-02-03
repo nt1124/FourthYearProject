@@ -151,7 +151,7 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	free(bufferToSend);
 
 	bufferToSend = 0;
-	bufferToSend = serialiseCircuit(inputCircuit -> gates, inputCircuit -> numGates, &bufferLength);
+	bufferToSend = serialiseCircuit(inputCircuit, &bufferLength);
 
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, bufferToSend, bufferLength);

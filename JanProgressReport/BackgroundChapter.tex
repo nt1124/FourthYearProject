@@ -77,9 +77,9 @@
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), but we assume that for the adversary to be successful they must be able to guarantee they will not be detected. This is in some ways analogous to the classic ``active'' adversary.
 
 			\subsubsection{Covert Model}
-				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol, however in this case the adversary is willing to take a risk and is happy with avoiding detection a certain percentage of the time. Effectively in this case the adversary is playing a cost-benefit trade off and to achieve security we need ensure the adversary's attack is detected with a high enough probability that the adversary will not consider it worth the risk.\\
+				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol, however in this case the adversary is willing to accept a certain probability of detection. In this case the adversary is playing a cost-benefit trade off and to achieve security we need ensure the adversary's attack is detected with a high enough probability that the adversary will not consider it worth the risk.\\
 
-				We call the probability that such an adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$.
+				We call the probability that such an adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
 
 		\subsection{Applications} \label{Applications}
@@ -140,9 +140,11 @@
 
 
 			\subsubsection{Security against Malicious and Covert Adversaries}
-				Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an appraoch dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability). This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. Each of these circuits is chosen with probability $\frac{1}{2}$ as a check circuit that will be evaluated to test if they yield the correct result. If all check circuits pass then the Executor evaluates the remaining circuits as usual and returns the most common output. If one or more circuits produces an incorrect result the this indicates cheating.\\
+				Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an appraoch dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability). This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. Each of these circuits is chosen with probability $\frac{1}{2}$ as a check circuit that will be evaluated to test if they yield the correct result.\\
 
-				As around half the circuits will be evaluated and the majority output used at least a quarter of the circuits must be malicious in order to affect the eventual output. 
+				If all check circuits pass then the Executor evaluates the remaining circuits as usual and returns the most common output. If one or more circuits produces an incorrect result the this indicates cheating, furthermore if any check circuits fail during evaluation this is also taken to indicate cheating.\\
+
+				This means $s$ acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example the protocol proposed in \cite{Lindell_CnC_2014} detects cheating with probability $2^s$.
 
 
 		\subsection{Oblivious Transfer} \label{OT_Intro}	
@@ -200,24 +202,7 @@
 
 			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The receiver uses their input bit and the CRS to generate  a ``base'' public key and private key. The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
 
-			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting using the public key we specify a branch (say $b \in \{0, 1\}$) on which to encrypt, the resulting ciphertext can only be decrypted if $\sigma = b$. As such this means that 
-
-			Below we 
-
-			\begin{tabular}[!htb]{p{6cm} p{6cm}}
-				\textbf{Receiver} & \textbf{Sender}\\
-				Inputs : $b \in \{0, 1\}$ & Inputs :sid, ssid, $X_1$, $X_2$\\
-				Outputs : $X_b$ & Outputs : $\emptyset$\
-			\end{tabular}
-
-			\begin{itemize}
-				\setlength{\itemsep}{0.5pt}
-				\setlength{\parskip}{0pt}
-				\setlength{\parsep}{0pt}
-
-				\item \textbf{Receiver:} 
-				\item \textbf{Sender:} 
-			\end{itemize}
+			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting using the public key we specify a branch (say $b \in \{0, 1\}$) on which to encrypt, the resulting ciphertext can only be decrypted if $\sigma = b$. Encrypting on the other branch 
 
 
 		\subsection{Progress so far}
