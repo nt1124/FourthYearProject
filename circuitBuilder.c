@@ -58,7 +58,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 	c_0 = clock();
 
 	gmp_randstate_t *state = seedRandGen();
-	struct decParams *params = senderCRS_Syn(writeSocket, readSocket);
+	struct decParams *params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
 
 
 	receivedOffset = receiveInt(readSocket);
@@ -138,12 +138,6 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 	memcpy(bufferToSend, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
-
-	/*
-	sendInt(writeSocket, inputCircuit -> numGates);
-	sendInt(writeSocket, inputCircuit -> numInputs);
-	sendInt(writeSocket, inputCircuit -> numOutputs);
-	*/
 
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, bufferToSend, bufferLength);

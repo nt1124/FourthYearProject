@@ -40,7 +40,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	c_0 = clock();
 
 	struct otKeyPair **otKeyPairs;
-	struct decParams *params = receiverCRS_Syn(writeSocket, readSocket, 1024, *state);
+	struct decParams *params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
 
 
 	if ( file != NULL )

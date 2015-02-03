@@ -46,12 +46,14 @@
 	\section{Background Chapter}
 		\subsection{Problem definition} \label{InformalProbDef}
 			Secure multi-party computation(SMC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2PC), but most two party approaches can be generalised to the multi-party case.\\
-      
+
 			A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worths and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about anothers inputs, apart from what the parties can infer from their own input and the output.\\
       
 			Whilst this is not exactly an inspiring application, it does explain convey the problem concisely. We shall cover further applications later in \ref{Applications}.\\
 
-			Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.
+			Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.\\
+
+			Some time should be taken at this point to note also that we are pursuing a generalised solution to this problem. Many SMC protocols exist that are designed for a specific problem, whilst these are often more efficient than any general solution they are limited to one problem. We will be focusing on general protocols that can be applied to any problem.
 
 
 		\subsection{Formal ideal model}
@@ -64,22 +66,22 @@
 
 			In this sense we define the goal of an adversary to compromise any one of these properties.\\
 
-			We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party who then computes the value of the function and returns the output to the parties. We say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve than the ideal model.\\
+			We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party via secure channels. This trusted party then computes the value of the function and returns the output to the parties. We say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve than the ideal model.
 
 
 		\subsection{Security levels}\label{sub:securityLevels}
-			Having established what goals the adversary wishes to achieve and how we can measure if said adversary has a valid attack, we next deal with the question of the capabilities of the adversary. We use three main models to describe the threat level of the adversary.\\
+			Having established what goals the adversary wishes to achieve and how we can measure if said adversary has a valid attack, we next deal with the question of the capabilities of the adversary. We use three main models to describe the threat level of the adversary.
 
 			\subsubsection{Semi-honest Adversary}
 				The Semi Honest(SH) adversary is the weakest adversary, and requires the strongest limitations on their capabilities. The SH adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol in any way (i.e. they play fair/are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
 
 			\subsubsection{Malicious Model}
-				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), but we assume that for the adversary to be successful they must be able to guarantee they will not be detected. This is in some ways analogous to the classic ``active'' adversary.
+				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malciious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
 			\subsubsection{Covert Model}
-				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol, however in this case the adversary is willing to accept a certain probability of detection. In this case the adversary is playing a cost-benefit trade off and to achieve security we need ensure the adversary's attack is detected with a high enough probability that the adversary will not consider it worth the risk.\\
+				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol, however in this case the adversary is adverse to being caught cheating. A Covert Adversary will accept a certain known probability of detection, this probability represents the point at which the expected payofff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught.\\
 
-				We call the probability that such an adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
+				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
 
 		\subsection{Applications} \label{Applications}
@@ -87,34 +89,36 @@
 
 
 			\subsubsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
-				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''. Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer, similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been run multiple times \\
+				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
+
+				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer, similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been run multiple times \\
 
 				As far as team behind this auction are aware this is the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
 			\subsubsection{Database queries} \label{LegalDatabaseApplication}
-				Imagine the case where one party holds a database, and the other wishes to perform a query upon this database. However, for whatever reason the querying party does not wish to reveal what their query is, nor does the holder of the database wish to give the database to the querier. This particular problem and related problems have attracted significant attention in the academic community.
+				Imagine the case where one party holds a database, and the other wishes to perform a query upon this database. However, for whatever reason the querying party does not wish to reveal what their query is, nor does the holder of the database wish to give the database to the querier. This particular problem has attracted significant attention in the academic community and also in the legal domain, as it provides a way for parties to comply with legal requirements to give up information without having to provide unfetted access to external parties.
 
 			\subsubsection{Distributed secrets} \label{DistributedSecretApplication}
-				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front costs and reputation.\\
+				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
-				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Nigel Smart is a co-founder of Dyadic).
+				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
 			\subsubsection{AES Encryption} \label{AES_Application}
-				A classic test/benchmark for any general S2PC protocol is to perform an AES encryption where the message and key are held by two parties, so $P_A$ can input a message to be encrypted, $P_B$ without knowing the message will encrypt it using it's key, returning the encrypted ciphertext to $P_A$ and at no point did $P_A$ know what key was used, nor $P_B$ what the plaintext was.
+				A classic test/benchmark for any general S2PC protocol is to perform an AES encryption where the message and key are held by two parties, so $P_A$ can input a message to be encrypted, $P_B$ inputs a key, and the protocol returns the encrypted ciphertext to $P_A$ and nothing to $P_B$. At no point did $P_A$ know what key was used, nor $P_B$ what the plaintext was.
 
-    
+
 		\subsection{Yao Garbled Circuits} \label{Yao_Circuits}
 
 			\subsubsection{Overview} \label{Yao_Overview}
-				Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. Yao proposed in \cite{YaoOriginal} that the two parties are designated the Builder and the Executor. The Builder then constructs a circuit representing the function the parties wish to compute, this circuit is ``garbled'' in such a way that it can stil be executed.\\
+				Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. Yao first proposed garbled circuits \cite{YaoOriginal}. The two parties are designated the Builder and the Executor. The Builder then constructs a circuit representing the function the parties wish to compute, this circuit is ``garbled'' in such a way that it can stil be executed.\\
 
 				This garbled circuit, hardcoded with the Builders input data, is sent to the Executing party who then obtains the data representing their input form the Builder via Oblivious Transfer. The Executor then evaluates the circuit and obtains the output of the function.
 
 
 			\subsubsection{Details} \label{Yao_Details}
-				As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is constructing the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i$ be the value of $w_i$ where $b_i \in \{0, 1\}$. Here we will take the case where $w_i$ is an input wire for which $P_i$ provides the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. Next we garble this gate.\\
+				As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is building the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i \in \{0, 1\}$ be the value of $w_i$. Here we will take the case where $w_i$ is an input wire for which $P_i$ provides the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. We now garble this gate in order to obscure the inputs and outputs.\\
 
-				$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered our security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$, we define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$.
+				$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered a security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$. We define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$.
 
 				$$ c_1, c_2 : E_{k_1^{b_1}, k_2^{b_2}} (k_3^{ G(b_1, b_2) } \Vert c_3) $$
 
@@ -178,31 +182,39 @@
 			\subsubsection{Even-Goldreich-Lempel SH OT Protocol}
 				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}.\\
 
-				\begin{tabular}[!htb]{p{6cm} p{6cm}}
-					\textbf{Receiver} & \textbf{Sender}\\
+				\begin{figure}
+					\begin{tabular}[!htb]{p{6cm} p{6cm}}
+						\textbf{Receiver} & \textbf{Sender}\\
 						Inputs : $b \in \{0, 1\}$ & Inputs : $X_1$, $X_2$\\
-					Outputs : $X_b$ & Outputs : $\emptyset$\\
-				\end{tabular}
+						Outputs : $X_b$ & Outputs : $\emptyset$\\
+					\end{tabular}
 
-				\begin{itemize}
-					\setlength{\itemsep}{0.5pt}
-					\setlength{\parskip}{0pt}
-					\setlength{\parsep}{0pt}
+					\begin{itemize}
+						\setlength{\itemsep}{0.5pt}
+						\setlength{\parskip}{0pt}
+						\setlength{\parsep}{0pt}
 
-					\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
-					\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
-					\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
-					\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
-				\end{itemize}
+						\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
+						\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
+						\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
+						\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
+					\end{itemize}
+
+					\caption{The abstracted Even-Goldreich-Lempel protocol.}
+				\end{figure}
 
 				This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key. However, so long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to.
  
 		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
-			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem (effectively a slightly modified Elgamal). Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
+			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
 
-			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The receiver uses their input bit and the CRS to generate  a ``base'' public key and private key. The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
+			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key. It should be noted that the security of their protocol depends on a trusted setup of the CRS. This is however, at least to Peikert et al., a reasonable assumption.\\
 
-			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting using the public key we specify a branch (say $b \in \{0, 1\}$) on which to encrypt, the resulting ciphertext can only be decrypted if $\sigma = b$. Encrypting on the other branch 
+			The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
+
+			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting using the public key we specify a branch (say $b \in \{0, 1\}$) on which to encrypt, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
+
+ 			Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.
 
 
 		\subsection{Progress so far}

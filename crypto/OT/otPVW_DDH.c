@@ -106,6 +106,30 @@ struct messyParams *initMessyParams()
 }
 
 
+// Ronseal
+int sendMessyParams(int writeSocket, int readSocket, struct messyParams *paramsToSend)
+{
+
+	sendCRS(writeSocket, readSocket, paramsToSend -> crs);
+
+	sendDDH_Group(writeSocket, readSocket, paramsToSend -> group);
+
+	return 1;
+}
+
+
+// Receive the dec params, note that we do NOT get the trapdoor.
+struct messyParams *receiveMessyParams(int writeSocket, int readSocket)
+{
+	struct messyParams *params = (struct messyParams*) calloc(1, sizeof(struct decParams));
+
+	params -> crs = receiveCRS(writeSocket, readSocket);
+
+	params -> group = receiveDDH_Group(writeSocket, readSocket);
+
+	return params;
+}
+
 // Initialise the dec side of the params
 struct decParams *initDecParams()
 {
@@ -355,10 +379,19 @@ struct TrapdoorDecKey *trapdoorKeyGeneration( struct CRS *crs, struct DDH_Group 
 
 
 // Request a set of params from the Receiver who will run setupDec.
-// Note that the sender will NOT be in possession of the TrapdoorDec.
-struct decParams *senderCRS_Syn(int writeSocket, int readSocket)
+struct decParams *senderCRS_Syn_Dec(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state)
+{	
+	struct decParams *params = setupDec( securityParam, state );
+
+	sendDecParams(writeSocket, readSocket, params);
+
+	return params;
+}
+
+
+struct messyParams *senderCRS_Syn_Messy(int writeSocket, int readSocket)
 {
-	struct decParams *params = receiveDecParams(writeSocket, readSocket);
+	struct messyParams *params = receiveMessyParams(writeSocket, readSocket);
 
 	return params;
 }
@@ -485,11 +518,19 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 
 
 
-struct decParams *receiverCRS_Syn(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state)
+struct decParams *receiverCRS_Syn_Dec(int writeSocket, int readSocket)//, int securityParam, gmp_randstate_t state)
 {
-	struct decParams *params = setupDec( securityParam, state );
+	struct decParams *params = receiveDecParams(writeSocket, readSocket);
 
-	sendDecParams(writeSocket, readSocket, params);
+	return params;
+}
+
+
+struct messyParams *receiverCRS_Syn_Messy(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state)
+{
+	struct messyParams *params = setupMessy( securityParam, state );
+
+	sendMessyParams(writeSocket, readSocket, params);
 
 	return params;
 }
@@ -570,6 +611,7 @@ struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
 
 	return keyPair;
 }
+
 
 unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOffset,
 							struct otKeyPair *keyPair, struct decParams *params,
@@ -688,8 +730,20 @@ void testSender_OT_PVW()
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-	params = senderCRS_Syn(writeSocket, readSocket); 
+	params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state); 
 	senderOT_UC(writeSocket, readSocket, input0Bytes, input1Bytes, 16, params, state);
+
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", input0Bytes[i]);
+	}
+	printf("\n");
+
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", input1Bytes[i]);
+	}
+	printf("\n");
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -716,9 +770,15 @@ void testReceive_OT_PVW(char *ipAddress)
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
 
-	params = receiverCRS_Syn(writeSocket, readSocket, 1024, *state);
+	params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
 
 	output = receiverOT_UC(writeSocket, readSocket, inputBit, params, &outputLength, state);
+
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", output[i]);
+	}
+	printf("\n");
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);

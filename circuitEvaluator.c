@@ -74,11 +74,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     memcpy(&(inputCircuit -> numGates), gateParamsBuffer, sizeof(int));
     memcpy(&(inputCircuit -> numInputs), gateParamsBuffer + sizeof(int), sizeof(int));
     memcpy(&(inputCircuit -> numOutputs), gateParamsBuffer + 2 * sizeof(int), sizeof(int));
-    /*
-    inputCircuit -> numGates = receiveInt(readSocket);
-    inputCircuit -> numInputs = receiveInt(readSocket);
-    inputCircuit -> numOutputs = receiveInt(readSocket);
-    */
 
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
     inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
@@ -165,12 +160,14 @@ void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
     {
         printf("Running Executor.\n");
         // testSender_OT_SH_RSA(portNumStr);
+        // testReceive_OT_PVW(ipAddress);
         runExecutor(inputFilename, ipAddress, portNumStr);
     }
     else
     {
         printf("Running Builder.\n");
         // testReceiver_OT_SH_RSA(portNumStr);
+        // testSender_OT_PVW();
         runBuilder(circuitFilepath, inputFilename, portNumStr);
     }
 }
