@@ -52,7 +52,6 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 	unsigned char *receivedBuffer, *outputBuffer;
 	int receivedOffset = 0, outputOffset = 0;
 
-
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
 	c_0 = clock();
@@ -120,7 +119,7 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 
 void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 {
-	unsigned char *bufferToSend, *gateParamsBuffer = (unsigned char *) calloc(3 * sizeof(int), sizeof(unsigned char));
+	unsigned char *bufferToSend, *gateParamsBuffer = (unsigned char *) calloc(6 * sizeof(int), sizeof(unsigned char));
 	int i, bufferLength = inputCircuit -> numGates * sizeof(int);
 
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
@@ -128,12 +127,14 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	c_0 = clock();
 
 
-
     memcpy(gateParamsBuffer, &(inputCircuit -> numGates), sizeof(int));
-    memcpy(gateParamsBuffer + sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
+    memcpy(gateParamsBuffer + 1 * sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
     memcpy(gateParamsBuffer + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
+    memcpy(gateParamsBuffer + 3 * sizeof(int), &(inputCircuit -> numInputsBuilder), sizeof(int));
+    memcpy(gateParamsBuffer + 4 * sizeof(int), &(inputCircuit -> numInputsExecutor), sizeof(int));
+    memcpy(gateParamsBuffer + 5 * sizeof(int), &(inputCircuit -> securityParam), sizeof(int));
 
-	send(writeSocket, gateParamsBuffer, 3 * sizeof(int));
+	send(writeSocket, gateParamsBuffer, 6 * sizeof(int));
 
 
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));

@@ -47,8 +47,13 @@ typedef struct Circuit
 {
 	int circuitID;
 	int numInputs;
+	int numInputsBuilder;
+	int numInputsExecutor;
 	int numOutputs;
+
 	int numGates;
+	int securityParam;
+
 	int *execOrder;
 	struct gateOrWire **gates;
 } Circuit;

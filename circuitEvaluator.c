@@ -25,7 +25,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     clock_t c_0, c_1;
     c_0 = clock();
 
-    inputCircuit = readInCircuitRTL(circuitFilepath);
+    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
 
 
     c_1 = clock();
@@ -61,7 +61,7 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     int i;
 
     struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-    unsigned char *output, *gateParamsBuffer = (unsigned char*) calloc(3 * sizeof(int), sizeof(unsigned char));
+    unsigned char *output, *circuitParamsBuffer = (unsigned char*) calloc(6 * sizeof(int), sizeof(unsigned char));
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
@@ -69,16 +69,26 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
     printf("Connected to builder.\n");
 
 
-    receive(readSocket, gateParamsBuffer, 3*sizeof(int));
+    receive(readSocket, circuitParamsBuffer, 6*sizeof(int));
 
-    memcpy(&(inputCircuit -> numGates), gateParamsBuffer, sizeof(int));
-    memcpy(&(inputCircuit -> numInputs), gateParamsBuffer + sizeof(int), sizeof(int));
-    memcpy(&(inputCircuit -> numOutputs), gateParamsBuffer + 2 * sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> numGates), circuitParamsBuffer, sizeof(int));
+    memcpy(&(inputCircuit -> numInputs), circuitParamsBuffer + sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> numOutputs), circuitParamsBuffer + 2 * sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> numInputsBuilder), circuitParamsBuffer + 3 * sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> numInputsExecutor), circuitParamsBuffer + 4 * sizeof(int), sizeof(int));
+    memcpy(&(inputCircuit -> securityParam), circuitParamsBuffer + 5 * sizeof(int), sizeof(int));
 
     inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
     inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
 
     printf("Received circuit.\n");
+
+    /*
+    for(i = 0; i < inputCircuit -> numGates; i ++)
+    {
+        printf("%d\n", inputCircuit -> execOrder[i]);
+    }
+    */
 
     runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
@@ -97,26 +107,31 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
     int *execOrder = NULL;
-    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
-    struct Circuit *outputCircuit;
+    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 2);
     int i, bufferLength = 0;
     unsigned char *buffer;
 
-    outputCircuit = readInCircuitRTL(circuitFilepath);
-    outputCircuit -> gates = NULL;
 
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
-    readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
+    // readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
+    printf(">>>>>>>>\n");
+    fflush(stdout);
+    readLocalExec( execInput, inputCircuit );
+    printf(">>>>>>>>\n");
+    fflush(stdout);
 
+    /*
     buffer = serialiseCircuit(inputCircuit, &bufferLength);
 
     outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates);
+    */
 
     runCircuitLocal( inputCircuit );
+    printf(">>>>>>>>\n");
+    fflush(stdout);
     printAllOutput(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
-    freeCircuitStruct(outputCircuit);
 }
 
 
@@ -183,6 +198,16 @@ int main(int argc, char *argv[])
     // runLocally(circuitFilepath, argv[2], argv[3]);
     testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
     // testRunZeroedInput(circuitFilepath);
+
+    /*
+    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 4);
+
+    for(builder = 0; builder < inputCircuit -> numGates; builder ++)
+    {
+        printGateOrWire(inputCircuit -> gates[builder]);
+        printf("\n");
+    }
+    */
 
     return 0;
 }

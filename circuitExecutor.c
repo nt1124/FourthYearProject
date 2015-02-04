@@ -1,8 +1,43 @@
-void readInputLinesExec(int writeSocket, int readSocket,
-						char *line, struct Circuit *inputCircuit)
+void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, unsigned char value)
 {
-	int strIndex = 0, gateID = 0, outputLength = 0, i;
+	int gateID = 0, i, j;
+	int startIndex = inputCircuit -> numInputsBuilder + inputLineIndex * inputCircuit -> securityParam;
+	int numBytesToGenerate;
 	unsigned char *tempBuffer;
+	unsigned char xorSum = 0x00, tempValue;
+	struct wire *outputWire;
+
+
+	numBytesToGenerate = (inputCircuit -> securityParam / 8) + 1;
+	tempBuffer = generateRandBytes(numBytesToGenerate, numBytesToGenerate);
+
+	for(i = 0; i < inputCircuit -> securityParam - 1; i ++)
+	{
+		tempValue = 0x01 & (tempBuffer[j] << (i % 8));
+		xorSum ^= tempValue;
+
+
+		tempValue ^= (inputCircuit -> gates[startIndex] -> outputWire -> wirePerm & 0x01);
+		inputCircuit -> gates[startIndex] -> outputWire -> wirePermedValue = tempValue;
+
+
+		startIndex ++;
+		if(7 == i % 7)
+		{
+			j ++;
+		}
+
+	}
+
+	tempValue = value ^ xorSum;
+	inputCircuit -> gates[startIndex] -> outputWire -> wirePermedValue = tempValue ^ (inputCircuit -> gates[startIndex] -> outputWire -> wirePerm & 0x01);
+}
+
+
+void readInputLinesExec(char *line, struct Circuit *inputCircuit, int inputLineIndex)
+{
+	int strIndex = 0, gateID = 0, outputLength = 0, i, j;
+	int startIndex = inputCircuit -> numInputsBuilder + inputLineIndex * inputCircuit -> securityParam;
 	unsigned char value;
 
 	while( ' ' != line[strIndex++] ){}
@@ -19,7 +54,33 @@ void readInputLinesExec(int writeSocket, int readSocket,
 	else if( '0' == line[strIndex] )
 		value = 0x00;
 
-	inputCircuit -> gates[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit -> gates[gateID] -> outputWire -> wirePerm & 0x01);
+
+	if(1 == inputCircuit -> securityParam)
+	{
+		inputCircuit -> gates[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit -> gates[gateID] -> outputWire -> wirePerm & 0x01);
+	}
+	else
+	{
+		readInputLinesExec_CnC(inputCircuit, inputLineIndex, value);
+	}
+}
+
+
+void readLocalExec(char *filepath, struct Circuit *inputCircuit)
+{
+    FILE *file = fopen( filepath, "r" );
+    int i = 0;
+
+    if ( file != NULL )
+    {
+        char line [ 512 ];
+        while ( fgets ( line, sizeof line, file ) != NULL )
+        {
+            readInputLinesExec(line, inputCircuit, i);
+            i ++;
+        }
+        fclose ( file );
+    }
 }
 
 
@@ -28,9 +89,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 {
 	FILE *file = fopen( filepath, "r" );
 	gmp_randstate_t *state = seedRandGen();
-	int i, outputLength = 0, tempSize = 0, j = 0;
+	int i = 0, outputLength = 0, tempSize = 0, j = 0;
 	unsigned char value, *tempBuffer;
-	// struct rsaPrivKey *SKi = generatePrivRSAKey(*state);
 
 	unsigned char *receivedBuffer, *toSendBuffer;
 	int bufferOffset = 0;
@@ -48,7 +108,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 		char line [ 512 ];
 		while ( fgets ( line, sizeof line, file ) != NULL )
 		{
-			readInputLinesExec(writeSocket, readSocket, line, inputCircuit);
+			readInputLinesExec(line, inputCircuit, i);
+			i ++;
 		}
 		fclose ( file );
 
@@ -73,6 +134,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 				otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
 			}
 		}
+
 
 		sendInt(writeSocket, bufferOffset);
 		send(writeSocket, toSendBuffer, bufferOffset);
@@ -105,6 +167,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 
 	printf("\nOT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("OT Custom time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	fflush(stdout);
 }
 
 
@@ -125,6 +188,9 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];
+		printf("---   %d  -  %d\n", i, gateID);
+		fflush(stdout);
+
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);

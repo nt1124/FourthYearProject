@@ -118,16 +118,16 @@
 			\subsubsection{Details} \label{Yao_Details}
 				As noted above we first represent the function to compute as a binary circuit. Denote the two parties as $P_1$ and $P_2$, we will assume WLOG that $P_1$ is building the circuit whilst $P_2$ is executing. Now take a single gate of this circuit with two input wires and a single output wire. Denote the gate a $G_1$ and the input wires as $w_1$ and $w_2$, let $b_i \in \{0, 1\}$ be the value of $w_i$. Here we will take the case where $w_i$ is an input wire for which $P_i$ provides the value. Define the output value of the gate to be $G(b_1, b_2) \in \{0, 1\}$. We now garble this gate in order to obscure the inputs and outputs.\\
 
-				$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered a security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$. We define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$.
+				$P_1$ (the circuit building party) garbles each wire by selecting two random keys of length $l$, for the wire $w_i$ call these keys $k_i^0$ and $k_i^1$. The length of these keys ($l$) can be considered a security parameter, and should correspond to the length of the key needed for the symmetric encryption scheme we'll be using later. Further $P_1$ also generates a random permuation $\pi_i \in \{0, 1\}$ for each $w_i$. We define $c_i = \pi_i(b_i)$. The garbled value of the $i^{th}$ wire is then $k_i^{b_i} \Vert c_i$, we then represent our garbled truth table for the gate with the table indexed by the values for the $c_1$ and $c_2$. We extend the truth table this to a gate with more than two inputs in the obvious fashion.\\
 
 				$$ c_1, c_2 : E_{k_1^{b_1}, k_2^{b_2}} (k_3^{ G(b_1, b_2) } \Vert c_3) $$
 
-				Where $E_{k_i, k_j}(m)$ is some encryption function taking the keys $k_i$ and $k_j$ and the plaintext $m$. Since the advent of AES-NI and the cheapness of using AES we will use AES with 128 bit keys to make this function. Suppose that $AES_k(m)$ denotes the AES encryption of the plaintext $m$ under the 128 bit key $k$. We define $E_K$ (and it's inverse $D_K$)  as follows,
+				Where $E_{k_i, k_j}(m)$ is some encryption function taking the keys $k_i$ and $k_j$ and the plaintext $m$. Since the advent of AES-NI and the cheapness of using AES we will use AES with 128 bit keys to make this function. Suppose that $AES_k(m)$ denotes the AES encryption of the plaintext $m$ under the 128 bit key $k$. We define $E_K$ (and it's inverse $D_K$) as follows,
 
-				$$ E_K(m) = AES_{k_n}( AES_{k_{n-1}}( ...AES_{k_1}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
-				$$ D_K(m) = AES^{-1}_{k_1}( AES^{-1}_{k_{2}}( ...AES^{-1}_{k_n}(m) ...) ) \textnormal{where } K = \{k_1, ..., k_n\}$$ 
+				$$ E_K(m) = AES_{k_1}( AES_{k_2}( ...AES_{k_n}(m) ...) ) \textnormal{, where } K = \{k_1, ..., k_n\}$$ 
+				$$ D_K(m) = AES^{-1}_{k_n}( AES^{-1}_{k_{n-1}}( ...AES^{-1}_{k_1}(m) ...) ) \textnormal{, where } K = \{k_1, ..., k_n\}$$ 
 
-				We extend both the encryption function and the truth table this to a gate with more than two inputs in the obvious fashion.\\
+				This is the inituitive extension of AES to multiple keys, chaining the encryption under all of the keys in a set order.\\
 
 				Then $P_1$ (the builder of the circuit) sends this garbled version of the circuit to $P_2$ (the executor of the circuit). $P_1$ should send the garbling key for it's input bit ($k_1^{b_1}$), the full encrypted truth table and $c_1 = \pi(b_1)$. Then $P_2$ needs to get $k_2^{b_2} \Vert c_2$ from $P_2$ without revealing the value of $b_2$. This is done by an Oblivious Transfer where $P_1$ inputs $k_2^0$ and $k_2^1$ and $P_2$ inputs $b_2$. $P_2$ receives the output $k_2^{b_2} \Vert c_2$ from the OT and learns nothing about $k_2^{(b_2 \oplus 1)} $, $P_1$ gets no output and learns nothing about the value of $b_2$.\\
 
@@ -155,7 +155,7 @@
 			\subsubsection{Introduction to Oblivious Transfer}
 				Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to out-of-n) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
 
-				Oblivious Transfers (OTs) were first suggested by Rabin in \cite{Rabin81}. We formally define the functionality of a 1 out of 2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit executor the garble keys representing its inputs, without telling the circuit builder what those inputs were.\\
+				Oblivious Transfers (OTs) were first suggested by Rabin in \cite{Rabin81}. We formally define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit executor the garble keys representing its inputs, without telling the circuit builder what those inputs were.\\
 
 				\begin{figure}[!htb]
 					\centering
@@ -171,16 +171,18 @@
 						Inputs : $X_1$, $X_2$\\
 						Outputs : $\emptyset$\\
 					\end{minipage}
-					\caption{ Formal definition of the functionality of a one out of two OT protocol.\label{fig:OTformalDef}}
+
+					\caption{ Formal definition of the functionality of a one-out-of-two OT protocol.\label{fig:OTformalDef}}
 				\end{figure}
       
-				The security of Oblivious Transfers is defined in a similar way to that of SMPC, adversaries have three main levels of power, Semi-honest, Malicious and Covert. These adversaries are analogues to the adversaries we defined in \ref{sub:securityLevels}.\\
+				The security of Oblivious Transfers is defined in a similar way to that of SMC, the focus is on Semi-honest(passive) and Malicious(active) adversaries. Security against these adversaries is usually either computational or statistical.\\
 
-				A protocol is considered secure Semi-honest adversaries if it a semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a semi-honest adversary in the role of the receiver learn anything about values other than the one it requested. The protocol being secure against Malicious or Covert adversaries is defined by the naive extension of the Semi-honest case.
-			
+				A protocol is considered secure with regards to Semi-honest adversaries if neither a Semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a Semi-honest adversary in the role of the Receiver learn anything about values other than the one it requested. The protocol being secure against Malicious adversaries is defined by the obvious extension of the Semi-honest case.\\
+
+				Usually proof of the security of an OT is carried out via \emph{simulation}, proving that the protocol under consideration is equivalent to the ideal model with a trusted third party taking both parties inputs and sending the proper outputs to each party.
 
 			\subsubsection{Even-Goldreich-Lempel SH OT Protocol}
-				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}.\\
+				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.\\
 
 				\begin{figure}
 					\begin{tabular}[!htb]{p{6cm} p{6cm}}
@@ -200,10 +202,12 @@
 						\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
 					\end{itemize}
 
-					\caption{The abstracted Even-Goldreich-Lempel protocol.}
+					\caption{The abstracted Even-Goldreich-Lempel protocol. \label{fig:EvenGoldreichLempel}}
 				\end{figure}
 
-				This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key. However, so long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to.
+				This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key.\\
+
+				So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
  
 		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
 			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
@@ -218,7 +222,33 @@
 
 
 		\subsection{Progress so far}
-			So far (02/02/2015) we have implemented the naive Yao garbled circuit using \ref{dualModeCryptoOT} for the Oblivious Transfer. We use the circuits provided on Prof. Smart's website \cite{NigelCircuits} and use the AES non-expanded circuit provided as our main benchmark. Running on the University of Bristol Cryptography group test machines Diffie and Hellman, my implementation can perform a single AES-128 block encryption in $\sim 1.3$ seconds.
+			So far (02/02/2015) we have implemented the naive Yao garbled circuit (with the Free XOR optimisation) using \ref{dualModeCryptoOT} for the Oblivious Transfer. We use the circuits provided on Prof. Smart's website \cite{NigelCircuits} and use the AES non-expanded circuit provided as our main benchmark. Running on the University of Bristol Cryptography group test machines Diffie and Hellman, my implementation can perform a single AES-128 block encryption in $\sim 1.3$ seconds. An approximate breakdown of which parts of the protocol are taking how long is provided in Figure \ref{fig:TimesBreakdown}
+
+
+	
+			\begin{figure}[h!]
+				\centering
+				\begin{tabular}[!htb]{r | c | c}
+					\textbf{Part of Implementation} & \textbf{CPU time} & \textbf{Wall clock time}\\
+					\hline
+					\textbf{Building party} & & \\
+					Building Circuit & $0.180$ & $0.187$\\
+					Sending circuit & $\sim 0.01$ & $0.043$\\
+					OT &  $0.668$ & $0.897$\\
+
+					\hline
+					\textbf{Executing party} & & \\
+					Receiving Circuit &  $\sim 0.02$ &  $0.059$\\
+					OT & $0.316$ & $0.965$ \\
+					Circuit Evaluation & $0.0160$ & $0.017$\\
+					Circuit Evaluation & $0.056$ & $0.056$\\
+					without Free XOR & & \\
+
+				\end{tabular}
+				\caption{An informal breakdown of the timing of my implementation so far, running between Diffie and Hellman averaged over five runs. All times given in seconds. \label{fig:TimesBreakdown}}
+			\end{figure}
+
+			Most of this time is spent on the Oblivious Transfers, moreover the computational workload seems to be heavily weighted towards the Building party.
 
 
 

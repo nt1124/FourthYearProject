@@ -8,7 +8,7 @@ void printGateOrWire(struct gateOrWire *inputGW)
 	printf("Wire Mask               =  %02X\n", inputGW -> outputWire -> wireMask);
 	printf("Wire Owner              =  %02X\n", inputGW -> outputWire -> wireOwner);
 	printf("Wire Perm               =  %02X\n", inputGW -> outputWire -> wirePerm);
-	printf("Wire Value              =  %02X\n", inputGW -> outputWire -> wirePermedValue);
+	printf("Wire Permed Value       =  %02X\n", inputGW -> outputWire -> wirePermedValue);
 	printf("Out key                 =  ");
 	for(i = 0; i < 16; i ++)
 		printf("%02X", inputGW -> outputWire -> wireOutputKey[i]);

@@ -49,7 +49,11 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 	int i, outputTableSize = 1;
 
 	toReturn -> numInputs = numInputWires;
-	toReturn -> inputIDs = inputIDs;
+	toReturn -> inputIDs = (int*) calloc(2, sizeof(int));
+
+	toReturn -> inputIDs[0] = inputIDs[0];
+	toReturn -> inputIDs[1] = inputIDs[1];
+
 	for(i = 0; i < toReturn -> numInputs; i ++)
 		outputTableSize *= 2;
 
@@ -121,7 +125,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R)
+struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
@@ -135,10 +139,18 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, u
 	inputIDs = (int*) calloc(numInputWires, sizeof(int));
 	for(i = 0; i < numInputWires; i ++)
 	{
-		inputIDs[i] = getIntFromString(line, strIndex);
+		idNum = getIntFromString(line, strIndex);
+		if(idNum >= numInputs1)
+		{
+			inputIDs[i] = idNum + idOffset;
+		}
+		else
+		{
+			inputIDs[i] = idNum;
+		}
 	}
 
-	idNum = getIntFromString(line, strIndex);
+	idNum = getIntFromString(line, strIndex) + idOffset;
 
 	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R);
 }
@@ -166,7 +178,7 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned 
 }
 
 
-// FOR NOW we assume party 1 is building the circuit.
+// We assume party 1 is building the circuit.
 struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
@@ -183,6 +195,7 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 		circuit[i] = initialiseInputWire(i, 0x00, R);
 		(*execOrder)[i] = i;
 	}
+
 
 	return circuit;
 }
@@ -215,13 +228,17 @@ struct Circuit *readInCircuitRTL(char* filepath)
 		if(NULL == fgets(line, sizeof(line), file))
 			return NULL;
 
+		outputCircuit -> numInputsBuilder = numInputs1;
+		outputCircuit -> numInputsExecutor = numInputs2;
+		outputCircuit -> securityParam = 1;
+
 		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
 		gatesList = initialiseAllInputs( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
 		execIndex = numInputs1 + numInputs2;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
-			tempGateOrWire = processGateLineRTL(line, gatesList, R);
+			tempGateOrWire = processGateLineRTL(line, gatesList, R, 0, numInputs1);
 			if( NULL != tempGateOrWire )
 			{
 				gateIndex = tempGateOrWire -> G_ID;

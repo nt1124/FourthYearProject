@@ -19,6 +19,7 @@ typedef struct idAndValue
 
 #include "fileUtils/fileUtilsFP.h"
 #include "fileUtils/fileUtilsRTL.h"
+#include "fileUtils/fileUtilsRTL_CnC.h"
 #include "comms/sockets.h"
 
 
