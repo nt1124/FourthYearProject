@@ -188,8 +188,6 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];
-		printf("---   %d  -  %d\n", i, gateID);
-		fflush(stdout);
 
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{

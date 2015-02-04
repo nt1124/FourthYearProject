@@ -199,15 +199,6 @@ int main(int argc, char *argv[])
     testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
     // testRunZeroedInput(circuitFilepath);
 
-    /*
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 4);
-
-    for(builder = 0; builder < inputCircuit -> numGates; builder ++)
-    {
-        printGateOrWire(inputCircuit -> gates[builder]);
-        printf("\n");
-    }
-    */
 
     return 0;
 }

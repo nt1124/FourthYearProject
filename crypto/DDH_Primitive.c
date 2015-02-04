@@ -162,6 +162,7 @@ int sendDDH_Group(int writeSocket, int readSocket, struct DDH_Group *group)
 	return 1;
 }
 
+
 struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 {
 	struct DDH_Group *group = initGroupStruct();

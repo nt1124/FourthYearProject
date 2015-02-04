@@ -146,9 +146,13 @@
 			\subsubsection{Security against Malicious and Covert Adversaries}
 				Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an appraoch dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability). This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. Each of these circuits is chosen with probability $\frac{1}{2}$ as a check circuit that will be evaluated to test if they yield the correct result.\\
 
-				If all check circuits pass then the Executor evaluates the remaining circuits as usual and returns the most common output. If one or more circuits produces an incorrect result the this indicates cheating, furthermore if any check circuits fail during evaluation this is also taken to indicate cheating.\\
+				If all check circuits pass then the Executor evaluates the remaining circuits as usual and returns the most common output. If one or more circuits produces an incorrect result the this indicates cheating, furthermore if any check circuits fail during evaluation this is also taken to indicate cheating. This means $s$ acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example the protocol proposed in \cite{Lindell_CnC_2014} detects cheating with probability $2^s$.\\
 
-				This means $s$ acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example the protocol proposed in \cite{Lindell_CnC_2014} detects cheating with probability $2^s$.
+				This Cut and Choose approach creates additional problems to be solved. For example whilst evaluating the many circuits we must now also ensure that both parties' inputs are consistent (same inputs to each circuit) else they might be able learn many outputs, each revealing something they should not have been able to discover.\\
+
+				In \cite{LindellAndPinkas2007} the example is given of computing the Inner product of two binary strings, in this situation the Executing party could give many different inputs each with a single bit set to 1. The output of the circuit would then give the Executor the value of the Builder's input bit corresponding to the high bit in the Executor's input.\\
+
+				Furthermore, when detecting cheating in a check circuit the Executor cannot simply abort as this open them up to an attack where circuits are crafted to fail when the Executor's input fulfils a condition, leaking information about the Executor's input.
 
 
 		\subsection{Oblivious Transfer} \label{OT_Intro}	
@@ -222,25 +226,25 @@
 
 
 		\subsection{Progress so far}
-			So far (02/02/2015) we have implemented the naive Yao garbled circuit (with the Free XOR optimisation) using \ref{dualModeCryptoOT} for the Oblivious Transfer. We use the circuits provided on Prof. Smart's website \cite{NigelCircuits} and use the AES non-expanded circuit provided as our main benchmark. Running on the University of Bristol Cryptography group test machines Diffie and Hellman, my implementation can perform a single AES-128 block encryption in $\sim 1.3$ seconds. An approximate breakdown of which parts of the protocol are taking how long is provided in Figure \ref{fig:TimesBreakdown}
+			So far (02/02/2015) we have implemented the naive Yao garbled circuit (with the Free XOR optimisation) using \ref{dualModeCryptoOT} for the Oblivious Transfer. We use the circuits provided on Prof. Smart's website \cite{NigelCircuits} and use the AES non-expanded circuit provided as our main benchmark. Running on the University of Bristol Cryptography group test machines Diffie and Hellman, my implementation can perform a single AES-128 block encryption in $\sim 1.3$ seconds. An approximate breakdown of which parts of the protocol are taking how long is provided in Figure \ref{fig:TimesBreakdown}.\\
 
 
 	
 			\begin{figure}[h!]
 				\centering
 				\begin{tabular}[!htb]{r | c | c}
-					\textbf{Part of Implementation} & \textbf{CPU time} & \textbf{Wall clock time}\\
+					\textbf{Part of Implementation} & \textbf{CPU time(seconds)} & \textbf{Wall clock time(seconds)}\\
 					\hline
 					\textbf{Building party} & & \\
 					Building Circuit & $0.180$ & $0.187$\\
-					Sending circuit & $\sim 0.01$ & $0.043$\\
+					Sending circuit & $0.01$ & $0.043$\\
 					OT &  $0.668$ & $0.897$\\
 
 					\hline
 					\textbf{Executing party} & & \\
-					Receiving Circuit &  $\sim 0.02$ &  $0.059$\\
+					Receiving Circuit &  $0.02$ &  $0.059$\\
 					OT & $0.316$ & $0.965$ \\
-					Circuit Evaluation & $0.0160$ & $0.017$\\
+					Circuit Evaluation & $0.016$ & $0.017$\\
 					Circuit Evaluation & $0.056$ & $0.056$\\
 					without Free XOR & & \\
 
@@ -248,7 +252,7 @@
 				\caption{An informal breakdown of the timing of my implementation so far, running between Diffie and Hellman averaged over five runs. All times given in seconds. \label{fig:TimesBreakdown}}
 			\end{figure}
 
-			Most of this time is spent on the Oblivious Transfers, moreover the computational workload seems to be heavily weighted towards the Building party.
+			Most of this time is spent on the Oblivious Transfers, moreover the computational workload seems to be heavily weighted towards the Building party. This is particulary interesting as it shows the key factor of the time taken for the computation is the number of inputs the Executor has. This is not a suprising result as many have commented that in recent years the primary bottleneck has been shifting towards the Obilvious Transfer with optimisations like Free XOR evaluation and AES-NI. Another interesting results is that 
 
 
 
@@ -281,6 +285,10 @@
 		\bibitem{PVW_OT_2008}
  			A Framework for Efficient and Composable Oblivious Transfer,\\
 			Peikert, Vaikuntanathan and Waters (2008)
+
+		\bibitem{LindellAndPinkas2007}
+			An Efficient Protocol for Secure Two-Party Compuation in the Presence of Malicious Adversaries,
+			Lindell and Pinkas (2007).
 
 		\bibitem{YaoOriginal}
 			How to Generate and Exchange Secrets,
