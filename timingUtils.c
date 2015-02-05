@@ -14,9 +14,9 @@ long int raw_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd)
 
 double seconds_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd)
 {
-	double conversionFactor = 1000000000;
-	long int toReturn = ((timeEnd->tv_sec * 1000000000) + timeEnd->tv_nsec) -
-           				((timeStart->tv_sec * 1000000000) + timeStart->tv_nsec);
+	double conversionFactor = 1000000;//000;
+	long long int toReturn = ((timeEnd->tv_sec * 1000000) + timeEnd->tv_nsec / 1000) -
+           				((timeStart->tv_sec * 1000000) + timeStart->tv_nsec / 1000);
 
     double output = (double) toReturn / conversionFactor;
 

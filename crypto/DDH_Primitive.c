@@ -150,14 +150,30 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
 
 int sendDDH_Group(int writeSocket, int readSocket, struct DDH_Group *group)
 {
-	unsigned char *curBytes;
-	int curLength;
+	unsigned char *curBytes, *pBytes, *gBytes;
+	int curLength, pLength, gLength;
 
-	curBytes = convertMPZToBytes( group -> p, &curLength);
+
+	pBytes = convertMPZToBytes( group -> p, &pLength);
+	gBytes = convertMPZToBytes( group -> g, &gLength);
+
+	curLength = pLength + gLength;
+	curBytes = (unsigned char*) calloc(2 * sizeof(int) + curLength, sizeof(unsigned char));
+
+	memcpy(curBytes, &pLength, sizeof(int));
+	memcpy(curBytes + sizeof(int), pBytes, pLength);
+
+	memcpy(curBytes + sizeof(int) + pLength, &gLength, sizeof(int));
+	memcpy(curBytes + 2*sizeof(int) + pLength, gBytes, gLength);
+
+	// sendBoth(writeSocket, (octet*) pBytes, pLength);
+	// sendBoth(writeSocket, (octet*) gBytes, gLength);
+
 	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
-	curBytes = convertMPZToBytes( group -> g, &curLength);
-	sendBoth(writeSocket, (octet*) curBytes, curLength);
+	free(curBytes);
+	free(pBytes);
+	free(gBytes);
 
 	return 1;
 }
@@ -167,19 +183,26 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 {
 	struct DDH_Group *group = initGroupStruct();
 	unsigned char *curBytes;
-	int curLength;
+	int curLength, pLength, gLength;
 	
 	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(*tempMPZ);
 
 	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+
+	memcpy(&pLength, curBytes, sizeof(int));
+	convertBytesToMPZ(tempMPZ, curBytes + sizeof(int), pLength);
+	// convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(group -> p, *tempMPZ);
 
-	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+	// curBytes = receiveBoth(readSocket, curLength);
+	
+	memcpy(&gLength, curBytes + sizeof(int) + pLength, sizeof(int));
+	convertBytesToMPZ(tempMPZ, curBytes + 2*sizeof(int) + pLength, gLength);
+	// convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(group -> g, *tempMPZ);
 
+	free(curBytes);
 	free(tempMPZ);
 
 	return group;
