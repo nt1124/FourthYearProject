@@ -30,6 +30,40 @@ void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 }
 
 
+// Generates a "Safe prime", that is of the form q = 2*p+1 where p and q are primes.
+void getSafePrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
+{
+	mpz_t p, lesserP, greaterP;
+	int lesserP_prime = 0;
+	int greaterP_prime = 0;
+
+	mpz_init(p);
+	mpz_init(lesserP);
+	mpz_init(greaterP);
+
+	do
+	{
+		getPrimeGMP(p, state, keySize-1);
+
+		mpz_mul_ui(greaterP, p, 2);
+		mpz_add_ui(greaterP, greaterP, 1);
+
+		mpz_sub_ui(lesserP, p, 1);
+		mpz_fdiv_q_ui(lesserP, lesserP, 2);
+
+		lesserP_prime = mpz_probab_prime_p(lesserP, 25);
+		greaterP_prime = mpz_probab_prime_p(greaterP, 25);
+	}
+	while(1 <= lesserP_prime && 1 <= greaterP_prime);
+
+	// We've got two primes, now set the output to the greater of the two primes
+	if(1 <= greaterP_prime)
+		mpz_set(output, greaterP);
+	else
+		mpz_set(output, p);
+}
+
+
 int numberOfHexChars(mpz_t input, int *shift)
 {
 	int sizeInHex = mpz_sizeinbase(input, 16);

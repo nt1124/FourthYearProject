@@ -72,7 +72,8 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 {
 	struct DDH_Group *group = initGroupStruct();
 
-	getPrimeGMP(group -> p, state, securityParam);
+	// getPrimeGMP(group -> p, state, securityParam);
+	getSafePrimeGMP(group -> p, state, securityParam);
 	
 	do
 	{
