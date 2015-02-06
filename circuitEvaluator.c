@@ -83,12 +83,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     printf("Received circuit.\n");
 
-    /*
-    for(i = 0; i < inputCircuit -> numGates; i ++)
-    {
-        printf("%d\n", inputCircuit -> execOrder[i]);
-    }
-    */
 
     runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
@@ -98,7 +92,8 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     outputAsHexString(inputCircuit);
 
-    testAES_Zeroed();
+    // testAES_Zeroed();
+    testAES_FromRandom();
 
     freeCircuitStruct(inputCircuit);
 }
@@ -107,18 +102,16 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
     int *execOrder = NULL;
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 2);
+    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
     int i, bufferLength = 0;
     unsigned char *buffer;
 
 
     readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
-    // readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
-    printf(">>>>>>>>\n");
-    fflush(stdout);
+    readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
+
     readLocalExec( execInput, inputCircuit );
-    printf(">>>>>>>>\n");
-    fflush(stdout);
+
 
     /*
     buffer = serialiseCircuit(inputCircuit, &bufferLength);
@@ -127,9 +120,10 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     */
 
     runCircuitLocal( inputCircuit );
-    printf(">>>>>>>>\n");
-    fflush(stdout);
-    printAllOutput(inputCircuit);
+
+    // printAllOutput(inputCircuit);
+    outputAsHexString(inputCircuit);
+    testAES_FromRandom();
 
     freeCircuitStruct(inputCircuit);
 }

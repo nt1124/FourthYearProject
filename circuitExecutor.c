@@ -36,8 +36,8 @@ void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, un
 
 void readInputLinesExec(char *line, struct Circuit *inputCircuit, int inputLineIndex)
 {
+	struct wire *outputWire;
 	int strIndex = 0, gateID = 0, outputLength = 0, i, j;
-	int startIndex = inputCircuit -> numInputsBuilder + inputLineIndex * inputCircuit -> securityParam;
 	unsigned char value;
 
 	while( ' ' != line[strIndex++] ){}
@@ -54,10 +54,11 @@ void readInputLinesExec(char *line, struct Circuit *inputCircuit, int inputLineI
 	else if( '0' == line[strIndex] )
 		value = 0x00;
 
+	outputWire = inputCircuit -> gates[gateID] -> outputWire;
 
 	if(1 == inputCircuit -> securityParam)
 	{
-		inputCircuit -> gates[gateID] -> outputWire -> wirePermedValue = value ^ (inputCircuit -> gates[gateID] -> outputWire -> wirePerm & 0x01);
+		outputWire -> wirePermedValue = value ^ (outputWire -> wirePerm & 0x01);
 	}
 	else
 	{
@@ -131,6 +132,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
 				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
 			{
+				value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+				value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 				otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
 			}
 		}

@@ -100,3 +100,65 @@ void testAES_Zeroed()
 		printf("%02X", ciphertext[i]);
 	printf("\n");
 }
+
+
+
+
+
+
+unsigned char *getDataAsString(const char *filepath)
+{
+	unsigned char *output = (unsigned char*) calloc(16, sizeof(unsigned char));
+	FILE *file = fopen ( filepath, "r" );
+	int strIndex, i = 0, j = 0, k = 0;
+	char line [ 512 ];
+
+
+	if ( file != NULL )
+	{
+		while ( fgets ( line, sizeof line, file ) != NULL && 127 >= i )
+		{
+			strIndex = 0;
+
+			while( ' ' != line[strIndex++] ){}
+			while( ' ' != line[strIndex++] ){}
+
+
+			if( '1' == line[strIndex] )
+			{
+				output[j] = output[j] ^ (0x01 << (7 - k));
+			}
+
+			k ++;
+			if(8 == k)
+			{
+				k = 0;
+				j ++;
+			}
+			i ++;
+		}
+		fclose ( file );
+	}
+
+	return output;
+}
+
+
+void testAES_FromRandom()
+{
+	unsigned char **encKeyList = (unsigned char**) calloc(1, sizeof(unsigned char*));
+	unsigned char *message = getDataAsString("inputs/randomAES.builder.input"); 
+	unsigned char *ciphertext;
+	int i;
+
+
+	encKeyList[0] = getDataAsString("inputs/randomAES.executor.input");
+
+	ciphertext = encryptMultipleKeys(encKeyList, 1, message, 1);
+
+
+	printf("  Correct output as Hex: ");
+	for(i = 0; i < 16; i ++)
+		printf("%02X", ciphertext[i]);
+	printf("\n");
+}

@@ -665,8 +665,6 @@ unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOff
 
 
 
-
-
 int testOT_PWV_DDH_Local(int receiverOrSender)
 {
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
