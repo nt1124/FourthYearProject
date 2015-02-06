@@ -31,17 +31,20 @@ typedef struct commit_batch_params
 struct commit_batch_params *init_commit_batch_params();
 struct commit_batch_params *generate_commit_params(int securityParam, gmp_randstate_t state);
 
-int getSerialSizeElgamal(struct DDH_Group *group, int numToSerialise);
+int getSerialSizeElgamal(struct DDH_Group *group, int numToSerialise, int numInEach);
 struct elgamal_commit_box *init_commit_box();
 struct elgamal_commit_key *init_commit_key();
 
-void serialise_elgamal_Cbox(struct elgamal_commit_box *c, unsigned char *outputBuffer, int *bufferOffset);
+struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *params,
+												unsigned char *toCommit, int toCommitLen,
+												unsigned char *outputBuffer, int *bufferOffset,
+												gmp_randstate_t state);
 struct elgamal_commit_box * deserialise_elgamal_Cbox(unsigned char *inputBuffer, int *bufferOffset);
 
 struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *params, mpz_t valueToCommit,	unsigned char *outputBuffer, int *bufferOffset,	gmp_randstate_t state);
 struct elgamal_commit_box *single_commit_elgamal_R(struct commit_batch_params *params, unsigned char *inputBuffer, int *bufferOffset);
 
-void single_commit_elgamal_C(struct commit_batch_params *params, struct elgamal_commit_key *k, unsigned char *outputBuffer, int *bufferOffset);
+void single_decommit_elgamal_C(struct commit_batch_params *params, struct elgamal_commit_key *k, unsigned char *outputBuffer, int *bufferOffset);
 unsigned char single_decommit_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *keyBuffer, int *keyOffset);
 
 
