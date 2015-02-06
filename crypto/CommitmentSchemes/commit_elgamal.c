@@ -207,9 +207,10 @@ void single_decommit_elgamal_C(struct commit_batch_params *params, struct elgama
 }
 
 
-unsigned char single_decommit_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *keyBuffer, int *keyOffset)
+unsigned char *single_decommit_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *keyBuffer, int *keyOffset, int *outputLength)
 {
 	struct elgamal_commit_key *k = deserialise_elgamal_Kbox(keyBuffer, keyOffset);
+	unsigned char *output;
 	mpz_t u_test, v_test;
 
 	mpz_init(u_test);
@@ -217,7 +218,7 @@ unsigned char single_decommit_elgamal_R(struct commit_batch_params *params, stru
 
 	if(0 > mpz_cmp(params -> group -> p, params -> h))
 	{
-		return 0;
+		return NULL;
 	}
 
 	mpz_powm(u_test, params -> group -> g, k -> r, params -> group -> p);
@@ -229,10 +230,10 @@ unsigned char single_decommit_elgamal_R(struct commit_batch_params *params, stru
 
 	if( 0 > mpz_cmp(params -> group -> p, k -> x) || 0 != mpz_cmp(c -> u, u_test) || 0 != mpz_cmp(c -> v, v_test) )
 	{
-		return 0;
+		return NULL;
 	}
 
-	return 1;
+	return convertMPZToBytes(k -> x, outputLength);
 }
 
 
