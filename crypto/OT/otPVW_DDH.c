@@ -14,20 +14,24 @@ struct CRS *initCRS()
 // Converts CRS into bytes and then sends to the provided socket.
 int sendCRS(int writeSocket, int readSocket, struct CRS *crs)
 {
-	unsigned char *curBytes;
-	int curLength;
+	unsigned char *final_bytes;
+	int final_length, g_0_length, g_1_length, h_0_length, h_1_length, offset = 0;
 
-	curBytes = convertMPZToBytes( crs -> g_0, &curLength);
-	sendBoth(writeSocket, (octet*) curBytes, curLength);
+	g_0_length = sizeof(mp_limb_t) * mpz_size(crs -> g_0);
+	g_1_length = sizeof(mp_limb_t) * mpz_size(crs -> g_1);
+	h_0_length = sizeof(mp_limb_t) * mpz_size(crs -> h_0);
+	h_1_length = sizeof(mp_limb_t) * mpz_size(crs -> h_1);
+	final_length = g_0_length + g_1_length + h_0_length + h_1_length;
 
-	curBytes = convertMPZToBytes( crs -> h_0, &curLength);
-	sendBoth(writeSocket, (octet*) curBytes, curLength);
+	final_bytes = (unsigned char*) calloc(final_length, sizeof(unsigned char));
 
-	curBytes = convertMPZToBytes( crs -> g_1, &curLength);
-	sendBoth(writeSocket, (octet*) curBytes, curLength);
+	serialiseMPZ(crs -> g_0, final_bytes, &offset);
+	serialiseMPZ(crs -> g_1, final_bytes, &offset);
+	serialiseMPZ(crs -> h_0, final_bytes, &offset);
+	serialiseMPZ(crs -> h_1, final_bytes, &offset);
 
-	curBytes = convertMPZToBytes( crs -> h_1, &curLength);
-	sendBoth(writeSocket, (octet*) curBytes, curLength);
+
+	sendBoth(writeSocket, (octet*) final_bytes, offset);
 
 	return 1;
 }
@@ -40,29 +44,28 @@ struct CRS *receiveCRS(int writeSocket, int readSocket)
 {
 	struct CRS *crs = initCRS();
 	unsigned char *curBytes;
-	int curLength;
-	
-	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
-	mpz_init(*tempMPZ);
+	int curLength, offset = 0;
+	mpz_t *tempMPZ;
 
 
 	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
+
+	tempMPZ = deserialiseMPZ(curBytes, &offset);
 	mpz_set(crs -> g_0, *tempMPZ);
-
-	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
-	mpz_set(crs -> h_0, *tempMPZ);
-
-	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
-	mpz_set(crs -> g_1, *tempMPZ);
-
-	curBytes = receiveBoth(readSocket, curLength);
-	convertBytesToMPZ(tempMPZ, curBytes, curLength);
-	mpz_set(crs -> h_1, *tempMPZ);
-
 	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(curBytes, &offset);
+	mpz_set(crs -> g_1, *tempMPZ);
+	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(curBytes, &offset);
+	mpz_set(crs -> h_0, *tempMPZ);
+	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(curBytes, &offset);
+	mpz_set(crs -> h_1, *tempMPZ);
+	free(tempMPZ);
+
 
 	return crs;
 }
@@ -451,29 +454,21 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 	struct otKeyPair *keyPair = initKeyPair();
 	struct u_v_Pair *c_0, *c_1;
 
-	mpz_t *outputMPZ, *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *outputMPZ, *tempMPZ;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	unsigned char *curBytes;
 	int curLength;
 
-	mpz_init(*tempMPZ);
 	mpz_init(*input0);
 	mpz_init(*input1);
 
 
-	memcpy(&curLength, inputBuffer + *inputOffset, 4);
-	(*inputOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *inputOffset, curLength);
+	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
 	mpz_set(keyPair -> pk -> g, *tempMPZ);
-	(*inputOffset) += curLength;
-
-
-	memcpy(&curLength, inputBuffer + *inputOffset, 4);
-	(*inputOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *inputOffset, curLength);
+	
+	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
 	mpz_set(keyPair -> pk -> h, *tempMPZ);
-	(*inputOffset) += curLength;
 
 
 	convertBytesToMPZ(input0, input0Bytes, inputLengths);
@@ -484,36 +479,11 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 	c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
 
 
-	curBytes = convertMPZToBytes(c_0 -> u, &curLength);
-	memcpy(outputBuffer + *outputOffset, &curLength, 4);
-	(*outputOffset) += 4;
-	memcpy(outputBuffer + *outputOffset, curBytes, curLength);
-	(*outputOffset) += curLength;
-	free(curBytes);
+	serialiseMPZ(c_0 -> u, outputBuffer, outputOffset);
+	serialiseMPZ(c_0 -> v, outputBuffer, outputOffset);
 
-	curBytes = convertMPZToBytes(c_0 -> v, &curLength);
-	memcpy(outputBuffer + *outputOffset, &curLength, 4);
-	(*outputOffset) += 4;
-	memcpy(outputBuffer + *outputOffset, curBytes, curLength);
-	(*outputOffset) += curLength;
-	free(curBytes);
-
-
-	curBytes = convertMPZToBytes(c_1 -> u, &curLength);
-	memcpy(outputBuffer + *outputOffset, &curLength, 4);
-	(*outputOffset) += 4;
-	memcpy(outputBuffer + *outputOffset, curBytes, curLength);
-	(*outputOffset) += curLength;
-	free(curBytes);
-
-	curBytes = convertMPZToBytes(c_1 -> v, &curLength);
-	memcpy(outputBuffer + *outputOffset, &curLength, 4);
-	(*outputOffset) += 4;
-	memcpy(outputBuffer + *outputOffset, curBytes, curLength);
-	(*outputOffset) += curLength;
-	free(curBytes);
-
-	free(tempMPZ);
+	serialiseMPZ(c_1 -> u, outputBuffer, outputOffset);
+	serialiseMPZ(c_1 -> v, outputBuffer, outputOffset);
 }
 
 
@@ -595,19 +565,10 @@ struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
 	unsigned char *curBytes;
 	int curLength;
 
-	curBytes = convertMPZToBytes(keyPair -> pk -> g, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, 4);
-	(*bufferOffset) += 4;
 
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	(*bufferOffset) += curLength;
+	serialiseMPZ(keyPair -> pk -> g, outputBuffer, bufferOffset);
 
-	curBytes = convertMPZToBytes(keyPair -> pk -> h, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, 4);
-	(*bufferOffset) += 4;
-
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	(*bufferOffset) += curLength;
+	serialiseMPZ(keyPair -> pk -> h, outputBuffer, bufferOffset);
 
 	return keyPair;
 }
@@ -618,34 +579,27 @@ unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOff
 							unsigned char inputBit, int *outputLength)
 {
 	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
-	mpz_t *outputMPZ, *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	mpz_t *outputMPZ, *tempMPZ;
 	unsigned char *outputBytes, *curBytes;
 	int curLength;
 
-	memcpy(&curLength, inputBuffer + *bufferOffset, 4);
-	(*bufferOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *bufferOffset, curLength);
+
+	tempMPZ = deserialiseMPZ(inputBuffer, bufferOffset);
 	mpz_set(c_0 -> u, *tempMPZ);
-	(*bufferOffset) += curLength;
-
-	memcpy(&curLength, inputBuffer + *bufferOffset, 4);
-	(*bufferOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *bufferOffset, curLength);
+	free(tempMPZ);
+	
+	tempMPZ = deserialiseMPZ(inputBuffer, bufferOffset);
 	mpz_set(c_0 -> v, *tempMPZ);
-	(*bufferOffset) += curLength;
+	free(tempMPZ);
 
-	memcpy(&curLength, inputBuffer + *bufferOffset, 4);
-	(*bufferOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *bufferOffset, curLength);
+
+	tempMPZ = deserialiseMPZ(inputBuffer, bufferOffset);
 	mpz_set(c_1 -> u, *tempMPZ);
-	(*bufferOffset) += curLength;
+	free(tempMPZ);
 
-
-	memcpy(&curLength, inputBuffer + *bufferOffset, 4);
-	(*bufferOffset) += 4;
-	convertBytesToMPZ(tempMPZ, inputBuffer + *bufferOffset, curLength);
+	tempMPZ = deserialiseMPZ(inputBuffer, bufferOffset);
 	mpz_set(c_1 -> v, *tempMPZ);
-	(*bufferOffset) += curLength;
+	free(tempMPZ);
 
 
 	if(0x00 == inputBit)
@@ -653,14 +607,11 @@ unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOff
 	else
 		outputMPZ = PVW_OT_Dec(c_1, params -> crs, params -> group, keyPair -> sk);
 
-	free(tempMPZ);
 
 	outputBytes = convertMPZToBytes(*outputMPZ, outputLength);
 
 	return outputBytes;
 }
-
-
 
 
 

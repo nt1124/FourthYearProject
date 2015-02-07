@@ -150,12 +150,43 @@ unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
 	return bytesToOutput;
 }
 
+
 // We assume space has already been calloc-ed for z.
 void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 {
 	mpz_init(*z);
 
 	mpz_import(*z, inputLength / sizeof(mp_limb_t), 1, sizeof( mp_limb_t ), 0, 0, input);
+}
+
+
+void serialiseMPZ(mpz_t z, unsigned char *outputBuffer, int *bufferOffset)
+{
+	unsigned char *tempBuffer;
+	int tempLength;
+
+	tempBuffer = convertMPZToBytes(z, &tempLength);
+	memcpy(outputBuffer + *bufferOffset, &tempLength, sizeof(int));
+	(*bufferOffset) += sizeof(int);
+
+	memcpy(outputBuffer + *bufferOffset, tempBuffer, tempLength);
+	(*bufferOffset) += tempLength;
+}
+
+
+mpz_t *deserialiseMPZ(unsigned char *inputBuffer, int *bufferOffset)
+{
+	mpz_t *outputMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *tempBuffer;
+	int tempLength;
+
+	memcpy(&tempLength, inputBuffer + *bufferOffset, sizeof(int));
+	(*bufferOffset) += sizeof(int);
+
+	convertBytesToMPZ(outputMPZ, inputBuffer + *bufferOffset, tempLength);
+	(*bufferOffset) += tempLength;
+
+	return outputMPZ;
 }
 
 #endif

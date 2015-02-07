@@ -47,7 +47,7 @@
 		\subsection{Problem definition} \label{InformalProbDef}
 			Secure multi-party computation(SMC) is a fundamental problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2C), but most two party approaches can be generalised to the multi-party case.\\
 
-			A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worth and the function will return the identifier of the individual with the highest input. Finally no party should be able to divine anything about another's inputs, apart from what the parties can infer from their own input and the output.\\
+			A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich (and somewhat vain) individuals. Their inputs are their net worth and the function will return the identifier of the individual with the highest input and no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
       
 			Whilst this is not exactly an inspiring application, it does explain convey the problem concisely. We shall cover further applications later in \ref{Applications}.\\
 
@@ -70,16 +70,16 @@
 
 
 		\subsection{Security levels}\label{sub:securityLevels}
-			Having established what goals the adversary wishes to achieve and how we can measure if said adversary has a valid attack, we next deal with the question of the capabilities of the adversary. We use three main models to describe the threat level of the adversary.
+			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the threat level of the adversary.
 
 			\subsubsection{Semi-honest Adversary}
-				The Semi-honest adversary is the weakest adversary, with that most limited capabilities. The Semi-honest adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol in any way (i.e. they play fair/are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
+				The Semi-honest adversary is the weakest adversary, with very limited capabilities. The Semi-honest adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol (i.e. they are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
 
 			\subsubsection{Malicious Model}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
 			\subsubsection{Covert Model}
-				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain known probability of detection, this probability represents the point at which the expected payoff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught.\\
+				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain probability of detection, this probability represents the point at which the expected payoff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught, effectively a game theory problem.\\
 
 				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
@@ -187,8 +187,8 @@
 
 				Usually proof of the security of an OT is carried out via \emph{simulation}, proving that the protocol under consideration is equivalent to the ideal model with a trusted third party taking both parties inputs and sending the proper outputs to each party.
 
-			\subsubsection{Even-Goldreich-Lempel SH OT Protocol}
-				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.\\
+			\subsubsection{Even-Goldreich-Lempel SH Protocol}
+				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.
 
 				\begin{figure}[!htb]
 					\begin{tabular}[!htb]{p{6cm} p{6cm}}
@@ -218,14 +218,15 @@
 		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
 			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
 
-			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key. It should be noted that the security of their protocol depends on a trusted setup of the CRS. This is however, at least to Peikert et al., a reasonable assumption.\\
+			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.\\
 
 			The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
 
-			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting using the public key we specify a branch (say $b \in \{0, 1\}$) on which to encrypt, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
+			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
 
  			Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.\\
 
+			It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
 
 		\subsection{Progress so far}
 			So far (02/02/2015) we have implemented the naive Yao garbled circuit (with the Free XOR optimisation) using \ref{dualModeCryptoOT} for the Oblivious Transfer. We use the circuits provided on Prof. Smart's website \cite{NigelCircuits} and use the AES non-expanded circuit provided as our main benchmark. Running on the University of Bristol Cryptography group test machines Diffie and Hellman, my implementation can perform a the Executor half of a single AES-128 block encryption in $\sim 1.3$ seconds. An approximate breakdown of which parts of the protocol are taking how long is provided in Figure \ref{fig:TimesBreakdown}.\\
