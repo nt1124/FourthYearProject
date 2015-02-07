@@ -1,18 +1,22 @@
-// Based on the implementation of SHA-512 produced by
-// jagatsastry.nitk@gmail.com  9th April 09.
-// Original code can be downloaded at,
-// http://www.planet-source-code.com/vb/scripts/ShowCode.asp?txtCodeId=12669&lngWId=3
-
+// Based on the implementation of SHA-512 produced by jagatsastry.nitk@gmail.com  9th April 09.
+// Original code can be downloaded at http://www.planet-source-code.com/vb/scripts/ShowCode.asp?txtCodeId=12669&lngWId=3
+// Mostly my work has been to convert the output the original author's code produced.
 
 #include<iostream>
 #include<vector>
 #include<fstream>
 #include<string>
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 using namespace std;
 
 typedef unsigned int uint;
 typedef unsigned long long ullint;
+
+
 
 string fromDecimal(ullint n, ullint b)
 {
@@ -25,6 +29,44 @@ string fromDecimal(ullint n, ullint b)
 	}
 
 	return result;
+}
+
+void convertUintToHex(ullint n, ullint b, unsigned char *output, int *offset)
+{
+	unsigned char temp = 0x00;
+	int i = 0;
+
+	while(n > 0)
+	{
+		if(1 == i % 2)
+		{
+			temp = (unsigned char)(n%b);
+			output[*offset] += 16 * temp;
+			*offset -= 1;
+		}
+		else
+		{
+			temp = (unsigned char)(n%b);
+			output[*offset] += temp;
+		}
+
+		i ++;
+		n /= b;
+	}
+}
+
+unsigned char *convertUllintArrayToBytes(ullint *H, int lengthOfArray)
+{
+	unsigned char *outputH = (unsigned char*) calloc(lengthOfArray * sizeof(ullint), sizeof(unsigned char));
+	int i, j = sizeof(ullint) - 1;
+
+	for(i = 0; i < lengthOfArray; i ++)
+	{
+		j = ((i+1)*sizeof(ullint)) - 1;
+		convertUintToHex(H[i], 16, outputH, &j);
+	}
+
+	return outputH;
 }
 
 ullint K[80] = {
@@ -73,10 +115,12 @@ ullint K[80] = {
 void makeblock(vector<ullint>& ret, string p_msg)
 {
 	ullint cur = 0;
-	int ind = 0;		 
-	for(uint i = 0; i < p_msg.size(); i++)
+	int ind = 0;
+	uint i;
+
+	for(i = 0; i < p_msg.size(); i++)
 	{
-		cur = (cur<<8) | (unsigned char)p_msg[i];
+		cur = (cur << 8) | (unsigned char)p_msg[i];
 			if(i % 8 == 7)
 		{
 			ret.at(ind++)=cur;
@@ -102,10 +146,6 @@ class Block
 
 void split(vector<Block>& blks, string& msg)
 {
-    //cout<<endl<<msg.size()<<endl;;
-    //cout<<blks.size()<<endl;
-    //cout<<"Splitting into blocks: "<<endl;
-    //cout<<endl<<"msgsize: "<<msg.size()*8<<endl;
 	for(uint i=0; i<msg.size(); i+=128)
 	{
     	makeblock(blks[i/128].msg, msg.substr(i, 128));
@@ -162,63 +202,66 @@ ullint sigma1(ullint x)
 }
 
 
-int main()
+unsigned char *SHA_512_Hash(string msg_arr, uint lengthMsg_Arr)
 {
-	// cout<<char(1<<7)<<endl;
+	unsigned char *outputH;
+	string msg;
+	uint i, t;
+	uint lengthMsg = lengthMsg_Arr;
 
-	string msg_arr, msg;
-	cout<<"Enter message"<<endl;
-
-	cin >> msg_arr;
 	msg = msg_arr;
 	msg_arr += (char)(1<<7);
-	uint cur_len = msg.size()*8 + 8;
-	uint reqd_len = ((msg.size()*8)/1024+1) *1024;
+	lengthMsg_Arr ++;
+
+	uint cur_len = lengthMsg*8 + 8;
+	uint reqd_len = ((lengthMsg*8)/1024+1) * 1024;
 	uint pad_len = reqd_len - cur_len - 128;
-	
+
 	string pad(pad_len/8, char(0));
+
 	msg_arr += pad;
+	lengthMsg_Arr += (pad_len/8);
 	
-	string len_str(mynum(msg.size()*8));
+	string len_str(mynum(lengthMsg*8));
 	msg_arr = msg_arr + len_str;
+	lengthMsg_Arr += (lengthMsg*8);
 	
-	uint num_blk = msg_arr.size()*8/1024;
+	uint num_blk = lengthMsg_Arr*8/1024;
 	vector<Block> M(num_blk, Block());
 	split(M, msg_arr);
 	
 	ullint H[]={
-	0x6a09e667f3bcc908ULL,
-	0xbb67ae8584caa73bULL,
-	0x3c6ef372fe94f82bULL,
-	0xa54ff53a5f1d36f1ULL,
-	0x510e527fade682d1ULL,
-	0x9b05688c2b3e6c1fULL,
-	0x1f83d9abfb41bd6bULL,
-	0x5be0cd19137e2179ULL
+		0x6a09e667f3bcc908ULL,
+		0xbb67ae8584caa73bULL,
+		0x3c6ef372fe94f82bULL,
+		0xa54ff53a5f1d36f1ULL,
+		0x510e527fade682d1ULL,
+		0x9b05688c2b3e6c1fULL,
+		0x1f83d9abfb41bd6bULL,
+		0x5be0cd19137e2179ULL
 	};
 		
-	for(uint i=0; i<num_blk; i++)
+	for(i = 0; i < num_blk; i ++)
 	{
-		// cout<<"Blk no: "<<i<<endl;
-		vector<ullint> W(80, 0);
-		for(uint t=0; t<16; t++)
+		ullint *W = (ullint *) calloc(80, sizeof(ullint));
+		for(t = 0; t < 16; t ++)
 		{
 			W[t] = M[i].msg[t];
 		}
 		
 		
-		for(uint t=16; t<80; t++)
+		for(t = 16; t < 80; t ++)
 		{
 			W[t] = sigma1(W[t-2]) + W[t-7] + sigma0(W[t-15]) + W[t-16];
 		}
 		
 		ullint work[8];
-		for(uint i=0; i<8; i++)
+		for(i = 0; i < 8; i ++)
 		{
 			work[i] = H[i];
 		}
 
-		for(uint t=0; t<80; t++)
+		for(t = 0; t < 80; t ++)
 		{
 
 			ullint t1, t2;
@@ -232,28 +275,15 @@ int main()
 			work[2] = work[1];
 			work[1] = work[0];
 			work[0] = t1 + t2;
-			
 		}
-		
-		for(uint i=0; i<8; i++)
+
+		for(i = 0; i < 8; i ++)
 		{
 			H[i] = work[i] + H[i];
 		}
-		
 	}
-	
-	/*
-	cout<<"Output: "<<endl;
-	cout<<"SHA 512 HASH"<<endl;
-	for(uint i=0; i<8; i++)
-		cout<<H[i]<<" ";
-	printf("\n");
-	*/
 
-	cout<<"\n\n****************SHA 512 MESSAGE DIGEST IN HEX****************"<<endl<<endl;
-	for(uint i=0; i<8; i++)
-		cout<<fromDecimal(H[i], 16);
-	printf("\n");
+	outputH = convertUllintArrayToBytes(H, 8);
 
-	return 0;
+	return outputH;
 }
