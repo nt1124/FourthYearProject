@@ -92,7 +92,6 @@ void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     outputAsHexString(inputCircuit);
 
-    // testAES_Zeroed();
     testAES_FromRandom();
 
     freeCircuitStruct(inputCircuit);
@@ -113,15 +112,8 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     readLocalExec( execInput, inputCircuit );
 
 
-    /*
-    buffer = serialiseCircuit(inputCircuit, &bufferLength);
-
-    outputCircuit -> gates = deserialiseCircuit(buffer, inputCircuit -> numGates);
-    */
-
     runCircuitLocal( inputCircuit );
 
-    // printAllOutput(inputCircuit);
     outputAsHexString(inputCircuit);
     testAES_FromRandom();
 

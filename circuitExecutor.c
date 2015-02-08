@@ -8,6 +8,8 @@ void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, un
 	struct wire *outputWire;
 
 
+	printf("%03d - ", inputLineIndex);
+
 	numBytesToGenerate = (inputCircuit -> securityParam / 8) + 1;
 	tempBuffer = generateRandBytes(numBytesToGenerate, numBytesToGenerate);
 
@@ -15,6 +17,7 @@ void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, un
 	{
 		tempValue = 0x01 & (tempBuffer[j] << (i % 8));
 		xorSum ^= tempValue;
+		printf("%d ", tempValue);
 
 
 		tempValue ^= (inputCircuit -> gates[startIndex] -> outputWire -> wirePerm & 0x01);
@@ -30,6 +33,7 @@ void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, un
 	}
 
 	tempValue = value ^ xorSum;
+	printf("%d  ++  %d\n", tempValue, value);
 	inputCircuit -> gates[startIndex] -> outputWire -> wirePermedValue = tempValue ^ (inputCircuit -> gates[startIndex] -> outputWire -> wirePerm & 0x01);
 }
 

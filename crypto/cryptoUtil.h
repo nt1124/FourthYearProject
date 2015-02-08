@@ -14,7 +14,7 @@
 #include "OT/otSemiHonestRSA.c"
 #include "OT/otPVW_DDH.h"
 
-#include "Hashing/sha512.h"
+#include "Hashing/sha256.h"
 
 #include "CommitmentSchemes/commit_elgamal.h"
 #include "CommitmentSchemes/commit_hash_elgamal.h"

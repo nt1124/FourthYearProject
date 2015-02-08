@@ -2,8 +2,6 @@ struct commit_batch_params *init_commit_batch_params()
 {
 	struct commit_batch_params *toReturn = (struct commit_batch_params*) calloc(1, sizeof(struct commit_batch_params));
 
-	// toReturn -> group = initGroupStruct();
-
 	mpz_init(toReturn -> h);
 
 	return toReturn;
@@ -155,21 +153,14 @@ struct elgamal_commit_key *deserialise_elgamal_Kbox(unsigned char *inputBuffer, 
 }
 
 
-struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *params,
-												unsigned char *toCommit, int toCommitLen,
-												unsigned char *outputBuffer, int *bufferOffset,
-												gmp_randstate_t state)
+void create_commit_box_key(struct commit_batch_params *params, unsigned char *toCommit, int toCommitLen, gmp_randstate_t state,
+						struct elgamal_commit_box *c, struct elgamal_commit_key *k)
 {
-	struct elgamal_commit_box *c = init_commit_box();
-	struct elgamal_commit_key *k = init_commit_key();
-
 	mpz_t r, *x = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(r);
 	mpz_init(*x);
 
-
 	convertBytesToMPZ(x, toCommit, toCommitLen);
-
 
 	mpz_urandomm(r, state, params -> group -> p);
 
@@ -179,13 +170,25 @@ struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *p
 	mpz_mul(c -> v, c -> v, *x);
 	mpz_mod(c -> v, c -> v, params -> group -> p);
 
-	serialise_elgamal_Cbox(c, outputBuffer, bufferOffset);
-
 	mpz_set(k -> r, r);
 	mpz_set(k -> x, *x);
 
-	free(c);
+
 	free(x);
+}
+
+
+struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *params,
+												unsigned char *toCommit, int toCommitLen,
+												unsigned char *outputBuffer, int *bufferOffset,
+												gmp_randstate_t state)
+{
+	struct elgamal_commit_box *c = init_commit_box();
+	struct elgamal_commit_key *k = init_commit_key();
+
+	create_commit_box_key(params, toCommit, toCommitLen, state, c, k);
+
+	serialise_elgamal_Cbox(c, outputBuffer, bufferOffset);
 
 	return k;
 }

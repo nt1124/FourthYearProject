@@ -1,5 +1,5 @@
-#ifndef ELGAMAL_COMMIT
-#define ELGAMAL_COMMIT
+#ifndef HASH_ELGAMAL_COMMIT
+#define HASH_ELGAMAL_COMMIT
 
 
 #include "commit_elgamal.h"
