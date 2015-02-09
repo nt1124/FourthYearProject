@@ -7,7 +7,6 @@ struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int nu
 	int i, j, k, startIndex, index;
 	int *inputIDs = (int*) calloc(2, sizeof(int));
 
-	// printf("<<<<<   %d - %d - %d - %d\n", numGates, numInputs1, numInputs2, securityParam);
 
 	for(i = 0; i < numInputs1; i ++)
 	{
@@ -27,9 +26,6 @@ struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int nu
 		inputIDs[0] = numInputs1 + (i * securityParam);
 		inputIDs[1] = inputIDs[0] + 1;
 
-		// printf("++++a   %d, %d, %d\n", index, inputIDs[0], inputIDs[1]);
-		// fflush(stdout);
-
 		circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
 		(*execOrder)[index] = index;
 
@@ -37,16 +33,30 @@ struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int nu
 		inputIDs[1] = index;
 		index ++;
 
-		for(j = 1; j < (securityParam - 1); j ++)
+		for(j = 1; j < (securityParam - 2); j ++)
 		{
-			// printf("+++++   %d - %d, %d\n", index, inputIDs[0], inputIDs[1]);
-			// fflush(stdout);
 			circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
 			(*execOrder)[index] = index;
 
 
 			inputIDs[0] += 1;
 			inputIDs[1] += 1;
+
+			index ++;
+		}
+	}
+
+	if(securityParam > 2)
+	{
+		inputIDs[0] = numInputs1 + (securityParam - 1);
+		inputIDs[1] = numInputs1 + securityParam * numInputs2 + (securityParam - 3);
+		for(i = 0; i < numInputs2; i ++)
+		{
+			circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
+			(*execOrder)[index] = index;
+
+			inputIDs[0] += securityParam;
+			inputIDs[1] += (securityParam - 2);
 
 			index ++;
 		}

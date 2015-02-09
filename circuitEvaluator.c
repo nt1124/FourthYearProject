@@ -25,8 +25,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     clock_t c_0, c_1;
     c_0 = clock();
 
-    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
-
+    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 4);
 
     c_1 = clock();
     timestamp_1 = timestamp();
@@ -125,13 +124,23 @@ void testRunZeroedInput(char *circuitFilepath)
 {
     int *execOrder = NULL;
     int numGates, i, numOutputs;
-    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
+    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 3);
     unsigned char *output;
-    
+
+
     zeroAllInputs(inputCircuit -> gates, inputCircuit -> numGates);
+
 
     runCircuitLocal( inputCircuit );
     outputAsHexString(inputCircuit);
+
+    /*
+    for(i = 0; i < inputCircuit -> numGates; i ++)
+    {
+        printGateOrWire(inputCircuit -> gates[i]);
+        printf("\n");
+    }
+    */
 
     freeCircuitStruct(inputCircuit);
     testAES_Zeroed();

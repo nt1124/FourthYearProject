@@ -71,13 +71,19 @@ void printAllOutput(struct Circuit *inputCircuit)
 void runCircuitLocal( struct Circuit *inputCircuit)
 {
 	int i, j, gateID;
+	struct wire *temp;
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
-			decryptGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
+			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
+		}
+		temp = inputCircuit -> gates[gateID] -> outputWire;
+		if(127 < i && i < 1024)
+		{
+			// printf("%d + %02X ^ %02X  =  %02X\n", gateID, temp -> wirePermedValue, (temp -> wirePerm & 0x01), (temp -> wirePermedValue ^ (temp -> wirePerm & 0x01)) );
 		}
 	}
 }

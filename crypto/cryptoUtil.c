@@ -92,6 +92,7 @@ void testAES_Zeroed()
 	int i;
 
 	encKeyList[0] = (unsigned char*) calloc(16, sizeof(unsigned char));
+	// memset(encKeyList[0], 0xFF, 16);
 	ciphertext = encryptMultipleKeys(encKeyList, 1, message, 1);
 
 
