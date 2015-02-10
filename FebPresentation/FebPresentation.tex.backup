@@ -1,0 +1,25 @@
+\documentclass{beamer}
+
+\usepackage[utf8]{inputenc}
+\usepackage{default}
+
+\begin{document}
+
+  \title[Crisis]{Secure Multiparty Computation}
+  \subtitle{Preliminary presentation}
+  \author[Author]{Nick Tutte\\[1ex]{\tiny Prof. Nigel Smart}}
+  \date[Feb 2015]
+  {February, 2015}
+  \subject{Computer Science}
+  \frame{\titlepage}
+
+
+  \begin{frame}
+    \frametitle{Project overview}
+    \begin{itemize}
+     \item We have 
+    \end{itemize}
+
+  \end{frame}
+
+\end{document}
