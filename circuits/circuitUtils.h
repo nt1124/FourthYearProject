@@ -1,7 +1,7 @@
 #ifndef CIRCUIT_UTILS
 #define	CIRCUIT_UTILS
 
-#include "crypto/cryptoUtil.h"
+#include "../crypto/cryptoUtil.h"
 #include "gateOrWire.h"
 #include "timingUtils.c"
 
@@ -17,10 +17,10 @@ typedef struct idAndValue
 } idAndValue;
 
 
-#include "fileUtils/fileUtilsFP.h"
-#include "fileUtils/fileUtilsRTL.h"
-#include "fileUtils/fileUtilsRTL_CnC.h"
-#include "comms/sockets.h"
+#include "../fileUtils/fileUtilsFP.h"
+#include "../fileUtils/fileUtilsRTL.h"
+#include "../fileUtils/fileUtilsRTL_CnC.h"
+#include "../comms/sockets.h"
 
 
 struct gateOrWire *processGateLine(char *line, struct gateOrWire **circuit);

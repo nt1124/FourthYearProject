@@ -1,3 +1,5 @@
+// Function for reading in an input file when circuit has been altered to encode the Executors
+// input in the fashion suggested in Lindell/Pinkas 2007
 void readInputLinesExec_CnC(struct Circuit *inputCircuit, int inputLineIndex, unsigned char value)
 {
 	int gateID = 0, i, j;
@@ -184,7 +186,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	timestamp_1 = timestamp();
 
 	printf("\nOT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("OT Custom time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	printf("OT Wall time   :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 	fflush(stdout);
 }
 
@@ -217,7 +219,7 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	timestamp_1 = timestamp();
 
 	printf("\nCircuit Evalutation CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Circuit Evalutation Custom time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	printf("Circuit Evalutation Wall time   :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 
@@ -237,8 +239,8 @@ int *receiveExecOrder(int writeSocket, int readSocket, int numGates)
 }
 
 
-// Receive the actual circuit.
-struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket)
+// Receive the actual circuit. Stand alone, purely deals with receiving the gates. Not used.
+struct gateOrWire **receiveGatesOfCircuitAlt(int numGates, int writeSocket, int readSocket)
 {
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
@@ -255,6 +257,7 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 	receive(readSocket, buffer, bufferLength);
 
+
 	inputCircuit = deserialiseCircuit(buffer, numGates);
 
 
@@ -263,9 +266,68 @@ struct gateOrWire **receiveCircuit(int numGates, int writeSocket, int readSocket
 	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
 
 	printf("\nReceived Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Received Circuit Custom time :     %lf\n", temp);
+	printf("Received Circuit Wall time   :     %lf\n", temp);
 
 
 	return inputCircuit;
 }
 
+
+// Receive the actual circuit.
+struct gateOrWire **receiveGatesOfCircuit(unsigned char *inputBuffer, int numGates)
+{
+	int i, j;
+	struct gateOrWire **inputCircuit;
+	struct timespec timestamp_0 = timestamp(), timestamp_1;
+	clock_t c_0, c_1;
+	c_0 = clock();
+
+
+	printf("Circuit has %d gates!\n", numGates);
+
+
+	inputCircuit = deserialiseCircuit(inputBuffer, numGates);
+
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
+
+	printf("\nReceived Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Received Circuit Wall time   :     %lf\n", temp);
+
+
+	return inputCircuit;
+}
+
+
+struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
+{
+	struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
+	unsigned char *receivedBuffer;
+	int bufferLength, bufferOffset = 6 * sizeof(int);
+
+	bufferLength = receiveInt(readSocket);
+	receivedBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	receive(readSocket, receivedBuffer, bufferLength);
+
+
+	memcpy(&(inputCircuit -> numGates), receivedBuffer, sizeof(int));
+	memcpy(&(inputCircuit -> numInputs), receivedBuffer + sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> numOutputs), receivedBuffer + 2 * sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> numInputsBuilder), receivedBuffer + 3 * sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> numInputsExecutor), receivedBuffer + 4 * sizeof(int), sizeof(int));
+	memcpy(&(inputCircuit -> securityParam), receivedBuffer + 5 * sizeof(int), sizeof(int));
+
+
+	// Get the ExecOrder.
+	inputCircuit -> execOrder = (int*) calloc(inputCircuit -> numGates, sizeof(int));
+	memcpy(inputCircuit -> execOrder, receivedBuffer + bufferOffset, inputCircuit -> numGates * sizeof(int));
+	bufferOffset += (inputCircuit -> numGates * sizeof(int));
+
+	inputCircuit -> gates = receiveGatesOfCircuit(receivedBuffer + bufferOffset, inputCircuit -> numGates);
+
+	printf("Received circuit.\n");
+
+	return inputCircuit;
+}

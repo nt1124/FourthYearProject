@@ -8,7 +8,7 @@ struct gateOrWire *processGateOrWireRTL(char *line, int idNum, int *strIndex, st
 struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit);
 struct Circuit *readInCircuitRTL(char* filepath);
 
-#include "../gateOrWire.h"
+#include "../circuits/gateOrWire.h"
 #include "fileUtilsRTL.c"
 
 #endif

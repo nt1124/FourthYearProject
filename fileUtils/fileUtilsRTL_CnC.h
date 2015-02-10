@@ -5,7 +5,7 @@
 
 struct Circuit *readInCircuitRTL_CnC(char* filepath, int numCircuits);
 
-#include "../gateOrWire.h"
+#include "../circuits/gateOrWire.h"
 #include "fileUtilsRTL.h"
 #include "fileUtilsRTL_CnC.c"
 

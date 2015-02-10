@@ -113,13 +113,12 @@ void runCircuitBuilder( struct Circuit *inputCircuit, int writeSocket, int readS
 
 
 
-// Function send a single gate.
+// Function send a single gate. Not used but included for completeness.
 void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 {
 	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
 	int bufferLength, j;
 
-	//buffer = serialiseGateOrWire(inputGW, &bufferLength);
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, buffer, bufferLength);
 	free(buffer);
@@ -127,45 +126,53 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 }
 
 
+// Send the full Circuit (gates, numGates, numOutputs etc.)
 void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 {
-	unsigned char *bufferToSend, *gateParamsBuffer = (unsigned char *) calloc(6 * sizeof(int), sizeof(unsigned char));
-	int i, bufferLength = inputCircuit -> numGates * sizeof(int);
+	unsigned char *bufferToSend, *circuitBuffer;
+	int i, bufferLength, bufferOffset;
+	int circuitLength = 0; 
 
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
 	c_0 = clock();
 
 
-    memcpy(gateParamsBuffer, &(inputCircuit -> numGates), sizeof(int));
-    memcpy(gateParamsBuffer + 1 * sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
-    memcpy(gateParamsBuffer + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
-    memcpy(gateParamsBuffer + 3 * sizeof(int), &(inputCircuit -> numInputsBuilder), sizeof(int));
-    memcpy(gateParamsBuffer + 4 * sizeof(int), &(inputCircuit -> numInputsExecutor), sizeof(int));
-    memcpy(gateParamsBuffer + 5 * sizeof(int), &(inputCircuit -> securityParam), sizeof(int));
+	// Serialise the circuit.
+	circuitBuffer = serialiseCircuit(inputCircuit, &circuitLength);
 
-	send(writeSocket, gateParamsBuffer, 6 * sizeof(int));
-
-
+	// How big is buffer we're going to be sending, then calloc space.
+	bufferLength = circuitLength + (6 * sizeof(int)) + (inputCircuit -> numGates * sizeof(int));
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
-	memcpy(bufferToSend, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
 
-	sendInt(writeSocket, bufferLength);
-	send(writeSocket, bufferToSend, bufferLength);
 
-	free(bufferToSend);
+	// Copy Circuit parameters into the buffer we're going to send.
+	memcpy(bufferToSend, &(inputCircuit -> numGates), sizeof(int));
+	memcpy(bufferToSend + 1 * sizeof(int), &(inputCircuit -> numInputs), sizeof(int));
+	memcpy(bufferToSend + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
+	memcpy(bufferToSend + 3 * sizeof(int), &(inputCircuit -> numInputsBuilder), sizeof(int));
+	memcpy(bufferToSend + 4 * sizeof(int), &(inputCircuit -> numInputsExecutor), sizeof(int));
+	memcpy(bufferToSend + 5 * sizeof(int), &(inputCircuit -> securityParam), sizeof(int));
+	bufferOffset = 6 * sizeof(int);
 
-	bufferToSend = 0;
-	bufferToSend = serialiseCircuit(inputCircuit, &bufferLength);
+	// Copy across the ExecOrder into the bufferToSend.
+	memcpy(bufferToSend + bufferOffset, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));
+	bufferOffset += (inputCircuit -> numGates * sizeof(int));
 
+	// Copy across the Circuit into the bufferToSend.
+	memcpy(bufferToSend + bufferOffset, circuitBuffer, circuitLength);
+
+	// Send the buffer we've compiled.
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, bufferToSend, bufferLength);
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
-	printf("Circuit sent.\n");
 
-	printf("\nCircuit Sending CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Circuit Sending Wall time :     %lf\n", temp);
+	printf("\nCircuit Sending\n");
+	printf("CPU time  :   %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :   %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	free(bufferToSend);
+	free(circuitBuffer);
 }

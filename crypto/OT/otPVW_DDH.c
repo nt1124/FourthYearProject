@@ -554,7 +554,8 @@ unsigned char *receiverOT_UC(int writeSocket, int readSocket,
 }
 
 
-
+// Perform the first half of the receiver side of the OT, serialise the results into a 
+// buffer for sending to the Sender.
 struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
 								struct decParams *params, gmp_randstate_t *state,
 								unsigned char *outputBuffer, int *bufferOffset)
@@ -575,6 +576,8 @@ struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
 }
 
 
+// Perform the second half of the receiver side of the OT, deserialising the buffer returned by
+// the sender and using this to extract the requested data.
 unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOffset,
 							struct otKeyPair *keyPair, struct decParams *params,
 							unsigned char inputBit, int *outputLength)
@@ -616,7 +619,7 @@ unsigned char *bulk_two_receiverOT_UC(unsigned char *inputBuffer, int *bufferOff
 
 
 
-
+// Testing function. No gurantee this still works.
 int testOT_PWV_DDH_Local(int receiverOrSender)
 {
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -663,6 +666,7 @@ int testOT_PWV_DDH_Local(int receiverOrSender)
 }
 
 
+// Testing function for single OT. No gurantee this still works.
 void testSender_OT_PVW()
 {
 	struct sockaddr_in destWrite, destRead;
@@ -700,6 +704,7 @@ void testSender_OT_PVW()
 }
 
 
+// Testing function for single OT. No gurantee this still works.
 void testReceive_OT_PVW(char *ipAddress)
 {
 	int writeSocket, readSocket, writePort, readPort;

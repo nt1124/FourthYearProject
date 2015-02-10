@@ -3,148 +3,10 @@
 #include <string.h>
 #include <time.h>
 
-#include "circuitUtils.h"
+#include "circuits/circuitUtils.h"
+#include "circuits/SH_Circuits.c"
+#include "circuits/LP_Malicious.c"
 
-
-void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
-{
-    struct sockaddr_in destWrite, destRead;
-    int *execOrder;
-    int writeSocket, readSocket, mainWriteSock, mainReadSock;
-    int writePort = atoi(portNumStr), readPort = writePort + 1;
-    int numGates, i, nLength;
-
-    set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
-    set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
-
-    printf("Executor has connected to us.\n");
-
-    struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-
-    struct timespec timestamp_0 = timestamp(), timestamp_1;
-    clock_t c_0, c_1;
-    c_0 = clock();
-
-    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
-
-    c_1 = clock();
-    timestamp_1 = timestamp();
-    double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
-
-
-    readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
-
-    printf("Ready to send circuit.\n");
-    sendCircuit(writeSocket, readSocket, inputCircuit);
-
-    runCircuitBuilder( inputCircuit, writeSocket, readSocket );
-
-    close_server_socket(writeSocket, mainWriteSock);
-    close_server_socket(readSocket, mainReadSock);
-
-
-    printf("\nBuilding Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-    printf("Building Circuit Custom time :     %lf\n", temp);
-
-    freeCircuitStruct(inputCircuit);
-}
-
-
-
-void runExecutor(char *inputFilepath, char *ipAddress, char *portNumStr)
-{
-    struct sockaddr_in serv_addr_write, serv_addr_read;
-    int writeSocket, readSocket;
-    int readPort = atoi(portNumStr), writePort = readPort + 1;
-    int numGates = 0, numOutputs = 0;
-    int i;
-
-    struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-    unsigned char *output, *circuitParamsBuffer = (unsigned char*) calloc(6 * sizeof(int), sizeof(unsigned char));
-
-    set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
-    set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
-
-    printf("Connected to builder.\n");
-
-
-    receive(readSocket, circuitParamsBuffer, 6*sizeof(int));
-
-    memcpy(&(inputCircuit -> numGates), circuitParamsBuffer, sizeof(int));
-    memcpy(&(inputCircuit -> numInputs), circuitParamsBuffer + sizeof(int), sizeof(int));
-    memcpy(&(inputCircuit -> numOutputs), circuitParamsBuffer + 2 * sizeof(int), sizeof(int));
-    memcpy(&(inputCircuit -> numInputsBuilder), circuitParamsBuffer + 3 * sizeof(int), sizeof(int));
-    memcpy(&(inputCircuit -> numInputsExecutor), circuitParamsBuffer + 4 * sizeof(int), sizeof(int));
-    memcpy(&(inputCircuit -> securityParam), circuitParamsBuffer + 5 * sizeof(int), sizeof(int));
-
-    inputCircuit -> execOrder = receiveExecOrder(writeSocket, readSocket, inputCircuit -> numGates);
-    inputCircuit -> gates = receiveCircuit(inputCircuit -> numGates, writeSocket, readSocket);
-
-    printf("Received circuit.\n");
-
-
-    runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
-
-
-    close_client_socket(readSocket);
-    close_client_socket(writeSocket);
-
-    outputAsHexString(inputCircuit);
-
-    testAES_FromRandom();
-
-    freeCircuitStruct(inputCircuit);
-}
-
-
-void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
-{
-    int *execOrder = NULL;
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
-    int i, bufferLength = 0;
-    unsigned char *buffer;
-
-
-    readInputDetailsFileBuilder( builderInput, inputCircuit -> gates );
-    readInputDetailsFileBuilder( execInput, inputCircuit -> gates );
-
-    readLocalExec( execInput, inputCircuit );
-
-
-    runCircuitLocal( inputCircuit );
-
-    outputAsHexString(inputCircuit);
-    testAES_FromRandom();
-
-    freeCircuitStruct(inputCircuit);
-}
-
-
-void testRunZeroedInput(char *circuitFilepath)
-{
-    int *execOrder = NULL;
-    int numGates, i, numOutputs;
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 3);
-    unsigned char *output;
-
-
-    zeroAllInputs(inputCircuit -> gates, inputCircuit -> numGates);
-
-
-    runCircuitLocal( inputCircuit );
-    outputAsHexString(inputCircuit);
-
-    /*
-    for(i = 0; i < inputCircuit -> numGates; i ++)
-    {
-        printGateOrWire(inputCircuit -> gates[i]);
-        printf("\n");
-    }
-    */
-
-    freeCircuitStruct(inputCircuit);
-    testAES_Zeroed();
-}
 
 
 void testRTL_Read(char *circuitFilepath, char *inputFile)
@@ -164,22 +26,34 @@ void testRTL_Read(char *circuitFilepath, char *inputFile)
 }
 
 
-void testRun(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
+void runSH(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
 {
+    struct timespec timestamp_0 = timestamp(), timestamp_1;
+    clock_t c_0, c_1;
+    c_0 = clock();
+
     if(0 == builder)
     {
         printf("Running Executor.\n");
         // testSender_OT_SH_RSA(portNumStr);
         // testReceive_OT_PVW(ipAddress);
-        runExecutor(inputFilename, ipAddress, portNumStr);
+        // runExecutor_SH(inputFilename, ipAddress, portNumStr);
+        runExecutor_LP_2007(inputFilename, ipAddress, portNumStr);
     }
     else
     {
         printf("Running Builder.\n");
         // testReceiver_OT_SH_RSA(portNumStr);
         // testSender_OT_PVW();
-        runBuilder(circuitFilepath, inputFilename, portNumStr);
+        // runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
+        runBuilder_LP_2007(circuitFilepath, inputFilename, portNumStr);
     }
+
+    c_1 = clock();
+    timestamp_1 = timestamp();
+
+    printf("\nTotal CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+    printf("Total Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 // Useage. Circuit, IP, Port, Input file, builder flag
@@ -191,7 +65,7 @@ int main(int argc, char *argv[])
     int builder = atoi(argv[5]);
 
     // runLocally(circuitFilepath, argv[2], argv[3]);
-    testRun(circuitFilepath, argv[2], argv[3], argv[4], builder);
+    runSH(circuitFilepath, argv[2], argv[3], argv[4], builder);
     // testRunZeroedInput(circuitFilepath);
 
 

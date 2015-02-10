@@ -81,10 +81,6 @@ void runCircuitLocal( struct Circuit *inputCircuit)
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
 		}
 		temp = inputCircuit -> gates[gateID] -> outputWire;
-		if(127 < i && i < 1024)
-		{
-			// printf("%d + %02X ^ %02X  =  %02X\n", gateID, temp -> wirePermedValue, (temp -> wirePerm & 0x01), (temp -> wirePermedValue ^ (temp -> wirePerm & 0x01)) );
-		}
 	}
 }
 

@@ -167,9 +167,6 @@ int sendDDH_Group(int writeSocket, int readSocket, struct DDH_Group *group)
 	memcpy(curBytes + sizeof(int) + pLength, &gLength, sizeof(int));
 	memcpy(curBytes + 2*sizeof(int) + pLength, gBytes, gLength);
 
-	// sendBoth(writeSocket, (octet*) pBytes, pLength);
-	// sendBoth(writeSocket, (octet*) gBytes, gLength);
-
 	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
 	free(curBytes);
@@ -193,14 +190,10 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 
 	memcpy(&pLength, curBytes, sizeof(int));
 	convertBytesToMPZ(tempMPZ, curBytes + sizeof(int), pLength);
-	// convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(group -> p, *tempMPZ);
 
-	// curBytes = receiveBoth(readSocket, curLength);
-	
 	memcpy(&gLength, curBytes + sizeof(int) + pLength, sizeof(int));
 	convertBytesToMPZ(tempMPZ, curBytes + 2*sizeof(int) + pLength, gLength);
-	// convertBytesToMPZ(tempMPZ, curBytes, curLength);
 	mpz_set(group -> g, *tempMPZ);
 
 	free(curBytes);

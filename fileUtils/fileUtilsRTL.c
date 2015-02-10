@@ -13,10 +13,8 @@ void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
 		outputWire = inputCircuit[i] -> outputWire;
 
 		outputWire -> wireOwner = 0xFF;
-		// outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
-		// memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
-		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key1[16];
-		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key1, 16);
+		outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
+		memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 		// printf("%d - %02X\n", i, (outputWire -> wirePermedValue ^ (outputWire -> wirePerm & 0x01)));
 	}
 }

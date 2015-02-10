@@ -12,7 +12,7 @@ struct gateOrWire *processGateOrWireFP(char *line, int idNum, int *strIndex, str
 struct gateOrWire *processGateLineFP(char *line, struct gateOrWire **circuit);
 struct gateOrWire **readInCircuitFP(char* filepath, int *numGates);
 
-#include "../gateOrWire.h"
+#include "../circuits/gateOrWire.h"
 #include "fileUtilsFP.c"
 
 #endif
