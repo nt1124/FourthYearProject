@@ -561,6 +561,7 @@ struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
 {
 	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);
 
+
 	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
 	unsigned char *curBytes;
 	int curLength;

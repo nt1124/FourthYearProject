@@ -25,7 +25,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     clock_t c_0, c_1;
     c_0 = clock();
 
-    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 4);
+    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
 
     c_1 = clock();
     timestamp_1 = timestamp();
@@ -37,7 +37,7 @@ void runBuilder(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, readSocket, inputCircuit);
 
-    runCircuitBuilder( inputCircuit -> gates, inputCircuit -> numGates, writeSocket, readSocket );
+    runCircuitBuilder( inputCircuit, writeSocket, readSocket );
 
     close_server_socket(writeSocket, mainWriteSock);
     close_server_socket(readSocket, mainReadSock);

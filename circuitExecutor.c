@@ -82,14 +82,15 @@ void readLocalExec(char *filepath, struct Circuit *inputCircuit)
 }
 
 
-void receiver_side_OT(int writeSocket, int readSocket,
+void executor_side_OT(int writeSocket, int readSocket,
 					struct decParams *params, struct Circuit *inputCircuit,
 					gmp_randstate_t *state)
 {
 	struct otKeyPair **otKeyPairs;
-	int tempSize = 0, i, j, bufferOffset, outputLength;
+	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength;
 	unsigned char *toSendBuffer, *receivedBuffer, *tempBuffer;
 	unsigned char value;
+	struct otKeyPair *tempOT_Pair;
 
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
@@ -100,6 +101,7 @@ void receiver_side_OT(int writeSocket, int readSocket,
 			tempSize ++;
 		}
 	}
+
 
 	otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
 	tempSize *= 2 * (136 + 4);
@@ -113,6 +115,7 @@ void receiver_side_OT(int writeSocket, int readSocket,
 		{
 			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+
 			otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
 		}
 	}
@@ -173,54 +176,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 		}
 		fclose ( file );
 
-		for(i = 0; i < inputCircuit -> numGates; i ++)
-		{
-			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-			{
-				tempSize ++;
-			}
-		}
-
-		otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
-		tempSize *= 2 * (136 + 4);
-		toSendBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
-
-		for(i = 0; i < inputCircuit -> numGates; i ++)
-		{
-			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-			{
-				value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
-				value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
-				otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
-			}
-		}
-
-
-		sendInt(writeSocket, bufferOffset);
-		send(writeSocket, toSendBuffer, bufferOffset);
-
-		bufferOffset = receiveInt(readSocket);
-		receivedBuffer = (unsigned char*) calloc(bufferOffset, sizeof(unsigned char));
-		receive(readSocket, receivedBuffer, bufferOffset);
-
-
-		bufferOffset = 0;
-		j = 0;
-		for(i = 0; i < inputCircuit -> numGates; i ++)
-		{
-			if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-				0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-			{
-				value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
-				value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
-
-				tempBuffer = bulk_two_receiverOT_UC(receivedBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
-				memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
-				free(tempBuffer);
-			}
-		}
+		executor_side_OT(writeSocket, readSocket, params, inputCircuit, state);
 	}
 
 

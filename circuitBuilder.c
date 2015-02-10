@@ -44,7 +44,49 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 }
 
 
-void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writeSocket, int readSocket)
+void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, struct Circuit *inputCircuit, gmp_randstate_t *state)
+{
+	struct wire *tempWire;
+	unsigned char *receivedBuffer, *outputBuffer;
+	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0, i;
+
+	receivedOffset = receiveInt(readSocket);
+	receivedBuffer = (unsigned char*) calloc(receivedOffset, sizeof(unsigned char));
+	receive(readSocket, receivedBuffer, receivedOffset);
+	receivedOffset = 0;
+
+	for(i = 0; i < inputCircuit -> numGates; i ++)
+	{
+		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
+		{
+			numInputs ++;
+		}
+	}
+
+	tempSize = 4 * numInputs * (136 + 4);
+	outputBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
+
+	for(i = 0; i < inputCircuit -> numGates; i ++)
+	{
+		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
+		{
+			tempWire = inputCircuit -> gates[i] -> outputWire;
+
+			bulk_senderOT_UC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state,
+							receivedBuffer, &receivedOffset, outputBuffer, &outputOffset);
+		}
+	}
+
+	sendInt(writeSocket, outputOffset);
+	send(writeSocket, outputBuffer, outputOffset);
+
+}
+
+
+
+void runCircuitBuilder( struct Circuit *inputCircuit, int writeSocket, int readSocket)
 {
 	struct wire *tempWire;
 	int i, numInputs = 0, tempSize;
@@ -59,39 +101,7 @@ void runCircuitBuilder( struct gateOrWire **inputCircuit, int numGates, int writ
 	gmp_randstate_t *state = seedRandGen();
 	struct decParams *params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
 
-
-	receivedOffset = receiveInt(readSocket);
-	receivedBuffer = (unsigned char*) calloc(receivedOffset, sizeof(unsigned char));
-	receive(readSocket, receivedBuffer, receivedOffset);
-	receivedOffset = 0;
-
-	for(i = 0; i < numGates; i ++)
-	{
-		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit[i] -> outputWire -> wireMask) )
-		{
-			numInputs ++;
-		}
-	}
-
-	tempSize = 4 * numInputs * (136 + 4);
-	outputBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
-
-	for(i = 0; i < numGates; i ++)
-	{
-		if( 0x00 == inputCircuit[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit[i] -> outputWire -> wireMask) )
-		{
-			tempWire = inputCircuit[i] -> outputWire;
-
-			bulk_senderOT_UC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state,
-							receivedBuffer, &receivedOffset, outputBuffer, &outputOffset);
-		}
-	}
-
-	sendInt(writeSocket, outputOffset);
-	send(writeSocket, outputBuffer, outputOffset);
-
+	builder_side_OT(writeSocket, readSocket, params, inputCircuit, state);
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
