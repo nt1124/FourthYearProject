@@ -8,7 +8,7 @@ void runBuilder_LP_2007(char *circuitFilepath, char *inputFilepath, char *portNu
     int writePort = atoi(portNumStr), readPort = writePort + 1;
 
     struct Circuit **circuitsArray;
-    int i, securityParam = 1;
+    int i, securityParam = 5;
 
     circuitsArray = (struct Circuit **) calloc(securityParam, sizeof(struct Circuit*));
 
@@ -28,15 +28,15 @@ void runBuilder_LP_2007(char *circuitFilepath, char *inputFilepath, char *portNu
         circuitsArray[i] = readInCircuitRTL_CnC(circuitFilepath, 1);
     }
 
-    c_1 = clock();
-    timestamp_1 = timestamp();
-
-    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
-
     for(i = 0; i < securityParam; i++)
     {
         readInputDetailsFileBuilder( inputFilepath, circuitsArray[i] -> gates );
     }
+
+    c_1 = clock();
+    timestamp_1 = timestamp();
+
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding/Inputting all Circuits");
 
 
     for(i = 0; i < securityParam; i++)
@@ -53,8 +53,6 @@ void runBuilder_LP_2007(char *circuitFilepath, char *inputFilepath, char *portNu
     close_server_socket(readSocket, mainReadSock);
 
 
-
-
     for(i = 0; i < securityParam; i ++)
     {
         freeCircuitStruct(circuitsArray[i]);
@@ -68,9 +66,10 @@ void runExecutor_LP_2007(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct sockaddr_in serv_addr_write, serv_addr_read;
     int writeSocket, readSocket;
     int readPort = atoi(portNumStr), writePort = readPort + 1;
-    int i, securityParam = 1;
+    int i, securityParam = 5;
 
     struct Circuit **circuitsArray = (struct Circuit**) calloc(securityParam, sizeof(struct Circuit*));
+    struct wire *tempWire;
 
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
@@ -92,10 +91,7 @@ void runExecutor_LP_2007(char *inputFilepath, char *ipAddress, char *portNumStr)
     close_client_socket(readSocket);
     close_client_socket(writeSocket);
 
-    for(i = 0; i < securityParam; i ++)
-    {
-        printOutputHexString(circuitsArray[i]);
-    }
+    printMajorityOutputAsHex(circuitsArray, securityParam);
 
     testAES_FromRandom();
 

@@ -249,7 +249,7 @@ struct gateOrWire **receiveGatesOfCircuitAlt(int numGates, int writeSocket, int 
 	unsigned char *buffer = NULL;
 	struct gateOrWire **inputCircuit;
 
-	printf("Circuit has %d gates!\n", numGates);
+	// printf("Circuit has %d gates!\n", numGates);
 
 	bufferLength = receiveInt(readSocket);
 	buffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));

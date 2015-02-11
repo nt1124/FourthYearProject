@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-const int OUTPUT_TIMINGS = 1;
+const int OUTPUT_TIMINGS = 0;
 
 
 #include "circuits/circuitUtils.h"

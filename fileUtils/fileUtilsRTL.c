@@ -213,6 +213,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 	int i, execIndex, *execOrder;
 	unsigned char *R = generateRandBytes(16, 17);
 
+
 	if ( file != NULL )
 	{
 		if(NULL != fgets(line, sizeof(line), file))
@@ -228,6 +229,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 		if(NULL == fgets(line, sizeof(line), file))
 			return NULL;
 
+		outputCircuit -> checkFlag = 0x00;
 		outputCircuit -> numInputsBuilder = numInputs1;
 		outputCircuit -> numInputsExecutor = numInputs2;
 		outputCircuit -> securityParam = 1;

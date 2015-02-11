@@ -82,6 +82,9 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, int securityParam)
 		int i, execIndex, *execOrder, idOffset;
 		unsigned char *R = generateRandBytes(16, 17);
 
+
+
+
 		if ( file != NULL )
 		{
 			if(NULL != fgets(line, sizeof(line), file))
@@ -97,6 +100,7 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, int securityParam)
 			if(NULL == fgets(line, sizeof(line), file))
 				return NULL;
 
+			outputCircuit -> checkFlag = 0x00;
 			outputCircuit -> numInputsBuilder = numInputs1;
 			outputCircuit -> numInputsExecutor = numInputs2;
 			outputCircuit -> securityParam = securityParam;

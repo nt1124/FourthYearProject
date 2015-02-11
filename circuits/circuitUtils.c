@@ -5,35 +5,6 @@ unsigned char *getOutputAsBinary(struct Circuit *inputCircuit, int *binaryLength
 	unsigned char tempBit;
 	int numOutputs = 0;
 
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		if( 0x02 == inputCircuit -> gates[i] -> outputWire -> wireMask )
-			numOutputs ++;
-	}
-
-	binaryOutput = (unsigned char*) calloc(numOutputs, sizeof(unsigned char));
-
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		if( 0x02 == inputCircuit -> gates[i] -> outputWire -> wireMask )
-		{
-			tempBit = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
-			binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
-		}
-	}
-
-	*binaryLength = j;
-
-	return binaryOutput;
-}
-
-unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
-{
-	int i, j = 0, k;
-	unsigned char *binaryOutput, *hexOutput;
-	unsigned char tempBit, tempHex;
-	int numOutputs = 0;
-
 	numOutputs = inputCircuit -> numOutputs;
 
 	binaryOutput = (unsigned char*) calloc(numOutputs, sizeof(unsigned char));
@@ -44,6 +15,21 @@ unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
 		binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
 	}
 
+	*binaryLength = j;
+
+	return binaryOutput;
+}
+
+// unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
+unsigned char *getOutputAsHex(unsigned char *binaryStr, int numOutputs, int *outputLength)
+{
+	unsigned char *binaryOutput, *hexOutput;
+	unsigned char tempBit, tempHex;
+	int i, j = 0, k, binaryLength = 0;
+
+
+	//binaryOutput = getOutputAsBinary(inputCircuit, &binaryLength);
+
 	hexOutput = (unsigned char*) calloc( (numOutputs / 8) + 2, sizeof(unsigned char) );
 
 	j = 0;
@@ -51,7 +37,7 @@ unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
 	tempHex = 0;
 	for(i = 0; i < numOutputs; i ++)
 	{
-		hexOutput[j] += (binaryOutput[i] << k);
+		hexOutput[j] += (binaryStr[i] << k);
 		k --;
 
 		if(7 == i % 8)
@@ -69,17 +55,22 @@ unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
 // Prints all outputs as a hex string, taking gates in ascending position in the gates table.
 void printOutputHexString(struct Circuit *inputCircuit)
 {
+	unsigned char *binaryOutput;
 	unsigned char *hexOutput;
-	int i, hexLength;
+	int i, outputLength;
 	
-	hexOutput = getOutputAsHex(inputCircuit, &hexLength);
+	binaryOutput = getOutputAsBinary(inputCircuit, &outputLength);
+	hexOutput = getOutputAsHex(binaryOutput, inputCircuit -> numOutputs, &outputLength);
 
 	printf("Candidate output as Hex: ");
-	for(i = 0; i < hexLength; i ++)
+	for(i = 0; i < outputLength; i ++)
 	{
 		printf("%02X", hexOutput[i]);
 	}
 	printf("\n");
+
+	free(binaryOutput);
+	free(hexOutput);
 }
 
 
@@ -98,6 +89,76 @@ void printAllOutput(struct Circuit *inputCircuit)
 			printf("Gate %d = %d\n", inputCircuit -> gates[i] -> G_ID, tempBit);
 		}
 	}
+}
+
+
+// Get the output from a set of Circuits 
+unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam, int *outputLength)
+{
+	unsigned char *finalOutput;
+	unsigned char *curBinaryStr;
+	int **outputBitCounts = (int**) calloc(2, sizeof(int*));
+	int i, j, count = 0, curLength;
+
+	outputBitCounts[0] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
+	outputBitCounts[1] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
+
+	for(i = 0; i < securityParam; i ++)
+	{
+		if(0x00 == circuitsArray[i] -> checkFlag)
+		{
+			curBinaryStr = getOutputAsBinary(circuitsArray[i], &curLength);
+			if(curLength != circuitsArray[0] -> numOutputs)
+			{
+				printf("Circuits have differing number of outputs.");
+				free(outputBitCounts[0]);
+				free(outputBitCounts[1]);
+				free(outputBitCounts);
+				free(curBinaryStr);
+				return NULL;
+			}
+
+			for(j = 0; j < curLength; j ++)
+			{
+				outputBitCounts[curBinaryStr[j]][j] ++; 
+			}
+			free(curBinaryStr);
+		}
+	}
+
+	curBinaryStr = (unsigned char*) calloc(circuitsArray[0] -> numOutputs, sizeof(unsigned char));
+
+	for(j = 0; j < curLength; j ++)
+	{
+		curBinaryStr[j] = (outputBitCounts[0][j] < outputBitCounts[1][j]);
+	}
+
+	finalOutput = getOutputAsHex(curBinaryStr, curLength, outputLength);
+
+	free(outputBitCounts[0]);
+	free(outputBitCounts[1]);
+	free(outputBitCounts);
+
+	return finalOutput;
+}
+
+
+// Prints all outputs as a hex string, taking gates in ascending position in the gates table.
+void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam)
+{
+	unsigned char *hexOutput;
+	int i, outputLength;
+	
+	hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength);
+
+	printf(" Majority output as Hex: ");
+	for(i = 0; i < outputLength; i ++)
+	{
+		printf("%02X", hexOutput[i]);
+	}
+	printf("\n");
+
+	free(hexOutput);
 }
 
 
@@ -132,11 +193,12 @@ struct Circuit *initBasicCircuit()
 void freeCircuitStruct(struct Circuit *toFree)
 {
 	int i;
-    for(i = 0; i < toFree -> numGates; i ++)
-    {
-        freeGateOrWire(toFree -> gates[i]);
-    }
+	for(i = 0; i < toFree -> numGates; i ++)
+	{
+		freeGateOrWire(toFree -> gates[i]);
+	}
 
-    free(toFree -> gates);
-    free(toFree);
+	free(toFree -> gates);
+	free(toFree -> execOrder);
+	free(toFree);
 }

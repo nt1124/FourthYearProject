@@ -53,6 +53,7 @@ typedef struct Circuit
 
 	int numGates;
 	int securityParam;
+	unsigned char checkFlag;
 
 	int *execOrder;
 	struct gateOrWire **gates;
