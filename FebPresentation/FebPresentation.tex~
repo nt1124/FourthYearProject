@@ -84,8 +84,7 @@
 
 	\begin{frame}
 		\frametitle{Security Definitions}
-		% We say that an OT protocol is secure if parties participating cannot learn any more by taking part then they would if they had used the Ideal Mode.
-		
+		We say that an OT protocol is secure if parties participating cannot learn any more by taking part then they would if they had used the Ideal Mode.
 	\end{frame}
 
 

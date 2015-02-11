@@ -1,6 +1,6 @@
 \documentclass{beamer}
 
-\usepackage{mdframed}
+% \usepackage{mdframed}
 \usepackage[utf8]{inputenc}
 \usepackage{default}
 
@@ -67,10 +67,17 @@
 		% Indie. Inputs - 
 		% Fairness - Avoid corrupt parties getting their input 
 	\end{frame}
-	
+
 	\begin{frame}
 		\frametitle{The Ideal Model}
-		
+
+		\includegraphics[scale=0.6]{Images/IdealModel}
+		% Diagram. One big one will do me thinks.
+	\end{frame}
+
+	\begin{frame}
+		\frametitle{Security Definitions}
+		We say that an OT protocol is secure if parties participating cannot learn any more by taking part then they would if they had used the Ideal Mode.
 	\end{frame}
 
 
@@ -79,7 +86,7 @@
 		A key component we will need later is Oblivious transfer(OT).\\
       
 		\begin{figure}[!htb]
-			\begin{mdframed}
+			%\begin{mdframed}
 				\centering
 				\begin{minipage}{0.45\textwidth}
 					\centering
@@ -94,7 +101,7 @@
 					Outputs : $\emptyset$\\
 				\end{minipage}
 
-			\end{mdframed}
+			%\end{mdframed}
 			\caption{ Definition of the functionality of a one-out-of-two OT protocol.\label{fig:OTformalDef}}
 		\end{figure}
 		% Diagram really needed for this.
