@@ -105,10 +105,8 @@ void runCircuitBuilder( struct Circuit *inputCircuit, int writeSocket, int readS
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
 
-	printf("\nSender OT CPU time  : %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Sender OT Wall time : %lf\n", temp);
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "OT - Sender");
 }
 
 
@@ -169,9 +167,7 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nCircuit Sending\n");
-	printf("CPU time  :   %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :   %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
 
 	free(bufferToSend);
 	free(circuitBuffer);

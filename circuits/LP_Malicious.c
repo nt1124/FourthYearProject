@@ -8,9 +8,10 @@ void runBuilder_LP_2007(char *circuitFilepath, char *inputFilepath, char *portNu
     int writePort = atoi(portNumStr), readPort = writePort + 1;
 
     struct Circuit **circuitsArray;
-    int i, securityParam = 10;
+    int i, securityParam = 1;
 
     circuitsArray = (struct Circuit **) calloc(securityParam, sizeof(struct Circuit*));
+
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
     set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -29,10 +30,8 @@ void runBuilder_LP_2007(char *circuitFilepath, char *inputFilepath, char *portNu
 
     c_1 = clock();
     timestamp_1 = timestamp();
-    printf("\nBuilding all %d Circuits\n", securityParam);
-    printf("CPU time   :   %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-    printf("Wall time  :   %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
 
     for(i = 0; i < securityParam; i++)
     {
@@ -69,7 +68,7 @@ void runExecutor_LP_2007(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct sockaddr_in serv_addr_write, serv_addr_read;
     int writeSocket, readSocket;
     int readPort = atoi(portNumStr), writePort = readPort + 1;
-    int i, securityParam = 10;
+    int i, securityParam = 1;
 
     struct Circuit **circuitsArray = (struct Circuit**) calloc(securityParam, sizeof(struct Circuit*));
 
@@ -95,7 +94,7 @@ void runExecutor_LP_2007(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     for(i = 0; i < securityParam; i ++)
     {
-        outputAsHexString(circuitsArray[i]);
+        printOutputHexString(circuitsArray[i]);
     }
 
     testAES_FromRandom();

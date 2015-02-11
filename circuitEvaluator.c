@@ -3,6 +3,9 @@
 #include <string.h>
 #include <time.h>
 
+const int OUTPUT_TIMINGS = 1;
+
+
 #include "circuits/circuitUtils.h"
 #include "circuits/SH_Circuits.c"
 #include "circuits/LP_Malicious.c"

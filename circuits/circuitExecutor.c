@@ -185,9 +185,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nOT CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("OT Wall time   :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
-	fflush(stdout);
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "OT - Receiver");
 }
 
 
@@ -218,8 +216,8 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nCircuit Evalutation CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Circuit Evalutation Wall time   :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Evalutation");
 }
 
 
@@ -263,11 +261,8 @@ struct gateOrWire **receiveGatesOfCircuitAlt(int numGates, int writeSocket, int 
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
 
-	printf("\nReceived Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Received Circuit Wall time   :     %lf\n", temp);
-
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Circuit");
 
 	return inputCircuit;
 }
@@ -283,7 +278,7 @@ struct gateOrWire **receiveGatesOfCircuit(unsigned char *inputBuffer, int numGat
 	c_0 = clock();
 
 
-	printf("Circuit has %d gates!\n", numGates);
+	printf("Circuit has %d gates!\n\n", numGates);
 
 
 	inputCircuit = deserialiseCircuit(inputBuffer, numGates);
@@ -291,11 +286,7 @@ struct gateOrWire **receiveGatesOfCircuit(unsigned char *inputBuffer, int numGat
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-	double temp = seconds_timespecDiff(&timestamp_0, &timestamp_1);
-
-	printf("\nReceived Circuit CPU time    :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Received Circuit Wall time   :     %lf\n", temp);
-
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Gates of Circuit");
 
 	return inputCircuit;
 }
@@ -326,8 +317,6 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 	bufferOffset += (inputCircuit -> numGates * sizeof(int));
 
 	inputCircuit -> gates = receiveGatesOfCircuit(receivedBuffer + bufferOffset, inputCircuit -> numGates);
-
-	printf("Received circuit.\n");
 
 	return inputCircuit;
 }

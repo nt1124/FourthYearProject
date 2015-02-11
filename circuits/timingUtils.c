@@ -8,7 +8,7 @@
 long int raw_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd)
 {
 	return ((timeEnd->tv_sec * 1000000000) + timeEnd->tv_nsec) -
-           ((timeStart->tv_sec * 1000000000) + timeStart->tv_nsec);
+			((timeStart->tv_sec * 1000000000) + timeStart->tv_nsec);
 }
 
 
@@ -16,11 +16,23 @@ double seconds_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd
 {
 	double conversionFactor = 1000000;//000;
 	long long int toReturn = ((timeEnd->tv_sec * 1000000) + timeEnd->tv_nsec / 1000) -
-           				((timeStart->tv_sec * 1000000) + timeStart->tv_nsec / 1000);
+							 ((timeStart->tv_sec * 1000000) + timeStart->tv_nsec / 1000);
 
-    double output = (double) toReturn / conversionFactor;
+	double output = (double) toReturn / conversionFactor;
 
-    return output;
+	return output;
+}
+
+
+void printTiming(struct timespec *t_0, struct timespec *t_1,
+				clock_t c_0, clock_t c_1, const char *headerStr)
+{
+	if(1 == OUTPUT_TIMINGS)
+	{
+		printf("%s\n", headerStr);
+        printf("CPU time  : %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+        printf("Wall time : %lf\n\n", seconds_timespecDiff(t_0, t_1));
+	}
 }
 
 struct timespec timestamp()

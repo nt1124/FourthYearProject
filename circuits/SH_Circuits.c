@@ -24,9 +24,8 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     c_1 = clock();
     timestamp_1 = timestamp();
-    printf("\nBuilding all Circuits\n");
-    printf("CPU time   :   %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-    printf("Wall time  :   %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
 
 
     readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
@@ -71,7 +70,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     close_client_socket(readSocket);
     close_client_socket(writeSocket);
 
-    outputAsHexString(inputCircuit);
+    printOutputHexString(inputCircuit);
 
     testAES_FromRandom();
 
@@ -93,7 +92,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 
     runCircuitLocal( inputCircuit );
 
-    outputAsHexString(inputCircuit);
+    printOutputHexString(inputCircuit);
     testAES_FromRandom();
 
     freeCircuitStruct(inputCircuit);
@@ -109,7 +108,7 @@ void testRunZeroedInput(char *circuitFilepath)
     zeroAllInputs(inputCircuit -> gates, inputCircuit -> numGates);
 
     runCircuitLocal(inputCircuit);
-    outputAsHexString(inputCircuit);
+    printOutputHexString(inputCircuit);
 
     freeCircuitStruct(inputCircuit);
     testAES_Zeroed();
