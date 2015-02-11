@@ -106,7 +106,7 @@ void runCircuitBuilder( struct Circuit *inputCircuit, int writeSocket, int readS
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "OT - Sender");
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "OT - Sender");
 }
 
 
@@ -167,7 +167,7 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
 
 	free(bufferToSend);
 	free(circuitBuffer);

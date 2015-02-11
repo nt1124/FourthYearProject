@@ -1,5 +1,5 @@
 #include "../cryptoUtil.h"
-#include "../../timingUtils.c"
+#include "../../circuits/timingUtils.c"
 
 int main(int argc, char *argv[])
 {

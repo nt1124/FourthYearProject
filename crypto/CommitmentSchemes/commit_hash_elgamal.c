@@ -133,7 +133,6 @@ unsigned char *decommit_hash_elgamal_R(struct commit_batch_params *params, struc
 	*outputLength = xBytesLen;
 
 	return *xBytes;
-	//return convertMPZToBytes(k -> x, outputLength);
 }
 
 

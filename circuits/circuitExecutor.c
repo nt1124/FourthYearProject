@@ -68,19 +68,19 @@ void readInputLinesExec(char *line, struct Circuit *inputCircuit, int inputLineI
 
 void readLocalExec(char *filepath, struct Circuit *inputCircuit)
 {
-    FILE *file = fopen( filepath, "r" );
-    int i = 0;
+	FILE *file = fopen( filepath, "r" );
+	int i = 0;
 
-    if ( file != NULL )
-    {
-        char line [ 512 ];
-        while ( fgets ( line, sizeof line, file ) != NULL )
-        {
-            readInputLinesExec(line, inputCircuit, i);
-            i ++;
-        }
-        fclose ( file );
-    }
+	if ( file != NULL )
+	{
+		char line [ 512 ];
+		while ( fgets ( line, sizeof line, file ) != NULL )
+		{
+			readInputLinesExec(line, inputCircuit, i);
+			i ++;
+		}
+		fclose ( file );
+	}
 }
 
 
@@ -217,7 +217,7 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 	timestamp_1 = timestamp();
 
 
-    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Evalutation");
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Evalutation");
 }
 
 
@@ -286,7 +286,7 @@ struct gateOrWire **receiveGatesOfCircuit(unsigned char *inputBuffer, int numGat
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-    printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Gates of Circuit");
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Gates of Circuit");
 
 	return inputCircuit;
 }

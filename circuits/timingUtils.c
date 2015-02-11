@@ -5,6 +5,8 @@
 #include <stdint.h>
 
 
+const int OUTPUT_TIMINGS = 0;
+
 long int raw_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd)
 {
 	return ((timeEnd->tv_sec * 1000000000) + timeEnd->tv_nsec) -
