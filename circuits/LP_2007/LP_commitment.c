@@ -1,224 +1,92 @@
-
-
-/*	+++------------(-----------------------)------------+++
-	+++------------(-----------------------)------------+++
-	+++------------( W_Boxes house keeping )------------+++
-	+++-------------------------------------------------+++
-	+++-------------------------------------------------+++	*/
-
-struct commit_W_Boxes *init_W_Boxes(int length_W)
+struct commit_pair_Keys *LP_2007_commit_oneP2_C(struct commit_batch_params *params, gmp_randstate_t state,
+												struct Circuit **circuitsArray, int circuitIndex, int wireIndex,
+												unsigned char *bufferToSend, int *bufferOffset)
 {
-	int i;
-	struct commit_W_Boxes *toReturn = (struct commit_W_Boxes*) calloc(1, sizeof(struct commit_W_Boxes));
+	struct commit_pair_Keys *keysToReturn = (struct commit_pair_Keys*) calloc(1, sizeof(struct commit_pair_Keys));
+	struct wire *tempWire = circuitsArray[circuitIndex] -> gates[wireIndex] -> outputWire;
+	int tempOffset = *bufferOffset;
 
+	// They only need the key, not the permutation as they have the permutation.
+	keysToReturn -> Key_0 = commit_hash_elgamal_C(params, tempWire -> outputGarbleKeys -> key0, 16, bufferToSend, &tempOffset, state);
+	keysToReturn -> Key_1 = commit_hash_elgamal_C(params, tempWire -> outputGarbleKeys -> key1, 16, bufferToSend, &tempOffset, state);
 
-	toReturn -> length = length_W;
+	*bufferOffset = tempOffset;
 
-	toReturn -> b_Box = init_commit_box();
-	toReturn -> k_Boxes = (struct elgamal_commit_box**) calloc(length_W, sizeof(struct elgamal_commit_box*));
-
-	toReturn -> b_dot_Box = init_commit_box();
-	toReturn -> k_dot_Boxes = (struct elgamal_commit_box**) calloc(length_W, sizeof(struct elgamal_commit_box*));
-
-	for(i = 0; i < length_W; i ++)
-	{
-		toReturn -> k_Boxes[i] = init_commit_box();
-		toReturn -> k_dot_Boxes[i] = init_commit_box();
-	}
-
-	return toReturn;
+	return keysToReturn;
 }
 
-void free_W_Boxes(struct commit_W_Boxes *toFree)
+struct commit_pair_Boxes *LP_2007_commit_oneP2_R(struct commit_batch_params *params,
+												unsigned char *bufferReceived, int *bufferOffset)
 {
-	int i;
+	struct commit_pair_Boxes *boxesToReturn = (struct commit_pair_Boxes*) calloc(1, sizeof(struct commit_pair_Boxes));
+	int tempOffset = *bufferOffset;
 
-	for(i = 0; i < toFree -> length; i ++)
-	{
-		free(toFree -> k_Boxes[i]);
-		free(toFree -> k_dot_Boxes[i] );
-	}
+	// Store them boxes, then return them.
+	boxesToReturn -> Box_0 = commit_hash_elgamal_R(params, bufferReceived, &tempOffset);
+	boxesToReturn -> Box_1 = commit_hash_elgamal_R(params, bufferReceived, &tempOffset);
 
-	free(toFree -> b_Box);
-	free(toFree -> b_dot_Box);
-	free(toFree -> k_Boxes);
-	free(toFree -> k_dot_Boxes);
+	*bufferOffset = tempOffset;
 
-	free(toFree);
-}
-
-struct commit_Circuit_Boxes *init_Circuit_Boxes(int length_Circuit, int length_W)
-{
-	int i;
-	struct commit_Circuit_Boxes *toReturn = (struct commit_Circuit_Boxes*) calloc(1, sizeof(struct commit_Circuit_Boxes));
-
-
-	toReturn -> length = length_Circuit;
-	toReturn -> rows = (struct commit_W_Boxes**) calloc(length_Circuit, sizeof(struct commit_W_Boxes*));
-
-	for(i = 0; i < length_Circuit; i ++)
-	{
-		toReturn -> rows[i] = init_W_Boxes(length_W);
-	}
-
-	return toReturn;
-}
-
-void free_Circuit_Boxes(struct commit_Circuit_Boxes *toFree)
-{
-	int i;
-
-	for(i = 0; i < toFree -> length; i ++)
-	{
-		free_W_Boxes(toFree -> rows[i]);
-	}
-
-	free(toFree -> rows);
-
-	free(toFree);
-}
-
-struct commit_Wire_Boxes *init_Wire_Boxes(int length_Wire, int length_Circuit, int length_W)
-{
-	int i;
-	struct commit_Wire_Boxes *toReturn = (struct commit_Wire_Boxes*) calloc(1, sizeof(struct commit_Wire_Boxes));
-
-
-	toReturn -> length = length_Wire;
-	toReturn -> columns = (struct commit_Circuit_Boxes**) calloc(length_Wire, sizeof(struct commit_Circuit_Boxes*));
-
-	for(i = 0; i < length_Wire; i ++)
-	{
-		toReturn -> columns[i] = init_Circuit_Boxes(length_Circuit, length_W);
-	}
-
-	return toReturn;
-}
-
-void free_Wire_Box(struct commit_Wire_Boxes *toFree)
-{
-	int i;
-
-	for(i = 0; i < toFree -> length; i ++)
-	{
-		free_Circuit_Boxes(toFree -> columns[i]);
-	}
-
-	free(toFree -> columns);
-
-	free(toFree);
+	return boxesToReturn;
 }
 
 
-/*	+++------------(----------------------)------------+++
-	+++------------(----------------------)------------+++
-	+++------------( W_Keys house keeping )------------+++
-	+++------------------------------------------------+++
-	+++------------------------------------------------+++	*/
 
-
-struct commit_W_Keys *init_W_Keys(int length_W)
+void LP_2007_decommit_half_oneP2_C(struct commit_batch_params *params, unsigned char bitToDecommit,
+								struct commit_pair_Keys *relevantKey,
+								unsigned char *bufferToSend, int *bufferOffset)
 {
-	int i;
-	struct commit_W_Keys *toReturn = (struct commit_W_Keys*) calloc(1, sizeof(struct commit_W_Keys));
+	int tempOffset = *bufferOffset;
 
-
-	toReturn -> length = length_W;
-
-	toReturn -> b_Key = init_commit_key();
-	toReturn -> k_Keys = (struct elgamal_commit_key**) calloc(length_W, sizeof(struct elgamal_commit_key*));
-
-	toReturn -> b_dot_Key = init_commit_key();
-	toReturn -> k_dot_Keys = (struct elgamal_commit_key**) calloc(length_W, sizeof(struct elgamal_commit_key*));
-
-	for(i = 0; i < length_W; i ++)
+	if(0x00 == bitToDecommit)
 	{
-		toReturn -> k_Keys[i] = init_commit_key();
-		toReturn -> k_dot_Keys[i] = init_commit_key();
+		decommit_hash_elgamal_C(params, relevantKey -> Key_0, bufferToSend, &tempOffset);
+	}
+	else
+	{
+		decommit_hash_elgamal_C(params, relevantKey -> Key_1, bufferToSend, &tempOffset);
 	}
 
-	return toReturn;
+	*bufferOffset = tempOffset;
 }
 
-void free_W_Key(struct commit_W_Keys *toFree)
+unsigned char *LP_2007_decommit_half_oneP2_R(struct commit_batch_params *params,
+										struct commit_pair_Boxes *boxToOpen, unsigned char bitToDecommit,
+										unsigned char *bufferReceived, int *bufferOffset,
+										int *outputLength)
 {
-	int i;
+	unsigned char *output;
+	int tempOffset = *bufferOffset;
+	int tempLength;
 
-	for(i = 0; i < toFree -> length; i ++)
+	// Store them boxes, then return them.
+	if(0x00 == bitToDecommit)
 	{
-		free(toFree -> k_Keys[i]);
-		free(toFree -> k_dot_Keys[i] );
+		output = decommit_hash_elgamal_R(params, boxToOpen -> Box_0, bufferReceived, &tempOffset, &tempLength);
+	}
+	else
+	{
+		output = decommit_hash_elgamal_R(params, boxToOpen -> Box_1, bufferReceived, &tempOffset, &tempLength);
 	}
 
-	free(toFree -> b_Key);
-	free(toFree -> b_dot_Key);
-	free(toFree -> k_Keys);
-	free(toFree -> k_dot_Keys);
+	*bufferOffset = tempOffset;
+	*outputLength = tempLength;
 
-	free(toFree);
-}
+	/*
+	*outputLength = 2 * sizeof(int) + outputLen_0 + outputLen_1;
+	finalOutput = (unsigned char*) calloc( *outputLength, sizeof(unsigned char));
 
-struct commit_Circuit_Keys *init_Circuit_Keys(int length_Circuit, int length_W)
-{
-	int i;
-	struct commit_Circuit_Keys *toReturn = (struct commit_Circuit_Keys*) calloc(1, sizeof(struct commit_Circuit_Keys));
+	memcpy(finalOutput, &outputLen_0, sizeof(int));
+	tempOffset = sizeof(int);
+	memcpy(finalOutput + tempOffset, output_0, outputLen_0);
+	tempOffset += outputLen_0;
 
+	memcpy(finalOutput + tempOffset, &outputLen_1, sizeof(int));
+	tempOffset += sizeof(int);
+	memcpy(finalOutput + tempOffset, output_1, outputLen_1);
+	*/
 
-	toReturn -> length = length_Circuit;
-	toReturn -> rows = (struct commit_W_Keys**) calloc(length_Circuit, sizeof(struct commit_W_Keys*));
-
-	for(i = 0; i < length_Circuit; i ++)
-	{
-		toReturn -> rows[i] = init_W_Keys(length_W);
-	}
-
-	return toReturn;
-}
-
-void free_Circuit_Keys(struct commit_Circuit_Keys *toFree)
-{
-	int i;
-
-	for(i = 0; i < toFree -> length; i ++)
-	{
-		free_W_Key(toFree -> rows[i]);
-	}
-
-	free(toFree -> rows);
-
-	free(toFree);
-}
-
-
-struct commit_Wire_Keys *init_Wire_Keys(int length_Wire, int length_Circuit, int length_W)
-{
-	int i;
-	struct commit_Wire_Keys *toReturn = (struct commit_Wire_Keys*) calloc(1, sizeof(struct commit_Wire_Keys));
-
-
-	toReturn -> length = length_Wire;
-	toReturn -> columns = (struct commit_Circuit_Keys**) calloc(length_Wire, sizeof(struct commit_Circuit_Keys*));
-
-	for(i = 0; i < length_Wire; i ++)
-	{
-		toReturn -> columns[i] = init_Circuit_Keys(length_Circuit, length_W);
-	}
-
-	return toReturn;
-}
-
-void free_Wire_Box(struct commit_Wire_Keys *toFree)
-{
-	int i;
-
-	for(i = 0; i < toFree -> length; i ++)
-	{
-		free_Circuit_Keys(toFree -> columns[i]);
-	}
-
-	free(toFree -> columns);
-
-	free(toFree);
+	return output;
 }
 
 
@@ -227,15 +95,134 @@ void free_Wire_Box(struct commit_Wire_Keys *toFree)
 
 
 
-
-struct commit_W_Keys *LP_2007_Circuit_commit_C(struct Circuit **circuitsArray, int securityParam, int wireID)
+struct commit_pair_Keys **LP_2007_commit_allP2_C(struct commit_batch_params *params, gmp_randstate_t state,
+												struct Circuit **circuitsArray, int secParam_Encoding, int secParam_Circuits,
+												unsigned char *bufferToSend, int *bufferOffset)
 {
-	struct commit_W_Keys *toReturn = (struct commit_W_Keys*) calloc(1, sizeof(struct commit_W_Keys));
-	unsigned char b = getPermutation();
-	int i, j;
+	struct commit_pair_Keys **output;
+	int circuitIndex, wireIndex;
+	int numInputsP2, numCommits, numInputsBuilder;
+	int tempOffset = *bufferOffset, unrolledIndex = 0;
 
-	for(i = 0; i < securityParam; i ++)
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsP2 = secParam_Encoding * circuitsArray[0] -> numInputsExecutor;
+	numCommits = numInputsP2 * secParam_Circuits;
+
+
+	output = (struct commit_pair_Keys**) calloc(numCommits, sizeof(struct commit_pair_Keys*));
+
+	for(circuitIndex = 0; circuitIndex < secParam_Circuits; circuitIndex ++)
 	{
+		for(wireIndex = numInputsBuilder; wireIndex < numInputsBuilder + numInputsP2; wireIndex ++)
+		{
 
+			output[unrolledIndex] = LP_2007_commit_oneP2_C(params, state, circuitsArray, circuitIndex, wireIndex,
+															bufferToSend, &tempOffset);
+			unrolledIndex ++;
+		}
 	}
+
+	*bufferOffset = tempOffset;
+
+	return output;
+}
+
+struct commit_pair_Boxes **LP_2007_commit_allP2_R(struct commit_batch_params *params, int numInputsExecutor,
+												int secParam_Encoding, int secParam_Circuits,
+												unsigned char *bufferReceived, int *bufferOffset)
+{
+	struct commit_pair_Boxes **output;
+	int circuitIndex, wireIndex;
+	int numCommits, numInputsP2, unrolledIndex = 0;
+	int tempOffset = *bufferOffset;
+
+	numInputsP2 = secParam_Encoding * numInputsExecutor;
+	numCommits = numInputsP2 * secParam_Circuits;
+
+
+	output = (struct commit_pair_Boxes**) calloc(numCommits, sizeof(struct commit_pair_Boxes*));
+
+	for(circuitIndex = 0; circuitIndex < secParam_Circuits; circuitIndex ++)
+	{
+		for(wireIndex = 0; wireIndex < numInputsP2; wireIndex ++)
+		{
+
+			output[unrolledIndex] = LP_2007_commit_oneP2_R(params, bufferReceived, &tempOffset);
+			unrolledIndex ++;
+		}
+	}
+
+	*bufferOffset = tempOffset;
+
+	return output;
+}
+
+
+void LP_2007_decommit_allP2_C(struct commit_batch_params *params, struct commit_pair_Keys **allKeys,
+							struct Circuit **circuitsArray,
+							int secParam_Encoding, int secParam_Circuits,
+							unsigned char *bufferToSend, int *bufferOffset)
+{
+	int circuitIndex, wireIndex;
+	int numInputsP2, numCommits, numInputsBuilder;
+	int tempOffset = *bufferOffset, unrolledIndex = 0;
+
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsP2 = secParam_Encoding * circuitsArray[0] -> numInputsExecutor;
+	numCommits = numInputsP2 * secParam_Circuits;
+
+	printf(">>>>>>>\n");
+	fflush(stdout);
+
+	for(circuitIndex = 0; circuitIndex < secParam_Circuits; circuitIndex ++)
+	{
+		printf("+ %d\n", circuitIndex);
+		fflush(stdout);
+		for(wireIndex = 0; wireIndex < numInputsP2; wireIndex ++)
+		{
+			printf("a %d\n", wireIndex);
+			fflush(stdout);
+			LP_2007_decommit_half_oneP2_C(params, 0x00, allKeys[unrolledIndex], bufferToSend, &tempOffset);
+			
+			printf("b %d\n", wireIndex);
+			fflush(stdout);
+			LP_2007_decommit_half_oneP2_C(params, 0x01, allKeys[unrolledIndex], bufferToSend, &tempOffset);
+			unrolledIndex ++;
+		}
+	}
+
+	*bufferOffset = tempOffset;
+}
+
+
+
+unsigned char **LP_2007_decommit_allP2_R(struct commit_batch_params *params, struct commit_pair_Boxes **allBoxes,
+												int numInputsExecutor, int secParam_Encoding, int secParam_Circuits,
+												unsigned char *bufferReceived, int *bufferOffset)
+{
+	unsigned char **output;
+	int circuitIndex, wireIndex;
+	int numCommits, numInputsP2, unrolledIndex = 0;
+	int tempOffset = *bufferOffset;
+	int tempLength = 0;
+
+	numInputsP2 = secParam_Encoding * numInputsExecutor;
+	numCommits = numInputsP2 * secParam_Circuits;
+
+
+	output = (unsigned char**) calloc(2 * numCommits, sizeof(unsigned char*));
+
+	for(circuitIndex = 0; circuitIndex < secParam_Circuits; circuitIndex ++)
+	{
+		for(wireIndex = 0; wireIndex < numInputsP2; wireIndex ++)
+		{
+			output[unrolledIndex] = LP_2007_decommit_half_oneP2_R(params, allBoxes[unrolledIndex], 0x00, bufferReceived, &tempOffset, &tempLength);
+			output[unrolledIndex + 1] = LP_2007_decommit_half_oneP2_R(params, allBoxes[unrolledIndex], 0x00, bufferReceived, &tempOffset, &tempLength);
+			unrolledIndex ++;
+		}
+	}
+
+	*bufferOffset = tempOffset;
+
+	return output;
 }

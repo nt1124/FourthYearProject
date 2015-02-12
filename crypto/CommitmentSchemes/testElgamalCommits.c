@@ -3,8 +3,8 @@
 
 int main(int argc, char *argv[])
 {
-	const int numberOfTests = 10000;
-    srand( time(NULL) );
+	const int numberOfTests = 200;
+	srand( time(NULL) );
 	clock_t c_0, c_1;
 
 	gmp_randstate_t *state = seedRandGen();
