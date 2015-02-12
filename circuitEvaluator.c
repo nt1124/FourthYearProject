@@ -6,7 +6,7 @@
 #include "circuits/circuitUtils.h"
 #include "circuits/Naive_SH/SH_Circuits.c"
 // #include "circuits/LP_2007/LP_Malicious.c"
-#include "circuits/LP_2007/LP_utils.h"
+#include "circuits/LP_2014/LP_malicious_CnC_OT.c"
 
 
 
@@ -38,13 +38,13 @@ void runSH(char *circuitFilepath, char *ipAddress, char *portNumStr, char *input
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		runExecutor_LP_2007(inputFilename, ipAddress, portNumStr);
+		runExecutor_LP_2014_CnC_OT(inputFilename, ipAddress, portNumStr);
 	}
 	else
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
-		runBuilder_LP_2007(circuitFilepath, inputFilename, portNumStr);
+		runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
 	}
 
 	c_1 = clock();

@@ -1,6 +1,0 @@
-Exception: STATUS_ACCESS_VIOLATION at eip=6F2F413F
-eax=6F2F4130 ebx=0028AC5C ecx=00000001 edx=00000100 esi=80048540 edi=61007200
-ebp=00000100 esp=0028AAD0 program=C:\Users\Nick\Desktop\Crypto\FourthYearProject\crypto\OT\a.exe, pid 5824, thread main
-cs=0023 ds=002B es=002B fs=0053 gs=002B ss=002B
-Stack trace:
-Frame     Function  Args

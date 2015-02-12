@@ -105,8 +105,6 @@ void testAES_Zeroed()
 
 
 
-
-
 unsigned char *getDataAsString(const char *filepath)
 {
 	unsigned char *output = (unsigned char*) calloc(16, sizeof(unsigned char));

@@ -66,7 +66,7 @@ typedef struct otKeyPair
 
 
 
-
+#include "otPVW_DDH_utils.c"
 #include "otPVW_DDH.c"
 
 
