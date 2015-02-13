@@ -31,6 +31,7 @@ struct DDH_PK *setPrimitivePK_CnC_OT(struct params_CnC *params, struct PVM_OT_PK
 	mpz_set(pk -> g_x, otPK -> g);
 	mpz_set(pk -> h_x, otPK -> h);
 
+
 	if(0 == sigmaBit)
 	{
 		mpz_set(pk -> g, params -> group -> g);
@@ -42,6 +43,7 @@ struct DDH_PK *setPrimitivePK_CnC_OT(struct params_CnC *params, struct PVM_OT_PK
 		mpz_set(pk -> h, params -> crs -> h_1_List[j]);
 	}
 
+
 	return pk;
 }
 
@@ -52,7 +54,13 @@ struct u_v_Pair *CnC_OT_Enc(mpz_t M,
 							struct PVM_OT_PK *otPK, unsigned char sigmaBit, int j)
 {
 	struct u_v_Pair *CT = init_U_V();
+
 	struct DDH_PK *pk = setPrimitivePK_CnC_OT(params, otPK, sigmaBit, j);
+
+	if(0x01 == sigmaBit)
+	{
+		gmp_printf("%d  ->  %Zd\n\n", j, M);
+	}
 
 	CT = encDDH(pk, params -> group, M, state);
 
@@ -68,33 +76,24 @@ mpz_t *CnC_OT_Dec(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk)
 }
 
 
-mpz_t *CnC_OT_Dec_Alt(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk)
+mpz_t *CnC_OT_Dec_Alt(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk, unsigned char sigmaBit)
 {
 	PVM_OT_SK *sk_z = (PVM_OT_SK *) calloc(1, sizeof(PVM_OT_SK));
+
 	mpz_init(*sk_z);
 
-
-    mpz_invert(*sk_z, params -> y, params -> group -> p);
-
-	mpz_mul(*sk_z, *sk, *sk_z);
-
-	mpz_t *M_Prime = decDDH(sk_z, params -> group, CT);
+	// mpz_t *M_Prime = decDDH(sk_z, params -> group, CT);
+	mpz_t *M_Prime = decDDH_Alt(sk_z, params -> y, params -> group, CT, sigmaBit);
 	
 	return M_Prime;
 }
 
 
-struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam, struct DDH_Group *group,
-							int comp_SecParam, gmp_randstate_t state, 
-							unsigned char *bufferToSend, int *bufferLength)
+struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam,	int comp_SecParam, gmp_randstate_t state)
 {
-	struct params_CnC *params = initParams_CnC(stat_SecParam, state);
+	struct params_CnC *params = initParams_CnC(stat_SecParam, comp_SecParam, state);
+	int i = 0, groupBytesLen = 0, CRS_BytesLen = 0, tempInt = 0;
 	mpz_t alpha;
-
-	// This is ~eight times more than we need, but easier to deal code.
-	// Deal with it properly later.
-	unsigned char *groupBytes, *CRS_Bytes, tempBytes;
-	int i = 0, groupBytesLen, CRS_BytesLen, tempInt;
 
 	mpz_init(alpha);
 
@@ -116,25 +115,21 @@ struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam, struct DDH_Group *gr
 
 		mpz_powm(params -> crs -> h_0_List[i], params -> group -> g, alpha, params -> group -> p);
 
+		/*
 		if( 0x00 == params -> crs -> J_set[i] )
 		{
 			mpz_add_ui(alpha, alpha, 1);
 		}
+		*/
 
 		mpz_powm(params -> crs -> h_1_List[i], params -> crs -> g_1, alpha, params -> group -> p);
 	}
-
-
-	groupBytes = serialiseDDH_Group(params -> group, &groupBytesLen);
-	CRS_Bytes = serialise_CRS(params, &CRS_BytesLen);
-
-	*bufferLength = groupBytesLen + CRS_BytesLen;
-	bufferToSend = (unsigned char*)  calloc(*bufferLength, sizeof(unsigned char));
 
 	return params;
 }
 
 
+// Really this is just deserialising a params_CnC from bufferReceived
 struct params_CnC *setup_CnC_OT_Sender(unsigned char *bufferReceived)
 {
 	struct params_CnC *params = (struct params_CnC*) calloc(1, sizeof(struct params_CnC));
@@ -150,31 +145,21 @@ struct params_CnC *setup_CnC_OT_Sender(unsigned char *bufferReceived)
 // Perform the first half of the receiver side of the OT, serialise the results into a 
 // buffer for sending to the Sender.
 struct otKeyPair *CnC_OT_Transfer_One_Receiver(unsigned char inputBit, int j,
-								struct params_CnC *params, gmp_randstate_t *state,
-								unsigned char *outputBuffer, int *bufferOffset)
+								struct params_CnC *params, gmp_randstate_t *state)
 {
 	struct otKeyPair *keyPair = keyGen_CnC_OT(params, inputBit, *state, j);
-
-
-	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
-	unsigned char *curBytes;
-	int curLength;
-
-
-	serialiseMPZ(keyPair -> pk -> g, outputBuffer, bufferOffset);
-
-	serialiseMPZ(keyPair -> pk -> h, outputBuffer, bufferOffset);
 
 	return keyPair;
 }
 
 
+
 // Perform the second half of the receiver side of the OT, deserialising the buffer returned by
 // the sender and using this to extract the requested data.
-unsigned char *CnC_OT_Output_Uni_One_Receiver(unsigned char *inputBuffer, int *bufferOffset,
+unsigned char *CnC_OT_Output_One_Receiver(unsigned char *inputBuffer, int *bufferOffset,
 											struct otKeyPair *keyPair, struct params_CnC *params,
 											unsigned char inputBit, int j,
-											int *outputLength, unsigned char *output_j, int *output_jLength)
+											unsigned char *output_j)
 {
 	struct u_v_Pair *c_0, *c_1;
 	mpz_t *outputMPZ, *output_j_MPZ, *tempMPZ;
@@ -191,20 +176,25 @@ unsigned char *CnC_OT_Output_Uni_One_Receiver(unsigned char *inputBuffer, int *b
 		outputMPZ = CnC_OT_Dec(c_0, params, keyPair -> sk);
 
 		if(0x01 == params -> crs -> J_set[j])
-			output_j_MPZ = CnC_OT_Dec_Alt(c_1, params, keyPair -> sk);
+			output_j_MPZ = CnC_OT_Dec_Alt(c_1, params, keyPair -> sk, 0x00);
 	}
 	else
 	{
 		outputMPZ = CnC_OT_Dec(c_1, params, keyPair -> sk);
 
 		if(0x01 == params -> crs -> J_set[j])
-			output_j_MPZ = CnC_OT_Dec_Alt(c_0, params, keyPair -> sk);
+			output_j_MPZ = CnC_OT_Dec_Alt(c_0, params, keyPair -> sk, 0x01);
 	}
 
-	outputBytes = convertMPZToBytes(*outputMPZ, outputLength);
-	if(0x01 == params -> crs -> J_set[j])
-		output_j = convertMPZToBytes(*output_j_MPZ, output_jLength);
+	outputBytes = convertMPZToBytes(*outputMPZ, &curLength);
 
+	output_j = NULL;
+
+	if(0x01 == params -> crs -> J_set[j])
+	{
+		gmp_printf("%d  ->  %Zd\n\n", j, *output_j_MPZ);
+		// output_j = convertMPZToBytes(*output_j_MPZ, &curLength);
+	}
 
 	return outputBytes;
 }
@@ -212,40 +202,147 @@ unsigned char *CnC_OT_Output_Uni_One_Receiver(unsigned char *inputBuffer, int *b
 
 void CnC_OT_Transfer_One_Sender(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
 								struct params_CnC *params, gmp_randstate_t *state,
-								unsigned char *inputBuffer, int *inputOffset,
-								unsigned char *outputBuffer, int *outputOffset,
+								struct otKeyPair *keyPair,
+								struct u_v_Pair **c_i_Array, int u_v_index,
 								int j)
 {
-	struct otKeyPair *keyPair = initKeyPair();
-	struct u_v_Pair *c_0, *c_1;
-
 	mpz_t *outputMPZ, *tempMPZ;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
-	unsigned char *curBytes;
-	int curLength;
 
 	mpz_init(*input0);
 	mpz_init(*input1);
 
 
-	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
-	mpz_set(keyPair -> pk -> g, *tempMPZ);
-	
-	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
-	mpz_set(keyPair -> pk -> h, *tempMPZ);
-
-
 	convertBytesToMPZ(input0, input0Bytes, inputLengths);
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
+	c_i_Array[u_v_index + 0] = CnC_OT_Enc(*input0, params, *state, keyPair -> pk, 0x00, j);
+	c_i_Array[u_v_index + 1] = CnC_OT_Enc(*input1, params, *state, keyPair -> pk, 0x01, j);
 
-	c_0 = CnC_OT_Enc(*input0, params, *state, keyPair -> pk, 0x00, j);
-	c_1 = CnC_OT_Enc(*input1, params, *state, keyPair -> pk, 0x01, j);
 
-
-	serialise_U_V_pair(c_0, outputBuffer, outputOffset);
-	serialise_U_V_pair(c_1, outputBuffer, outputOffset);
+	// serialise_U_V_pair(c_0, outputBuffer, outputOffset);
+	// serialise_U_V_pair(c_1, outputBuffer, outputOffset);
 }
 
 
+
+
+void printTrueTestInputs(int numTests, unsigned char *inputBytes[][2])
+{
+	int i, j;
+
+	for(i = 0; i < numTests; i ++)
+	{
+		if(NULL != inputBytes[i][0])
+		{
+			printf("(%d, 0) >> ", i);
+			for(j = 0; j < 16; j ++)
+			{
+				printf("%02X", inputBytes[i][0][j]);
+			}
+			printf("\n");
+		}
+
+		if(NULL != inputBytes[i][1])
+		{
+			printf("(%d, 1) >> ", i);
+			for(j = 0; j < 16; j ++)
+			{
+				printf("%02X", inputBytes[i][1][j]);
+			}
+			printf("\n");
+		}
+	}
+}
+
+
+// Testing function for single OT. No gurantee this still works.
+void test_local_CnC_OT()
+{
+	struct params_CnC *params_R, *params_S;
+	int i, j, numTests = 6, comp_SecParam = 1024;
+
+	struct otKeyPair **keyPairs_R = (struct otKeyPair **) calloc(numTests, sizeof(struct otKeyPair*));
+	struct otKeyPair **keyPairs_S;
+	struct u_v_Pair **c_i_Array_S = (struct u_v_Pair **) calloc(2*numTests, sizeof(struct u_v_Pair*));
+
+	unsigned char *inputBytes[numTests][2];
+	unsigned char *outputBytes[numTests][2];
+	unsigned char *tempChars;
+
+	unsigned char *commBuffer;
+	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
+
+	gmp_randstate_t *state = seedRandGen();
+
+	for(i = 0; i < numTests; i ++)
+	{
+		inputBytes[i][0] = generateRandBytes(16, 16);
+		inputBytes[i][1] = generateRandBytes(16, 16);
+	}
+
+
+	params_R = setup_CnC_OT_Receiver(numTests, comp_SecParam, *state);
+	commBuffer = serialiseParams_CnC(params_R, &bufferOffset);
+
+	params_S = setup_CnC_OT_Sender(commBuffer);
+	free(commBuffer);
+
+	for(i = 0; i < numTests; i ++)
+	{
+		keyPairs_R[i] = CnC_OT_Transfer_One_Receiver(0x01, i, params_R, state);
+	}
+
+	bufferOffset = 0;
+	commBuffer = serialise_PKs_otKeyPair_Array(keyPairs_R, numTests, &bufferOffset);
+	keyPairs_S = deserialise_PKs_otKeyPair_Array(commBuffer, numTests);
+	free(commBuffer);
+
+
+	for(i = 0; i < numTests; i ++)
+	{
+
+		CnC_OT_Transfer_One_Sender(inputBytes[i][0], inputBytes[i][1], 16, params_S, state,
+									keyPairs_S[i], c_i_Array_S, u_v_index, i);
+		u_v_index += 2;
+	}
+
+	bufferOffset = 0;
+	commBuffer = serialise_U_V_Pair_Array(c_i_Array_S, numTests * 2, &bufferOffset);
+
+	mpz_t temp1, temp2, temp3;
+	mpz_init(temp1);
+	mpz_init(temp2);
+	mpz_init(temp3);
+
+
+	bufferOffset = 0;
+	for(i = 0; i < numTests; i ++)
+	{
+		/*
+		mpz_powm(temp1, params_R -> crs -> h_0_List[i], params_R -> y, params_R -> group -> p);
+		mpz_invert(temp2, temp1, params_R -> group -> p);
+		mpz_mul(temp1, temp2, params_R -> crs -> h_1_List[i]);
+		mpz_mod(temp2, temp1, params_R -> group -> p);
+		mpz_invert(temp3, params_R -> y, params_R -> group -> p);
+		mpz_powm(temp2, params_R -> crs -> h_0_List[i], temp3, params_R -> group -> p);
+
+		mpz_mul(temp1, temp2, params_R -> crs -> h_1_List[i]);
+		mpz_mod(temp2, temp1, params_R -> group -> p);
+
+		gmp_printf("%Zd\n\n%Zd\n\n", temp2, params_R -> crs -> h_0_List[i]);
+		*/
+
+		if(0x01 == params_R -> crs -> J_set[i])
+		{
+
+			outputBytes[i][0] = CnC_OT_Output_One_Receiver(commBuffer, &bufferOffset, keyPairs_R[i], params_R, 0x01, i, tempChars);
+			outputBytes[i][1] = tempChars;
+		}
+	}	
+
+
+	printTrueTestInputs(numTests, inputBytes);
+	printTrueTestInputs(numTests, outputBytes);
+}

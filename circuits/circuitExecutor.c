@@ -106,8 +106,6 @@ void executor_side_OT(int writeSocket, int readSocket,
 
 
 	otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
-	tempSize *= 2 * (136 + 4);
-	toSendBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
 
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
@@ -118,10 +116,11 @@ void executor_side_OT(int writeSocket, int readSocket,
 			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-			otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state, toSendBuffer, &bufferOffset);
+			otKeyPairs[j++] = bulk_one_receiverOT_UC(value, params, state);
 		}
 	}
 
+	toSendBuffer = serialise_PKs_otKeyPair_Array(otKeyPairs, tempSize, &bufferOffset);
 
 	sendInt(writeSocket, bufferOffset);
 	send(writeSocket, toSendBuffer, bufferOffset);

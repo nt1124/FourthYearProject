@@ -28,7 +28,7 @@ void testRTL_Read(char *circuitFilepath, char *inputFile)
 }
 
 
-void runSH(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
+void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
 {
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
@@ -59,13 +59,11 @@ int main(int argc, char *argv[])
 {
 	srand( time(NULL) );
 
-	char *circuitFilepath = argv[1];
-	int builder = atoi(argv[5]);
 
 	// runLocally(circuitFilepath, argv[2], argv[3]);
-	runSH(circuitFilepath, argv[2], argv[3], argv[4], builder);
+	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testRunZeroedInput(circuitFilepath);
-
+	test_local_CnC_OT();
 
 	return 0;
 }

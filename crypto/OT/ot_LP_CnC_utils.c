@@ -22,12 +22,12 @@ struct CRS_CnC *initCRS_CnC(int stat_SecParam)
 }
 
 // Initialise the dec side of the params
-struct params_CnC *initParams_CnC(int stat_SecParam, gmp_randstate_t state)
+struct params_CnC *initParams_CnC(int stat_SecParam, int comp_SecParam, gmp_randstate_t state)
 {
 	struct params_CnC *params = (struct params_CnC*) calloc(1, sizeof(struct params_CnC));
 
 	params -> crs = initCRS_CnC(stat_SecParam);
-	params -> group = generateGroup(stat_SecParam, state);
+	params -> group = generateGroup(comp_SecParam, state);
 
 	mpz_init(params -> y);
 
@@ -42,14 +42,12 @@ unsigned char *serialise_CRS(struct params_CnC *params, int *bufferOffset)
 	*bufferOffset = sizeof(int);
 
 
-	totalLength = 1 + (mpz_sizeinbase(params -> crs -> g_1, 2) / 8 );
+	totalLength = ( sizeof(mp_limb_t) * mpz_size(params -> crs -> g_1) );
 
 	for(i = 0 ; i < params -> crs -> stat_SecParam; i ++)
 	{
-		tempInt = 1 + (mpz_sizeinbase(params -> crs -> h_0_List[i], 2) / 8 );
-		totalLength += tempInt;
-		tempInt = 1 + (mpz_sizeinbase(params -> crs -> h_1_List[i], 2) / 8);
-		totalLength += tempInt;
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(params -> crs -> h_0_List[i]) );
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(params -> crs -> h_1_List[i]) );
 	}
 
 	tempInt = (2 * params -> crs -> stat_SecParam) + 2;
@@ -117,4 +115,30 @@ unsigned char *generateJ_Set(int stat_SecParam)
 	}
 
 	return J_set;
+}
+
+
+unsigned char *serialiseParams_CnC(struct params_CnC *params, int *outputLength)
+{
+	unsigned char *groupBytes, *CRS_Bytes, *outputBytes;
+	int i = 0, groupBytesLen = 0, CRS_BytesLen = 0, tempInt = 0;
+
+	groupBytes = serialiseDDH_Group(params -> group, &groupBytesLen);
+	CRS_Bytes = serialise_CRS(params, &CRS_BytesLen);
+
+	*outputLength = groupBytesLen + CRS_BytesLen;
+
+	outputBytes = (unsigned char*)  calloc(*outputLength, sizeof(unsigned char));
+
+
+	memcpy(outputBytes + i, groupBytes, groupBytesLen);
+	i += groupBytesLen;
+
+	memcpy(outputBytes + i, CRS_Bytes, CRS_BytesLen);
+	i += CRS_BytesLen;
+
+	free(groupBytes);
+	free(CRS_Bytes);
+
+	return outputBytes;
 }

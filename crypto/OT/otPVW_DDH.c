@@ -257,17 +257,15 @@ void senderOT_UC(int writeSocket, int readSocket,
 
 
 void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
-									struct decParams *params, gmp_randstate_t *state,
-									unsigned char *inputBuffer, int *inputOffset,
-									unsigned char *outputBuffer, int *outputOffset)
+					struct decParams *params, gmp_randstate_t *state,
+					unsigned char *inputBuffer, int *inputOffset,
+					struct u_v_Pair **c_i_Array, int u_v_index)
 {
 	struct otKeyPair *keyPair = initKeyPair();
-	struct u_v_Pair *c_0, *c_1;
 
 	mpz_t *outputMPZ, *tempMPZ;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));
-	unsigned char *curBytes;
 	int curLength;
 
 	mpz_init(*input0);
@@ -285,12 +283,14 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
 
 
-	c_0 = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
-	c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
+	c_i_Array[u_v_index + 0] = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
+	c_i_Array[u_v_index + 1] = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
+	
+	// c_0 = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
+	// c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
 
-
-	serialise_U_V_pair(c_0, outputBuffer, outputOffset);
-	serialise_U_V_pair(c_1, outputBuffer, outputOffset);
+	// serialise_U_V_pair(c_0, outputBuffer, outputOffset);
+	// serialise_U_V_pair(c_1, outputBuffer, outputOffset);
 }
 
 
@@ -364,18 +364,9 @@ unsigned char *receiverOT_UC(int writeSocket, int readSocket,
 // Perform the first half of the receiver side of the OT, serialise the results into a 
 // buffer for sending to the Sender.
 struct otKeyPair *bulk_one_receiverOT_UC(unsigned char inputBit,
-								struct decParams *params, gmp_randstate_t *state,
-								unsigned char *outputBuffer, int *bufferOffset)
+								struct decParams *params, gmp_randstate_t *state)
 {
 	struct otKeyPair *keyPair = keyGen(params -> crs, inputBit, params -> group, *state);
-	struct u_v_Pair *c_0 = init_U_V(), *c_1 = init_U_V();
-	unsigned char *curBytes;
-	int curLength;
-
-
-	serialiseMPZ(keyPair -> pk -> g, outputBuffer, bufferOffset);
-
-	serialiseMPZ(keyPair -> pk -> h, outputBuffer, bufferOffset);
 
 	return keyPair;
 }

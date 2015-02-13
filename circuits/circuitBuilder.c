@@ -46,6 +46,7 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 
 void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, struct Circuit *inputCircuit, gmp_randstate_t *state)
 {
+	struct u_v_Pair **c_i_array;
 	struct wire *tempWire;
 	unsigned char *receivedBuffer, *outputBuffer;
 	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0, i;
@@ -64,8 +65,8 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 		}
 	}
 
-	tempSize = 4 * numInputs * (136 + 4);
-	outputBuffer = (unsigned char *) calloc(tempSize, sizeof(unsigned char));
+	c_i_array = (struct u_v_Pair **) calloc(numInputs * 2, sizeof(struct u_v_Pair*));
+	outputOffset = 0;
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
@@ -75,9 +76,12 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 			tempWire = inputCircuit -> gates[i] -> outputWire;
 
 			bulk_senderOT_UC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state,
-							receivedBuffer, &receivedOffset, outputBuffer, &outputOffset);
+							receivedBuffer, &receivedOffset, c_i_array, outputOffset);
+			outputOffset += 2;
 		}
 	}
+
+	outputBuffer = serialise_U_V_Pair_Array(c_i_array, numInputs * 2, &outputOffset);
 
 	sendInt(writeSocket, outputOffset);
 	send(writeSocket, outputBuffer, outputOffset);

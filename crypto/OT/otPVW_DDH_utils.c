@@ -222,3 +222,97 @@ struct u_v_Pair *deserialise_U_V_pair(unsigned char *inputBuffer, int *bufferOff
 
 	return c;
 }
+
+
+unsigned char *serialise_PKs_otKeyPair_Array(struct otKeyPair **inputs, int numKeys, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 2 * sizeof(int) * numKeys;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < numKeys; i ++)
+	{
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(inputs[i] -> pk -> g) );
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(inputs[i] -> pk -> h) );
+	}
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+
+	for(i = 0; i < numKeys; i ++)
+	{
+		serialiseMPZ(inputs[i] -> pk -> g, outputBuffer, &bufferOffset);
+		serialiseMPZ(inputs[i] -> pk -> h, outputBuffer, &bufferOffset);
+	}
+
+	*outputLength = totalLength;
+
+	return outputBuffer;
+}
+
+
+struct otKeyPair **deserialise_PKs_otKeyPair_Array(unsigned char *inputBuffer, int numKeys)
+{
+	struct otKeyPair **outputKeys = (struct otKeyPair **) calloc(numKeys, sizeof(struct otKeyPair*));
+	mpz_t *tempMPZ;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < numKeys; i ++)
+	{
+		outputKeys[i] = initKeyPair();
+
+		tempMPZ = deserialiseMPZ(inputBuffer, &bufferOffset);
+		mpz_set(outputKeys[i] -> pk -> g, *tempMPZ);
+		free(tempMPZ);
+		
+		tempMPZ = deserialiseMPZ(inputBuffer, &bufferOffset);
+		mpz_set(outputKeys[i] -> pk -> h, *tempMPZ);
+		free(tempMPZ);
+	}
+
+	return outputKeys;
+}
+
+
+
+unsigned char *serialise_U_V_Pair_Array(struct u_v_Pair **inputs, int num_u_v_Pairs, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 2 * sizeof(int) * num_u_v_Pairs;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(inputs[i] -> u) );
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(inputs[i] -> v) );
+	}
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		serialise_U_V_pair(inputs[i], outputBuffer, &bufferOffset);
+	}
+
+	*outputLength = totalLength;
+
+	return outputBuffer;
+}
+
+
+struct u_v_Pair **deserialise_U_V_Pair_Array(unsigned char *inputBuffer, int num_u_v_Pairs)
+{
+	struct u_v_Pair **outputKeys = (struct u_v_Pair **) calloc(num_u_v_Pairs, sizeof(struct u_v_Pair*));
+	mpz_t *tempMPZ;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		outputKeys[i] = deserialise_U_V_pair(inputBuffer, &bufferOffset);
+	}
+
+	return outputKeys;
+}

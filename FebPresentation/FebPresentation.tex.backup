@@ -25,30 +25,35 @@
 		\begin{itemize}
 			\item What is Secure Multiparty Computation?
 			\item What can it be used for?
-			\item What the ``Secure'' means in this context.
+			\item What ``Secure'' means in this context.
 			\item A grounding in Yao Garbled Circuits.
 			\item How much progress I've made so far.
 		\end{itemize}
 
 	\end{frame}
-  
+
+
 	\begin{frame}
 		\frametitle{What is Secure Multiparty Computation}
 		In the problem of Secure Multiparty Computation we have a set of parties, each of whom has a secret input. The parties wish to co-operate to compute a function upon their collective inputs without revealing said inputs.\\
 		
 		% Diagram here to explain the point.
 	\end{frame}
-    
+
+
 	\begin{frame}
 		\frametitle{Applications of Secure Multiparty Computation}
 		\begin{itemize}
 			\item The Millionaires problem.
 			\item Distributed secrets.
 			\item Sugar Beets.
+			\item Database query.
 		\end{itemize}
 		
 		% Briefly go over each of these applications. Explain what they are. Pictures to fill in the white space?
+		For many more potential applications of Secure Multiparty Computation see (Du and Atallah, 2001).
 	\end{frame}
+
 
 	\begin{frame}
 		\frametitle{Desired security properties}
@@ -64,9 +69,10 @@
 
 		% Privacy - Note this is very dependent on the function. For example if the function is simple addition then clearly an adversary can calculate the other parties input as the output minus its own input. But the only information they gain is their intended output.
 		% Correctness - Note this does not mean we can force proper inputs from other parties. Only that the function will act correctly on their input.
-		% Indie. Inputs - 
-		% Fairness - Avoid corrupt parties getting their input 
+		% Indie. Inputs - Think of an auction situation, if I can make my input be the other party's input + 1 things fall apart.
+		% Fairness - Avoid corrupt parties getting their output (e.g. a Signature) unless the Honest party gets what they came here for.
 	\end{frame}
+
 
 	\begin{frame}
 		\frametitle{The Ideal Model}
@@ -75,9 +81,54 @@
 		% Diagram. One big one will do me thinks.
 	\end{frame}
 
+
 	\begin{frame}
 		\frametitle{Security Definitions}
-		We say that an OT protocol is secure if parties participating cannot learn any more by taking part then they would if they had used the Ideal Mode.
+		
+		\begin{itemize}
+
+		\item We measure the security of an SMC protocol in terms of what adversaries it is secure against, we define adversaries in terms of their capabilities.
+
+		\item We say that an SMC protocl is secure against an adversary if the adversary can achieve no more than they would be able to achieve attacking the Ideal Model.
+
+		\item We focus on three adversaries,
+			\begin{itemize}
+			\item Semi-Honest 
+			\item Malicious 
+			\item Covert
+			\end{itemize}
+		\end{itemize}
+		% Acknowledge we're skipping over Static and Active corruption issues.
+
+	\end{frame}
+	\begin{frame}
+		\frametitle{Security Definitions}
+		
+		\begin{itemize}
+
+		\item We measure the security of an SMC protocol in terms of what adversaries it is secure against, we define adversaries in terms of their capabilities.
+
+		\item We say that an SMC protocl is secure against an adversary if the adversary can achieve no more than they would be able to achieve attacking the Ideal Model.
+
+		\item We focus on three adversaries,
+			\begin{itemize}
+				\item Semi-Honest 
+				\item Malicious 
+				\item Covert
+			\end{itemize}
+		\end{itemize}
+		% Acknowledge we're skipping over Static and Active corruption issues.
+
+	\end{frame}
+	
+	\begin{frame}
+		\frametitle{Semi-Honest Adversaries}
+		\begin{itemize}
+			\item Semi-Honest(SH) adversaries are the weakest adversary we shall consider.
+			\item They are sometimes also called ``honest, but curious''.
+			\item SH adversaries are limited to looking at information given to them in the process of the protocol.
+			\item They are \emph{not} allowed to cheat.
+		\end{itemize}
 	\end{frame}
 
 
@@ -94,6 +145,7 @@
 					Inputs : $b \in \{0, 1\}$\\
 					Outputs : $X_b$\\
 				\end{minipage}
+
 				\begin{minipage}{0.45\textwidth}
 					\centering
 					\textbf{Sender}\\
@@ -107,9 +159,11 @@
 		% Diagram really needed for this.
 
 	\end{frame}
-	
+
+
 	\begin{frame}
 		\frametitle{Security levels for OTs}
+		
 	\end{frame}
 
 

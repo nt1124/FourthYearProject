@@ -72,8 +72,8 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 {
 	struct DDH_Group *group = initGroupStruct();
 
-	// getPrimeGMP(group -> p, state, securityParam);
-	getSafePrimeGMP(group -> p, state, securityParam);
+	getPrimeGMP(group -> p, state, securityParam);
+	// getSafePrimeGMP(group -> p, state, securityParam);
 	
 	do
 	{
@@ -139,9 +139,47 @@ mpz_t *decDDH(DDH_SK *sk, struct DDH_Group *group, struct u_v_Pair *C)
 
 	mpz_powm(c1_sk, C -> u, *sk, group -> p);
 
-    mpz_invert(c1_sk_inv, c1_sk, group -> p);
+	mpz_invert(c1_sk_inv, c1_sk, group -> p);
 
-    // M = c_1 * (c_0 ^ sk) ^ -1
+	// M = c_1 * (c_0 ^ sk) ^ -1
+	mpz_mul(M_unmodded, c1_sk_inv, C -> v);
+	mpz_mod(*M, M_unmodded, group -> p);
+
+	return M;
+}
+
+
+// (c_0, c_1) = (C -> u, C -> v)
+mpz_t *decDDH_Alt(DDH_SK *sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair *C, unsigned char sigmaBit)
+{
+	mpz_t *M = (mpz_t *) calloc(1, sizeof(mpz_t));
+	mpz_t c1_sk, c1_sk_inv;
+	mpz_t M_unmodded;
+	mpz_t finalFactor, temp;
+
+	mpz_init(*M);
+	mpz_init(M_unmodded);
+	mpz_init(c1_sk);
+	mpz_init(c1_sk_inv);
+	mpz_init(finalFactor);
+	mpz_init(temp);
+
+
+	if(0x00 == sigmaBit)
+	{
+		mpz_invert(temp, y, group -> p);
+	}
+	else
+	{
+		mpz_set(temp, y);
+	}
+
+	mpz_mul(finalFactor, C -> u, temp);
+	mpz_mod(temp, finalFactor, group -> p);
+	mpz_powm(c1_sk, temp, *sk, group -> p);
+
+	mpz_invert(c1_sk_inv, c1_sk, group -> p);
+
 	mpz_mul(M_unmodded, c1_sk_inv, C -> v);
 	mpz_mod(*M, M_unmodded, group -> p);
 
@@ -210,13 +248,13 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 unsigned char *serialiseDDH_Group(struct DDH_Group *group, int *bufferLength)
 {
 	unsigned char *curBytes, *pBytes, *gBytes;
-	int curLength, pLength, gLength;
+	int curLength = 0, pLength = 0, gLength = 0;
 
 	pBytes = convertMPZToBytes( group -> p, &pLength);
 	gBytes = convertMPZToBytes( group -> g, &gLength);
 
-	curLength = pLength + gLength;
-	curBytes = (unsigned char*) calloc(2 * sizeof(int) + curLength, sizeof(unsigned char));
+	curLength = 2 * sizeof(int) + pLength + gLength;
+	curBytes = (unsigned char*) calloc(curLength, sizeof(unsigned char));
 
 	memcpy(curBytes, &pLength, sizeof(int));
 	memcpy(curBytes + sizeof(int), pBytes, pLength);
@@ -226,6 +264,8 @@ unsigned char *serialiseDDH_Group(struct DDH_Group *group, int *bufferLength)
 
 	free(pBytes);
 	free(gBytes);
+
+	*bufferLength = 2*sizeof(int) + pLength + gLength;
 
 	return curBytes;
 }
