@@ -47,8 +47,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nTotal CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Total Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	printf("\nTotal Time (Includes connection open/closing)\n");
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
 // Useage. Circuit, IP, Port, Input file, builder flag

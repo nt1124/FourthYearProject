@@ -256,14 +256,18 @@ void senderOT_UC(int writeSocket, int readSocket,
 	free(tempMPZ);
 }
 
-
-
+/*
 void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
 					struct decParams *params, gmp_randstate_t *state,
 					unsigned char *inputBuffer, int *inputOffset,
 					struct u_v_Pair **c_i_Array, int u_v_index)
+*/
+void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
+					struct decParams *params, gmp_randstate_t *state,
+					struct otKeyPair *keyPair,
+					struct u_v_Pair **c_i_Array, int u_v_index)
 {
-	struct otKeyPair *keyPair = initKeyPair();
+	// struct otKeyPair *keyPair = initKeyPair();
 
 	mpz_t *outputMPZ, *tempMPZ;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
@@ -273,13 +277,13 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 	mpz_init(*input0);
 	mpz_init(*input1);
 
-
+	/*
 	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
 	mpz_set(keyPair -> pk -> g, *tempMPZ);
 	
 	tempMPZ = deserialiseMPZ(inputBuffer, inputOffset);
 	mpz_set(keyPair -> pk -> h, *tempMPZ);
-
+	*/
 
 	convertBytesToMPZ(input0, input0Bytes, inputLengths);
 	convertBytesToMPZ(input1, input1Bytes, inputLengths);
@@ -287,12 +291,6 @@ void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, in
 
 	c_i_Array[u_v_index + 0] = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
 	c_i_Array[u_v_index + 1] = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
-	
-	// c_0 = PVW_OT_Enc(*input0, params -> crs, params -> group, *state, keyPair -> pk, 0x00);
-	// c_1 = PVW_OT_Enc(*input1, params -> crs, params -> group, *state, keyPair -> pk, 0x01);
-
-	// serialise_U_V_pair(c_0, outputBuffer, outputOffset);
-	// serialise_U_V_pair(c_1, outputBuffer, outputOffset);
 }
 
 

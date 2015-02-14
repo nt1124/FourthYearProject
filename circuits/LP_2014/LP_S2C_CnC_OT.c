@@ -8,18 +8,25 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	struct Circuit **circuitsArray;
 	int i, secParam_Circuits = 1;
 
+	struct timespec ext_t_0, ext_t_1;
+	clock_t ext_c_0, ext_c_1;
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
+
 	circuitsArray = (struct Circuit **) calloc(secParam_Circuits, sizeof(struct Circuit*));
 
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
+	ext_t_0 = timestamp();
+	ext_c_0 = clock();
+
 	printf("Executor has connected to us.\n");
 
-
-	struct timespec timestamp_0 = timestamp(), timestamp_1;
-	clock_t c_0, c_1;
-	c_0 = clock();
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	for(i = 0; i < secParam_Circuits; i++)
 	{
@@ -31,10 +38,10 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 		readInputDetailsFileBuilder( inputFilepath, circuitsArray[i] -> gates );
 	}
 
-	c_1 = clock();
-	timestamp_1 = timestamp();
+	int_c_1 = clock();
+	int_t_1 = timestamp();
 
-	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding/Inputting all Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilding/Inputting all Circuits");
 
 
 	for(i = 0; i < secParam_Circuits; i++)
@@ -46,6 +53,12 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	{
 		runCircuitBuilder( circuitsArray[i], writeSocket, readSocket );
 	}
+
+
+	ext_c_1 = clock();
+	ext_t_1 = timestamp();
+
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -69,9 +82,15 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(secParam_Circuits, sizeof(struct Circuit*));
 	struct wire *tempWire;
 
+	struct timespec ext_t_0, ext_t_1;
+	clock_t ext_c_0, ext_c_1;
+
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
+
+	ext_t_0 = timestamp();
+	ext_c_0 = clock();
 
 	printf("Connected to builder.\n");
 
@@ -85,6 +104,11 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 		runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath );
 	}
 
+
+	ext_c_1 = clock();
+	ext_t_1 = timestamp();
+
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);

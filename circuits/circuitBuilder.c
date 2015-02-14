@@ -47,37 +47,40 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, struct Circuit *inputCircuit, gmp_randstate_t *state)
 {
 	struct u_v_Pair **c_i_array;
+	struct otKeyPair **keyPairs;
 	struct wire *tempWire;
+
 	unsigned char *receivedBuffer, *outputBuffer;
-	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0, i;
+	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0;
+	int i, j, inputGatesOffset = 0;
 
 	receivedOffset = receiveInt(readSocket);
 	receivedBuffer = (unsigned char*) calloc(receivedOffset, sizeof(unsigned char));
 	receive(readSocket, receivedBuffer, receivedOffset);
 	receivedOffset = 0;
 
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
-		{
-			numInputs ++;
-		}
-	}
+
+	numInputs = inputCircuit -> numInputsExecutor;
+
+	// printf("%d  -  %d\n", numInputs, inputCircuit -> numInputsExecutor);
 
 	c_i_array = (struct u_v_Pair **) calloc(numInputs * 2, sizeof(struct u_v_Pair*));
+	keyPairs = deserialise_PKs_otKeyPair_Array(receivedBuffer, numInputs);
 	outputOffset = 0;
 
-	for(i = 0; i < inputCircuit -> numGates; i ++)
+	inputGatesOffset = inputCircuit -> numInputsBuilder;
+	
+	#pragma omp parallel for private(tempWire, i) schedule(auto)
+	for(i = inputGatesOffset; i < inputGatesOffset + inputCircuit -> numInputsExecutor; i ++)
 	{
 		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
 			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
 		{
+			j = i - inputGatesOffset;
+			outputOffset = j * 2;
 			tempWire = inputCircuit -> gates[i] -> outputWire;
 
-			bulk_senderOT_UC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state,
-							receivedBuffer, &receivedOffset, c_i_array, outputOffset);
-			outputOffset += 2;
+			bulk_senderOT_UC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state, keyPairs[j], c_i_array, outputOffset);
 		}
 	}
 
