@@ -155,33 +155,42 @@ mpz_t *decDDH_Alt(DDH_SK *sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair 
 	mpz_t *M = (mpz_t *) calloc(1, sizeof(mpz_t));
 	mpz_t c1_sk, c1_sk_inv;
 	mpz_t M_unmodded;
-	mpz_t finalFactor, temp;
+	mpz_t finalFactor, y_Inv, M_y;
 
 	mpz_init(*M);
+	mpz_init(M_y);
 	mpz_init(M_unmodded);
 	mpz_init(c1_sk);
 	mpz_init(c1_sk_inv);
 	mpz_init(finalFactor);
-	mpz_init(temp);
+	mpz_init(y_Inv);
 
 
 	if(0x00 == sigmaBit)
 	{
-		mpz_invert(temp, y, group -> p);
+		mpz_invert(y_Inv, y, group -> p);
+
+		mpz_mul(finalFactor, y_Inv, *sk);
+		mpz_mul(y_Inv, finalFactor, group -> p);
+
+		mpz_powm(c1_sk, C -> u, y_Inv, group -> p);
+		mpz_invert(c1_sk_inv, c1_sk, group -> p);
+
+		mpz_mul(M_unmodded, c1_sk_inv, C -> v);
+		mpz_mod(*M, M_unmodded, group -> p);
+
+
 	}
 	else
 	{
-		mpz_set(temp, y);
+		mpz_powm(c1_sk, C -> u, *sk, group -> p);
+		mpz_invert(finalFactor, c1_sk, group -> p);
+
+		mpz_powm(c1_sk_inv, finalFactor, y, group -> p);
+
+		mpz_mul(M_unmodded, c1_sk_inv, C -> v);
+		mpz_mod(*M, M_unmodded, group -> p);
 	}
-
-	mpz_mul(finalFactor, *sk, temp);
-	mpz_mod(temp, finalFactor, group -> p);
-	mpz_powm(c1_sk, C -> u, temp, group -> p);
-
-	mpz_invert(c1_sk_inv, c1_sk, group -> p);
-
-	mpz_mul(M_unmodded, c1_sk_inv, C -> v);
-	mpz_mod(*M, M_unmodded, group -> p);
 
 	return M;
 }

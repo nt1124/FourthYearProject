@@ -57,6 +57,7 @@ unsigned char *serialise_CRS(struct params_CnC *params, int *bufferOffset)
 
 	memcpy(output, &(params -> crs -> stat_SecParam), sizeof(int));
 	serialiseMPZ(params -> crs -> g_1, output, bufferOffset);
+
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
 		serialiseMPZ(params -> crs -> h_0_List[i], output, bufferOffset);
