@@ -1,5 +1,3 @@
-#ifndef LP_2014
-#define LP_2014
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -100,5 +98,3 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 		freeCircuitStruct(circuitsArray[i]);
 	}
 }
-
-#endif

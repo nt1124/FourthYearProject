@@ -64,13 +64,10 @@ void getSafePrimeGMP(mpz_t outputP, mpz_t outputQ, gmp_randstate_t state, int ke
 
 		lesserP_prime = mpz_probab_prime_p(lesserP, 25);
 		greaterP_prime = mpz_probab_prime_p(greaterP, 25);
-		printf("%d  -  %d\n", lesserP_prime, greaterP_prime);
 		fflush(stdout);
 	}
 	while(0 == lesserP_prime && 0 == greaterP_prime);
 
-	printf("%d  =  %d\n", lesserP_prime, greaterP_prime);
-	fflush(stdout);
 
 	// We've got two primes, now set the output to the greater of the two primes
 	if(2 == greaterP_prime)

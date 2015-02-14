@@ -27,7 +27,8 @@ struct params_CnC *initParams_CnC(int stat_SecParam, int comp_SecParam, gmp_rand
 	struct params_CnC *params = (struct params_CnC*) calloc(1, sizeof(struct params_CnC));
 
 	params -> crs = initCRS_CnC(stat_SecParam);
-	params -> group = generateGroup(comp_SecParam, state);
+	// params -> group = generateGroup(comp_SecParam, state);
+	params -> group = getSchnorrGroup(comp_SecParam, state);
 
 	mpz_init(params -> y);
 
@@ -183,13 +184,15 @@ void printTrueTestInputs(int numTests, unsigned char *inputBytes[][2], unsigned 
 void testVictory(int numTests, unsigned char *inputBytes[][2], unsigned char *outputBytes[][2],
 				unsigned char sigmaBit, unsigned char *J_set)
 {
+	int sigmaInt = (int) (0x01 & (0x01 ^ sigmaBit));
 	int i, success = 0;
 
 	for(i = 0; i < numTests; i ++)
 	{
+		success += memcmp(inputBytes[i][1- sigmaInt], outputBytes[i][1 - sigmaInt], 16);
 		if(0x01 == J_set[i])
 		{
-			success += memcmp(inputBytes[i][sigmaBit], outputBytes[i][sigmaBit], 16);
+			success += memcmp(inputBytes[i][sigmaInt], outputBytes[i][sigmaInt], 16);
 		}
 	}
 

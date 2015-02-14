@@ -4,9 +4,6 @@
 #include <time.h>
 
 #include "circuits/circuitUtils.h"
-#include "circuits/Naive_SH/SH_Circuits.c"
-// #include "circuits/LP_2007/LP_Malicious.c"
-#include "circuits/LP_2014/LP_malicious_CnC_OT.c"
 
 
 
@@ -61,9 +58,9 @@ int main(int argc, char *argv[])
 
 
 	// runLocally(circuitFilepath, argv[2], argv[3]);
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testRunZeroedInput(circuitFilepath);
-	test_local_CnC_OT();
+	// test_local_CnC_OT();
 
 	return 0;
 }

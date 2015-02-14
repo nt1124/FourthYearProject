@@ -3,7 +3,8 @@ struct messyParams *setupMessy(int securityParam, gmp_randstate_t state)
 {
 	struct messyParams *params = initMessyParams();
 
-	params -> group = generateGroup(securityParam, state);
+	// params -> group = generateGroup(securityParam, state);
+	params -> group = getSchnorrGroup(securityParam, state);
 
 	do
 	{
@@ -37,7 +38,8 @@ struct decParams *setupDec(int securityParam, gmp_randstate_t state)
 {
 	mpz_t x, y;
 	struct decParams *params = initDecParams();
-	params -> group = generateGroup(securityParam, state);
+	// params -> group = generateGroup(securityParam, state);
+	params -> group = getSchnorrGroup(securityParam, state);
 
 	mpz_init(x);
 	mpz_init(y);

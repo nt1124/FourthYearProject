@@ -238,7 +238,7 @@ void testStuff(struct params_CnC *params, int j)
 void test_local_CnC_OT()
 {
 	struct params_CnC *params_R, *params_S;
-	int i, j, numTests = 8, comp_SecParam = 1024;
+	int i, j, numTests = 128, comp_SecParam = 1024;
 
 	struct otKeyPair **keyPairs_R = (struct otKeyPair **) calloc(numTests, sizeof(struct otKeyPair*));
 	struct otKeyPair **keyPairs_S;
@@ -249,7 +249,7 @@ void test_local_CnC_OT()
 	unsigned char *outputBytes[numTests][2];
 	unsigned char *tempChars_0, *tempChars_1;
 	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x00;
+	unsigned char sigmaBit = 0x01;
 
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
@@ -302,6 +302,9 @@ void test_local_CnC_OT()
 		u_v_index += 2;
 	}
 
-	printTrueTestInputs(numTests, inputBytes, sigmaBit);
-	printTrueTestInputs(numTests, outputBytes, sigmaBit);
+
+	// printTrueTestInputs(numTests, inputBytes, sigmaBit);
+	// printTrueTestInputs(numTests, outputBytes, sigmaBit);
+	testVictory(numTests, inputBytes, outputBytes, sigmaBit, params_R -> crs -> J_set);
 }
+

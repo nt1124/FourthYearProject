@@ -85,7 +85,6 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 
 	sendInt(writeSocket, outputOffset);
 	send(writeSocket, outputBuffer, outputOffset);
-
 }
 
 

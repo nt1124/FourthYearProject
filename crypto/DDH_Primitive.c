@@ -76,21 +76,42 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 
 	mpz_init(candiateG);
 
-	// getPrimeGMP_Alt(group -> p, group -> q, state, securityParam);
 	getSafePrimeGMP(group -> p, group -> q, state, securityParam);
-	
-	
+
 	do
 	{
 		mpz_urandomm(candiateG, state, group -> p);
 		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
 	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
-	/*
+
+
+	return group;
+}
+
+
+// SecurityParam is the number of bits for p.
+struct DDH_Group *getSchnorrGroup(int securityParam, gmp_randstate_t state)
+{
+	const char *pStr = "f65c35a65bc8cf3a24c459608f6d4cf2c6d0620912d2a70e44c98b0d5e5c410a3aec63412416f7da6904f41457a0c353d2394d565490fb2a7ee00a367d9ca152ab406d5f75a4059dddadb1a48c8193acf9fc454538948f314752f00431c97897b89b88c362d7177a12db635ce97a4db56e7d8a823029c5c946a3b824e4718daf";
+	const char *qStr = "7b2e1ad32de4679d12622cb047b6a67963683104896953872264c586af2e20851d7631a0920b7bed34827a0a2bd061a9e91ca6ab2a487d953f70051b3ece50a955a036afbad202ceeed6d8d24640c9d67cfe22a29c4a4798a3a9780218e4bc4bdc4dc461b16b8bbd096db1ae74bd26dab73ec5411814e2e4a351dc127238c6d7";
+
+	struct DDH_Group *group = initGroupStruct();
+	mpz_t candiateG;
+
+	mpz_init(candiateG);
+
+	// getSafePrimeGMP(group -> p, group -> q, state, securityParam);
+	gmp_sscanf (pStr, "%Zx", group -> p);
+	gmp_sscanf (qStr, "%Zx", group -> q);
+	// gmp_printf("%Zx\n\n", group -> p);
+	// gmp_printf("%Zx\n\n", group -> q);
+
 	do
 	{
-		mpz_urandomm(group -> g, state, group -> p);
+		mpz_urandomm(candiateG, state, group -> p);
+		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
 	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
-	*/
+
 
 	return group;
 }
