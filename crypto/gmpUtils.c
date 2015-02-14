@@ -31,7 +31,7 @@ void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 
 
 // Generates a "Safe prime", that is of the form q = 2*p+1 where p and q are primes.
-void getSafePrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
+void getSafePrimeGMP(mpz_t outputP, mpz_t outputQ, gmp_randstate_t state, int keySize)
 {
 	mpz_t p, lesserP, greaterP;
 	int lesserP_prime = 0;
@@ -53,14 +53,25 @@ void getSafePrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 
 		lesserP_prime = mpz_probab_prime_p(lesserP, 25);
 		greaterP_prime = mpz_probab_prime_p(greaterP, 25);
+		printf("%d  -  %d\n", lesserP_prime, greaterP_prime);
+		fflush(stdout);
 	}
-	while(1 <= lesserP_prime && 1 <= greaterP_prime);
+	while(0 == lesserP_prime && 0 == greaterP_prime);
+
+	printf("%d  =  %d\n", lesserP_prime, greaterP_prime);
+	fflush(stdout);
 
 	// We've got two primes, now set the output to the greater of the two primes
-	if(1 <= greaterP_prime)
-		mpz_set(output, greaterP);
+	if(2 == greaterP_prime)
+	{
+		mpz_set(outputP, greaterP);
+		mpz_set(outputQ, p);
+	}
 	else
-		mpz_set(output, p);
+	{
+		mpz_set(outputP, p);
+		mpz_set(outputQ, lesserP);
+	}
 }
 
 

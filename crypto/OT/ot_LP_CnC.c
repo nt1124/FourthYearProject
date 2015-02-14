@@ -105,12 +105,11 @@ struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam,	int comp_SecParam, g
 
 		mpz_powm(params -> crs -> h_0_List[i], params -> group -> g, alpha, params -> group -> p);
 
-		/*
+
 		if( 0x00 == params -> crs -> J_set[i] )
 		{
 			mpz_add_ui(alpha, alpha, 1);
 		}
-		*/
 
 		mpz_powm(params -> crs -> h_1_List[i], params -> crs -> g_1, alpha, params -> group -> p);
 	}
@@ -211,37 +210,8 @@ void CnC_OT_Output_One_Receiver(struct u_v_Pair *c_0, struct u_v_Pair *c_1,
 }
 
 
-void printTrueTestInputs(int numTests, unsigned char *inputBytes[][2])
-{
-	int i, j;
-
-	for(i = 0; i < numTests; i ++)
-	{
-		if(NULL != inputBytes[i][0])
-		{
-			printf("(%d, 0) >> ", i);
-			for(j = 0; j < 16; j ++)
-			{
-				printf("%02X", inputBytes[i][0][j]);
-			}
-			printf("\n");
-		}
-
-		if(NULL != inputBytes[i][1])
-		{
-			printf("(%d, 1) >> ", i);
-			for(j = 0; j < 16; j ++)
-			{
-				printf("%02X", inputBytes[i][1][j]);
-			}
-			printf("\n");
-		}
-	}
-	printf("\n");
-}
-
-
-
+// Function used purely to suss out what the heck was going on and why I was failing so hard.
+// Turns out I forgot First Year Group Theory...Whoops.
 void testStuff(struct params_CnC *params, int j)
 {
 	mpz_t temp0, temp1, temp2, temp3, temp4, temp5;
@@ -249,24 +219,11 @@ void testStuff(struct params_CnC *params, int j)
 	mpz_init(temp2);	mpz_init(temp3);
 	mpz_init(temp4);	mpz_init(temp5);
 
-	/*
-	mpz_invert(temp1, params -> crs -> h_1_List[j], params -> group -> p);
-	mpz_powm(temp2, params -> crs -> h_0_List[j], params -> y, params -> group -> p);
-	mpz_mul(temp3, temp1, temp2);
-	mpz_mod(temp4, temp3, params -> group -> p);
-	*/
-
-	mpz_invert(temp0, params -> y, params -> group -> p);
+	mpz_invert(temp0, params -> y, params -> group -> q);
 	mpz_powm(temp1, params -> crs -> h_1_List[j], temp0, params -> group -> p);
-	mpz_powm(temp2, temp1, params -> y, params -> group -> p);
 
-	mpz_mul(temp3, temp0, params -> y);
-	mpz_mod(temp4, temp3, params -> group -> p);
-	mpz_powm(temp5, params -> crs -> h_1_List[j], temp3, params -> group -> p);
-
-	gmp_printf("+ %Zd\n\n", temp4);
-	gmp_printf("+ %Zd\n\n", temp2);
-	gmp_printf("+ %Zd\n\n", temp5);
+	gmp_printf("+ %Zd\n\n", params -> crs -> h_0_List[j]);
+	gmp_printf("+ %Zd\n\n", temp1);
 
 
 	mpz_powm(temp1, params -> crs -> h_0_List[j], params -> y, params -> group -> p);
@@ -281,7 +238,7 @@ void testStuff(struct params_CnC *params, int j)
 void test_local_CnC_OT()
 {
 	struct params_CnC *params_R, *params_S;
-	int i, j, numTests = 2, comp_SecParam = 1024;
+	int i, j, numTests = 8, comp_SecParam = 1024;
 
 	struct otKeyPair **keyPairs_R = (struct otKeyPair **) calloc(numTests, sizeof(struct otKeyPair*));
 	struct otKeyPair **keyPairs_S;
@@ -338,7 +295,6 @@ void test_local_CnC_OT()
 	bufferOffset = 0;
 	for(i = 0; i < numTests; i ++)
 	{
-		testStuff(params_R, i);
 		CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[i], params_R, sigmaBit, i, &tempChars_0, &tempChars_1);
 
 		outputBytes[i][0] = tempChars_0;
@@ -346,7 +302,6 @@ void test_local_CnC_OT()
 		u_v_index += 2;
 	}
 
-
-	printTrueTestInputs(numTests, inputBytes);
-	printTrueTestInputs(numTests, outputBytes);
+	printTrueTestInputs(numTests, inputBytes, sigmaBit);
+	printTrueTestInputs(numTests, outputBytes, sigmaBit);
 }

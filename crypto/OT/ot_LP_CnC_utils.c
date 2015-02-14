@@ -143,3 +143,62 @@ unsigned char *serialiseParams_CnC(struct params_CnC *params, int *outputLength)
 
 	return outputBytes;
 }
+
+
+
+
+void printTrueTestInputs(int numTests, unsigned char *inputBytes[][2], unsigned char sigmaBit)
+{
+	int i, j;
+	int sigmaInt = (int) (0x01 & (0x01 ^ sigmaBit));
+
+	for(i = 0; i < numTests; i ++)
+	{
+		/*
+		if(NULL != inputBytes[i][0])
+		{
+			printf("(%d, 0) >> ", i);
+			for(j = 0; j < 16; j ++)
+			{
+				printf("%02X", inputBytes[i][0][j]);
+			}
+			printf("\n");
+		}
+		*/
+
+		if(NULL != inputBytes[i][sigmaInt])
+		{
+			printf("(%d, %d) >> ", i, sigmaInt);
+			for(j = 0; j < 16; j ++)
+			{
+				printf("%02X", inputBytes[i][sigmaInt][j]);
+			}
+			printf("\n");
+		}
+	}
+	printf("\n");
+}
+
+
+void testVictory(int numTests, unsigned char *inputBytes[][2], unsigned char *outputBytes[][2],
+				unsigned char sigmaBit, unsigned char *J_set)
+{
+	int i, success = 0;
+
+	for(i = 0; i < numTests; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			success += memcmp(inputBytes[i][sigmaBit], outputBytes[i][sigmaBit], 16);
+		}
+	}
+
+	if(0 == success)
+	{
+		printf("Successful test.\n");
+	}
+	else
+	{
+		printf("Failed the test.\n");
+	}
+}

@@ -15,6 +15,7 @@ struct DDH_Group *initGroupStruct()
 
 	mpz_init(group -> p);
 	mpz_init(group -> g);
+	mpz_init(group -> q);
 
 	return group;
 }
@@ -71,14 +72,18 @@ struct u_v_Pair *randomiseDDH(struct DDH_PK *pk, struct DDH_Group *group, gmp_ra
 struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 {
 	struct DDH_Group *group = initGroupStruct();
+	mpz_t candiateG;
 
-	getPrimeGMP(group -> p, state, securityParam);
-	// getSafePrimeGMP(group -> p, state, securityParam);
+	mpz_init(candiateG);
+
+	// getPrimeGMP(group -> p, state, securityParam);
+	getSafePrimeGMP(group -> p, group -> q, state, securityParam);
 	
 	do
 	{
-		mpz_urandomm(group -> g, state, group -> p);
-	} while( 0 > mpz_cmp_ui(group -> g, 1) );
+		mpz_urandomm(candiateG, state, group -> p);
+		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
+	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
 
 	return group;
 }
@@ -168,18 +173,16 @@ mpz_t *decDDH_Alt(DDH_SK *sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair 
 
 	if(0x00 == sigmaBit)
 	{
-		mpz_invert(y_Inv, y, group -> p);
+		mpz_invert(y_Inv, y, group -> q);
 
 		mpz_mul(finalFactor, y_Inv, *sk);
-		mpz_mul(y_Inv, finalFactor, group -> p);
+		mpz_mul(y_Inv, finalFactor, group -> q);
 
-		mpz_powm(c1_sk, C -> u, y_Inv, group -> p);
+		mpz_powm(c1_sk, C -> u, finalFactor, group -> p);
 		mpz_invert(c1_sk_inv, c1_sk, group -> p);
 
 		mpz_mul(M_unmodded, c1_sk_inv, C -> v);
 		mpz_mod(*M, M_unmodded, group -> p);
-
-
 	}
 	else
 	{
@@ -201,27 +204,38 @@ mpz_t *decDDH_Alt(DDH_SK *sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair 
 
 int sendDDH_Group(int writeSocket, int readSocket, struct DDH_Group *group)
 {
-	unsigned char *curBytes, *pBytes, *gBytes;
-	int curLength, pLength, gLength;
+	unsigned char *curBytes, *pBytes, *gBytes, *qBytes;
+	int curLength, pLength, gLength, qLength, index;
 
 
 	pBytes = convertMPZToBytes( group -> p, &pLength);
 	gBytes = convertMPZToBytes( group -> g, &gLength);
+	qBytes = convertMPZToBytes( group -> q, &qLength);
 
-	curLength = pLength + gLength;
-	curBytes = (unsigned char*) calloc(2 * sizeof(int) + curLength, sizeof(unsigned char));
+	curLength = 3 * sizeof(int) + pLength + gLength + qLength;
+	curBytes = (unsigned char*) calloc(curLength, sizeof(unsigned char));
 
 	memcpy(curBytes, &pLength, sizeof(int));
-	memcpy(curBytes + sizeof(int), pBytes, pLength);
+	index = sizeof(int);
+	memcpy(curBytes + index, pBytes, pLength);
+	index += pLength;
 
-	memcpy(curBytes + sizeof(int) + pLength, &gLength, sizeof(int));
-	memcpy(curBytes + 2*sizeof(int) + pLength, gBytes, gLength);
+	memcpy(curBytes + index, &gLength, sizeof(int)); 
+	index += sizeof(int);
+	memcpy(curBytes + index, gBytes, gLength);
+	index += gLength;
+
+	memcpy(curBytes + index, &qLength, sizeof(int)); 
+	index += sizeof(int);
+	memcpy(curBytes + index, qBytes, qLength);
+	index += qLength;
 
 	sendBoth(writeSocket, (octet*) curBytes, curLength);
 
 	free(curBytes);
 	free(pBytes);
 	free(gBytes);
+	free(qBytes);
 
 	return 1;
 }
@@ -231,7 +245,7 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 {
 	struct DDH_Group *group = initGroupStruct();
 	unsigned char *curBytes;
-	int curLength, pLength, gLength;
+	int curLength, pLength, gLength, qLength, index;
 	
 	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(*tempMPZ);
@@ -239,12 +253,22 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 	curBytes = receiveBoth(readSocket, curLength);
 
 	memcpy(&pLength, curBytes, sizeof(int));
-	convertBytesToMPZ(tempMPZ, curBytes + sizeof(int), pLength);
+	index = sizeof(int);
+	convertBytesToMPZ(tempMPZ, curBytes + index, pLength);
+	index += pLength;
 	mpz_set(group -> p, *tempMPZ);
 
-	memcpy(&gLength, curBytes + sizeof(int) + pLength, sizeof(int));
-	convertBytesToMPZ(tempMPZ, curBytes + 2*sizeof(int) + pLength, gLength);
+	memcpy(&gLength, curBytes + index, sizeof(int));
+	index += sizeof(int);
+	convertBytesToMPZ(tempMPZ, curBytes + index, gLength);
+	index += gLength;
 	mpz_set(group -> g, *tempMPZ);
+
+	memcpy(&qLength, curBytes + index, sizeof(int));
+	index += sizeof(int);
+	convertBytesToMPZ(tempMPZ, curBytes + index, qLength);
+	index += qLength;
+	mpz_set(group -> q, *tempMPZ);
 
 	free(curBytes);
 	free(tempMPZ);
@@ -256,25 +280,36 @@ struct DDH_Group *receiveDDH_Group(int writeSocket, int readSocket)
 
 unsigned char *serialiseDDH_Group(struct DDH_Group *group, int *bufferLength)
 {
-	unsigned char *curBytes, *pBytes, *gBytes;
-	int curLength = 0, pLength = 0, gLength = 0;
+	unsigned char *curBytes, *pBytes, *gBytes, *qBytes;
+	int curLength = 0, pLength = 0, gLength = 0, qLength = 0, index = 0;
 
 	pBytes = convertMPZToBytes( group -> p, &pLength);
 	gBytes = convertMPZToBytes( group -> g, &gLength);
+	qBytes = convertMPZToBytes( group -> q, &qLength);
 
-	curLength = 2 * sizeof(int) + pLength + gLength;
+	curLength = 3 * sizeof(int) + pLength + gLength + qLength;
 	curBytes = (unsigned char*) calloc(curLength, sizeof(unsigned char));
 
 	memcpy(curBytes, &pLength, sizeof(int));
-	memcpy(curBytes + sizeof(int), pBytes, pLength);
+	index = sizeof(int);
+	memcpy(curBytes + index, pBytes, pLength);
+	index += pLength;
 
-	memcpy(curBytes + sizeof(int) + pLength, &gLength, sizeof(int));
-	memcpy(curBytes + 2*sizeof(int) + pLength, gBytes, gLength);
+	memcpy(curBytes + index, &gLength, sizeof(int));
+	index += sizeof(int);
+	memcpy(curBytes + index, gBytes, gLength);
+	index += gLength;
+
+	memcpy(curBytes + index, &qLength, sizeof(int));
+	index += sizeof(int);
+	memcpy(curBytes + index, qBytes, qLength);
+	index += qLength;
 
 	free(pBytes);
 	free(gBytes);
+	free(qBytes);
 
-	*bufferLength = 2*sizeof(int) + pLength + gLength;
+	*bufferLength = curLength;
 
 	return curBytes;
 }
@@ -283,7 +318,7 @@ unsigned char *serialiseDDH_Group(struct DDH_Group *group, int *bufferLength)
 struct DDH_Group *deserialise_DDH_Group(unsigned char *curBytes, int *bufferOffset)
 {
 	struct DDH_Group *group = initGroupStruct();
-	int pLength, gLength;
+	int pLength, gLength, qLength;
 	
 	mpz_t *tempMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(*tempMPZ);
@@ -303,6 +338,14 @@ struct DDH_Group *deserialise_DDH_Group(unsigned char *curBytes, int *bufferOffs
 	convertBytesToMPZ(tempMPZ, curBytes + *bufferOffset, gLength);
 	mpz_set(group -> g, *tempMPZ);
 	*bufferOffset += gLength;
+
+
+	memcpy(&qLength, curBytes + *bufferOffset, sizeof(int));
+	*bufferOffset += sizeof(int);
+
+	convertBytesToMPZ(tempMPZ, curBytes + *bufferOffset, qLength);
+	mpz_set(group -> q, *tempMPZ);
+	*bufferOffset += qLength;
 
 
 	free(tempMPZ);

@@ -6,6 +6,7 @@
 typedef struct DDH_Group
 {
 	mpz_t p;		// The group modulus.
+	mpz_t q;		// The group's order.
 	mpz_t g;		// Generator of group.
 }  DDH_Group;
 
