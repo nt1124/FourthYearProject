@@ -22,11 +22,22 @@ gmp_randstate_t *seedRandGen()
 }
 
 
+
 void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
 {
     mpz_urandomb(output, state, keySize);
     mpz_setbit (output, keySize);
     mpz_nextprime(output, output);
+}
+
+
+void getPrimeGMP_Alt(mpz_t outputP, mpz_t outputQ, gmp_randstate_t state, int keySize)
+{
+    mpz_urandomb(outputP, state, keySize);
+    mpz_setbit (outputP, keySize);
+    mpz_nextprime(outputP, outputP);
+
+    mpz_sub_ui(outputQ, outputP, 1);
 }
 
 

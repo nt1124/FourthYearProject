@@ -76,14 +76,21 @@ struct DDH_Group *generateGroup(int securityParam, gmp_randstate_t state)
 
 	mpz_init(candiateG);
 
-	// getPrimeGMP(group -> p, state, securityParam);
+	// getPrimeGMP_Alt(group -> p, group -> q, state, securityParam);
 	getSafePrimeGMP(group -> p, group -> q, state, securityParam);
+	
 	
 	do
 	{
 		mpz_urandomm(candiateG, state, group -> p);
 		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
 	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
+	/*
+	do
+	{
+		mpz_urandomm(group -> g, state, group -> p);
+	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
+	*/
 
 	return group;
 }
