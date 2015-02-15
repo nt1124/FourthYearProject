@@ -54,23 +54,21 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0;
 	int i, j, inputGatesOffset = 0;
 
+
 	receivedOffset = receiveInt(readSocket);
 	receivedBuffer = (unsigned char*) calloc(receivedOffset, sizeof(unsigned char));
 	receive(readSocket, receivedBuffer, receivedOffset);
 	receivedOffset = 0;
 
-
 	numInputs = inputCircuit -> numInputsExecutor;
-
-	// printf("%d  -  %d\n", numInputs, inputCircuit -> numInputsExecutor);
 
 	c_i_array = (struct u_v_Pair **) calloc(numInputs * 2, sizeof(struct u_v_Pair*));
 	keyPairs = deserialise_PKs_otKeyPair_Array(receivedBuffer, numInputs);
 	outputOffset = 0;
 
 	inputGatesOffset = inputCircuit -> numInputsBuilder;
-	
-	#pragma omp parallel for private(tempWire, i) schedule(auto)
+
+	#pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
 	for(i = inputGatesOffset; i < inputGatesOffset + inputCircuit -> numInputsExecutor; i ++)
 	{
 		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&

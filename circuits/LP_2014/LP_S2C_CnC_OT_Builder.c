@@ -1,8 +1,8 @@
-
 void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC *params_S;
+	struct otKeyPair **keyPairs_S;
 	struct u_v_Pair **c_i_Array_S;
 
 	struct wire *tempWire;
@@ -12,16 +12,18 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 	int totalOTs, u_v_index;
 
 
-	commBuffer = receiveBoth(readSocket, &bufferLength);
+	commBuffer = receiveBoth(readSocket, bufferLength);
 
 	params_S = setup_CnC_OT_Sender(commBuffer);
 	free(commBuffer);
 
 	totalOTs = params_S -> crs -> stat_SecParam * circuitsArray[0] -> numInputsExecutor;
 
+
 	// When doing this properly the ZKPOK goes here.
 
-	commBuffer = receiveBoth(readSocket, &bufferLength);
+
+	commBuffer = receiveBoth(readSocket, bufferLength);
 	keyPairs_S = deserialise_PKs_otKeyPair_Array(commBuffer, totalOTs);
 	free(commBuffer);
 			

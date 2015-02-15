@@ -7,18 +7,22 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 
 	struct wire *tempWire;
 
-	unsigned char *commBuffer, value;
+	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1;
 	int bufferLength = 0, i, j, iOffset = 0;
 	int totalOTs = circuitsArray[0] -> numInputsExecutor * stat_SecParam;
+	int u_v_index;
+
 
 	params_R = setup_CnC_OT_Receiver(stat_SecParam, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC(params_R, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
 
+
 	// When truly doing it we need to have the ZKPOK here...
 
-	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*)
+
+	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*));
 	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
@@ -38,7 +42,7 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 
 
 	bufferLength = 0;
-	commBuffer = receiveBoth(readSocket, &bufferLength);
+	commBuffer = receiveBoth(readSocket, bufferLength);
 	c_i_Array_R = deserialise_U_V_Pair_Array(commBuffer, totalOTs * 2);
 	free(commBuffer);
 
@@ -52,8 +56,10 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 			CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[i], params_R, value, j, &tempChars_0, &tempChars_1);
 
-			outputBytes[i][0] = tempChars_0;
-			outputBytes[i][1] = tempChars_1;
+			tempWire -> outputGarbleKeys -> key0 = tempChars_0;
+			tempWire -> outputGarbleKeys -> key1 = tempChars_1;
+			// outputBytes[i][0] = tempChars_0;
+			// outputBytes[i][1] = tempChars_1;
 			u_v_index += 2;
 		}
 	}

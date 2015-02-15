@@ -89,21 +89,13 @@ void executor_side_OT(int writeSocket, int readSocket,
 					gmp_randstate_t *state)
 {
 	struct otKeyPair **otKeyPairs;
-	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength;
-	unsigned char *toSendBuffer, *receivedBuffer, *tempBuffer;
+	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength, idOffset;
+	unsigned char *tempBuffer, *commBuffer;
 	unsigned char value;
-	struct otKeyPair *tempOT_Pair;
 
 
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-		{
-			tempSize ++;
-		}
-	}
 
+	tempSize = inputCircuit -> numInputsExecutor;
 
 	otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
 
@@ -120,19 +112,22 @@ void executor_side_OT(int writeSocket, int readSocket,
 		}
 	}
 
-	toSendBuffer = serialise_PKs_otKeyPair_Array(otKeyPairs, tempSize, &bufferOffset);
-
+	commBuffer = serialise_PKs_otKeyPair_Array(otKeyPairs, tempSize, &bufferOffset);
 	sendInt(writeSocket, bufferOffset);
-	send(writeSocket, toSendBuffer, bufferOffset);
+	send(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 
 	bufferOffset = receiveInt(readSocket);
-	receivedBuffer = (unsigned char*) calloc(bufferOffset, sizeof(unsigned char));
-	receive(readSocket, receivedBuffer, bufferOffset);
+	commBuffer = (unsigned char*) calloc(bufferOffset, sizeof(unsigned char));
+	receive(readSocket, commBuffer, bufferOffset);
 
 
 	bufferOffset = 0;
 	j = 0;
-	for(i = 0; i < inputCircuit -> numGates; i ++)
+	idOffset = inputCircuit -> numInputsBuilder;
+
+	// #pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
+	for(i = idOffset; i < idOffset + inputCircuit -> numInputsBuilder; i ++)
 	{
 		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
 			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
@@ -140,7 +135,7 @@ void executor_side_OT(int writeSocket, int readSocket,
 			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-			tempBuffer = bulk_two_receiverOT_UC(receivedBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
+			tempBuffer = bulk_two_receiverOT_UC(commBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
 			memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 			free(tempBuffer);
 		}
@@ -191,16 +186,12 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 // Run the circuit, executor style.
 void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSocket, char *filepath )
 {
-	unsigned char *tempBuffer;
-	int i, gateID, outputLength = 0, j, nLength;
+	int i, gateID;
 	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
 
-	readInputDetailsFileExec(writeSocket, readSocket, filepath, inputCircuit);
-
 	timestamp_0 = timestamp();
 	c_0 = clock();
-
 
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
@@ -214,8 +205,6 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
-
-
 	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Evalutation");
 }
 

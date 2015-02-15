@@ -7,7 +7,11 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     int writeSocket, readSocket, mainWriteSock, mainReadSock;
     int writePort = atoi(portNumStr), readPort = writePort + 1;
 
+    struct timespec timestamp_0, timestamp_1, ext_t_0, ext_t_1;
+    clock_t c_0, c_1, ext_c_0, ext_c_1;
+
     struct Circuit *inputCircuit;
+    struct idAndValue *startOfInputChain;
     int i;
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
@@ -15,12 +19,13 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     printf("Executor has connected to us.\n");
 
+    ext_t_0 = timestamp();
+    ext_c_0 = clock();
 
-    struct timespec timestamp_0 = timestamp(), timestamp_1;
-    clock_t c_0, c_1;
+    timestamp_0 = timestamp();
     c_0 = clock();
 
-    inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
+    inputCircuit = readInCircuitRTL(circuitFilepath);
 
     c_1 = clock();
     timestamp_1 = timestamp();
@@ -28,7 +33,10 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
 
 
-    readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
+    // readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
+    startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+    setCircuitsInputs_Hardcode(startOfInputChain, inputCircuit, 0xFF);
+    free_idAndValueChain(startOfInputChain);
 
     printf("Ready to send circuit.\n");
     sendCircuit(writeSocket, readSocket, inputCircuit);
@@ -36,6 +44,9 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
     runCircuitBuilder( inputCircuit, writeSocket, readSocket );
 
+    ext_t_1 = timestamp();
+    ext_c_1 = clock();
+    printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
     close_server_socket(writeSocket, mainWriteSock);
     close_server_socket(readSocket, mainReadSock);
@@ -53,19 +64,45 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     int readPort = atoi(portNumStr), writePort = readPort + 1;
     int i;
 
-    struct Circuit *inputCircuit;
+    struct timespec t_0, t_1, ext_t_0, ext_t_1;
+    clock_t c_0, c_1, ext_c_0, ext_c_1;
 
+    struct Circuit *inputCircuit;
+    struct idAndValue *startOfInputChain;
+    gmp_randstate_t *state;
+    struct decParams *params;
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
     printf("Connected to builder.\n");
 
+    ext_t_0 = timestamp();
+    ext_c_0 = clock();
 
     inputCircuit = receiveFullCircuit(writeSocket, readSocket);
 
+    t_0 = timestamp();
+    c_0 = clock();
+
+    startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+    setCircuitsInputs_Values(startOfInputChain, inputCircuit, 0x00);
+    free_idAndValueChain(startOfInputChain);
+
+    state = seedRandGen();
+    params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
+    executor_side_OT(writeSocket, readSocket, params, inputCircuit, state);
+
+    c_1 = clock();
+    t_1 = timestamp();
+    printTiming(&t_0, &t_1, c_0, c_1, "OT - Receiver");
+
+
     runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
 
+    ext_t_1 = timestamp();
+    ext_c_1 = clock();
+    printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
     close_client_socket(readSocket);
     close_client_socket(writeSocket);

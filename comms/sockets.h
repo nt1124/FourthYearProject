@@ -33,7 +33,7 @@ void set_up_client_socket(int& mysocket, const char* hostname, int Portnum, sock
 void close_client_socket(int socket);
 
 void sendBoth(int socket, octet *msg, int len);
-void receiveBoth(int socket, octet *msg, int& len);
+unsigned char *receiveBoth(int socket, int& len);
 
 void send(int socket, octet *msg, int len);
 void receive(int socket, octet *msg, int len);
