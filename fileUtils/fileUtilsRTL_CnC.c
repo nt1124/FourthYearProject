@@ -1,231 +1,150 @@
-// RTL means the function deals with the Smart/Tillich style input.
-struct gate *processGateRTL_CnC(int numInputWires, int *inputIDs, char gateType)
-{
-	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
-	int i, outputTableSize = 1;
-
-	toReturn -> numInputs = numInputWires;
-	toReturn -> inputIDs = (int*) calloc(2, sizeof(int));
-
-	toReturn -> inputIDs[0] = inputIDs[0];
-	toReturn -> inputIDs[1] = inputIDs[1];
-
-	for(i = 0; i < toReturn -> numInputs; i ++)
-		outputTableSize *= 2;
-
-	toReturn -> outputTableSize = outputTableSize;
-	if('I' == gateType)
-	{
-		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
-		toReturn -> rawOutputTable[0] = 1;
-	}
-	else
-	{
-		toReturn -> rawOutputTable = (int*) calloc(4, sizeof(int));
-		if('A' == gateType)
-		{
-			toReturn -> rawOutputTable[3] = 1;
-		}
-		else if('X' == gateType)
-		{
-			toReturn -> rawOutputTable[1] = 1;
-			toReturn -> rawOutputTable[2] = 1;
-		}
-	}
-
-	toReturn -> encOutputTable = createOutputTable(toReturn);
-
-
-	return toReturn;
-}
-
-
-// Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWireRTL_CnC(int idNum, int *inputIDs, int numInputWires,
-										char gateType, struct gateOrWire **circuit,
-										unsigned char *R, int numInputs1)
-{
-	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-	unsigned char permC = 0x00;
-	unsigned char usingBuilderInput = 0xF0;
-	int inputID, i;
-
-	toReturn -> G_ID = idNum;
-	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
-
-	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
-	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
-
-	if('X' == gateType)
-	{
-		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
-		{
-			inputID = toReturn -> gatePayload -> inputIDs[i];
-			permC ^= circuit[inputID] -> outputWire -> wirePerm;
-      if(inputID < numInputs1)
-      {
-        usingBuilderInput &= 0xE0;
-      }		
-    }
-
-		toReturn -> outputWire -> wireMask ^= usingBuilderInput;
-		toReturn -> outputWire -> wirePerm = permC;
-	}
-	else
-	{
-		toReturn -> outputWire -> wirePerm = getPermutation();
-	}
-
-	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(toReturn, R, circuit);
-
-	// encWholeOutTable(toReturn, circuit);
-
-	return toReturn;
-}
-
-
-// Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL_CnC(char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
-{
-	int strIndex = 0, idNum, i;
-	int numInputWires, purposelessNumber;
-	int *inputIDs;
-
-	numInputWires = getIntFromString(line, strIndex);
-
-	// As of yet unsure of the purpose of this number. Ask Nigel? Otherwise we just ignore it.
-	// Is it the number of output wires?
-	purposelessNumber = getIntFromString(line, strIndex);
-
-	inputIDs = (int*) calloc(numInputWires, sizeof(int));
-	for(i = 0; i < numInputWires; i ++)
-	{
-		idNum = getIntFromString(line, strIndex);
-		if(idNum >= numInputs1)
-		{
-			inputIDs[i] = idNum + idOffset;
-		}
-		else
-		{
-			inputIDs[i] = idNum;
-		}
-	}
-
-	idNum = getIntFromString(line, strIndex) + idOffset;
-
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R, numInputs1);
-}
-
-
-// Initialises an input wire, needed because input wires don't feature in the input file.
-// Therefore they need to initialised separately.
-struct gateOrWire *initialiseInputWire_CnC(int idNum, unsigned char owner, unsigned char *R)
-{
-	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-
-	toReturn -> G_ID = idNum;
-	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
-	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
-
-	if(1 || 0x00 == owner)
-	{
-		toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
-	}
-
-	toReturn -> gatePayload = NULL;
-	toReturn -> outputWire -> wireMask = 0x01;
-	toReturn -> outputWire -> wireOwner = owner;
-
-	return toReturn;
-}
-
+// CnC means that this is building a Circuit with the encoding from Lindell/Pinkas Cut and Choose 2007.
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
+struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R, int securityParam)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
-	int i;
+	int i, j, k, startIndex, index;
+	int *inputIDs = (int*) calloc(2, sizeof(int));
+
 
 	for(i = 0; i < numInputs1; i ++)
 	{
-		circuit[i] = initialiseInputWire_CnC(i, 0xFF, R);
+		circuit[i] = initialiseInputWire(i, 0xFF, R);
 		(*execOrder)[i] = i;
 	}
 
-	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
+	for(i = numInputs1; i < numInputs1 + (numInputs2 * securityParam); i ++)
 	{
-		circuit[i] = initialiseInputWire_CnC(i, 0x00, R);
+		circuit[i] = initialiseInputWire(i, 0x00, R);
 		(*execOrder)[i] = i;
 	}
 
+	index = numInputs1 + (numInputs2 * securityParam);
+	for(i = 0; i < numInputs2; i ++)
+	{
+		inputIDs[0] = numInputs1 + (i * securityParam);
+		inputIDs[1] = inputIDs[0] + 1;
+
+		circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
+		(*execOrder)[index] = index;
+
+		inputIDs[0] = inputIDs[1] + 1;
+		inputIDs[1] = index;
+		index ++;
+
+		for(j = 1; j < (securityParam - 2); j ++)
+		{
+			circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
+			(*execOrder)[index] = index;
+
+
+			inputIDs[0] += 1;
+			inputIDs[1] += 1;
+
+			index ++;
+		}
+	}
+
+	if(securityParam > 2)
+	{
+		inputIDs[0] = numInputs1 + (securityParam - 1);
+		inputIDs[1] = numInputs1 + securityParam * numInputs2 + (securityParam - 3);
+		for(i = 0; i < numInputs2; i ++)
+		{
+			circuit[index] = processGateOrWireRTL(index, inputIDs, 2, 'X', circuit,	R);
+			(*execOrder)[index] = index;
+
+			inputIDs[0] += securityParam;
+			inputIDs[1] += (securityParam - 2);
+
+			index ++;
+		}
+	}
 
 	return circuit;
 }
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuitRTL_CnC(char* filepath)
+struct Circuit *readInCircuitRTL_CnC(char* filepath, int securityParam)
 {
-	FILE *file = fopen ( filepath, "r" );
-	char line [ 512 ]; // Or other suitable maximum line size
-	int numInputs1, numInputs2, numOutputs, gateIndex = 0;
-	struct gateOrWire *tempGateOrWire;
-	struct gateOrWire **gatesList;
-	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-	int i, execIndex, *execOrder;
-	unsigned char *R = generateRandBytes(16, 17);
-
-
-	if ( file != NULL )
+	if(1 < securityParam)
 	{
-		if(NULL != fgets(line, sizeof(line), file))
-			sscanf( line, "%d %d", &numInputs1, &(outputCircuit -> numGates) );
-		else
-			return NULL;
+		FILE *file = fopen ( filepath, "r" );
+		char line [ 512 ]; // Or other suitable maximum line size
+		int numInputs1, numInputs2, numOutputs, gateIndex = 0, ignore;
 
-		if(NULL != fgets(line, sizeof(line), file))
-			sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &(outputCircuit -> numOutputs));
-		else
-			return NULL;
+		struct gateOrWire *tempGateOrWire;
+		struct gateOrWire **gatesList;
 
-		if(NULL == fgets(line, sizeof(line), file))
-			return NULL;
+		struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
+		int i, execIndex, *execOrder, idOffset;
+		unsigned char *R = generateRandBytes(16, 17);
 
-		outputCircuit -> checkFlag = 0x00;
-		outputCircuit -> numInputsBuilder = numInputs1;
-		outputCircuit -> numInputsExecutor = numInputs2;
-		outputCircuit -> securityParam = 1;
 
-		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
-		gatesList = initialiseAllInputs_CnC( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
-		execIndex = numInputs1 + numInputs2;
 
-		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
+
+		if ( file != NULL )
 		{
-			tempGateOrWire = processGateLineRTL_CnC(line, gatesList, R, 0, numInputs1);
-			if( NULL != tempGateOrWire )
+			if(NULL != fgets(line, sizeof(line), file))
+				sscanf( line, "%d %d", &ignore, &(outputCircuit -> numGates) );
+			else
+				return NULL;
+
+			if(NULL != fgets(line, sizeof(line), file))
+				sscanf(line, "%d %d\t%d", &numInputs1, &numInputs2, &(outputCircuit -> numOutputs));
+			else
+				return NULL;
+
+			if(NULL == fgets(line, sizeof(line), file))
+				return NULL;
+
+			outputCircuit -> checkFlag = 0x00;
+			outputCircuit -> numInputsBuilder = numInputs1;
+			outputCircuit -> numInputsExecutor = numInputs2;
+			outputCircuit -> securityParam = securityParam;
+			idOffset = 2 * numInputs2 * (securityParam - 1);
+
+			// So we have enough room for all the extra gates/wires
+			outputCircuit -> numGates += ( 2 * (securityParam - 1) * numInputs2 );
+			outputCircuit -> numInputs = numInputs1 + numInputs2 * securityParam;
+
+			execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
+			gatesList = initialiseAllInputs_CnC( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R, securityParam );
+			execIndex = outputCircuit -> numInputs + numInputs2 * (securityParam - 1);
+
+			while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 			{
-				gateIndex = tempGateOrWire -> G_ID;
-				*(gatesList + gateIndex) = tempGateOrWire;
-				*(execOrder + execIndex) = gateIndex;
-				execIndex++;
+				tempGateOrWire = processGateLineRTL(line, gatesList, R, idOffset, numInputs1);
+				if( NULL != tempGateOrWire )
+				{
+					gateIndex = tempGateOrWire -> G_ID;
+					*(gatesList + gateIndex) = tempGateOrWire;
+					*(execOrder + execIndex) = gateIndex;
+					execIndex++;
+				}
 			}
+
+			for(i = 0; i < outputCircuit -> numOutputs; i ++)
+			{
+				gateIndex = outputCircuit -> numGates - i - 1;
+				gatesList[gateIndex] -> outputWire -> wireMask = 0x02;
+			}
+
+			fclose ( file );
 		}
 
-		for(i = 0; i < outputCircuit -> numOutputs; i ++)
-		{
-			gateIndex = outputCircuit -> numGates - i - 1;
-			gatesList[gateIndex] -> outputWire -> wireMask |= 0x02;
-		}
-		fclose ( file );
+
+		outputCircuit -> gates = gatesList;
+		outputCircuit -> execOrder = execOrder;
+
+		free(R);
+
+		return outputCircuit;
 	}
-
-	outputCircuit -> gates = gatesList;
-	outputCircuit -> execOrder = execOrder;
-
-	free(R);
-
-	return outputCircuit;
+	else
+	{
+		return readInCircuitRTL(filepath);
+	}
 }

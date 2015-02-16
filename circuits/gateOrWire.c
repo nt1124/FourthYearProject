@@ -211,12 +211,11 @@ void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
-// Evaluate a given gate.
+// Are we dealing with an XOR gate.
 void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	unsigned char temp;
 
-	// Are we dealing with an XOR gate or a non-XOR / input from Builder gate.
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) )
 	{
 		decryptGate(curGate, inputCircuit);
@@ -314,22 +313,6 @@ unsigned char getPermutation()
 
 	return toReturn;
 }
-
-
-
-void garbleOutputTables(struct Circuit *inputCircuit)
-{
-	int i;
-
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		if(NULL != inputCircuit -> gates[i] -> gatePayload)
-		{
-			encWholeOutTable(inputCircuit -> gates[i], inputCircuit -> gates);
-		}
-	}
-}
-
 
 
 // Ronseal.
