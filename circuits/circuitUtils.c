@@ -149,7 +149,15 @@ void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam)
 	unsigned char *hexOutput;
 	int i, outputLength;
 	
-	hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength);
+	if(1 < securityParam)
+	{
+		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength);
+	}
+	else
+	{
+		unsigned char *binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
+		hexOutput = getOutputAsHex(binaryOutput, circuitsArray[0] -> numOutputs, &outputLength);
+	}
 
 	printf(" Majority output as Hex: ");
 	for(i = 0; i < outputLength; i ++)

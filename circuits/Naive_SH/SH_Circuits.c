@@ -33,7 +33,6 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
 
 
-    // readInputDetailsFileBuilder( inputFilepath, inputCircuit -> gates );
     startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
     setCircuitsInputs_Hardcode(startOfInputChain, inputCircuit, 0xFF);
     free_idAndValueChain(startOfInputChain);

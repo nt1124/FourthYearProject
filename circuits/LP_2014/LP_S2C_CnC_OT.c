@@ -1,4 +1,4 @@
-const int stat_SecParam = 5;
+const int stat_SecParam = 1;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -8,7 +8,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	struct Circuit **circuitsArray;
 	int i;
-
 
 	struct idAndValue *startOfInputChain, *start;
 	struct timespec ext_t_0, ext_t_1;
@@ -67,18 +66,21 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	state = seedRandGen();
 
+	/*
 	params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
 	for(i = 0; i < stat_SecParam; i++)
 	{	
 		builder_side_OT(writeSocket, readSocket, params, circuitsArray[i], state);
 
 	}
+	*/
 
-	// full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+
 
 
 	ext_c_1 = clock();
@@ -104,6 +106,8 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i;
+
+	int k;
 
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 	
@@ -138,14 +142,14 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 
 
 	state = seedRandGen();
+	/*
 	params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		executor_side_OT(writeSocket, readSocket, params, circuitsArray[i], state);
 	}
-
-	// full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
-
+	*/
+	full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 
 	for(i = 0; i < stat_SecParam; i ++)
@@ -162,6 +166,7 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 	close_client_socket(writeSocket);
 
 	printMajorityOutputAsHex(circuitsArray, stat_SecParam);
+	// printOutputHexString(circuitsArray[0]);
 
 	testAES_FromRandom();
 

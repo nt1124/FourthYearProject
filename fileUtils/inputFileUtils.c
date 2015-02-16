@@ -107,7 +107,8 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 			outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key0[16];
 			memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 		}
-		//outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePerm & 0x01);	
+
+		//outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePermedValue & 0x01);	
 		current = current -> next;
 	}
 

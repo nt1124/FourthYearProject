@@ -164,6 +164,57 @@ void CnC_OT_Transfer_One_Sender(unsigned char *input0Bytes, unsigned char *input
 
 
 
+// Perform the second half of the receiver side of the OT, deserialising the buffer returned by
+// the sender and using this to extract the requested data.
+unsigned char *CnC_OT_Output_One_Receiver_0(struct u_v_Pair *c_0, unsigned char inputBit,
+								struct otKeyPair *keyPair, struct params_CnC *params, int j)
+{
+	mpz_t *outputMPZ;
+	unsigned char *outputBytes = NULL;
+	int curLength, k;
+
+
+	if(0x00 == inputBit)
+	{
+		outputMPZ = CnC_OT_Dec(c_0, params, keyPair -> sk);
+		outputBytes = convertMPZToBytes(*outputMPZ, &curLength);
+	}
+	else if(0x01 == params -> crs -> J_set[j])
+	{
+		outputMPZ = CnC_OT_Dec_Alt(c_0, params, keyPair -> sk, 0x01);
+		outputBytes = convertMPZToBytes(*outputMPZ, &curLength);
+	}
+
+
+	return outputBytes;
+}
+
+
+// Perform the second half of the receiver side of the OT, deserialising the buffer returned by
+// the sender and using this to extract the requested data.
+unsigned char *CnC_OT_Output_One_Receiver_1(struct u_v_Pair *c_1, unsigned char inputBit,
+								struct otKeyPair *keyPair, struct params_CnC *params, int j)
+{
+	mpz_t *outputMPZ;
+	unsigned char *outputBytes = NULL;
+	int curLength, k;
+
+
+	if(0x01 == inputBit)
+	{
+		outputMPZ = CnC_OT_Dec(c_1, params, keyPair -> sk);
+		outputBytes = convertMPZToBytes(*outputMPZ, &curLength);
+	}
+	else if(0x01 == params -> crs -> J_set[j])
+	{
+		outputMPZ = CnC_OT_Dec_Alt(c_1, params, keyPair -> sk, 0x00);
+		outputBytes = convertMPZToBytes(*outputMPZ, &curLength);
+	}
+
+
+	return outputBytes;
+}
+
 
 // Perform the second half of the receiver side of the OT, deserialising the buffer returned by
 // the sender and using this to extract the requested data.
@@ -173,8 +224,8 @@ void CnC_OT_Output_One_Receiver(struct u_v_Pair *c_0, struct u_v_Pair *c_1,
 								unsigned char **output_0, unsigned char **output_1)
 {
 	mpz_t *outputMPZ, *output_j_MPZ;
-	unsigned char *outputBytes, *curBytes;
-	int curLength;
+	unsigned char *outputBytes;
+	int curLength, k;
 
 
 	if(0x00 == inputBit)
@@ -238,7 +289,8 @@ void testStuff(struct params_CnC *params, int j)
 void test_local_CnC_OT()
 {
 	struct params_CnC *params_R, *params_S;
-	int i, j, numTests = 128, comp_SecParam = 1024;
+	int i, j, k, numInputs = 8, numTests = 128, comp_SecParam = 1024;
+	int totalOTs = numInputs * numTests;
 
 	struct otKeyPair **keyPairs_R = (struct otKeyPair **) calloc(numTests, sizeof(struct otKeyPair*));
 	struct otKeyPair **keyPairs_S;
@@ -249,7 +301,7 @@ void test_local_CnC_OT()
 	unsigned char *outputBytes[numTests][2];
 	unsigned char *tempChars_0, *tempChars_1;
 	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x01;
+	unsigned char sigmaBit = 0x00;
 
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
@@ -295,7 +347,10 @@ void test_local_CnC_OT()
 	bufferOffset = 0;
 	for(i = 0; i < numTests; i ++)
 	{
-		CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[i], params_R, sigmaBit, i, &tempChars_0, &tempChars_1);
+		// CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[i], params_R, sigmaBit, i, &tempChars_0, &tempChars_1);
+
+		tempChars_0 = CnC_OT_Output_One_Receiver_0(c_i_Array_R[u_v_index + 0], sigmaBit, keyPairs_R[i], params_R, j);
+		tempChars_1 = CnC_OT_Output_One_Receiver_1(c_i_Array_R[u_v_index + 1], sigmaBit, keyPairs_R[i], params_R, j);
 
 		outputBytes[i][0] = tempChars_0;
 		outputBytes[i][1] = tempChars_1;
