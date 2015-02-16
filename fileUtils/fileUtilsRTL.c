@@ -87,7 +87,7 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 // Process a gateOrWire struct given the data.
 struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
 										char gateType, struct gateOrWire **circuit,
-										unsigned char *R)
+										unsigned char *R, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	unsigned char permC = 0x00;
@@ -102,13 +102,13 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 	if('X' == gateType)
 	{
-		toReturn -> outputWire -> wireMask ^= 0xF0;
 		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
 		{
 			inputID = toReturn -> gatePayload -> inputIDs[i];
-			permC ^= circuit[inputID] -> outputWire -> wirePerm;
+			permC ^= circuit[inputID] -> outputWire -> wirePerm;	
 		}
 
+		toReturn -> outputWire -> wireMask ^= 0xF0;
 		toReturn -> outputWire -> wirePerm = permC;
 	}
 	else
@@ -152,7 +152,7 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, u
 
 	idNum = getIntFromString(line, strIndex) + idOffset;
 
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R);
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R, numInputs1);
 }
 
 
@@ -167,7 +167,6 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned 
 	toReturn -> outputWire -> wirePerm = getPermutation();
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
 
 	toReturn -> gatePayload = NULL;
@@ -253,7 +252,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 		for(i = 0; i < outputCircuit -> numOutputs; i ++)
 		{
 			gateIndex = outputCircuit -> numGates - i - 1;
-			gatesList[gateIndex] -> outputWire -> wireMask = 0x02;
+			gatesList[gateIndex] -> outputWire -> wireMask |= 0x02;
 		}
 		fclose ( file );
 	}

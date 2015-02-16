@@ -11,7 +11,6 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 	int bufferLength = 0, i, j, iOffset = 0, numInputsBuilder;
 	int totalOTs = circuitsArray[0] -> numInputsExecutor * stat_SecParam;
 	int u_v_index = 0;
-	int k;
 
 
 	params_R = setup_CnC_OT_Receiver(stat_SecParam, comp_SecParam, *state);
@@ -26,17 +25,18 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*));
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
+	#pragma omp parallel for private(i, j, iOffset, value)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
-
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			keyPairs_R[iOffset + j] = CnC_OT_Transfer_One_Receiver(value, j, params_R, state);
 		}
-		iOffset += stat_SecParam;
 	}
 
 	bufferLength = 0;
@@ -52,15 +52,20 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 
 	iOffset = 0;
 
+
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire, value, tempChars_0, tempChars_1)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+		u_v_index = iOffset * 2;
+
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-			// CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[iOffset + j], params_R, value, j, &tempChars_0, &tempChars_1);
+
 			tempChars_0 = CnC_OT_Output_One_Receiver_0(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
 			tempChars_1 = CnC_OT_Output_One_Receiver_1(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
 
@@ -78,7 +83,5 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 
 			u_v_index += 2;
 		}
-
-		iOffset += stat_SecParam;
 	}
 }

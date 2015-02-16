@@ -51,8 +51,8 @@ struct u_v_Pair *randomiseDDH(struct DDH_PK *pk, struct DDH_Group *group, gmp_ra
 	mpz_init(toReturn -> u);
 	mpz_init(toReturn -> v);
 
-	mpz_urandomm(s, state, group -> p);
-	mpz_urandomm(t, state, group -> p);
+	mpz_urandomm(s, state, group -> q);
+	mpz_urandomm(t, state, group -> q);
 
 	mpz_powm(tempPowS, pk -> g, s, group -> p);
 	mpz_powm(tempPowT, pk -> h, t, group -> p);
@@ -133,7 +133,7 @@ struct DDH_KeyPair *generateKeys(struct DDH_Group *group, gmp_randstate_t state)
 
 	do
 	{
-		mpz_urandomm( *(DDH_keyPair -> sk), state, group -> p);
+		mpz_urandomm( *(DDH_keyPair -> sk), state, group -> q);
 	} while( 0 > mpz_cmp_ui( *(DDH_keyPair -> sk), 1) );
 
 	mpz_powm(DDH_keyPair -> pk -> g_x, DDH_keyPair -> pk -> g, *(DDH_keyPair -> sk), group -> p);

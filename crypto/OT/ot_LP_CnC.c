@@ -160,6 +160,9 @@ void CnC_OT_Transfer_One_Sender(unsigned char *input0Bytes, unsigned char *input
 
 	c_i_Array[u_v_index + 0] = CnC_OT_Enc(*input0, params, *state, keyPair -> pk, 0x00, j);
 	c_i_Array[u_v_index + 1] = CnC_OT_Enc(*input1, params, *state, keyPair -> pk, 0x01, j);
+
+	free(input0);
+	free(input1);
 }
 
 
