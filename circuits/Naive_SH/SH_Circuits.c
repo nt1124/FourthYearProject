@@ -116,7 +116,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
 
 void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 {
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 1);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
     int i;
 
 
@@ -137,7 +137,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 
 void testRunZeroedInput(char *circuitFilepath)
 {    
-    struct Circuit *inputCircuit = readInCircuitRTL_CnC(circuitFilepath, 3);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
     int i;
 
 

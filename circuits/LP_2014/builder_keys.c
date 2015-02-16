@@ -14,7 +14,7 @@ struct secret_builderPRS_Keys *init_secret_input_keys(int numInputs, int stat_Se
 		mpz_init(toReturn -> secret_keyPairs[i][1]);
 	}
 
-	toReturn -> stat_SecParam;
+	toReturn -> stat_SecParam = stat_SecParam;
 	toReturn -> secret_circuitKeys = (mpz_t *) calloc(stat_SecParam, sizeof(mpz_t));
 
 	for(i = 0; i < stat_SecParam; i ++)
@@ -24,6 +24,7 @@ struct secret_builderPRS_Keys *init_secret_input_keys(int numInputs, int stat_Se
 
 	return toReturn;
 }
+
 
 struct public_builderPRS_Keys *init_public_input_keys(int numInputs, int stat_SecParam)
 {
@@ -41,13 +42,15 @@ struct public_builderPRS_Keys *init_public_input_keys(int numInputs, int stat_Se
 		mpz_init(toReturn -> public_keyPairs[i][1]);
 	}
 
-	toReturn -> stat_SecParam;
+	toReturn -> stat_SecParam = stat_SecParam;
 	toReturn -> public_circuitKeys = (mpz_t *) calloc(stat_SecParam, sizeof(mpz_t));
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		mpz_init(toReturn -> public_circuitKeys[i]);
 	}
+
+	return toReturn;
 }
 
 
@@ -78,12 +81,12 @@ void free_public_key_set(struct public_builderPRS_Keys *toFree)
 
 
 
-struct secret_builderPRS_Keys *generateSecrets(struct Circuit *inputCircuit, int stat_SecParam, struct DDH_Group *group, gmp_randstate_t state)
+struct secret_builderPRS_Keys *generateSecrets(int numInputs, int stat_SecParam, struct DDH_Group *group, gmp_randstate_t state)
 {
 	struct secret_builderPRS_Keys *secret_inputs;
-	int numInputs = inputCircuit -> numInputsBuilder, i;
+	int i;
 	
-	secret_inputs = init_secret_input_keys(inputCircuit -> numInputsBuilder, stat_SecParam);
+	secret_inputs = init_secret_input_keys(numInputs, stat_SecParam);
 
 	for(i = 0; i < secret_inputs -> numKeyPairs; i ++)
 	{
@@ -103,7 +106,7 @@ struct secret_builderPRS_Keys *generateSecrets(struct Circuit *inputCircuit, int
 struct public_builderPRS_Keys *computePublicInputs(struct secret_builderPRS_Keys *secret_inputs, struct DDH_Group *group)
 {
 	struct public_builderPRS_Keys *public_inputs;
-	int numInputs = secret_inputs -> numKeyPairs, i;
+	int i;
 	
 	public_inputs = init_public_input_keys(secret_inputs -> numKeyPairs, secret_inputs -> stat_SecParam);
 
@@ -128,6 +131,9 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	mpz_t mpz_representation;
 	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(16, sizeof(unsigned char));
 	int outputLength;
+
+	mpz_init(mpz_representation);
+
 
 	mpz_powm(mpz_representation, public_inputs -> public_keyPairs[i][inputBit], secret_inputs -> secret_circuitKeys[j], group -> p);
 

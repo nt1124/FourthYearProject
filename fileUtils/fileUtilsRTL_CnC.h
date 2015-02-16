@@ -3,7 +3,7 @@
 
 
 
-struct Circuit *readInCircuitRTL_CnC(char* filepath, int numCircuits);
+// struct Circuit *readInCircuitRTL_CnC(char* filepath, int numCircuits);
 
 #include "../circuits/gateOrWire.h"
 #include "fileUtilsRTL.h"

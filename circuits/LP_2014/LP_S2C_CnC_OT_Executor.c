@@ -26,8 +26,11 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*));
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
+	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
@@ -36,7 +39,6 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 		{
 			keyPairs_R[iOffset + j] = CnC_OT_Transfer_One_Receiver(value, j, params_R, state);
 		}
-		iOffset += stat_SecParam;
 	}
 
 	bufferLength = 0;
@@ -50,35 +52,33 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 	c_i_Array_R = deserialise_U_V_Pair_Array(commBuffer, totalOTs * 2);
 	free(commBuffer);
 
-	iOffset = 0;
 
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+		u_v_index = 2 * iOffset;
+
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-			// CnC_OT_Output_One_Receiver(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[iOffset + j], params_R, value, j, &tempChars_0, &tempChars_1);
-			tempChars_0 = CnC_OT_Output_One_Receiver_0(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
-			tempChars_1 = CnC_OT_Output_One_Receiver_1(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
 
-			tempWire -> outputGarbleKeys -> key0 = tempChars_0;
-			tempWire -> outputGarbleKeys -> key1 = tempChars_1;
+			tempWire -> outputGarbleKeys -> key0 = CnC_OT_Output_One_Receiver_0(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
+			tempWire -> outputGarbleKeys -> key1 = CnC_OT_Output_One_Receiver_1(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
 
 			if(0x00 == value)
 			{
-				memcpy(tempWire -> wireOutputKey, tempChars_0, 16);
+				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
 			{
-				memcpy(tempWire -> wireOutputKey, tempChars_1, 16);
+				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
 			}
 
 			u_v_index += 2;
 		}
-
-		iOffset += stat_SecParam;
 	}
 }

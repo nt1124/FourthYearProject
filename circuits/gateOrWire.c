@@ -315,6 +315,22 @@ unsigned char getPermutation()
 }
 
 
+// Function to encrypt all the output tables.
+void garbleOutputTables(struct Circuit *inputCircuit)
+{
+	int i;
+
+	// For each gate, if not gatePayload.
+	for(i = 0; i < inputCircuit -> numGates; i ++)
+	{
+		if(NULL != inputCircuit -> gates[i] -> gatePayload)
+		{
+			encWholeOutTable(inputCircuit -> gates[i], inputCircuit -> gates);
+		}
+	}
+}
+
+
 // Ronseal.
 void freeGate(struct gate *inputGate)
 {

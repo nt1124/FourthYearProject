@@ -1,4 +1,4 @@
-const int stat_SecParam = 128;
+const int stat_SecParam = 4;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -18,13 +18,12 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	gmp_randstate_t *state;
 	struct decParams *params;
 
-
-
-	circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
-
+	// circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
+
+	state = seedRandGen();
 
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
@@ -34,6 +33,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	/*
 	for(i = 0; i < stat_SecParam; i++)
 	{
 		circuitsArray[i] = readInCircuitRTL(circuitFilepath);
@@ -47,6 +47,9 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 		setCircuitsInputs_Hardcode(start, circuitsArray[i], 0xFF);
 	}
 	free_idAndValueChain(startOfInputChain);
+	*/
+
+	circuitsArray = buildAllCircuits(circuitFilepath, inputFilepath, *state, stat_SecParam);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -64,14 +67,12 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	state = seedRandGen();
 
 	/*
 	params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
 	for(i = 0; i < stat_SecParam; i++)
 	{	
 		builder_side_OT(writeSocket, readSocket, params, circuitsArray[i], state);
-
 	}
 	*/
 
