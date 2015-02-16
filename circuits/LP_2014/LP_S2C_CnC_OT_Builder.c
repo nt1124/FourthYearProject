@@ -13,9 +13,11 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 
 	int k;
 
+	printf("<0><><>\n");
+	fflush(stdout);
+
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
-
 	params_S = setup_CnC_OT_Sender(commBuffer);
 	free(commBuffer);
 
@@ -23,12 +25,18 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
 
+	printf("<1><><>\n");
+	fflush(stdout);
+
 	// When doing this properly the ZKPOK goes here.
 
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
 	keyPairs_S = deserialise_PKs_otKeyPair_Array(commBuffer, totalOTs);
 	free(commBuffer);
+
+	printf("<2><><>\n");
+	fflush(stdout);
 
 
 	c_i_Array_S = (struct u_v_Pair **) calloc(2*totalOTs, sizeof(struct u_v_Pair*));
@@ -42,12 +50,24 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 			CnC_OT_Transfer_One_Sender(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16,
 										params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
 			u_v_index += 2;
+
+			printf("<3><%d>\n", i);
+			fflush(stdout);
 		}
 		iOffset += stat_SecParam;
 	}
 
 	bufferLength = 0;
+	printf("<3><><>\n");
+	fflush(stdout);
 	commBuffer = serialise_U_V_Pair_Array(c_i_Array_S, totalOTs * 2, &bufferLength);
+	printf("<4><><>\n");
+	fflush(stdout);
 	sendBoth(writeSocket, commBuffer, bufferLength);
+	printf("<5><><>\n");
+	fflush(stdout);
 	free(commBuffer);
+
+	printf("<6><><>\n");
+	fflush(stdout);
 }

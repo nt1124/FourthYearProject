@@ -68,7 +68,7 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 
 	inputGatesOffset = inputCircuit -> numInputsBuilder;
 
-	#pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
+	// #pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
 	for(i = inputGatesOffset; i < inputGatesOffset + inputCircuit -> numInputsExecutor; i ++)
 	{
 		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
