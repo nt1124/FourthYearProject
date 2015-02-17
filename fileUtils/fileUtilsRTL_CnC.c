@@ -143,7 +143,7 @@ struct gateOrWire *initialiseInputWire_CnC(int idNum, unsigned char owner, unsig
 
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
+struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int numInputs2, unsigned char *R)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 	int i;
@@ -151,13 +151,11 @@ struct gateOrWire **initialiseAllInputs_CnC(int numGates, int numInputs1, int nu
 	for(i = 0; i < numInputs1; i ++)
 	{
 		circuit[i] = initialiseInputWire_CnC(i, 0xFF, R);
-		(*execOrder)[i] = i;
 	}
 
 	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
 	{
 		circuit[i] = initialiseInputWire_CnC(i, 0x00, R);
-		(*execOrder)[i] = i;
 	}
 
 
@@ -176,7 +174,7 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, unsigned char *R)
 	struct gateOrWire **gatesList;
 
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
-	int i, execIndex, *execOrder;
+	int i, execIndex;
 	// unsigned char *R = generateRandBytes(16, 17);
 
 
@@ -200,9 +198,12 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, unsigned char *R)
 		outputCircuit -> numInputsExecutor = numInputs2;
 		outputCircuit -> securityParam = 1;
 
-		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
-		gatesList = initialiseAllInputs_CnC( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
+		outputCircuit -> execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
+		gatesList = initialiseAllInputs_CnC( outputCircuit -> numGates, numInputs1, numInputs2, R );
 		execIndex = numInputs1 + numInputs2;
+
+		for(i = 0; i < execIndex; i ++)
+			outputCircuit -> execOrder[i] = i;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
@@ -211,7 +212,7 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, unsigned char *R)
 			{
 				gateIndex = tempGateOrWire -> G_ID;
 				*(gatesList + gateIndex) = tempGateOrWire;
-				*(execOrder + execIndex) = gateIndex;
+				outputCircuit -> execOrder[execIndex] = gateIndex;
 				execIndex++;
 			}
 		}
@@ -225,7 +226,7 @@ struct Circuit *readInCircuitRTL_CnC(char* filepath, unsigned char *R)
 	}
 
 	outputCircuit -> gates = gatesList;
-	outputCircuit -> execOrder = execOrder;
+	// outputCircuit -> execOrder = execOrder;
 
 	free(R);
 

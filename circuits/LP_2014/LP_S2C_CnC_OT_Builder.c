@@ -1,4 +1,4 @@
-void builderInputGarbledKeys(struct Circuit *inputCircuit, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
+void builderInputGarbledKeys(struct Circuit **circuitsArray, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
 							struct DDH_Group *group, int j, unsigned char *R)
 {
 	struct bitsGarbleKeys *tempOutput;
@@ -7,31 +7,20 @@ void builderInputGarbledKeys(struct Circuit *inputCircuit, struct secret_builder
 	int i, gateID;
 
 
-	printf("$$$$$\n");
+	printf("$$$$$  -  %d\n", circuitsArray[3] -> execOrder[0]);
 	fflush(stdout);
-	for(i = 0; i < inputCircuit -> numInputsBuilder; i ++)
-	{
-		gateID = inputCircuit -> execOrder[i];
+	for(i = 0; i < circuitsArray[j] -> numInputsBuilder; i ++)
+	{			
+		gateID = circuitsArray[j] -> execOrder[i];
 
-		tempWire = inputCircuit -> gates[gateID] -> outputWire;
+		tempWire = circuitsArray[j] -> gates[gateID] -> outputWire;
 
-		if(0xFF == tempWire -> wireOwner)
-		{
-			printf("<%03d><%d> ", i, j);
-			fflush(stdout);
-			// tempWire -> outputGarbleKeys = genFreeXORPairInput(tempWire -> wirePerm, R);
-			tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-			printf(" + ");
-			fflush(stdout);
-			tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x00);
-			printf(" + ");
-			fflush(stdout);
-			tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x01);
-			printf(" +\n");
-			fflush(stdout);
+		// tempWire -> outputGarbleKeys = genFreeXORPairInput(tempWire -> wirePerm, R);
+		tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+		tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x00);
+		tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x01);
+		//tempWire -> outputGarbleKeys = tempOutput;
 
-			free(tempOutput);
-		}
 	}
 }
 
@@ -120,15 +109,16 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 	public_inputs = computePublicInputs(secret_inputs, group);
 
 
-	/*
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		builderInputGarbledKeys(circuitsArray[j], secret_inputs, public_inputs, group, j, R);
-		garbleOutputTables(circuitsArray[j]);
+		printf("+> %d\n", circuitsArray[3] -> execOrder[0]);
+		builderInputGarbledKeys(circuitsArray, secret_inputs, public_inputs, group, j, R);
+		// garbleOutputTables(circuitsArray[j]);
+		printf("-> %d\n", circuitsArray[3] -> execOrder[0]);
 	}
 	printf("<d><>\n");
 	fflush(stdout);
-	*/
+
 
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);

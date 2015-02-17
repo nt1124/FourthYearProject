@@ -130,7 +130,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 {
 	mpz_t mpz_representation;
 	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(16, sizeof(unsigned char));
-	int outputLength;
+	int outputLength = 0;
 
 	mpz_init(mpz_representation);
 
@@ -139,12 +139,11 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 
 	rawBytes = convertMPZToBytes(mpz_representation, &outputLength);
 
-	hashedBytes = sha_256_hash(rawBytes, outputLength);
+	// hashedBytes = sha_256_hash(rawBytes, outputLength);
 
-	memcpy(halfHash, hashedBytes, 16);
+	memcpy(halfHash, rawBytes, 16);
 
 	free(rawBytes);
-	free(hashedBytes);
 
 	return halfHash;
 }
