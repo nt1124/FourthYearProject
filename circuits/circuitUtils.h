@@ -21,6 +21,7 @@ typedef struct idAndValue
 #include "../fileUtils/readRawCircuit.h"
 #include "../fileUtils/fileUtilsRTL.h"
 #include "../fileUtils/fileUtilsRTL_CnC.h"
+#include "../fileUtils/fileUtils_FromRaw.h"
 
 #include "../comms/sockets.h"
 
@@ -35,6 +36,8 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 
 #include "Naive_SH/SH_Circuits.c"
 #include "LP_2014/LP_S2C_CnC_OT.h"
+
+#include "../fileUtils/testFromRaw.c"
 
 
 #endif

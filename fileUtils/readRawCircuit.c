@@ -177,6 +177,10 @@ struct RawCircuit *readInCircuit_Raw(char* filepath)
 			return NULL;
 
 
+		outputCircuit -> numInputsBuilder = numInputs1;
+		outputCircuit -> numInputsExecutor = numInputs2;
+
+
 		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
 		gatesList = initialiseAllInputs_Raw( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder);
 		execIndex = numInputs1 + numInputs2;
@@ -311,8 +315,7 @@ void setRawCircuitsInputs_Hardcode(struct idAndValue *start, struct RawGate **ga
 		current = current -> next;
 	}
 }
-
-
+/*
 void testIt(char *circuitFilepath, char *inputFilepath_B, char *inputFilepath_E)
 {
 	struct RawCircuit *inputCircuit = readInCircuit_Raw(circuitFilepath);
@@ -338,3 +341,4 @@ void testIt(char *circuitFilepath, char *inputFilepath_B, char *inputFilepath_E)
 	printOutputHexString_Raw(inputCircuit);
 	testAES_FromRandom();
 }
+*/

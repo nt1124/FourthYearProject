@@ -24,6 +24,8 @@ typedef struct RawGate
 typedef struct RawCircuit
 {
 	int numInputs;
+	int numInputsBuilder;
+	int numInputsExecutor;
 	int numOutputs;
 	int numGates;
 
