@@ -17,10 +17,10 @@ typedef struct idAndValue
 } idAndValue;
 
 
-#include "../fileUtils/fileUtilsFP.h"
+#include "../fileUtils/inputFileUtils.c"
+#include "../fileUtils/readRawCircuit.h"
 #include "../fileUtils/fileUtilsRTL.h"
 #include "../fileUtils/fileUtilsRTL_CnC.h"
-#include "../fileUtils/inputFileUtils.c"
 
 #include "../comms/sockets.h"
 

@@ -110,8 +110,6 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 
 		current = current -> next;
 	}
-
-
 }
 
 

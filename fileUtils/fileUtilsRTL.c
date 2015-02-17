@@ -20,27 +20,6 @@ void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
 }
 
 
-// Returns an integer value when given a string with index pointing to start
-// of the integer to read. Assumes delimtation by spaces.
-int getIntFromString(char *inputStr, int& strIndex)
-{
-	int toReturn = 0;
-
-	while(' ' != inputStr[strIndex])
-	{
-		toReturn *= 10;
-		toReturn += (inputStr[strIndex] - 48);
-		strIndex ++;
-	}
-
-	while(' ' == inputStr[strIndex])
-	{
-		strIndex ++;
-	}
-
-	return toReturn;
-}
-
 
 // RTL means the function deals with the Smart/Tillich style input.
 struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
@@ -87,28 +66,31 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 // Process a gateOrWire struct given the data.
 struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
 										char gateType, struct gateOrWire **circuit,
-										unsigned char *R)
+										unsigned char *R, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
-	unsigned char permC = 0x00;
+	unsigned char permC = 0x00, usingBuilderInput = 0xF0;
 	int inputID, i;
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
 	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
 
 	if('X' == gateType)
 	{
-		toReturn -> outputWire -> wireMask ^= 0xF0;
 		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
 		{
 			inputID = toReturn -> gatePayload -> inputIDs[i];
 			permC ^= circuit[inputID] -> outputWire -> wirePerm;
+			if(inputID < numInputs1)
+			{
+				usingBuilderInput &= 0xE0;
+			}	
 		}
 
+		toReturn -> outputWire -> wireMask ^= usingBuilderInput;
 		toReturn -> outputWire -> wirePerm = permC;
 	}
 	else
@@ -125,7 +107,8 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
+struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R,
+										int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
@@ -152,7 +135,7 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, u
 
 	idNum = getIntFromString(line, strIndex) + idOffset;
 
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R);
+	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R, numInputs1);
 }
 
 
