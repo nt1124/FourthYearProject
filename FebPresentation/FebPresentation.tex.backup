@@ -168,7 +168,7 @@
 				\setlength{\parskip}{0pt}
 				\setlength{\parsep}{0pt}
 
-% 				\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
+ 				\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
 				\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
 				\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
 				\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
@@ -189,15 +189,15 @@
 
 	\end{frame}
 
-
-	\begin{frame}
-		\frametitle{Yao Garbled Circuits}
-
-		\begin{columns}
-			\begin{column}{0.4\textwidth}
-				\includegraphics[scale=0.3]{Images/BasicGarbling}
-			\end{column}
-
+% 
+% 	\begin{frame}
+% 		\frametitle{Yao Garbled Circuits}
+% 
+% 		\begin{columns}
+% 			\begin{column}{0.4\textwidth}
+% 				\includegraphics[scale=0.3]{Images/BasicGarbling}
+% 			\end{column}
+% 
 % 			\begin{column}{0.55\textwidth}
 % 				\begin{tabular}[!htb]{c | c || c}
 % 					$b_0$ & $b_1$ & \\
@@ -212,10 +212,31 @@
 % 					$1$ & $1$ & $E_{k_0^1}(E_{k_1^1}(k_2^1 \Vert ))$\\
 % 				\end{tabular}
 % 			\end{column}
-		\end{columns}
+% 		\end{columns}
+% 
+% 	\end{frame}
 
+	\begin{frame}
+		\frametitle{Yao Garbled Circuits}
+		\centering
+		\includegraphics[scale=0.4]{Images/BasicGarbling}
+
+		$$c_0, c_1 : E_{k_0^{b_0}}(E_{k_1^{b_1}}(k_2^{G(b_0, b_1)} \Vert c_2))$$
+		where $c_i = \pi_i(b_i)$ and $G(., .)$ is the function taking the input of the gate and returning the output of the gate.
 	\end{frame}
 
+	\begin{frame}
+		\frametitle{Yao Garbled Circuits}
+		\begin{itemize}
+			\item We extend this to all gates of the circuit.
+			\item The Builder then sends the circuit to the Executor, stripped of the values of the permutations and keys.
+			% Note this means we're hardcoding the builders keys, the 
+			\item The Builder then sends the keys relating to its inputs for its input wires.
+			\item The Builder also sends the permutations for the Executors input wires and the Executors output wires.
+			\item The Executor then obtains the keys for its inputs by running Oblivious transfers with the Builder.
+			\item Finally the Executor uses the keys evaluate the circuit.
+		\end{itemize}
+	\end{frame}
 
 
 \end{document}
