@@ -126,10 +126,10 @@ struct public_builderPRS_Keys *computePublicInputs(struct secret_builderPRS_Keys
 
 
 unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group,
-										int i, int j, unsigned char inputBit)
+										int i, int j, unsigned char inputBit, unsigned char permutation)
 {
 	mpz_t mpz_representation;
-	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(16, sizeof(unsigned char));
+	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(17, sizeof(unsigned char));
 	int outputLength = 0;
 
 	mpz_init(mpz_representation);
@@ -142,6 +142,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	// hashedBytes = sha_256_hash(rawBytes, outputLength);
 
 	memcpy(halfHash, rawBytes, 16);
+	halfHash[16] = (0x01 & permutation) ^ inputBit;
 
 	free(rawBytes);
 

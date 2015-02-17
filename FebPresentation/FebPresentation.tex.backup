@@ -180,8 +180,55 @@
 
 	\begin{frame}
 		\frametitle{Yao Garbled Circuits}
-		
+		\begin{itemize}
+			\item The basic concept of Yao Garbled Circuits is that one party constructs a binary circuit corresponding to the function to be computed.
+			\item For wire $w_i$ we denote the value of the wire as $b_i$, we generate two random ``garble value'', denote these by $k_i^0$ and $k_i^1$.
+			\item We then generate a random permutation for each wire $w_i$, denote this by $\pi_i$.
+			\item For each gate we create an encryption table indexed by $c_i$ and $c_j$ (where the gates input wires are $w_i$ and $w_j$).
+		\end{itemize}
+
 	\end{frame}
 
 
+	\begin{frame}
+		\frametitle{Yao Garbled Circuits}
+
+		\begin{columns}
+			\begin{column}{0.4\textwidth}
+				\includegraphics[scale=0.3]{Images/BasicGarbling}
+			\end{column}
+
+% 			\begin{column}{0.55\textwidth}
+% 				\begin{tabular}[!htb]{c | c || c}
+% 					$b_0$ & $b_1$ & \\
+% 					\hline
+% 					\hline
+% 					$0$ & $0$ & $E_{k_0^0}(E_{k_1^0}(k_2^0 \Vert b_2))$\\
+% 					\hline
+% 					$0$ & $1$ & $E_{k_0^0}(E_{k_1^1}(k_2^0 \Vert b_2))$\\
+% 					\hline
+% 					$1$ & $0$ & $E_{k_0^1}(E_{k_1^0}(k_2^0 \Vert b_2))$\\
+% 					\hline
+% 					$1$ & $1$ & $E_{k_0^1}(E_{k_1^1}(k_2^1 \Vert ))$\\
+% 				\end{tabular}
+% 			\end{column}
+		\end{columns}
+
+	\end{frame}
+
+
+
 \end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+

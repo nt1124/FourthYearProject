@@ -1,4 +1,4 @@
-const int stat_SecParam = 4;
+const int stat_SecParam = 2;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -67,14 +67,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
-	/*
-	params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
-	for(i = 0; i < stat_SecParam; i++)
-	{	
-		builder_side_OT(writeSocket, readSocket, params, circuitsArray[i], state);
-	}
-	*/
 
 	full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 

@@ -3,25 +3,47 @@ void builderInputGarbledKeys(struct Circuit **circuitsArray, struct secret_build
 {
 	struct bitsGarbleKeys *tempOutput;
 	struct wire *tempWire;
-	unsigned char inputBit;
+	unsigned char inputBit, permutation;
 	int i, gateID;
 
 
-	printf("$$$$$  -  %d\n", circuitsArray[3] -> execOrder[0]);
+	printf("$$$$$\n");
 	fflush(stdout);
 	for(i = 0; i < circuitsArray[j] -> numInputsBuilder; i ++)
-	{			
+	{
 		gateID = circuitsArray[j] -> execOrder[i];
 
 		tempWire = circuitsArray[j] -> gates[gateID] -> outputWire;
 
+		permutation = tempWire -> wirePerm;
+
 		// tempWire -> outputGarbleKeys = genFreeXORPairInput(tempWire -> wirePerm, R);
 		tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-		tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x00);
-		tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x01);
-		//tempWire -> outputGarbleKeys = tempOutput;
-
+		tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x00, permutation);
+		tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, i, j, 0x01, permutation);
+		tempWire -> outputGarbleKeys = tempOutput;
 	}
+
+	/*
+	for(; i < circuitsArray[j] -> numInputsExecutor + circuitsArray[j] -> numInputsBuilder; i ++)
+	{
+		gateID = circuitsArray[j] -> execOrder[i];
+
+		tempWire = circuitsArray[j] -> gates[gateID] -> outputWire;
+
+		tempWire -> outputGarbleKeys = genFreeXORPairInput(tempWire -> wirePerm, R);
+	}
+
+	for(; i < circuitsArray[j] -> numGates; i ++)
+	{
+
+		gateID = circuitsArray[j] -> execOrder[i];
+
+		tempWire = circuitsArray[j] -> gates[gateID] -> outputWire;
+
+		tempWire -> outputGarbleKeys = genFreeXORPair(circuitsArray[j] -> gates[gateID], R, circuitsArray[j] -> gates);
+	}
+	*/
 }
 
 
@@ -111,14 +133,9 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		printf("+> %d\n", circuitsArray[3] -> execOrder[0]);
 		builderInputGarbledKeys(circuitsArray, secret_inputs, public_inputs, group, j, R);
-		// garbleOutputTables(circuitsArray[j]);
-		printf("-> %d\n", circuitsArray[3] -> execOrder[0]);
+		garbleOutputTables(circuitsArray[j]);
 	}
-	printf("<d><>\n");
-	fflush(stdout);
-
 
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);

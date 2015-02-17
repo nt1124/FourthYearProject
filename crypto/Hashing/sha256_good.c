@@ -1,3 +1,8 @@
+// This code was orginally written by {NAME HERE}.
+// Very slightly modified by me for use in my project.
+// Used under such and such licence.
+
+
 #include <stdio.h> 
 
 #define uchar unsigned char // 8-bit byte
