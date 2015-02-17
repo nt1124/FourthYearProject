@@ -64,7 +64,7 @@
 			\item \textbf{Privacy}, the only knowledge parties gain from participating is the output.
 			\item \textbf{Correctness}, the output is indeed that of the intended function.
 			\item \textbf{Independence of inputs}, no party can choose it's inputs as the function of other parties inputs.
-			\item \textbf{Fairness}, corrupt parties receive their outputs if and only if the honest parties also receive their outputs.
+			%\item \textbf{Fairness}, corrupt parties receive their outputs if and only if the honest parties also receive their outputs.
 		\end{itemize}
 
 		% Privacy - Note this is very dependent on the function. For example if the function is simple addition then clearly an adversary can calculate the other parties input as the output minus its own input. But the only information they gain is their intended output.
@@ -100,7 +100,8 @@
 		\end{itemize}
 		% Acknowledge we're skipping over Static and Active corruption issues.
 	\end{frame}
-	
+
+
 	\begin{frame}
 		\frametitle{Semi-Honest Adversaries}
 		\begin{itemize}
@@ -112,14 +113,14 @@
 		\end{itemize}
 	\end{frame}
 
+
 	\begin{frame}
 		\frametitle{Malicious and Coverts Adversaries}
 		\begin{itemize}
 			\item Malicious adversaries are the strongest adversary.
 			\item Malicious adversaries can use any arbitrary strategy. We do not assume that they follow the protocol.
-			\item Further more Malicious Adversaries are willing for their cheating to be noticed.
 			\bigskip
-			\item Covert Adversaries slightly weaker than Malicious Adversaries.
+			\item Covert Adversaries are slightly weaker than Malicious Adversaries.
 			\item Covert Adversaries can also use any arbitrary strategy, but they are adverse to being caught.
 			\item They are willing to accept a certain probability of getting caught.
 		\end{itemize}
@@ -230,7 +231,7 @@
 		\begin{itemize}
 			\item We extend this to all gates of the circuit.
 			\item The Builder then sends the circuit to the Executor, stripped of the values of the permutations and keys.
-			% Note this means we're hardcoding the builders keys, the 
+			% Note this means we're hardcoding the builders keys
 			\item The Builder then sends the keys relating to its inputs for its input wires.
 			\item The Builder also sends the permutations for the Executors input wires and the Executors output wires.
 			\item The Executor then obtains the keys for its inputs by running Oblivious transfers with the Builder.
@@ -238,18 +239,67 @@
 		\end{itemize}
 	\end{frame}
 
+	
+	\begin{frame}
+		\frametitle{Yao Garble Circuits - Malicious Security}
+		\begin{itemize}
+			\item Naively implemented Yao Garbled Circuits are only Semi-Honest secure.
+			\item Can anyone suggest why this might be?
+		\end{itemize}
+	\end{frame}
+
+	
+	\begin{frame}
+		\frametitle{Yao Garble Circuits - Malicious Security}
+		\begin{itemize}
+			\item Yao Garbled Circuits are only secure up to Semi-Honest adversaries because we are trusting that the Circuit builder is building the correct circuit.
+			\item There are several ways to extend Yao Garbled Circuits to achieve security in the presence of Malicious adversaries.
+			\item In particular I'm looking at ``Cut-and-choose'', a method loosely inspired by the solution to dividing a cake evenly between two parties.
+			\item One person cuts the cake into two halves, the other person chooses which half they want.
+		\end{itemize}
+
+	\end{frame}
+
+	
+	\begin{frame}
+		\frametitle{Cut-and-Choose}
+		\begin{itemize}
+			\item In Cut-and-choose the builder generates many circuits.
+			\item The Executor then picks a random subset of the circuits and ``opens'' them, to check that they give the correct result.
+			\item If any of the ``Check-Circuits'' fail the Executor knows the Builder is trying to cheat.
+			\item The Executor then evaluates all the remaining un-opened circuits and returns the majority output.
+		\end{itemize}
+	\end{frame}
+
+	
+	\begin{frame}
+		\frametitle{Cut-and-Choose - Not so simple}
+		\begin{itemize}
+			\item Cut-and-choose seems like an incredibly simple solution to solve all our problems, but it creates several new problems.
+			\item For example we need to ensure the Builder gives the same input for every circuit, without knowing what their input should be!
+			\item The Executor also has to careful about how they react to detecting cheating, they can't just immediately abort.
+		\end{itemize}
+	\end{frame}
+	
+
+	\begin{frame}
+		\frametitle{Why Lindell 2014 is Great}
+		\begin{itemize}
+			\item Cut-and-choose seems like an incredibly simple solution to solve all our problems, but it creates several new problems.
+			\item For example we need to ensure the Builder gives the same input for every circuit, without knowing what their input should be!
+			\item The Executor also has to careful about how they react to detecting cheating, they can't just immediately abort.
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}
+		\begin{center}
+			\textbf{ \LARGE Questions?}
+		\end{center}
+
+	\end{frame}
+
 
 \end{document}
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -22,7 +22,7 @@
 		\frametitle{Presentation overview}
 		\begin{itemize}
 			\item My project focuses on Secure Multiparty Computation, in particular the two party case using Yao Garbled Circuits.
-			\item I shall be implementing the as yet unimplemented protocol laid out by Lindell in ``Fast Cut-and-Choose based Protocol for Malicious and Covert Adversaries.''
+			\item The final aim is to implement the as yet unimplemented protocol laid out by Lindell in ``Fast Cut-and-Choose based Protocol for Malicious and Covert Adversaries'' (henceforth Lindell 2014).
 
 			\item By the end of this presentation you should know,
 			\begin{itemize}
@@ -268,6 +268,7 @@
 			\item The Executor then picks a random subset of the circuits and ``opens'' them, to check that they give the correct result.
 			\item If any of the ``Check-Circuits'' fail the Executor knows the Builder is trying to cheat.
 			\item The Executor then evaluates all the remaining un-opened circuits and returns the majority output.
+			\item The number of circuits the builder creates is a security parameter and defines how likely a cheating adversary is to remain undetected.
 		\end{itemize}
 	\end{frame}
 
@@ -279,6 +280,22 @@
 			\item For example we need to ensure the Builder gives the same input for every circuit, without knowing what their input should be!
 			\item The Executor also has to careful about how they react to detecting cheating, they can't just immediately abort.
 		\end{itemize}
+	\end{frame}
+	
+
+	\begin{frame}
+		\frametitle{Why Lindell 2014 is Great}
+		\begin{itemize}
+			\item The best result for a Cut-and-choose based protocol before Lindell 2014 was 
+		\end{itemize}
+	\end{frame}
+	
+	
+	\begin{frame}
+		\begin{center}
+			\textbf{ \LARGE Questions?}
+		\end{center}
+
 	\end{frame}
 
 
