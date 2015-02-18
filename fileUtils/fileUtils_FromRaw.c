@@ -5,15 +5,17 @@ struct gate *processGate_FromRaw(int numInputWires, int *inputIDs, int *rawOutpu
 	int i, outputTableSize = 1;
 
 	toReturn -> numInputs = numInputWires;
-	toReturn -> inputIDs = (int*) calloc(2, sizeof(int));
-
-	toReturn -> inputIDs[0] = inputIDs[0];
-	toReturn -> inputIDs[1] = inputIDs[1];
+	toReturn -> inputIDs = inputIDs;
+	// (int*) calloc(2, sizeof(int));
+	// toReturn -> inputIDs[0] = inputIDs[0];
+	// toReturn -> inputIDs[1] = inputIDs[1];
 
 	for(i = 0; i < toReturn -> numInputs; i ++)
 		outputTableSize *= 2;
 
 	toReturn -> outputTableSize = outputTableSize;
+	toReturn -> rawOutputTable = rawOutputTable;
+	/*
 	if('I' == gateType)
 	{
 		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
@@ -32,6 +34,7 @@ struct gate *processGate_FromRaw(int numInputWires, int *inputIDs, int *rawOutpu
 			toReturn -> rawOutputTable[2] = 1;
 		}
 	}
+	*/
 
 
 	toReturn -> encOutputTable = createOutputTable(toReturn);
@@ -42,21 +45,20 @@ struct gate *processGate_FromRaw(int numInputWires, int *inputIDs, int *rawOutpu
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWire_FromRaw(int idNum, int *inputIDs, int numInputWires,
-										char gateType, struct gateOrWire **circuit,
+struct gateOrWire *processGateOrWire_FromRaw(struct RawGate *rawGate, struct gateOrWire **circuit,
 										unsigned char *R, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	unsigned char permC = 0x00, usingBuilderInput = 0xF0;
 	int inputID, i;
 
-	toReturn -> G_ID = idNum;
+	toReturn -> G_ID = rawGate -> G_ID;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+	toReturn -> gatePayload = processGate_FromRaw(rawGate -> numInputs, rawGate -> inputIDs, rawGate -> rawOutputTable, rawGate -> gateType);
 
-	if('X' == gateType)
+	if('X' == rawGate -> gateType)
 	{
 		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
 		{
@@ -89,17 +91,10 @@ struct gateOrWire *processGateLine_FromRaw(struct RawGate *rawGate, struct gateO
 											unsigned char *R, int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
-	int numInputWires, purposelessNumber;
-	int *inputIDs;
-
-	numInputWires = rawGate -> numInputs;
-
-
-	inputIDs = rawGate -> inputIDs;
 
 	idNum = rawGate -> G_ID;
 
-	return processGateOrWire_FromRaw(idNum, inputIDs, numInputWires, rawGate -> gateType, circuit, R, numInputs1);
+	return processGateOrWire_FromRaw(rawGate, circuit, R, numInputs1);
 }
 
 
@@ -133,12 +128,12 @@ struct gateOrWire **initialiseAllInputs_FromRaw(struct RawCircuit *rawInputCircu
 
 	for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 	{
-		gates[i] = initialiseInputWire(i, 0xFF, R);
+		gates[i] = initialiseInputWire_FromRaw(i, 0xFF, R);
 	}
 
 	for(; i < numInputs; i ++)
 	{
-		gates[i] = initialiseInputWire(i, 0x00, R);
+		gates[i] = initialiseInputWire_FromRaw(i, 0x00, R);
 	}
 
 

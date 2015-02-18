@@ -315,30 +315,3 @@ void setRawCircuitsInputs_Hardcode(struct idAndValue *start, struct RawGate **ga
 		current = current -> next;
 	}
 }
-/*
-void testIt(char *circuitFilepath, char *inputFilepath_B, char *inputFilepath_E)
-{
-	struct RawCircuit *inputCircuit = readInCircuit_Raw(circuitFilepath);
-	struct idAndValue *startOfInputChain, *start;
-
-
-
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath_B);
-	start = startOfInputChain;
-	setRawCircuitsInputs_Hardcode(start, inputCircuit -> gates);
-	free_idAndValueChain(startOfInputChain);
-
-
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath_E);
-	start = startOfInputChain;
-	setRawCircuitsInputs_Hardcode(start, inputCircuit -> gates);
-	free_idAndValueChain(startOfInputChain);
-
-
-	evaluateRawCircuit(inputCircuit);
-
-	printf("\n");
-	printOutputHexString_Raw(inputCircuit);
-	testAES_FromRandom();
-}
-*/

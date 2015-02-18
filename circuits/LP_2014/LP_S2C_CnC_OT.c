@@ -1,4 +1,4 @@
-const int stat_SecParam = 2;
+const int stat_SecParam = 16;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -18,7 +18,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	gmp_randstate_t *state;
 	struct decParams *params;
 
-	// circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -33,21 +32,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	/*
-	for(i = 0; i < stat_SecParam; i++)
-	{
-		circuitsArray[i] = readInCircuitRTL(circuitFilepath);
-	}
-
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
-
-	for(i = 0; i < stat_SecParam; i++)
-	{
-		start = startOfInputChain;
-		setCircuitsInputs_Hardcode(start, circuitsArray[i], 0xFF);
-	}
-	free_idAndValueChain(startOfInputChain);
-	*/
 
 	circuitsArray = buildAllCircuits(circuitFilepath, inputFilepath, *state, stat_SecParam);
 
@@ -70,6 +54,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
+
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
@@ -83,12 +68,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
-
-
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		freeCircuitStruct(circuitsArray[i]);
-	}
 }
 
 
@@ -135,13 +114,7 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 
 
 	state = seedRandGen();
-	/*
-	params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		executor_side_OT(writeSocket, readSocket, params, circuitsArray[i], state);
-	}
-	*/
+
 	full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 
@@ -159,7 +132,6 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 	close_client_socket(writeSocket);
 
 	printMajorityOutputAsHex(circuitsArray, stat_SecParam);
-	// printOutputHexString(circuitsArray[0]);
 
 	testAES_FromRandom();
 

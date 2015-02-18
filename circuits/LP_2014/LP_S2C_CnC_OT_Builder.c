@@ -87,6 +87,8 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gmp_randstate_t state, int stat_SecParam)
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
+	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+
 	struct DDH_Group *group = getSchnorrGroup(1024, state);
 	struct secret_builderPRS_Keys *secret_inputs;
 	struct public_builderPRS_Keys *public_inputs;
@@ -99,7 +101,7 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		circuitsArray[j] = readInCircuitRTL(circuitFilepath);
+		circuitsArray[j] = readInCircuit_FromRaw(rawInputCircuit);
 	}
 
 
@@ -112,6 +114,7 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 		builderInputGarbledKeys(circuitsArray, secret_inputs, public_inputs, group, j, R);
 		garbleOutputTables(circuitsArray[j]);
 	}
+
 
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);

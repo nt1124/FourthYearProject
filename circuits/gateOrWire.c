@@ -223,7 +223,6 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	else
 	{
 		freeXOR_Gate(curGate, inputCircuit);
-		// decryptGate(curGate, inputCircuit);
 	}
 }
 

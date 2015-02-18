@@ -59,10 +59,10 @@ int main(int argc, char *argv[])
 
 
 	// runLocally(circuitFilepath, argv[2], argv[3]);
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testRunZeroedInput(circuitFilepath);
-	testRawCircuits(argv[1], argv[2], argv[3]);
-	testGarbledFromRawCircuits(argv[1], argv[2], argv[3]);
+	// testRawCircuits(argv[1], argv[2], argv[3]);
+	// testGarbledFromRawCircuits(argv[1], argv[2], argv[3]);
 
 	return 0;
 }

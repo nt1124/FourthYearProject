@@ -18,7 +18,7 @@ typedef struct gate
 	unsigned short outputTableSize;	// 2 ^ numInputs.
 	unsigned char **encOutputTable; // The encrypted and permutated output table.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.
-									// Only used temporarily by Builder. Try to get rid of in future.
+
 } gate;
 
 
@@ -81,6 +81,7 @@ void freeGateOrWire(struct gateOrWire *inputGW);
 
 #include "serialisationUtils.c"
 #include "gateOrWire.c"
+#include "circuitCheckerUtils.c"
 #include <math.h>
 
 
