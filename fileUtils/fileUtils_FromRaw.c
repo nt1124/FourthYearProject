@@ -278,9 +278,13 @@ struct Circuit *readInCircuit_FromRaw(struct RawCircuit *rawInputCircuit)
 
 struct Circuit *readInCircuit_FromRaw_Seeded(struct RawCircuit *rawInputCircuit, unsigned int seed)
 {
+	struct Circuit *toReturn;
 	srand(seed);
 
-	return readInCircuit_FromRaw(rawInputCircuit);
+	toReturn = readInCircuit_FromRaw(rawInputCircuit);
+	toReturn -> seed = seed;
+
+	return toReturn;
 }
 
 struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(struct RawCircuit *rawInputCircuit, unsigned int seed, 
@@ -288,7 +292,11 @@ struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(struct RawCircuit *
 															struct public_builderPRS_Keys *public_inputs,
 															int j, struct DDH_Group *group)
 {
+	struct Circuit *toReturn;
 	srand(seed);
 
-	return readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_inputs, public_inputs, j, group);
+	toReturn = readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_inputs, public_inputs, j, group);
+	toReturn -> seed = seed;
+
+	return toReturn;
 }

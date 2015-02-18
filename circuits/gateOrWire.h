@@ -50,9 +50,11 @@ typedef struct Circuit
 	int numInputsBuilder;
 	int numInputsExecutor;
 	int numOutputs;
-
 	int numGates;
+
+	unsigned int seed;
 	int securityParam;
+
 	unsigned char checkFlag;
 
 	int *execOrder;

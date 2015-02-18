@@ -35,7 +35,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		runExecutor_LP_2014_CnC_OT(inputFilename, ipAddress, portNumStr);
+		runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
 	}
 	else
 	{

@@ -249,7 +249,6 @@ void testCircuitDecryption(char *circuitFilepath, char *inputFilepath_B, char *i
 {
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct Circuit *garbledCircuit1, *garbledCircuit2;
-	struct idAndValue *startOfInputChain, *start;
 	unsigned char *seedBytes = generateRandBytes(sizeof(unsigned int), sizeof(unsigned int));
 	unsigned int seedLong = 0;
 	int i, temp = 0, tempTemp;
@@ -262,13 +261,13 @@ void testCircuitDecryption(char *circuitFilepath, char *inputFilepath_B, char *i
 
 
 	/*
+	struct idAndValue *startOfInputChain, *start;
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath_B);
 	start = startOfInputChain;
 	setCircuitsInputs_Hardcode(start, garbledCircuit1, 0x00);
 	start = startOfInputChain;
 	setCircuitsInputs_Hardcode(start, garbledCircuit2, 0x00);
 	free_idAndValueChain(startOfInputChain);
-
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath_E);
 	start = startOfInputChain;
@@ -277,6 +276,7 @@ void testCircuitDecryption(char *circuitFilepath, char *inputFilepath_B, char *i
 	setCircuitsInputs_Hardcode(start, garbledCircuit2, 0x00);
 	free_idAndValueChain(startOfInputChain);
 	*/
+
 
 	for(i = 0; i < rawInputCircuit -> numGates; i ++)
 	{

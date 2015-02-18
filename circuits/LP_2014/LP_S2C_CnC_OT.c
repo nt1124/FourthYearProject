@@ -1,4 +1,4 @@
-const int stat_SecParam = 4;
+const int stat_SecParam = 8;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -7,22 +7,34 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
 
 	struct Circuit **circuitsArray;
+	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	struct idAndValue *startOfInputChain, *start;
+	unsigned int *seedList;
 	int i;
 
-	struct idAndValue *startOfInputChain, *start;
+
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
 	clock_t ext_c_0, ext_c_1;
 	clock_t int_c_0, int_c_1;
 
 	gmp_randstate_t *state;
-	struct decParams *params;
+	struct public_builderPRS_Keys *public_inputs;
+	struct secret_builderPRS_Keys *secret_inputs;
+	struct DDH_Group *group;
+
+
+	initRandGen();
+	state = seedRandGen();
+
+	group = getSchnorrGroup(1024, *state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, group, *state);
+	public_inputs = computePublicInputs(secret_inputs, group);
 
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-	state = seedRandGen();
 
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
@@ -32,8 +44,9 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
-	circuitsArray = buildAllCircuits(circuitFilepath, inputFilepath, *state, stat_SecParam);
+	seedList = generateRandUintList(stat_SecParam + 1);
+	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, group, secret_inputs, public_inputs);
+	srand(seedList[stat_SecParam]);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -41,6 +54,8 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilding/Inputting all Circuits");
 	fflush(stdout);
 
+	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
+	sendPublicCommitments(writeSocket, readSocket, public_inputs, group);
 
 	for(i = 0; i < stat_SecParam; i++)
 	{
@@ -54,6 +69,8 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
+	// At this point receive from the Executor the proof of the J-set.
+	// Then provide the relevant r_j's.
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -72,20 +89,21 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 
 
-void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *portNumStr)
+void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i;
 
-	int k;
-
+	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
+
+	struct public_builderPRS_Keys *public_inputs;
+	struct DDH_Group *group;
 	
 	struct idAndValue *startOfInputChain;
 	gmp_randstate_t *state;
-	struct decParams *params;
 
 	struct timespec ext_t_0, ext_t_1;
 	clock_t ext_c_0, ext_c_1;
@@ -99,11 +117,13 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 
 	printf("Connected to builder.\n");
 
+
+	receivePublicCommitments(writeSocket, readSocket, public_inputs, group);
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
-
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 	for(i = 0; i < stat_SecParam; i ++)
@@ -114,9 +134,9 @@ void runExecutor_LP_2014_CnC_OT(char *inputFilepath, char *ipAddress, char *port
 
 
 	state = seedRandGen();
-
 	full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
+	// Here we do the decommit...
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{

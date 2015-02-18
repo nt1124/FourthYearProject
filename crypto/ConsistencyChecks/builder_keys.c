@@ -144,6 +144,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	memcpy(halfHash, rawBytes, 16);
 	halfHash[16] = (0x01 & permutation) ^ inputBit;
 
+	free(hashedBytes);
 	free(rawBytes);
 
 	return halfHash;
@@ -151,10 +152,37 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 
 
 
+unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group,
+										int i, unsigned char inputBit)
+{
+	mpz_t mpz_representation;
+	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(16, sizeof(unsigned char));
+	int outputLength = 0;
+
+	mpz_init(mpz_representation);
+
+
+	mpz_powm(mpz_representation, public_inputs -> public_keyPairs[i][inputBit], secret_input, group -> p);
+
+	rawBytes = convertMPZToBytes(mpz_representation, &outputLength);
+	hashedBytes = sha256_full(rawBytes, outputLength);
+
+	memcpy(halfHash, rawBytes, 16);
+
+	free(hashedBytes);
+	free(rawBytes);
+
+	return halfHash;
+}
+
+
+
+
+
 unsigned char *serialisePublicInputs(struct public_builderPRS_Keys *public_inputs, int *outputLength)
 {
 	unsigned char *outputBuffer;
-	int totalLength = 0, i;
+	int totalLength = 0, i, tempNumKeyPairs, tempStat_SecParam;
 	int outputOffset = sizeof(int);
 
 
@@ -167,12 +195,15 @@ unsigned char *serialisePublicInputs(struct public_builderPRS_Keys *public_input
 	{
 		totalLength += ( sizeof(mp_limb_t) * mpz_size(public_inputs -> public_circuitKeys[i]) );
 	}
-	totalLength += (2 + public_inputs -> stat_SecParam + public_inputs -> numKeyPairs) * sizeof(int);
+	totalLength += (2 + public_inputs -> stat_SecParam + 2 * public_inputs -> numKeyPairs) * sizeof(int);
 
+	tempNumKeyPairs = public_inputs -> numKeyPairs;
+	tempStat_SecParam = public_inputs -> stat_SecParam;
 
 	outputBuffer = (unsigned char*) calloc(totalLength, sizeof(unsigned char));
-	memcpy(outputBuffer, &(public_inputs -> numKeyPairs), sizeof(int));
-	memcpy(outputBuffer + outputOffset, &(public_inputs -> stat_SecParam), sizeof(int));
+	memcpy(outputBuffer, &tempNumKeyPairs, sizeof(int));
+	memcpy(outputBuffer + outputOffset, &tempStat_SecParam, sizeof(int));
+	outputOffset += sizeof(int);
 
 
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
@@ -191,16 +222,17 @@ unsigned char *serialisePublicInputs(struct public_builderPRS_Keys *public_input
 }
 
 
-
-struct public_builderPRS_Keys *serialisePublicInputs(unsigned char *inputBuffer)
+struct public_builderPRS_Keys *deserialisePublicInputs(unsigned char *inputBuffer, int *bufferOffset)
 {
 	struct public_builderPRS_Keys *toReturn;
-	int i, inputOffset = sizeof(int), numKeyPairs, stat_SecParam;
+	int i, inputOffset = *bufferOffset, numKeyPairs, stat_SecParam;
 	mpz_t *tempMPZ;
 
 
-	memcpy(&numKeyPairs, inputBuffer, sizeof(int));
+	memcpy(&numKeyPairs, inputBuffer + inputOffset, sizeof(int));
+	inputOffset += sizeof(int);
 	memcpy(&stat_SecParam, inputBuffer + inputOffset, sizeof(int));
+	inputOffset += sizeof(int);
 
 	toReturn = init_public_input_keys(numKeyPairs, stat_SecParam);
 
@@ -222,6 +254,8 @@ struct public_builderPRS_Keys *serialisePublicInputs(unsigned char *inputBuffer)
 		mpz_set(toReturn -> public_circuitKeys[i], *tempMPZ);
 		free(tempMPZ);
 	}
+
+	*bufferOffset = inputOffset;
 
 	return toReturn;
 }
@@ -259,25 +293,34 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 }
 
 
-
 mpz_t **deserialise_Requested_CircuitSecrets(unsigned char *inputBuffer, int stat_SecParam,
-											unsigned char *J_set)
+											unsigned char *J_set,
+											struct public_builderPRS_Keys *public_input,
+											struct DDH_Group *group)
 {
-	int inputOffset = 0;
-	int i = 0;
+	int inputOffset = 0, j = 0;
 
 	mpz_t **outputArray = (mpz_t**) calloc(stat_SecParam, sizeof(mpz_t*));
+	mpz_t temp;
+
+	mpz_init(temp);
 
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(j = 0; j < stat_SecParam; j ++)
 	{
-		if(0x01 == J_set[i])
+		if(0x01 == J_set[j])
 		{
-			outputArray[i] = deserialiseMPZ(inputBuffer, &inputOffset);
+			outputArray[j] = deserialiseMPZ(inputBuffer, &inputOffset);
+			mpz_powm(temp, group -> g, *(outputArray[j]), group -> p);
+			if(0 != mpz_cmp(temp, public_input -> public_circuitKeys[j]))
+			{
+				free(outputArray);
+				return NULL;
+			}
 		}
 		else
 		{
-			outputArray[i] = NULL;
+			outputArray[j] = NULL;
 		}
 	}
 
