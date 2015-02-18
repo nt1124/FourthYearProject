@@ -19,6 +19,8 @@
 
 #include "CommitmentSchemes/commit_elgamal.h"
 #include "CommitmentSchemes/commit_hash_elgamal.h"
+#include "ConsistencyChecks/builder_keys.h"
+
 
 
 

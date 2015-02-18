@@ -95,25 +95,25 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 	struct idAndValue *startOfInputChain, *start;
 
 	unsigned char *R = generateRandBytes(16, 17);
-
 	int j;
 
 
-	for(j = 0; j < stat_SecParam; j++)
-	{
-		circuitsArray[j] = readInCircuit_FromRaw(rawInputCircuit);
-	}
-
-
-	secret_inputs = generateSecrets(circuitsArray[0] -> numInputsBuilder, stat_SecParam, group, state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, group, state);
 	public_inputs = computePublicInputs(secret_inputs, group);
 
+	for(j = 0; j < stat_SecParam; j++)
+	{
+		circuitsArray[j] = readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_inputs, public_inputs, j, group);
+		// circuitsArray[j] = readInCircuit_FromRaw(rawInputCircuit);
+	}
 
+	/*
 	for(j = 0; j < stat_SecParam; j++)
 	{
 		builderInputGarbledKeys(circuitsArray, secret_inputs, public_inputs, group, j, R);
 		garbleOutputTables(circuitsArray[j]);
 	}
+	*/
 
 
 

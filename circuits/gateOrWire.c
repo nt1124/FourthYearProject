@@ -227,7 +227,7 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 }
 
 
-// Generate two RANDOM garble keys. This should not be uused when doing the Free-XOR as
+// Generate two RANDOM garble keys. This should not be used when doing the Free-XOR as
 // there is no relation between the two keys.
 struct bitsGarbleKeys *generateGarbleKeyPair(unsigned char perm)
 {
@@ -284,7 +284,7 @@ struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char 
 		// XOR the 16 bytes.
 		for(j = 0; j < 16; j ++)
 		{
-			toReturn -> key0[j] ^= circuit[tempIndex] -> outputWire -> outputGarbleKeys ->key0[j];
+			toReturn -> key0[j] ^= circuit[tempIndex] -> outputWire -> outputGarbleKeys -> key0[j];
 		}
 	}
 	

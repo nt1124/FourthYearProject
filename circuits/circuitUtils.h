@@ -17,7 +17,7 @@ typedef struct idAndValue
 } idAndValue;
 
 
-#include "../fileUtils/inputFileUtils.c"
+#include "../fileUtils/inputFileUtils.h"
 #include "../fileUtils/readRawCircuit.h"
 #include "../fileUtils/fileUtilsRTL.h"
 #include "../fileUtils/fileUtils_FromRaw.h"
@@ -32,6 +32,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 #include "circuitUtils.c"
 #include "circuitExecutor.c"
 #include "circuitBuilder.c"
+#include "circuitCheckerUtils.c"
 
 #include "Naive_SH/SH_Circuits.c"
 #include "LP_2014/LP_S2C_CnC_OT.h"

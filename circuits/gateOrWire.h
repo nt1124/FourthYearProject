@@ -81,7 +81,6 @@ void freeGateOrWire(struct gateOrWire *inputGW);
 
 #include "serialisationUtils.c"
 #include "gateOrWire.c"
-#include "circuitCheckerUtils.c"
 #include <math.h>
 
 
