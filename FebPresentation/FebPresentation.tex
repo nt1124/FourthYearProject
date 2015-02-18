@@ -28,9 +28,8 @@
 			\begin{itemize}
 				\item What is Secure Multiparty Computation?
 				\item What can it be used for?
-				\item What ``Secure'' means in this context.
-				\item A grounding in Yao Garbled Circuits.
-				\item How much progress I've made so far.
+				\item The basics of Yao Garbled Circuits.
+				\item What progress have we made so far.
 			\end{itemize}
 		\end{itemize}
 
@@ -47,7 +46,7 @@
 			\begin{itemize}
 				\item The Millionaires problem.
 				\item Distributed secrets.
-				\item Sugar Beets.
+				\item Sugar Beets (Auctions).
 				\item Database query.
 			\end{itemize}
 		\end{itemize}
@@ -61,7 +60,7 @@
 		Before we go any further we need to define what properties we want an SMC protocol to fulfill before we consider it Secure.
 		
 		\begin{itemize}
-			\item \textbf{Privacy}, the only knowledge parties gain from participating is the output.
+			\item \textbf{Privacy}, the only knowledge parties gain from participating is their proper outputs.
 			\item \textbf{Correctness}, the output is indeed that of the intended function.
 			\item \textbf{Independence of inputs}, no party can choose it's inputs as the function of other parties inputs.
 			%\item \textbf{Fairness}, corrupt parties receive their outputs if and only if the honest parties also receive their outputs.
@@ -87,7 +86,9 @@
 		
 		\begin{itemize}
 
-		\item We measure the security of an SMC protocol in terms of what adversaries it is secure against, we define adversaries in terms of their capabilities.
+		\item We measure the security of an SMC protocol in terms of what adversaries it is secure against.
+		
+		\item We define adversaries in terms of their capabilities.
 
 		\item We say that an SMC protocl is secure against an adversary if the adversary can achieve no more than they would be able to achieve attacking the Ideal Model.
 
