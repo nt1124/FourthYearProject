@@ -139,7 +139,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 
 	rawBytes = convertMPZToBytes(mpz_representation, &outputLength);
 
-	// hashedBytes = sha_256_hash(rawBytes, outputLength);
+	hashedBytes = sha256_full(rawBytes, outputLength);
 
 	memcpy(halfHash, rawBytes, 16);
 	halfHash[16] = (0x01 & permutation) ^ inputBit;
@@ -148,3 +148,145 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 
 	return halfHash;
 }
+
+
+
+unsigned char *serialisePublicInputs(struct public_builderPRS_Keys *public_inputs, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 0, i;
+	int outputOffset = sizeof(int);
+
+
+	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
+	{
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(public_inputs -> public_keyPairs[i][0]) );
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(public_inputs -> public_keyPairs[i][1]) );
+	}
+	for(i = 0; i < public_inputs -> stat_SecParam; i ++)
+	{
+		totalLength += ( sizeof(mp_limb_t) * mpz_size(public_inputs -> public_circuitKeys[i]) );
+	}
+	totalLength += (2 + public_inputs -> stat_SecParam + public_inputs -> numKeyPairs) * sizeof(int);
+
+
+	outputBuffer = (unsigned char*) calloc(totalLength, sizeof(unsigned char));
+	memcpy(outputBuffer, &(public_inputs -> numKeyPairs), sizeof(int));
+	memcpy(outputBuffer + outputOffset, &(public_inputs -> stat_SecParam), sizeof(int));
+
+
+	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
+	{
+		serialiseMPZ(public_inputs -> public_keyPairs[i][0], outputBuffer, &outputOffset);
+		serialiseMPZ(public_inputs -> public_keyPairs[i][1], outputBuffer, &outputOffset);
+	}
+	for(i = 0; i < public_inputs -> stat_SecParam; i ++)
+	{
+		serialiseMPZ(public_inputs -> public_circuitKeys[i], outputBuffer, &outputOffset);
+	}
+
+	*outputLength = outputOffset;
+
+	return outputBuffer;
+}
+
+
+
+struct public_builderPRS_Keys *serialisePublicInputs(unsigned char *inputBuffer)
+{
+	struct public_builderPRS_Keys *toReturn;
+	int i, inputOffset = sizeof(int), numKeyPairs, stat_SecParam;
+	mpz_t *tempMPZ;
+
+
+	memcpy(&numKeyPairs, inputBuffer, sizeof(int));
+	memcpy(&stat_SecParam, inputBuffer + inputOffset, sizeof(int));
+
+	toReturn = init_public_input_keys(numKeyPairs, stat_SecParam);
+
+
+	for(i = 0; i < toReturn -> numKeyPairs; i ++)
+	{
+		tempMPZ = deserialiseMPZ(inputBuffer, &inputOffset);
+		mpz_set(toReturn -> public_keyPairs[i][0], *tempMPZ);
+		free(tempMPZ);
+
+		tempMPZ = deserialiseMPZ(inputBuffer, &inputOffset);
+		mpz_set(toReturn -> public_keyPairs[i][1], *tempMPZ);
+		free(tempMPZ);
+	}
+
+	for(i = 0; i < toReturn -> stat_SecParam; i ++)
+	{
+		tempMPZ = deserialiseMPZ(inputBuffer, &inputOffset);
+		mpz_set(toReturn -> public_circuitKeys[i], *tempMPZ);
+		free(tempMPZ);
+	}
+
+	return toReturn;
+}
+
+
+unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs,
+												unsigned char *J_set, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 0, outputOffset = 0;
+	int i = 0;
+
+
+	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[i]) );		
+		}
+	}
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+
+	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			serialiseMPZ(secret_inputs -> secret_circuitKeys[i], outputBuffer, &outputOffset);
+		}
+	}
+
+	*outputLength = outputOffset;
+
+	return outputBuffer;
+}
+
+
+
+mpz_t **deserialise_Requested_CircuitSecrets(unsigned char *inputBuffer, int stat_SecParam,
+											unsigned char *J_set)
+{
+	int inputOffset = 0;
+	int i = 0;
+
+	mpz_t **outputArray = (mpz_t**) calloc(stat_SecParam, sizeof(mpz_t*));
+
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			outputArray[i] = deserialiseMPZ(inputBuffer, &inputOffset);
+		}
+		else
+		{
+			outputArray[i] = NULL;
+		}
+	}
+
+	return outputArray;
+}
+
+
+
+
+
+
+

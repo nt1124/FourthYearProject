@@ -104,16 +104,7 @@ struct Circuit **buildAllCircuits(char *circuitFilepath, char *inputFilepath, gm
 	for(j = 0; j < stat_SecParam; j++)
 	{
 		circuitsArray[j] = readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_inputs, public_inputs, j, group);
-		// circuitsArray[j] = readInCircuit_FromRaw(rawInputCircuit);
 	}
-
-	/*
-	for(j = 0; j < stat_SecParam; j++)
-	{
-		builderInputGarbledKeys(circuitsArray, secret_inputs, public_inputs, group, j, R);
-		garbleOutputTables(circuitsArray[j]);
-	}
-	*/
 
 
 

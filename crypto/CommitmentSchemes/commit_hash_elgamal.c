@@ -23,7 +23,7 @@ struct elgamal_commit_key *deserialise_hash_elgamal_Kbox(unsigned char **xBytes,
 	// However we still pass back xBytes as that's actually the value that was committed to
 	*xBytes = (unsigned char*) calloc(*xBytesLen, sizeof(unsigned char));
 	memcpy(*xBytes, inputBuffer + *bufferOffset, *xBytesLen);
-	hashedX = sha_256_hash(*xBytes, *xBytesLen);
+	hashedX = sha256_full(*xBytes, *xBytesLen);
 
 	convertBytesToMPZ(temp, hashedX, 32);
 	*bufferOffset += *xBytesLen;
@@ -38,7 +38,7 @@ struct elgamal_commit_key *deserialise_hash_elgamal_Kbox(unsigned char **xBytes,
 void create_commit_hash_box_key(struct commit_batch_params *params, unsigned char *toCommit, int toCommitLen, gmp_randstate_t state,
 						struct elgamal_commit_box *c, struct elgamal_commit_key *k)
 {
-	unsigned char *hashedValue = sha_256_hash(toCommit, toCommitLen);
+	unsigned char *hashedValue = sha256_full(toCommit, toCommitLen);
 
 	mpz_t r, *x = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(*x);
