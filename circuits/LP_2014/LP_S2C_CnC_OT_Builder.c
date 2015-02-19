@@ -1,4 +1,4 @@
-struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inputFilepath, gmp_randstate_t state, int stat_SecParam, unsigned int *seedLists,
+struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inputFilepath, gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
 								struct DDH_Group *group, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs)
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
@@ -9,15 +9,11 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inpu
 	int j;
 
 
-	
-	// secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, group, state);
-	// public_inputs = computePublicInputs(secret_inputs, group);
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedLists[j], secret_inputs, public_inputs, j, group);
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j], public_inputs, j, group);
 	}
-
 
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
@@ -104,8 +100,6 @@ void sendPublicCommitments(int writeSocket, int readSocket, struct public_builde
 	finalLength = publicInputsLen + groupLen;
 	finalBuffer = (unsigned char *) calloc(finalLength, sizeof(unsigned char));
 
-	printf(">> %d\n", finalLength);
-	fflush(stdout);
 
 	memcpy(finalBuffer, publicInputsBytes, publicInputsLen);
 	memcpy(finalBuffer + publicInputsLen, groupBytes, groupLen);
@@ -116,7 +110,9 @@ void sendPublicCommitments(int writeSocket, int readSocket, struct public_builde
 }
 
 
-void receiver_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray, struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam)
+void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam,
+							unsigned int *seedList)
 {
 	struct wire *tempWire;
 	unsigned char *commBuffer, *J_Set;
@@ -152,13 +148,14 @@ void receiver_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **
 	if(0x00 != finalOutput)
 	{
 		commBufferLen = 0;
-		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, J_Set, &commBufferLen);
+		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, seedList, J_Set, &commBufferLen);
 		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
+		// free(commBuffer);
 	}
 	else
 	{
 		commBuffer = (unsigned char *) calloc(1, sizeof(unsigned char));
 		sendBoth(writeSocket, commBuffer, 1);
+		// free(commBuffer);
 	}
 }

@@ -1,4 +1,4 @@
-void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
+unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC *params_R;
@@ -81,29 +81,34 @@ void full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circuit **circ
 			u_v_index += 2;
 		}
 	}
+
+	return params_R -> crs -> J_set;
 }
 
 
-void receivePublicCommitments(int writeSocket, int readSocket, struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group)
+struct publicInputsWithGroup *receivePublicCommitments(int writeSocket, int readSocket)
 {
+	struct publicInputsWithGroup *toReturn = (struct publicInputsWithGroup *) calloc(1, sizeof(struct publicInputsWithGroup));
 	unsigned char *commBuffer;
 	int commBufferLen = 0, bufferOffset = 0;
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
-	public_inputs = deserialisePublicInputs(commBuffer, &bufferOffset);
-	group = deserialise_DDH_Group(commBuffer, &bufferOffset);
+	toReturn -> public_inputs = deserialisePublicInputs(commBuffer, &bufferOffset);
+	toReturn -> group = deserialise_DDH_Group(commBuffer, &bufferOffset);
 
 
 	free(commBuffer);
+
+	return toReturn;
 }
 
 
-mpz_t **executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 							struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group,
-							unsigned char *J_Set, int stat_SecParam)
+							unsigned char *J_set, int stat_SecParam)
 {
-	mpz_t **secret_J_Set;
+	struct revealedCheckSecrets *secretsJ_set;
 	struct wire *tempWire;
 	unsigned char *commBuffer;
 	int i, commBufferLen, tempOffset = stat_SecParam;
@@ -111,11 +116,11 @@ mpz_t **executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit
 	commBufferLen = stat_SecParam + 16 * stat_SecParam;
 	commBuffer = (unsigned char*) calloc(commBufferLen, sizeof(unsigned char));
 
-	memcpy(commBuffer, J_Set, stat_SecParam);
+	memcpy(commBuffer, J_set, stat_SecParam);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		if(0x01 == J_Set[i])
+		if(0x01 == J_set[i])
 		{
 			tempWire = circuitsArray[i] -> gates[circuitsArray[i] -> numInputsBuilder] -> outputWire;
 
@@ -128,39 +133,51 @@ mpz_t **executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit
 	}
 
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+	// free(commBuffer);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
+
 	if(1 != commBufferLen)
 	{
-		secret_J_Set = deserialise_Requested_CircuitSecrets(commBuffer, stat_SecParam, J_Set, public_inputs, group);
-		return secret_J_Set;
+		secretsJ_set = deserialise_Requested_CircuitSecrets(commBuffer, stat_SecParam, J_set, public_inputs, group);
+		return secretsJ_set;
 	}
 
 	return NULL;
 }
 
 
-void secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct public_builderPRS_Keys *public_inputs,
-								mpz_t **secret_J_Set, struct DDH_Group *group,
-								unsigned char *J_Set, int stat_SecParam)
+int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
+								struct public_builderPRS_Keys *public_inputs,
+								mpz_t *secret_J_set, unsigned int *seedList, struct DDH_Group *group,
+								unsigned char *J_set, int stat_SecParam)
 {
+	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
-	int i, j;
+	int i, j, temp = 0;
+
 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
-		if(0x01 == J_Set[i])
+		if(0x01 == J_set[j])
 		{
-			for(i = 0; i < circuitsArray[j] -> numInputsBuilder; i ++)
+			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 			{
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+
 				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(*(secret_J_Set[j]), public_inputs, group, i, 0x00);
-				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(*(secret_J_Set[j]), public_inputs, group, i, 0x01);
+				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x00);
+				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x01);
 			}
+
+			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, group);
+			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+
+			freeCircuitStruct(tempGarbleCircuit);
 		}
 	}
+
+	return 1;
 }

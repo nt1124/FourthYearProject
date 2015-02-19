@@ -129,7 +129,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 										int i, int j, unsigned char inputBit, unsigned char permutation)
 {
 	mpz_t mpz_representation;
-	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(17, sizeof(unsigned char));
+	unsigned char *rawBytes, *hashedBytes, *halfHash = (unsigned char *) calloc(16, sizeof(unsigned char));
 	int outputLength = 0;
 
 	mpz_init(mpz_representation);
@@ -142,15 +142,13 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
 	memcpy(halfHash, rawBytes, 16);
-	halfHash[16] = (0x01 & permutation) ^ inputBit;
+	// halfHash[16] = (0x01 & permutation) ^ inputBit;
 
 	free(hashedBytes);
 	free(rawBytes);
 
 	return halfHash;
 }
-
-
 
 unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group,
 										int i, unsigned char inputBit)
@@ -174,7 +172,6 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 
 	return halfHash;
 }
-
 
 
 
@@ -261,7 +258,7 @@ struct public_builderPRS_Keys *deserialisePublicInputs(unsigned char *inputBuffe
 }
 
 
-unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs,
+unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs, unsigned int *seedList,
 												unsigned char *J_set, int *outputLength)
 {
 	unsigned char *outputBuffer;
@@ -273,7 +270,8 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 	{
 		if(0x01 == J_set[i])
 		{
-			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[i]) );		
+			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[i]) );
+			totalLength += sizeof(unsigned int);		
 		}
 	}
 
@@ -284,6 +282,8 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 		if(0x01 == J_set[i])
 		{
 			serialiseMPZ(secret_inputs -> secret_circuitKeys[i], outputBuffer, &outputOffset);
+			memcpy(outputBuffer + outputOffset, seedList + sizeof(unsigned int) * i, sizeof(unsigned int));
+			outputOffset += sizeof(unsigned int);
 		}
 	}
 
@@ -293,38 +293,45 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 }
 
 
-mpz_t **deserialise_Requested_CircuitSecrets(unsigned char *inputBuffer, int stat_SecParam,
+struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char *inputBuffer, int stat_SecParam,
 											unsigned char *J_set,
 											struct public_builderPRS_Keys *public_input,
 											struct DDH_Group *group)
 {
 	int inputOffset = 0, j = 0;
 
-	mpz_t **outputArray = (mpz_t**) calloc(stat_SecParam, sizeof(mpz_t*));
-	mpz_t temp;
+	struct revealedCheckSecrets *outputStruct = (struct revealedCheckSecrets *) calloc(1, sizeof(struct revealedCheckSecrets));
+	outputStruct -> revealedSecrets = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
+	unsigned int *revealedSeeds = (unsigned int*) calloc(stat_SecParam, sizeof(unsigned int));
+	mpz_t *tempMPZ, scratchMPZ;
 
-	mpz_init(temp);
+	mpz_init(scratchMPZ);
 
 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
 		if(0x01 == J_set[j])
 		{
-			outputArray[j] = deserialiseMPZ(inputBuffer, &inputOffset);
-			mpz_powm(temp, group -> g, *(outputArray[j]), group -> p);
-			if(0 != mpz_cmp(temp, public_input -> public_circuitKeys[j]))
+			tempMPZ = deserialiseMPZ(inputBuffer, &inputOffset);
+
+			mpz_init(outputStruct -> revealedSecrets[j]);
+			mpz_set(outputStruct -> revealedSecrets[j], *tempMPZ);
+			mpz_powm(scratchMPZ, group -> g, outputStruct -> revealedSecrets[j], group -> p);
+
+			if(0 != mpz_cmp(scratchMPZ, public_input -> public_circuitKeys[j]))
 			{
-				free(outputArray);
 				return NULL;
 			}
-		}
-		else
-		{
-			outputArray[j] = NULL;
+			memcpy(revealedSeeds + j * sizeof(unsigned int), inputBuffer + inputOffset, sizeof(unsigned int));
+			inputOffset += sizeof(unsigned int);
+
+			free(tempMPZ);
 		}
 	}
 
-	return outputArray;
+	outputStruct -> revealedSeeds = revealedSeeds;
+
+	return outputStruct;
 }
 
 

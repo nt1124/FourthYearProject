@@ -23,6 +23,20 @@ typedef struct public_builderPRS_Keys
 } public_builderPRS_Keys;
 
 
+typedef struct publicInputsWithGroup
+{
+	struct DDH_Group *group;
+	struct public_builderPRS_Keys *public_inputs;
+} publicInputsWithGroup;
+
+
+typedef struct revealedCheckSecrets
+{
+	mpz_t *revealedSecrets;
+	unsigned int *revealedSeeds;
+} revealedCheckSecrets;
+
+
 #include "builder_keys.c"
 
 

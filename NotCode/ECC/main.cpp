@@ -12,8 +12,8 @@
     ECC that motivates pretty much all the code above it...
     
     DISCLAIMERS:
-    * I obviously take no responsibility for any state secrets you might loose should 
-      you actually *use* the code herein...    
+    * I obviously take no responsibility for any state secrets you might loose should
+      you actually *use* the code herein...
     * I have written this as a fun little intellectual excercise - there might be mistakes, there might be bugs...
 
     Main sources:
@@ -38,17 +38,17 @@ using namespace std;
 #include "FiniteFieldElement.hpp"
 
 namespace Cryptography
-{    
+{
         /*
             Elliptic Curve over a finite field of order P:
             y^2 mod P = x^3 + ax + b mod P
-            
+
             NOTE: this implementation is simple and uses normal machine integers for its calculations.
                   No special "big integer" manipulation is supported so anything _big_ won't work. 
                   However, it is a complete finite field EC implementation in that it can be used 
                   to learn and understand the behaviour of these curves and in particular to experiment with them 
                   for their use in cryptography
-                  
+
             Template parameter P is the order of the finite field Fp over which this curve is defined
         */
         template<int P>
@@ -58,7 +58,7 @@ namespace Cryptography
                 // this curve is defined over the finite field (Galois field) Fp, this is the 
                 // typedef of elements in it
                 typedef FiniteFieldElement<P> ffe_t;
-                
+
                 /*
                     A point, or group element, on the EC, consisting of two elements of the field FP
                     Points can only created by the EC instance itself as they have to be 
@@ -71,20 +71,20 @@ namespace Cryptography
                     ffe_t  x_;
                     ffe_t  y_;
                     EllipticCurve    *ec_;
-                    
+
                     // core of the doubling multiplier algorithm (see below)
                     // multiplies acc by m as a series of "2*acc's"
                     void   addDouble(int m, Point& acc)
-                    {        
+                    {
                         if ( m > 0 )
-                        {       
+                        {
                             Point r = acc; 
                             for ( int n=0; n < m; ++n )
                             {
-                                r += r;     // doubling step                          
+                                r += r;     // doubling step
                             }
                             acc = r;
-                        }        
+                        }
                     }
                     // doubling multiplier algorithm
                     // multiplies a by k by expanding in multiplies by 2
@@ -96,14 +96,14 @@ namespace Cryptography
                         Point res = Point(0,0,*ec_);
                         int i = 0, j = 0;
                         int b = k;
-                        
+
                         while( b )
                         {
                             if ( b & 1 )
                             {
                                 // bit is set; acc = 2^(i-j)*acc
                                 addDouble(i-j,acc);
-                                res += acc;           
+                                res += acc;
                                 j = i;  // last bit set
                             }
                             b >>= 1;

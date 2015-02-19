@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testRunZeroedInput(circuitFilepath);
 	// testRawCircuits(argv[1], argv[2], argv[3]);
-	// testCircuitDecryption(argv[1], argv[2], argv[3]);
+	// testCircuitComp(argv[1]);
 
 	return 0;
 }

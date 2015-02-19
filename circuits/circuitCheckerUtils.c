@@ -207,6 +207,7 @@ int compareGate(struct gate *gateA, struct gate *gateB)
 {
 	int output = 0, i, j;
 
+
 	output |= (0x01 ^ (gateA -> numInputs == gateB -> numInputs));
 	output |= (0x01 ^ (gateA -> outputTableSize == gateB -> outputTableSize));
 
@@ -215,12 +216,11 @@ int compareGate(struct gate *gateA, struct gate *gateB)
 		output |= (0x01 ^ (gateA -> inputIDs[i] == gateB -> inputIDs[i]));
 	}
 
-	
 	for(i = 0; i < gateA -> outputTableSize; i ++)
 	{
 		output |= memcmp(gateA -> encOutputTable[i], gateB -> encOutputTable[i], 32);
 	}
-	
+		
 
 	return output;
 }
@@ -232,20 +232,38 @@ int compareGateOrWirePair(struct gateOrWire *gateA, struct gateOrWire *gateB)
 	output |= (0x01 ^ (gateA -> G_ID == gateB -> G_ID));
 
 	if(NULL != gateA -> gatePayload && NULL != gateB -> gatePayload)
+	{
 		output |= compareGate(gateA -> gatePayload, gateB -> gatePayload);
+	}
 	else
+	{
 		output |= (0x01 ^ (gateA -> gatePayload == gateB -> gatePayload));
 
-	output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key0, gateB -> outputWire -> outputGarbleKeys -> key0, 16);
-	output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key1, gateB -> outputWire -> outputGarbleKeys -> key1, 16);
+		output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key0, gateB -> outputWire -> outputGarbleKeys -> key0, 16);
+		output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key1, gateB -> outputWire -> outputGarbleKeys -> key1, 16);
+	}
 
 	return output;
 }
 
 
 
+int compareCircuit(struct RawCircuit *baseCircuit, struct Circuit *circuitA, struct Circuit *circuitB)
+{
+	int temp = 0;
+	int i;
 
-void testCircuitDecryption(char *circuitFilepath, char *inputFilepath_B, char *inputFilepath_E)
+	for(i = 0; i < baseCircuit -> numGates; i ++)
+	{
+		temp += compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
+	}
+
+	return temp;
+}
+
+
+
+void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inputFilepath_E)
 {
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct Circuit *garbledCircuit1, *garbledCircuit2;
@@ -278,10 +296,7 @@ void testCircuitDecryption(char *circuitFilepath, char *inputFilepath_B, char *i
 	*/
 
 
-	for(i = 0; i < rawInputCircuit -> numGates; i ++)
-	{
-		temp += compareGateOrWirePair(garbledCircuit1 -> gates[i], garbledCircuit2 -> gates[i]);
-	}
+	temp = compareCircuit(rawInputCircuit, garbledCircuit1, garbledCircuit2);
 	printf("Comparison yield... %d\n", temp);
 }
 

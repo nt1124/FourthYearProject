@@ -1,4 +1,4 @@
-const int stat_SecParam = 8;
+const int stat_SecParam = 2;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -71,6 +71,8 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
+	builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -96,11 +98,12 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i;
 
-	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	struct RawCircuit *rawInputCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 
-	struct public_builderPRS_Keys *public_inputs;
-	struct DDH_Group *group;
+	struct revealedCheckSecrets *secretsRevealed;
+	struct publicInputsWithGroup *pubInputGroup;
+	unsigned char *J_set;
 	
 	struct idAndValue *startOfInputChain;
 	gmp_randstate_t *state;
@@ -117,8 +120,9 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 	printf("Connected to builder.\n");
 
+	rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 
-	receivePublicCommitments(writeSocket, readSocket, public_inputs, group);
+	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
@@ -134,9 +138,18 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 
 	state = seedRandGen();
-	full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	J_set = full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 	// Here we do the decommit...
+	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
+							pubInputGroup -> group, J_set, stat_SecParam);
+
+	printf("Checkpint Charlie\n");
+	fflush(stdout);
+
+	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
+								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> group,
+								J_set, stat_SecParam);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
