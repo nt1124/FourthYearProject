@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2015.2.11)  19 FEB 2015 00:36
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2015.2.11)  19 FEB 2015 20:32
 entering extended mode
  %&-line parsing enabled.
 **FebPresentation.tex
@@ -1116,7 +1116,7 @@ LaTeX Font Warning: Size substitutions with differences
 Here is how much of TeX's memory you used:
  14852 strings out of 495061
  273885 string characters out of 1182621
- 340271 words of memory out of 3000000
+ 340273 words of memory out of 3000000
  17596 multiletter control sequences out of 15000+50000
  12147 words of font info for 45 fonts, out of 3000000 for 9000
  28 hyphenation exceptions out of 8191
@@ -1132,7 +1132,7 @@ share/texmf-texlive/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf
 -texlive/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-texlive/fon
 ts/type1/public/amsfonts/symbols/msam10.pfb></usr/share/texmf-texlive/fonts/typ
 e1/public/amsfonts/symbols/msam7.pfb>
-Output written on FebPresentation.pdf (19 pages, 232782 bytes).
+Output written on FebPresentation.pdf (19 pages, 234289 bytes).
 PDF statistics:
  556 PDF objects out of 1000 (max. 8388607)
  41 named destinations out of 1000 (max. 500000)
