@@ -150,12 +150,12 @@ void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **c
 		commBufferLen = 0;
 		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, seedList, J_Set, &commBufferLen);
 		sendBoth(writeSocket, commBuffer, commBufferLen);
-		// free(commBuffer);
+		free(commBuffer);
 	}
 	else
 	{
 		commBuffer = (unsigned char *) calloc(1, sizeof(unsigned char));
 		sendBoth(writeSocket, commBuffer, 1);
-		// free(commBuffer);
+		free(commBuffer);
 	}
 }

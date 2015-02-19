@@ -1,4 +1,4 @@
-const int stat_SecParam = 2;
+const int stat_SecParam = 32;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -143,9 +143,6 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> group, J_set, stat_SecParam);
-
-	printf("Checkpint Charlie\n");
-	fflush(stdout);
 
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> group,

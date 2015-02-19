@@ -133,7 +133,7 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 	}
 
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-	// free(commBuffer);
+	free(commBuffer);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
@@ -158,6 +158,8 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	int i, j, temp = 0;
 
 
+
+	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
 		if(0x01 == J_set[j])
@@ -174,8 +176,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, group);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
-
-			freeCircuitStruct(tempGarbleCircuit);
+			// freeCircuitStruct(tempGarbleCircuit);
 		}
 	}
 
