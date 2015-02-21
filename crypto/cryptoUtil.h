@@ -21,7 +21,8 @@
 #include "CommitmentSchemes/commit_hash_elgamal.h"
 #include "ConsistencyChecks/builder_keys.h"
 
-
+// #include "SecretSharing/gmp_poly.h"
+#include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
 
 
 const int wireKeysLengths = 16;
