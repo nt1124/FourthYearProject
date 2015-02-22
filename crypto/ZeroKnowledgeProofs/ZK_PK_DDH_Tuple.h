@@ -38,6 +38,18 @@ typedef struct msgOneArrays
 } msgOneArrays;
 
 
+typedef struct msgArrays
+{
+
+	mpz_t *roeArray;
+	mpz_t *C_array;
+	mpz_t *Z_array;
+
+	mpz_t *A_array;
+	mpz_t *B_array;
+} msgArrays;
+
+
 
 #include "ZK_PK_DDH_Tuple.c"
 

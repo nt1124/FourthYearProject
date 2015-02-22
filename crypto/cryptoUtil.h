@@ -23,6 +23,7 @@
 
 // #include "SecretSharing/gmp_poly.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
+#include "SecretSharing/BerlekampWelch.c"
 
 
 const int wireKeysLengths = 16;

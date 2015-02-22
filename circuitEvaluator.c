@@ -57,12 +57,17 @@ int main(int argc, char *argv[])
 {
 	srand( time(NULL) );
 
-
-	// runLocally(circuitFilepath, argv[2], argv[3]);
-	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	// testRunZeroedInput(circuitFilepath);
-	// testRawCircuits(argv[1], argv[2], argv[3]);
-	// testCircuitComp(argv[1]);
+	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	testPolys();
 
 	return 0;
 }
+
+
+
+
+// runLocally(circuitFilepath, argv[2], argv[3]);
+// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+// testRunZeroedInput(circuitFilepath);
+// testRawCircuits(argv[1], argv[2], argv[3]);
+// testCircuitComp(argv[1]);
