@@ -29,13 +29,13 @@ struct verifierCommitment *initVerifierCommitment()
 }
 
 
-struct msgOne_I_Arrays *initMsgOne_I_Array(int stat_SecParam)
+struct msgOne_notI_Arrays *initMsgOne_notI_Array(int stat_SecParam)
 {
-	struct msgOne_I_Arrays *msg_I_One = (struct msgOne_I_Arrays *) calloc(1, sizeof(struct msgOne_I_Arrays));
+	struct msgOne_notI_Arrays *msg_I_One = (struct msgOne_notI_Arrays *) calloc(1, sizeof(struct msgOne_notI_Arrays));
 	int i, stat_SecParamDiv2 = stat_SecParam / 2;
 
 
-	msg_I_One -> in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
+	msg_I_One -> not_in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
 	msg_I_One -> Z_array = (mpz_t *) calloc(stat_SecParamDiv2, sizeof(mpz_t));
 	msg_I_One -> C_array = (mpz_t *) calloc(stat_SecParamDiv2, sizeof(mpz_t));
 
@@ -51,16 +51,16 @@ struct msgOne_I_Arrays *initMsgOne_I_Array(int stat_SecParam)
 
 struct msgOneArrays *initMsgOneArray(int stat_SecParam)
 {
-	struct msgOneArrays *msgOne = (struct msgOneArrays *) calloc(1, sizeof(struct msgOne_I_Arrays));
+	struct msgOneArrays *msgOne = (struct msgOneArrays *) calloc(1, sizeof(struct msgOneArrays));
 	int i, stat_SecParamDiv2 = stat_SecParam / 2;
 
 
-	msgOne -> not_in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
+	msgOne -> in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
 	msgOne -> roeArray = (mpz_t *) calloc(stat_SecParamDiv2, sizeof(mpz_t));
 	msgOne -> A_array = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 	msgOne -> B_array = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 
-	msgOne -> in_I_Struct = initMsgOne_I_Array(stat_SecParam);
+	msgOne -> notI_Struct = initMsgOne_notI_Array(stat_SecParam);
 
 	for(i = 0; i < stat_SecParamDiv2; i ++)
 	{
@@ -77,9 +77,6 @@ struct msgOneArrays *initMsgOneArray(int stat_SecParam)
 
 	return msgOne;
 }
-
-
-
 
 
 struct witnessStruct *proverSetupWitnesses(struct params_CnC *params)
@@ -158,7 +155,7 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 		// If i IS in I
 		if(0x00 == params -> crs -> J_set[i])
 		{
-			msgArray -> not_in_I_index[j_in_I] = i;
+			msgArray -> in_I_index[j_in_I] = i;
 			mpz_urandomm(msgArray -> roeArray[j_in_I], state, params -> group -> q);
 
 			mpz_powm(msgArray -> A_array[i], params -> group -> g, msgArray -> roeArray[j_in_I], params -> group -> p);
@@ -168,23 +165,23 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 		}
 		else
 		{
-			msgArray -> in_I_Struct -> in_I_index[j_not_I] = i;
+			msgArray -> notI_Struct -> not_in_I_index[j_not_I] = i;
 			
 			mpz_urandomm(temp, state, params -> group -> q);
-			mpz_set(msgArray -> in_I_Struct -> C_array[j_not_I], temp);
+			mpz_set(msgArray -> notI_Struct -> C_array[j_not_I], temp);
 			
 			mpz_urandomm(temp, state, params -> group -> q);
-			mpz_set(msgArray -> in_I_Struct -> Z_array[j_not_I], temp);
+			mpz_set(msgArray -> notI_Struct -> Z_array[j_not_I], temp);
 			
 
-			mpz_powm(denom, params -> group -> g, msgArray -> in_I_Struct -> C_array[j_not_I], params -> group -> p);
-			mpz_powm(numer, params -> crs -> h_0_List[i], msgArray -> in_I_Struct -> Z_array[j_not_I], params -> group -> p);
+			mpz_powm(denom, params -> group -> g, msgArray -> notI_Struct -> C_array[j_not_I], params -> group -> p);
+			mpz_powm(numer, params -> crs -> h_0_List[i], msgArray -> notI_Struct -> Z_array[j_not_I], params -> group -> p);
 			mpz_invert(numer_inv, numer, params -> group -> p);
 			mpz_mul(unmodded, denom, numer_inv);
 			mpz_mod(msgArray -> A_array[i], unmodded, params -> group -> p);
 
-			mpz_powm(denom, params -> crs -> g_1, msgArray -> in_I_Struct -> C_array[j_not_I], params -> group -> p);
-			mpz_powm(numer, params -> crs -> h_1_List[i], msgArray -> in_I_Struct -> Z_array[j_not_I], params -> group -> p);
+			mpz_powm(denom, params -> crs -> g_1, msgArray -> notI_Struct -> C_array[j_not_I], params -> group -> p);
+			mpz_powm(numer, params -> crs -> h_1_List[i], msgArray -> notI_Struct -> Z_array[j_not_I], params -> group -> p);
 			mpz_invert(numer_inv, numer, params -> group -> p);
 			mpz_mul(unmodded, denom, numer_inv);
 			mpz_mod(msgArray -> B_array[i], unmodded, params -> group -> p);
@@ -260,15 +257,15 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 		if(0x00 == params -> crs -> J_set[i])
 		{
 			// zi = c_i * w_i + ρ_i
-			mpz_mul(temp1, msgArray -> in_I_Struct -> C_array[j_in_I], witnessesArray -> witnesses[j_in_I]);
-			mpz_add(temp2, temp1, msgArray -> in_I_Struct -> Z_array[j_in_I]);
+			mpz_mul(temp1, msgArray -> notI_Struct -> C_array[j_in_I], witnessesArray -> witnesses[j_in_I]);
+			mpz_add(temp2, temp1, msgArray -> notI_Struct -> Z_array[j_in_I]);
 			mpz_mod(z_ToSend[i], temp2, params -> group -> p);
 
 			j_in_I ++;
 		}
 		else
 		{
-			mpz_set(z_ToSend[i], msgArray -> in_I_Struct -> Z_array[j_not_I]);
+			mpz_set(z_ToSend[i], msgArray -> notI_Struct -> Z_array[j_not_I]);
 
 			j_not_I ++;
 		}
@@ -296,21 +293,39 @@ unsigned char *proverMessageTwo(struct params_CnC *params, struct verifierCommit
 								struct witnessStruct *witnessesArray, mpz_t *alphaAndA, int *outputLen)
 {
 	unsigned char *commBuffer;
-	mpz_t temp1, temp2, *z_ToSend;
+	mpz_t temp1, *cShares, *tempPointer;
 	int i, checkC_Correct = 0, totalLength, bufferOffset = 0;
-	int j_in_I = 0, j_not_I = 0;
+	int *tempDeltaI = (int*) calloc(params -> crs -> stat_SecParam, sizeof(int));
 
 	mpz_init(temp1);
-	mpz_init(temp2);
 
 
 	checkC_Correct = checkC_prover(params, commitment_box, alphaAndA[0]);
 	if(0 != checkC_Correct)
 	{
+		// This
 		return NULL;
 	}
 
-	// Here the secret sharing distrbution happens. Reed-Solomon etc. .
+	for(i = 0; i < params -> crs -> stat_SecParam - 1; i ++)
+	{
+		tempDeltaI[i] = i + 1;
+	}
+
+	// Here the secret sharing distrbution happens. Reed-Solomon etc.
+	cShares = completePartialSecretSharing(msgArray -> notI_Struct -> not_in_I_index, msgArray -> notI_Struct -> C_array,
+											commitment_box -> C_commit, params -> group -> p, params -> crs -> stat_SecParam);
+
+	struct Fq_poly *tempPoly = getPolyFromCodewords(cShares, tempDeltaI, params -> crs -> stat_SecParam, params -> group -> p);
+	
+	printf("<<<<<<<<<<<<\n");
+	fflush(stdout);
+
+	mpz_set_ui(temp1, params -> crs -> stat_SecParam + 1);
+	tempPointer = evalutePoly(tempPoly, temp1, params -> group -> p);
+	gmp_printf("<> %Zd\n", *tempPointer);
+	fflush(stdout);
+
 
 	commBuffer = computeAndSerialise(params, msgArray, witnessesArray, alphaAndA, &bufferOffset);
 

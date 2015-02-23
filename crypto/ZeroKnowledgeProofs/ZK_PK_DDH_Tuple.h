@@ -18,19 +18,21 @@ typedef struct verifierCommitment
 } verifierCommitment;
 
 
-typedef struct msgOne_I_Arrays
+typedef struct msgOne_notI_Arrays
 {
-	int *in_I_index;
+	int *not_in_I_index;
+	// int *in_I_index;
 	mpz_t *C_array;
 	mpz_t *Z_array;
-} msgOne_I_Arrays;
+} msgOne_notI_Arrays;
 
 
 typedef struct msgOneArrays
 {
-	struct msgOne_I_Arrays *in_I_Struct;
+	struct msgOne_notI_Arrays *notI_Struct;
 
-	int *not_in_I_index;
+	// int *not_in_I_index;
+	int *in_I_index;
 	mpz_t *roeArray;
 
 	mpz_t *A_array;
