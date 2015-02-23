@@ -10,7 +10,7 @@ typedef struct Fq_poly
 } Fq_poly;
 
 
-void printfPoly(struct Fq_poly *polyToPrint)
+void printPoly(struct Fq_poly *polyToPrint)
 {
 	int i;
 
@@ -26,6 +26,32 @@ void printfPoly(struct Fq_poly *polyToPrint)
 		}
 
 		if(i < polyToPrint -> degree)
+		{
+			printf(" + ");
+		}
+	}
+
+	printf("\n");
+}
+
+
+
+void printPolyReverse(struct Fq_poly *polyToPrint)
+{
+	int i;
+
+	for(i = polyToPrint -> degree; i >= 0; i --)
+	{
+		if(i == 0)
+		{
+			gmp_printf("%Zd", polyToPrint -> coeffs[i]);
+		}
+		else
+		{
+			gmp_printf("%Zd.X^%d", polyToPrint -> coeffs[i], i);
+		}
+
+		if(i != 0)
 		{
 			printf(" + ");
 		}
@@ -122,6 +148,22 @@ struct Fq_poly *scalarMulti(struct Fq_poly *poly, mpz_t scalar, mpz_t q)
 }
 
 
+void scalarMultiInPlace(struct Fq_poly *poly, mpz_t scalar, mpz_t q)
+{
+	mpz_t temp;
+	int i;
+
+	mpz_init(temp);
+
+	for(i = 0; i <= poly -> degree; i ++)
+	{
+		mpz_mul(temp, poly -> coeffs[i], scalar);
+		mpz_mod(poly -> coeffs[i], temp, q);
+	}
+
+}
+
+
 struct Fq_poly *addPolys(struct Fq_poly *x, struct Fq_poly *y, mpz_t q)
 {
 	struct Fq_poly *toReturn;
@@ -194,7 +236,6 @@ mpz_t *evalutePoly(struct Fq_poly *polyToEval, mpz_t x, mpz_t q)
 
 	for(i = polyToEval -> degree; i >= 0; i--)
 	{
-		// res = res * x + coeffs[i];
 		mpz_mul(temp, *result, x);
 		mpz_add(tempResult, temp, polyToEval -> coeffs[i]);
 		mpz_mod(*result, tempResult, q);
@@ -231,30 +272,30 @@ struct Fq_poly **getLagrangeFactorsDivProduct(mpz_t divFactorProduct, int n, uns
 	unsigned int j;
 
 
+	mpz_init(temp);
 	mpz_init(divFactorProduct);
 	mpz_init(inputArray[0]);
 	mpz_init_set_ui(inputArray[1], 1);
+	mpz_init_set_ui(x_i, i);
 
-	for(j = 0; j < n; j ++)
+	for(j = 1; j <= n; j ++)
 	{
-		mpz_init(divFactors[j]);
+
+		mpz_init(divFactors[j-1]);
 
 		if(i != j)
 		{
-			mpz_sub_ui(temp, x_i, j + 1);
-			mpz_mod(divFactors[j], temp, q);
+			mpz_sub_ui(temp, x_i, j);
+			mpz_mod(divFactors[j-1], temp, q);
+			mpz_sub_ui(inputArray[0], q, j);
 
-			mpz_sub_ui(inputArray[0], q, (j+1));
-
-			factors[j] = setPolyWithArray(inputArray, q, 1);
-			printfPoly(factors[j]);
+			factors[j-1] = setPolyWithArray(inputArray, q, 1);
 		}
 		else
 		{
-			mpz_init_set_ui(divFactors[j], 1);
+			mpz_init_set_ui(divFactors[j-1], 1);
 			mpz_init_set_ui(inputArray[0], 1);
-			factors[j] = setPolyWithArray(inputArray, q, 0);
-			printfPoly(factors[j]);
+			factors[j-1] = setPolyWithArray(inputArray, q, 0);
 		}
 	}
 
@@ -275,21 +316,17 @@ struct Fq_poly *generateLagrangePoly(int n, unsigned int i, mpz_t q)
 	intermediates = (struct Fq_poly **) calloc(n - 1, sizeof(struct Fq_poly*));
 	mpz_init(divFactorInv);
 
+
 	factors = getLagrangeFactorsDivProduct(divFactor, n, i, q);
 
 	if(n > 1)
 	{
-
 		intermediates[0] = mulPolys(factors[0], factors[1], q);
 
-		freeFqPoly(factors[0]);
-		freeFqPoly(factors[1]);
 
 		for(j = 1; j < n - 1; j ++)
 		{
 			intermediates[j] = mulPolys(intermediates[j - 1], factors[j + 1], q);
-			freeFqPoly(factors[j + 1]);
-			freeFqPoly(intermediates[j - 1]);
 		}
 	}
 	else
@@ -299,47 +336,79 @@ struct Fq_poly *generateLagrangePoly(int n, unsigned int i, mpz_t q)
 
 	mpz_invert(divFactorInv, divFactor, q);
 
+
 	output = scalarMulti(intermediates[n-2], divFactorInv, q);
 
 	return output;
 }
 
 
-
-
-
-
-
-
-
-
-void testPolys()
+struct Fq_poly **generateAllLagrangePolys(int num, mpz_t q)
 {
-	struct Fq_poly *polyToEval1, *polyToEval2, *output;
-	mpz_t *inputArray, q, x, *result;
-	int degree = 3, i;
-	int length = degree + 1;
-
-	inputArray = (mpz_t*) calloc(length, sizeof(mpz_t));
+	struct Fq_poly **lagrangePolys;
+	int i;
 
 
-	mpz_init_set_ui(q, 1031);
-	mpz_init_set_ui(x, 2);
-	for(i = 0; i < length; i ++)
+	lagrangePolys = (struct Fq_poly **) calloc(num, sizeof(struct Fq_poly *));
+
+	for(i = 1; i <= num; i ++)
 	{
-		mpz_init_set_ui(inputArray[i], 2);
+		lagrangePolys[i-1] = generateLagrangePoly(num, i, q);
+	}
+
+	return lagrangePolys;
+}
+
+
+struct Fq_poly *getPolyFromCodewords(mpz_t *codewords, int length, mpz_t q)
+{
+	struct Fq_poly **lagrangePolys, *output;
+	int i;
+
+
+	lagrangePolys = generateAllLagrangePolys(length, q);
+	output = initPolyWithDegree(length);
+
+
+	for(i = 1; i <= length; i ++)
+	{
+		scalarMultiInPlace(lagrangePolys[i-1], codewords[i-1], q);
+		output = addPolys(lagrangePolys[i-1], output, q);
 	}
 
 
-	polyToEval1 = setPolyWithArray(inputArray, q, degree);
-	polyToEval2 = setPolyWithArray(inputArray, q, degree);
-	output = mulPolys(polyToEval1, polyToEval2, q);
+	return output;
+}
+
+void testPolys()
+{
+	struct Fq_poly **lagrangePolys;
+	struct Fq_poly *output;
+	mpz_t *codewords, q;
+	int degree = 6, length = degree + 1, i;
+
+	codewords = (mpz_t*) calloc(length, sizeof(mpz_t));
 
 
-	scalarMulti(output, x, q);
 
-	output = addPolys(polyToEval1, polyToEval2, q);
+	for(i = 0; i < length; i ++)
+	{
+		mpz_init(codewords[i]);
+	}
+	mpz_init_set_ui(q, 101);
 
-	output = generateLagrangePoly(5, 2, q);
-	printfPoly(output);
+	mpz_set_ui(codewords[0], 44);
+	mpz_set_ui(codewords[1], 2);
+	mpz_set_ui(codewords[2], 96);
+	mpz_set_ui(codewords[3], 23);
+	mpz_set_ui(codewords[4], 86);
+	mpz_set_ui(codewords[5], 83);
+	mpz_set_ui(codewords[6], 14);
+
+
+	lagrangePolys = generateAllLagrangePolys(length, q);
+
+	output = getPolyFromCodewords(codewords, length, q);
+
+	printPolyReverse(output);
 }
