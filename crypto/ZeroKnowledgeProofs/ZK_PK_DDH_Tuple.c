@@ -152,14 +152,9 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 	mpz_init(unmodded);
 	mpz_init(temp);
 
-	printf("+++  %d\n\n", params -> crs -> stat_SecParam);
-	fflush(stdout);
 
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
-		printf(">>>  %d   %X\n", i, params -> crs -> J_set[i]);
-		fflush(stdout);
-
 		// If i IS in I
 		if(0x00 == params -> crs -> J_set[i])
 		{
@@ -181,7 +176,7 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 			mpz_urandomm(temp, state, params -> group -> q);
 			mpz_set(msgArray -> in_I_Struct -> Z_array[j_not_I], temp);
 			
-			/*
+
 			mpz_powm(denom, params -> group -> g, msgArray -> in_I_Struct -> C_array[j_not_I], params -> group -> p);
 			mpz_powm(numer, params -> crs -> h_0_List[i], msgArray -> in_I_Struct -> Z_array[j_not_I], params -> group -> p);
 			mpz_invert(numer_inv, numer, params -> group -> p);
@@ -193,12 +188,9 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 			mpz_invert(numer_inv, numer, params -> group -> p);
 			mpz_mul(unmodded, denom, numer_inv);
 			mpz_mod(msgArray -> B_array[i], unmodded, params -> group -> p);
-			*/
 
 			j_not_I ++;
 		}
-		printf("---  %d\n", i);
-		fflush(stdout);
 	}
 
 	return msgArray;
@@ -212,6 +204,7 @@ unsigned char *verifierQuery(struct verifierCommitment *commitment_box, int *out
 
 
 	totalLength += sizeof(mp_limb_t) * (mpz_size(commitment_box -> c) + mpz_size(commitment_box -> t));
+	commBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
 
 	serialiseMPZ(commitment_box -> c, commBuffer, &bufferOffset);
 	serialiseMPZ(commitment_box -> t, commBuffer, &bufferOffset);
@@ -382,7 +375,7 @@ int test_ZKPoK()
 	unsigned char *commBuffer;
 	unsigned char sigmaBit = 0x00;
 
-	int i, j, k, numTests = 128, comp_SecParam = 1024;
+	int i, j, k, numTests = 128, comp_SecParam = 1024, cCheck = 0;
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
 	gmp_randstate_t *state = seedRandGen();
@@ -395,16 +388,13 @@ int test_ZKPoK()
 	alphaAndA = proverSetupCommitment(params, witnessSet, *state);
 	commitment_box = verifierSetupCommitment(params, alphaAndA[0], *state);
 	msgOne = proverMessageOne(params, alphaAndA[0], *state);
-	// commBuffer = verifierQuery(commitment_box, &bufferOffset);
+	commBuffer = verifierQuery(commitment_box, &bufferOffset);
+	cCheck = checkC_prover(params, commitment_box, alphaAndA[0]);
+	commBuffer = computeAndSerialise(params, msgOne, witnessSet, alphaAndA, &bufferOffset);
+	commBuffer = proverMessageTwo(params, commitment_box, msgOne, witnessSet, alphaAndA, &bufferOffset);
 
 
 	/*
-	struct verifierCommitment *verifierSetupCommitment(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
-	struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
-
-	unsigned char *verifierQuery(struct verifierCommitment *commitment_box, int *outputLen)
-
-	int checkC_prover(struct params_CnC *params, struct verifierCommitment *commitment_box, mpz_t alpha)
 
 	unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArrays *msgArray, struct witnessStruct *witnessesArray,
 										mpz_t *alphaAndA, int *outputLen)

@@ -118,13 +118,64 @@ struct Fq_poly *getPolyFromCodewords(mpz_t *codewords, int *delta_i, int length,
 }
 
 
+
+mpz_t *completePartialSecretSharing(int *iAlready, mpz_t *c_iAlready, mpz_t C, mpz_t q, int stat_secParam)
+{
+	struct Fq_poly *secretPoly;
+	mpz_t *fixedCodeword = (mpz_t*) calloc((stat_secParam / 2) + 1, sizeof(mpz_t));
+	mpz_t *finalCodewords = (mpz_t*) calloc(stat_secParam, sizeof(mpz_t));
+	mpz_t tempPoint, *tempOutput;
+
+	int *delta_i = (int*) calloc((stat_secParam / 2) + 1, sizeof(int));
+	unsigned char *temp = (unsigned char*) calloc(stat_secParam, sizeof(unsigned char));
+	unsigned int i;
+
+
+	mpz_init(tempPoint);
+
+	for(i = 0; i < stat_secParam / 2; i ++)
+	{
+		temp[iAlready[i] - 1] = 0x01;
+	
+		mpz_init(fixedCodeword[i]);
+		mpz_set(fixedCodeword[i], c_iAlready[i]);
+
+		mpz_init(finalCodewords[iAlready[i] - 1]);
+		mpz_set(finalCodewords[iAlready[i] - 1], c_iAlready[i]);
+	}
+	mpz_init(fixedCodeword[stat_secParam / 2]);
+	mpz_set(fixedCodeword[stat_secParam / 2], C);
+
+	memcpy(delta_i, iAlready, sizeof(int) * (stat_secParam / 2));
+	delta_i[stat_secParam / 2] = stat_secParam + 1;
+
+
+	secretPoly = getPolyFromCodewords(fixedCodeword, delta_i, (stat_secParam / 2) + 1, q);
+
+
+	for(i = 0; i < stat_secParam; i ++)
+	{
+		if(temp[i] == 0x00)
+		{
+			mpz_set_ui(tempPoint, i + 1);
+			tempOutput = evalutePoly(secretPoly, tempPoint, q);
+			mpz_init_set(finalCodewords[i], *tempOutput);
+		}
+	}
+
+	return finalCodewords;
+}
+
+
+
+
 void testPolys()
 {
 	struct Fq_poly **lagrangePolys;
 	struct Fq_poly *output;
 	mpz_t *codewords, q, *temp;
 	int degree = 6, length = degree + 1, i;
-	int delta_i[7] = {1, 2, 3, 4, 5, 6, 13};
+	int delta_i[4] = {1, 2};
 
 
 	codewords = (mpz_t*) calloc(length, sizeof(mpz_t));
@@ -139,12 +190,16 @@ void testPolys()
 	mpz_set_ui(codewords[0], 44);
 	mpz_set_ui(codewords[1], 2);
 	mpz_set_ui(codewords[2], 96);
-	mpz_set_ui(codewords[3], 23);
-	mpz_set_ui(codewords[4], 86);
-	mpz_set_ui(codewords[5], 83);
-	mpz_set_ui(codewords[6], 32);
+	mpz_set_ui(codewords[3], 86);
 
 
-	output = getPolyFromCodewords(codewords, delta_i, 3, q);
-	printPolyReverse(output);
+	// output = getPolyFromCodewords(codewords, delta_i, 3, q);
+	// printPolyReverse(output);
+	temp = completePartialSecretSharing(delta_i, codewords, codewords[3], q, 4);
+
+	for(i = 0; i < 4; i ++)
+	{
+		gmp_printf("%Zd, ", temp[i]);
+	}
+	printf("\n\n");
 }
