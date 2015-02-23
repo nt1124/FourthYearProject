@@ -9,11 +9,13 @@ struct CRS_CnC *initCRS_CnC(int stat_SecParam)
 	crs -> stat_SecParam = stat_SecParam;
 
 	crs -> J_set = NULL;
+	crs -> alphas_List = (mpz_t *) calloc(crs -> stat_SecParam, sizeof(mpz_t));
 	crs -> h_0_List = (mpz_t *) calloc(crs -> stat_SecParam, sizeof(mpz_t));
 	crs -> h_1_List = (mpz_t *) calloc(crs -> stat_SecParam, sizeof(mpz_t));
 
 	for(i = 0; i < crs -> stat_SecParam; i ++)
 	{
+		mpz_init(crs -> alphas_List[i]);
 		mpz_init(crs -> h_0_List[i]);
 		mpz_init(crs -> h_1_List[i]);
 	}

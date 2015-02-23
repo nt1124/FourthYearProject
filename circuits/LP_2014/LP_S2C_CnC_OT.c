@@ -1,4 +1,4 @@
-const int stat_SecParam = 32;
+const int stat_SecParam = 2;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -77,7 +77,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
-
 
 
 	ext_c_1 = clock();

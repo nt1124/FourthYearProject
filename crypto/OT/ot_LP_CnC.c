@@ -111,6 +111,8 @@ struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam,	int comp_SecParam, g
 			mpz_add_ui(alpha, alpha, 1);
 		}
 
+		mpz_set(params -> crs -> alphas_List[i], alpha);
+
 		mpz_powm(params -> crs -> h_1_List[i], params -> crs -> g_1, alpha, params -> group -> p);
 	}
 

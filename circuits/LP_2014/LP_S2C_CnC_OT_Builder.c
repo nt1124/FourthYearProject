@@ -83,6 +83,7 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 	bufferLength = 0;
 	commBuffer = serialise_U_V_Pair_Array(c_i_Array_S, totalOTs * 2, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
+
 	free(commBuffer);
 }
 
@@ -142,20 +143,18 @@ void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **c
 			finalOutput = finalOutput | key0_Correct | key1_Correct;
 		}
 	}
-
 	free(commBuffer);
 
 	if(0x00 != finalOutput)
 	{
 		commBufferLen = 0;
 		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, seedList, J_Set, &commBufferLen);
+
 		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
 	}
 	else
 	{
 		commBuffer = (unsigned char *) calloc(1, sizeof(unsigned char));
 		sendBoth(writeSocket, commBuffer, 1);
-		free(commBuffer);
 	}
 }

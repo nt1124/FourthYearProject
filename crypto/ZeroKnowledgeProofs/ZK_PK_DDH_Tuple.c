@@ -1,5 +1,3 @@
-// http://fredrik-j.blogspot.co.uk/2011/06/some-flint-22-highlights.html
-
 struct witnessStruct *initWitnessStruc(int length)
 {
 	struct witnessStruct *toReturn = (struct witnessStruct *) calloc(1, sizeof(struct witnessStruct));
@@ -31,10 +29,10 @@ struct verifierCommitment *initVerifierCommitment()
 }
 
 
-struct msgOne_I_Arrays *initMsgOne_I_Array(int stat_SecParamDiv2)
+struct msgOne_I_Arrays *initMsgOne_I_Array(int stat_SecParam)
 {
 	struct msgOne_I_Arrays *msg_I_One = (struct msgOne_I_Arrays *) calloc(1, sizeof(struct msgOne_I_Arrays));
-	int i;
+	int i, stat_SecParamDiv2 = stat_SecParam / 2;
 
 
 	msg_I_One -> in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
@@ -54,22 +52,23 @@ struct msgOne_I_Arrays *initMsgOne_I_Array(int stat_SecParamDiv2)
 struct msgOneArrays *initMsgOneArray(int stat_SecParam)
 {
 	struct msgOneArrays *msgOne = (struct msgOneArrays *) calloc(1, sizeof(struct msgOne_I_Arrays));
-	int i;
+	int i, stat_SecParamDiv2 = stat_SecParam / 2;
 
 
-	msgOne -> in_I_Struct = initMsgOne_I_Array(stat_SecParam / 2);
-	msgOne -> not_in_I_index = (int *) calloc(stat_SecParam / 2, sizeof(int));
-	msgOne -> roeArray = (mpz_t *) calloc(stat_SecParam / 2, sizeof(mpz_t));
+	msgOne -> not_in_I_index = (int *) calloc(stat_SecParamDiv2, sizeof(int));
+	msgOne -> roeArray = (mpz_t *) calloc(stat_SecParamDiv2, sizeof(mpz_t));
 	msgOne -> A_array = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 	msgOne -> B_array = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 
-	for(i = 0; i < stat_SecParam / 2; i ++)
+	msgOne -> in_I_Struct = initMsgOne_I_Array(stat_SecParam);
+
+	for(i = 0; i < stat_SecParamDiv2; i ++)
 	{
 		mpz_init(msgOne -> roeArray[i]);
 		mpz_init(msgOne -> A_array[i]);
 		mpz_init(msgOne -> B_array[i]);
 	}
-	for(; i < stat_SecParam; i ++)
+	for(i = stat_SecParamDiv2; i < stat_SecParam; i ++)
 	{
 		mpz_init(msgOne -> A_array[i]);
 		mpz_init(msgOne -> B_array[i]);
@@ -81,6 +80,22 @@ struct msgOneArrays *initMsgOneArray(int stat_SecParam)
 
 
 
+
+
+struct witnessStruct *proverSetupWitnesses(struct params_CnC *params)
+{
+	struct witnessStruct *witnessSet = initWitnessStruc(params -> crs -> stat_SecParam / 2);
+	int i, j = 0;
+
+
+	for(i = 0; i < params -> crs -> stat_SecParam / 2; i ++)
+	{
+		mpz_set(witnessSet -> witnesses[i], params -> crs -> alphas_List[i]);
+		j++;
+	}
+
+	return witnessSet;
+}
 
 
 mpz_t *proverSetupCommitment(struct params_CnC *params, struct witnessStruct *witnessSet, gmp_randstate_t state)
@@ -97,7 +112,6 @@ mpz_t *proverSetupCommitment(struct params_CnC *params, struct witnessStruct *wi
 
 	return alphaAndA;
 }
-
 
 
 struct verifierCommitment *verifierSetupCommitment(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
@@ -128,7 +142,7 @@ struct verifierCommitment *verifierSetupCommitment(struct params_CnC *params, mp
 struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
 {
 	struct msgOneArrays *msgArray = initMsgOneArray(params -> crs -> stat_SecParam);
-	mpz_t denom, numer, numer_inv, unmodded;
+	mpz_t denom, numer, numer_inv, unmodded, temp;
 	int i, j_in_I = 0, j_not_I = 0;
 
 
@@ -136,9 +150,16 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 	mpz_init(numer);
 	mpz_init(numer_inv);
 	mpz_init(unmodded);
+	mpz_init(temp);
 
-	for(i = 0; i , params -> crs -> stat_SecParam; i ++)
+	printf("+++  %d\n\n", params -> crs -> stat_SecParam);
+	fflush(stdout);
+
+	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
+		printf(">>>  %d   %X\n", i, params -> crs -> J_set[i]);
+		fflush(stdout);
+
 		// If i IS in I
 		if(0x00 == params -> crs -> J_set[i])
 		{
@@ -153,9 +174,14 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 		else
 		{
 			msgArray -> in_I_Struct -> in_I_index[j_not_I] = i;
-			mpz_urandomm(msgArray -> in_I_Struct -> C_array[j_not_I], state, params -> group -> q);
-			mpz_urandomm(msgArray -> in_I_Struct -> Z_array[j_not_I], state, params -> group -> q);
-
+			
+			mpz_urandomm(temp, state, params -> group -> q);
+			mpz_set(msgArray -> in_I_Struct -> C_array[j_not_I], temp);
+			
+			mpz_urandomm(temp, state, params -> group -> q);
+			mpz_set(msgArray -> in_I_Struct -> Z_array[j_not_I], temp);
+			
+			/*
 			mpz_powm(denom, params -> group -> g, msgArray -> in_I_Struct -> C_array[j_not_I], params -> group -> p);
 			mpz_powm(numer, params -> crs -> h_0_List[i], msgArray -> in_I_Struct -> Z_array[j_not_I], params -> group -> p);
 			mpz_invert(numer_inv, numer, params -> group -> p);
@@ -167,11 +193,13 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 			mpz_invert(numer_inv, numer, params -> group -> p);
 			mpz_mul(unmodded, denom, numer_inv);
 			mpz_mod(msgArray -> B_array[i], unmodded, params -> group -> p);
+			*/
 
 			j_not_I ++;
 		}
+		printf("---  %d\n", i);
+		fflush(stdout);
 	}
-
 
 	return msgArray;
 }
@@ -345,22 +373,32 @@ int verifierChecks(struct params_CnC *params, struct msgOneArrays *msgArray, mpz
 
 int test_ZKPoK()
 {
-	struct params_CnC *params_R, *params_S;
-	int i, j, k, numInputs = 8, numTests = 128, comp_SecParam = 1024;
-	int totalOTs = numInputs * numTests;
+	struct params_CnC *params;
+	struct witnessStruct *witnessSet;
+	mpz_t *alphaAndA;
+	struct verifierCommitment *commitment_box;
+	struct msgOneArrays *msgOne;
 
-
-	unsigned char *inputBytes[numTests][2];
-	unsigned char *outputBytes[numTests][2];
-	unsigned char *tempChars_0, *tempChars_1;
 	unsigned char *commBuffer;
 	unsigned char sigmaBit = 0x00;
 
+	int i, j, k, numTests = 128, comp_SecParam = 1024;
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
 	gmp_randstate_t *state = seedRandGen();
+
+
+	params = setup_CnC_OT_Receiver(numTests, comp_SecParam, *state);
+
+
+	witnessSet = proverSetupWitnesses(params);
+	alphaAndA = proverSetupCommitment(params, witnessSet, *state);
+	commitment_box = verifierSetupCommitment(params, alphaAndA[0], *state);
+	msgOne = proverMessageOne(params, alphaAndA[0], *state);
+	// commBuffer = verifierQuery(commitment_box, &bufferOffset);
+
+
 	/*
-	mpz_t *proverSetupCommitment(params, witnessSet, state)
 	struct verifierCommitment *verifierSetupCommitment(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
 	struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gmp_randstate_t state)
 

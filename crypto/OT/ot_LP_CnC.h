@@ -12,6 +12,8 @@ typedef struct CRS_CnC
 	// J_set SHOULD NOT BE SENT TO THE SENDER.
 	// ALSO J_set should be pre-generated, not generated during init of protocol.
 	unsigned char *J_set;
+	mpz_t *alphas_List;
+
 	mpz_t *h_0_List;
 	mpz_t *h_1_List;
 } CRS_CnC;

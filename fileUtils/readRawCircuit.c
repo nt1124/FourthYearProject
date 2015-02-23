@@ -65,21 +65,6 @@ struct RawGate *processGate_Raw(int idNum, int numInputWires, int *inputIDs, cha
 	return toReturn;
 }
 
-/*
-// Process a RawGate struct given the data.
-struct RawGate *processGateOrWire_Raw(int idNum, int *inputIDs, int numInputWires,
-										char gateType, struct RawGate **circuit)
-{
-	struct RawGate *toReturn = (struct RawGate*) calloc(1, sizeof(struct RawGate));
-	int inputID, i;
-
-	toReturn = processGate_Raw(numInputWires, inputIDs, gateType);
-
-	return toReturn;
-}
-*/
-
-
 // Take a line of the input file and make a gateOrWire struct from it.
 struct RawGate *processGateLine_Raw(char *line, struct RawGate **circuit, int idOffset, int numInputs1)
 {
