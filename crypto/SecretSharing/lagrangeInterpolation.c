@@ -142,7 +142,11 @@ mpz_t *completePartialSecretSharing(int *iAlready, mpz_t *c_iAlready, mpz_t C, m
 
 		mpz_init(finalCodewords[iAlready[i] - 1]);
 		mpz_set(finalCodewords[iAlready[i] - 1], c_iAlready[i]);
+
+		//gmp_printf("%d  +  %d  +  %Zd\n", i, iAlready[i] - 1, c_iAlready[i]);
 	}
+	//printf("\n\n");
+
 	mpz_init(fixedCodeword[stat_secParam / 2]);
 	mpz_set(fixedCodeword[stat_secParam / 2], C);
 
@@ -160,6 +164,8 @@ mpz_t *completePartialSecretSharing(int *iAlready, mpz_t *c_iAlready, mpz_t C, m
 			mpz_set_ui(tempPoint, i + 1);
 			tempOutput = evalutePoly(secretPoly, tempPoint, q);
 			mpz_init_set(finalCodewords[i], *tempOutput);
+
+			//gmp_printf("%d  -  %Zd\n", i, finalCodewords[i]);
 		}
 	}
 

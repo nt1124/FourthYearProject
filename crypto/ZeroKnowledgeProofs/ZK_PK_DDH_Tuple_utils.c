@@ -131,6 +131,7 @@ unsigned char *serialise_A_B_Arrays(struct msgOneArrays *toSerialise, int stat_S
 	memcpy(outputBuffer, A_Buffer, A_Length);
 	memcpy(outputBuffer + A_Length, B_Buffer, B_Length);
 
+
 	return outputBuffer;
 }
 

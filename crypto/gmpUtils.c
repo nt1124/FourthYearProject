@@ -229,6 +229,8 @@ unsigned char *serialiseMPZ_Array(mpz_t *z, int arrayLen, int *bufferOffset)
 		serialiseMPZ(z[i], tempBuffer, &tempOffset);
 	}
 
+	*bufferOffset = tempOffset;
+
 	return tempBuffer;
 }
 
@@ -249,6 +251,9 @@ mpz_t *deserialiseMPZ_Array(unsigned char *inputBuffer, int *bufferOffset)
 		mpz_set(outputArray[i], *temp);
 		free(temp);
 	}
+
+
+	*bufferOffset = tempOffset;
 
 	return outputArray;
 }
