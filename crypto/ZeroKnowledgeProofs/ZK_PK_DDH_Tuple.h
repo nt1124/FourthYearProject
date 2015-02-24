@@ -21,7 +21,6 @@ typedef struct verifierCommitment
 typedef struct msgOne_notI_Arrays
 {
 	int *not_in_I_index;
-	// int *in_I_index;
 	mpz_t *C_array;
 	mpz_t *Z_array;
 } msgOne_notI_Arrays;
@@ -31,7 +30,6 @@ typedef struct msgOneArrays
 {
 	struct msgOne_notI_Arrays *notI_Struct;
 
-	// int *not_in_I_index;
 	int *in_I_index;
 	mpz_t *roeArray;
 
@@ -53,6 +51,7 @@ typedef struct msgArrays
 
 
 
+#include "ZK_PK_DDH_Tuple_utils.c"
 #include "ZK_PK_DDH_Tuple.c"
 
 

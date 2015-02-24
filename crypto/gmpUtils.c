@@ -196,7 +196,6 @@ void serialiseMPZ(mpz_t z, unsigned char *outputBuffer, int *bufferOffset)
 mpz_t *deserialiseMPZ(unsigned char *inputBuffer, int *bufferOffset)
 {
 	mpz_t *outputMPZ = (mpz_t*) calloc(1, sizeof(mpz_t));
-	unsigned char *tempBuffer;
 	int tempLength;
 
 	memcpy(&tempLength, inputBuffer + *bufferOffset, sizeof(int));
@@ -206,6 +205,52 @@ mpz_t *deserialiseMPZ(unsigned char *inputBuffer, int *bufferOffset)
 	(*bufferOffset) += tempLength;
 
 	return outputMPZ;
+}
+
+
+
+unsigned char *serialiseMPZ_Array(mpz_t *z, int arrayLen, int *bufferOffset)
+{
+	unsigned char *tempBuffer;
+	int tempLength = sizeof(int) * (arrayLen + 1);
+	int tempOffset = sizeof(int), i;
+
+	for(i = 0; i < arrayLen; i ++)
+	{
+		tempLength += (mpz_size(z[i]) * sizeof(mp_limb_t));
+	}
+
+	tempBuffer = (unsigned char *) calloc(tempLength, sizeof(unsigned char));
+
+	memcpy(tempBuffer, &arrayLen, sizeof(int));
+
+	for(i = 0; i < arrayLen; i ++)
+	{
+		serialiseMPZ(z[i], tempBuffer, &tempOffset);
+	}
+
+	return tempBuffer;
+}
+
+
+mpz_t *deserialiseMPZ_Array(unsigned char *inputBuffer, int *bufferOffset)
+{
+	mpz_t *outputArray, *temp;
+	int tempLength, tempOffset = *bufferOffset, i;
+
+	memcpy(&tempLength, inputBuffer + tempOffset, sizeof(int));
+	tempOffset += sizeof(int);
+
+	outputArray = (mpz_t*) calloc(tempLength, sizeof(mpz_t));
+
+	for(i = 0; i < tempLength; i ++)
+	{
+		temp = deserialiseMPZ(inputBuffer, &tempOffset);
+		mpz_set(outputArray[i], *temp);
+		free(temp);
+	}
+
+	return outputArray;
 }
 
 #endif
