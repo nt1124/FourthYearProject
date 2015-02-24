@@ -128,7 +128,7 @@ struct verifierCommitment *verifierSetupCommitment(struct params_CnC *params, mp
 	mpz_powm(temp2, alpha, commitment_box -> t, params -> group -> p);
 
 	mpz_mul(C_unmodded, temp1, temp2);
-	mpz_mul(commitment_box -> C_commit, C_unmodded, params -> group -> p);
+	mpz_mod(commitment_box -> C_commit, C_unmodded, params -> group -> p);
 
 
 	return commitment_box;
@@ -230,8 +230,8 @@ int checkC_prover(struct params_CnC *params, struct verifierCommitment *commitme
 	mpz_mul(checkC_unmodded, temp1, temp2);
 	mpz_mod(checkC, checkC_unmodded, params -> group -> p);
 
-	checkC_Correct = mpz_cmp(checkC, commitment_box -> C_commit);
 
+	checkC_Correct = mpz_cmp(checkC, commitment_box -> C_commit);
 
 	return checkC_Correct;
 }
@@ -251,37 +251,50 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
+		printf(":: %d  =  %X\n", i, params -> crs -> J_set[i]);
+		fflush(stdout);
 		mpz_init(z_ToSend[i]);
 
 		// i IS in I = J^{bar}
 		if(0x00 == params -> crs -> J_set[i])
 		{
 			// zi = c_i * w_i + ρ_i
-			mpz_mul(temp1, msgArray -> notI_Struct -> C_array[j_in_I], witnessesArray -> witnesses[j_in_I]);
-			mpz_add(temp2, temp1, msgArray -> notI_Struct -> Z_array[j_in_I]);
-			mpz_mod(z_ToSend[i], temp2, params -> group -> p);
+			mpz_mul(temp1, msgArray -> notI_Struct -> C_array[j_not_I], witnessesArray -> witnesses[j_not_I]);
+			mpz_add(temp2, temp1, msgArray -> notI_Struct -> Z_array[j_not_I]);
+			mpz_mod(z_ToSend[i], temp2, params -> group -> q);
 
-			j_in_I ++;
+			j_not_I ++;
 		}
 		else
 		{
-			mpz_set(z_ToSend[i], msgArray -> notI_Struct -> Z_array[j_not_I]);
+			mpz_set(z_ToSend[i], msgArray -> notI_Struct -> Z_array[j_in_I]);
 
-			j_not_I ++;
+			j_in_I ++;
 		}
 
 		totalLength += ( sizeof(mp_limb_t) * mpz_size(z_ToSend[i]) );
 	}
 
 
+	printf("{}\n");
+	fflush(stdout);
+
 	totalLength += (sizeof(mp_limb_t) * mpz_size(alphaAndA[1]));
+
+	printf("{}\n");
+	fflush(stdout);
+
 	commBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
+		printf("%d\n", i);
+		fflush(stdout);
+
 		serialiseMPZ(z_ToSend[i], commBuffer, &bufferOffset);
 	}
+	/*
 	serialiseMPZ(alphaAndA[1], commBuffer, &bufferOffset);
-
+	*/
 
 	*outputLen = bufferOffset;
 
@@ -297,13 +310,11 @@ unsigned char *proverMessageTwo(struct params_CnC *params, struct verifierCommit
 	int i, checkC_Correct = 0, totalLength, bufferOffset = 0;
 	int *tempDeltaI = (int*) calloc(params -> crs -> stat_SecParam, sizeof(int));
 
-	mpz_init(temp1);
 
 
 	checkC_Correct = checkC_prover(params, commitment_box, alphaAndA[0]);
 	if(0 != checkC_Correct)
 	{
-		// This
 		return NULL;
 	}
 
@@ -317,13 +328,10 @@ unsigned char *proverMessageTwo(struct params_CnC *params, struct verifierCommit
 											commitment_box -> C_commit, params -> group -> p, params -> crs -> stat_SecParam);
 
 	struct Fq_poly *tempPoly = getPolyFromCodewords(cShares, tempDeltaI, params -> crs -> stat_SecParam, params -> group -> p);
-	
-	printf("<<<<<<<<<<<<\n");
-	fflush(stdout);
 
-	mpz_set_ui(temp1, params -> crs -> stat_SecParam + 1);
+	mpz_init_set_ui(temp1, (params -> crs -> stat_SecParam + 1));
 	tempPointer = evalutePoly(tempPoly, temp1, params -> group -> p);
-	gmp_printf("<> %Zd\n", *tempPointer);
+	gmp_printf("<> %Zd\n... %Zd\n", *tempPointer, temp1);
 	fflush(stdout);
 
 
@@ -404,8 +412,6 @@ int test_ZKPoK()
 	commitment_box = verifierSetupCommitment(params, alphaAndA[0], *state);
 	msgOne = proverMessageOne(params, alphaAndA[0], *state);
 	commBuffer = verifierQuery(commitment_box, &bufferOffset);
-	cCheck = checkC_prover(params, commitment_box, alphaAndA[0]);
-	commBuffer = computeAndSerialise(params, msgOne, witnessSet, alphaAndA, &bufferOffset);
 	commBuffer = proverMessageTwo(params, commitment_box, msgOne, witnessSet, alphaAndA, &bufferOffset);
 
 
