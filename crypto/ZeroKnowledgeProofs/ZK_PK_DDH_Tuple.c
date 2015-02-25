@@ -74,17 +74,6 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 		// If i IS in I
 		if(0x00 == params -> crs -> J_set[i])
 		{
-			msgArray -> in_I_index[j_in_I] = i + 1;
-
-			mpz_urandomm(msgArray -> roeArray[j_in_I], state, params -> group -> q);
-
-			mpz_powm(msgArray -> A_array[i], params -> group -> g, msgArray -> roeArray[j_in_I], params -> group -> p);
-			mpz_powm(msgArray -> B_array[i], params -> crs -> g_1, msgArray -> roeArray[j_in_I], params -> group -> p);
-
-			j_in_I ++;
-		}
-		else
-		{
 			msgArray -> notI_Struct -> not_in_I_index[j_not_I] = i + 1;
 
 			mpz_urandomm(msgArray -> notI_Struct -> C_array[j_not_I], state, params -> group -> q);
@@ -106,9 +95,17 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 
 			j_not_I ++;
 		}
+		else
+		{
+			msgArray -> in_I_index[j_in_I] = i + 1;
 
-		printf("%d, ", params -> crs -> J_set[i]);
-		// gmp_printf("%d --- %d\n%Zd\n%Zd\n\n", params -> crs -> J_set[i], i, msgArray -> A_array[i], msgArray -> B_array[i]);
+			mpz_urandomm(msgArray -> roeArray[j_in_I], state, params -> group -> q);
+
+			mpz_powm(msgArray -> A_array[i], params -> group -> g, msgArray -> roeArray[j_in_I], params -> group -> p);
+			mpz_powm(msgArray -> B_array[i], params -> crs -> g_1, msgArray -> roeArray[j_in_I], params -> group -> p);
+
+			j_in_I ++;
+		}
 	}
 	printf("\n");
 
@@ -182,6 +179,12 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 		// i IS in I = J^{bar}
 		if(0x00 == params -> crs -> J_set[i])
 		{
+			mpz_set(z_ToSend[i], msgArray -> notI_Struct -> Z_array[j_not_I]);
+
+			j_not_I ++;
+		}
+		else
+		{
 			// z_i = c_i * w_i + ρ_i
 			mpz_mul(temp1, cShares[i], witnessesArray -> witnesses[i]);
 			mpz_add(temp2, temp1, msgArray -> roeArray[j_in_I]);
@@ -190,12 +193,6 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 			//gmp_printf("--- %d\n%Zd\n%Zd\n\n", i, z_ToSend[i], cShares[i]);
 
 			j_in_I ++;
-		}
-		else
-		{
-			mpz_set(z_ToSend[i], msgArray -> notI_Struct -> Z_array[j_not_I]);
-
-			j_not_I ++;
 		}
 	}
 
@@ -302,12 +299,12 @@ int verifierChecks(struct params_CnC *params, mpz_t *Z_array, mpz_t *A_array, mp
 		mpz_mul(unmodded, topHalf, bottomHalf_inv);
 		mpz_mod(B_check_array[i], unmodded, params -> group -> p);
 
-		gmp_printf("+++ %d\n%Zd\n%Zd\n\n%Zd\n%Zd\n\n", i, A_array[i], A_check_array[i], B_array[i], B_check_array[i]);
+		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n%Zd\n%Zd\n\n", i, A_array[i], A_check_array[i], B_array[i], B_check_array[i]);
 		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n", i, A_check_array[i], B_check_array[i]);
 		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n", i, Z_array[i], codewords[i]);
 
 		AB_check |= mpz_cmp(A_array[i], A_check_array[i]);
-		// AB_check |= mpz_cmp(B_array[i], B_check_array[i]);
+		AB_check |= mpz_cmp(B_array[i], B_check_array[i]);
 	}
 
 

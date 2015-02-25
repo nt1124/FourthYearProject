@@ -256,3 +256,16 @@ void productOfMPZs(mpz_t output, mpz_t *inputArray, mpz_t q, int length)
 
 	mpz_mod(output, unmoddedOutput, q);
 }
+
+
+int getHighestDegree(struct Fq_poly *inputPoly)
+{
+	int i = inputPoly -> degree;
+
+	while(0 != mpz_cmp_ui(inputPoly -> coeffs[i], 0))
+	{
+		i --;
+	}
+
+	return i;
+}
