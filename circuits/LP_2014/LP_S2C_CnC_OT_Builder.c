@@ -41,7 +41,7 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 	int i, j, bufferLength = 0, iOffset = 0, numInputsBuilder;
 	int totalOTs, u_v_index;
 
-	int k;
+	int k, tupleVerified = 0;
 
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
@@ -54,6 +54,7 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 
 
 	// When doing this properly the ZKPOK goes here.
+	tupleVerified = ZKPoK_Verifier(writeSocket, readSocket, params_S, state);
 
 
 	commBuffer = receiveBoth(readSocket, bufferLength);

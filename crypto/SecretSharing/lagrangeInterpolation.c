@@ -111,7 +111,10 @@ struct Fq_poly *getPolyFromCodewords(mpz_t *codewords, int *delta_i, int length,
 	{
 		scalarMultiInPlace(lagrangePolys[i-1], codewords[i-1], q);
 		output = addPolys(lagrangePolys[i-1], output, q);
+
+		// gmp_printf("%Zd\n", codewords[i-1]);
 	}
+	// printf("\n\n\n");
 
 
 	return output;
@@ -151,8 +154,7 @@ mpz_t *completePartialSecretSharing(int *iAlready, mpz_t *c_iAlready, mpz_t C, m
 	delta_i[stat_secParam / 2] = stat_secParam + 1;
 
 
-	secretPoly = getPolyFromCodewords(fixedCodeword, delta_i, (stat_secParam / 2) + 1, q);
-
+	secretPoly = getPolyFromCodewords(fixedCodeword, delta_i, stat_secParam / 2 + 1, q);
 
 	for(i = 0; i < stat_secParam; i ++)
 	{
@@ -164,6 +166,10 @@ mpz_t *completePartialSecretSharing(int *iAlready, mpz_t *c_iAlready, mpz_t C, m
 		}
 	}
 
+	mpz_set_ui(tempPoint, stat_secParam + 1);
+	tempOutput = evalutePoly(secretPoly, tempPoint, q);
+
+
 	return finalCodewords;
 }
 
@@ -173,18 +179,27 @@ int testSecretScheme(struct Fq_poly *polyToTest, mpz_t secret, mpz_t q, unsigned
 	mpz_t secret_index, *polyTestSecret;
 	int degreeOfPoly = getHighestDegree(polyToTest);
 
+	mpz_t *temp;
+	int i;
+
 
 	mpz_init_set_ui(secret_index, numShares + 1);
 
 	polyTestSecret = evalutePoly(polyToTest, secret_index, q);
 
 
-	if(threshold == degreeOfPoly + 1 &&	0 == mpz_cmp(*polyTestSecret, secret))
+	for(i = 0; i < numShares; i ++)
 	{
-		return 1;
+		mpz_set_ui(secret_index, i + 1);
+		temp = evalutePoly(polyToTest, secret_index, q);
 	}
 
-	return 0;
+	if(threshold == degreeOfPoly + 1 &&	0 == mpz_cmp(*polyTestSecret, secret))
+	{
+		return 0;
+	}
+
+	return 1;
 }
 
 
@@ -195,7 +210,8 @@ void testPolys()
 	struct Fq_poly *output;
 	mpz_t *codewords, q, *temp;
 	int degree = 6, length = degree + 1, i;
-	int delta_i[4] = {1, 2};
+	int delta_i[4] = {1, 2, 3, 4};
+	int finalDecision;
 
 
 	codewords = (mpz_t*) calloc(length, sizeof(mpz_t));
@@ -213,13 +229,7 @@ void testPolys()
 	mpz_set_ui(codewords[3], 86);
 
 
-	// output = getPolyFromCodewords(codewords, delta_i, 3, q);
-	// printPolyReverse(output);
 	temp = completePartialSecretSharing(delta_i, codewords, codewords[3], q, 4);
 
-	for(i = 0; i < 4; i ++)
-	{
-		gmp_printf("%Zd, ", temp[i]);
-	}
-	printf("\n\n");
+	output = getPolyFromCodewords(temp, delta_i, 4, q);
 }

@@ -267,5 +267,7 @@ int getHighestDegree(struct Fq_poly *inputPoly)
 		i --;
 	}
 
+	i --;
+
 	return i;
 }

@@ -78,8 +78,6 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 
 			mpz_urandomm(msgArray -> notI_Struct -> C_array[j_not_I], state, params -> group -> q);
 			mpz_urandomm(msgArray -> notI_Struct -> Z_array[j_not_I], state, params -> group -> q);
-
-			// gmp_printf("+++ %d\n%Zd\n%Zd\n\n", i, msgArray -> notI_Struct -> Z_array[j_not_I], msgArray -> notI_Struct -> C_array[j_not_I]);
 			
 			mpz_powm(topHalf, params -> group -> g, msgArray -> notI_Struct -> Z_array[j_not_I], params -> group -> p);
 			mpz_powm(bottomHalf, params -> crs -> h_0_List[i], msgArray -> notI_Struct -> C_array[j_not_I], params -> group -> p);
@@ -107,7 +105,7 @@ struct msgOneArrays *proverMessageOne(struct params_CnC *params, mpz_t alpha, gm
 			j_in_I ++;
 		}
 	}
-	printf("\n");
+
 
 	return msgArray;
 }
@@ -249,6 +247,9 @@ unsigned char *proverMessageTwo(struct params_CnC *params, struct verifierCommit
 
 	commBuffer = computeAndSerialise(params, msgArray, witnessesArray, cShares, alphaAndA, &bufferOffset);
 
+
+	*outputLen = bufferOffset;
+	
 	return commBuffer;
 }
 
@@ -280,7 +281,10 @@ int verifierChecks(struct params_CnC *params, mpz_t *Z_array, mpz_t *A_array, mp
 	{
 		delta_i[i] = i + 1;
 	}
-	secretPoly = getPolyFromCodewords(codewords, delta_i, params -> crs -> stat_SecParam / 2, params -> group -> q);
+
+	secretPoly = getPolyFromCodewords(codewords, delta_i, params -> crs -> stat_SecParam / 2 + 1, params -> group -> q);
+	finalDecision = testSecretScheme(secretPoly, c, params -> group -> q, (params -> crs -> stat_SecParam / 2) + 1, params -> crs -> stat_SecParam);
+	// finalDecision = testSecretScheme(secretPoly, c, params -> group -> q, params -> crs -> stat_SecParam / 2, params -> crs -> stat_SecParam);
 
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
 	{
@@ -299,18 +303,127 @@ int verifierChecks(struct params_CnC *params, mpz_t *Z_array, mpz_t *A_array, mp
 		mpz_mul(unmodded, topHalf, bottomHalf_inv);
 		mpz_mod(B_check_array[i], unmodded, params -> group -> p);
 
-		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n%Zd\n%Zd\n\n", i, A_array[i], A_check_array[i], B_array[i], B_check_array[i]);
-		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n", i, A_check_array[i], B_check_array[i]);
-		// gmp_printf("+++ %d\n%Zd\n%Zd\n\n", i, Z_array[i], codewords[i]);
 
 		AB_check |= mpz_cmp(A_array[i], A_check_array[i]);
 		AB_check |= mpz_cmp(B_array[i], B_check_array[i]);
 	}
 
 
-	printf("%d  -  %d\n", alphaCheck, AB_check);
+	// printf("%d  -  %d  -  %d\n", alphaCheck, AB_check, finalDecision);
+	finalDecision |= AB_check;
+	finalDecision |= alphaCheck;
 
 	return finalDecision;
+}
+
+
+
+void ZKPoK_Prover(int writeSocket, int readSocket, struct params_CnC *params_P, gmp_randstate_t *state)
+{
+	struct witnessStruct *witnessSet;
+	mpz_t *alphaAndA_P, *tempMPZ;
+	struct verifierCommitment *commitment_box_P;
+	struct msgOneArrays *msgOne_P;
+
+	unsigned char *commBuffer;
+	int bufferOffset = 0, commBufferLen = 0;
+
+
+	witnessSet = proverSetupWitnesses(params_P);
+	alphaAndA_P = proverSetupCommitment(params_P, witnessSet, *state);
+
+	bufferOffset = 0;
+	commBuffer = (unsigned char *) calloc(sizeof(int) + (sizeof(mp_limb_t) * mpz_size(alphaAndA_P[0])), sizeof(unsigned char));
+	serialiseMPZ(alphaAndA_P[0], commBuffer, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	// Round 1
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commitment_box_P = initVerifierCommitment();
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
+	mpz_init_set(commitment_box_P -> C_commit, *tempMPZ);
+	free(commBuffer);
+	// Round 2
+
+	bufferOffset = 0;
+	msgOne_P = proverMessageOne(params_P, alphaAndA_P[0], *state);
+	commBuffer = serialise_A_B_Arrays(msgOne_P, params_P -> crs -> stat_SecParam, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	// Round 3
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	deserialisedSecrets_CommitmentBox(commitment_box_P, commBuffer, &bufferOffset);
+	free(commBuffer);
+	// Round 4
+
+
+	bufferOffset = 0;
+	commBuffer = proverMessageTwo(params_P, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	// Round 5
+}
+
+
+int ZKPoK_Verifier(int writeSocket, int readSocket, struct params_CnC *params_V, gmp_randstate_t *state)
+{
+	mpz_t *alphaAndA_V = (mpz_t*) calloc(2, sizeof(mpz_t)), *tempMPZ;
+	struct verifierCommitment *commitment_box_V;
+	struct msgOneArrays *msgOne_V;
+	unsigned char *commBuffer;
+
+	int cCheck = 0, verified = 0;
+	int bufferOffset = 0, commBufferLen = 0;
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
+	mpz_init_set(alphaAndA_V[0], *tempMPZ);
+	free(commBuffer);
+	// Round 1
+
+	commitment_box_V = verifierSetupCommitment(params_V, alphaAndA_V[0], *state);
+
+	bufferOffset = 0;
+	commBuffer = (unsigned char *) calloc(sizeof(int) + (sizeof(mp_limb_t) * mpz_size(commitment_box_V -> C_commit)), sizeof(unsigned char));
+	serialiseMPZ(commitment_box_V -> C_commit, commBuffer, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	// Round 2
+
+
+	msgOne_V = initMsgOneArray(params_V -> crs -> stat_SecParam);
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	msgOne_V -> A_array = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	msgOne_V -> B_array = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	free(commBuffer);
+	// Round 3
+
+	bufferOffset = 0;
+	commBuffer = verifierQuery(commitment_box_V, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	// Round 4
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	mpz_t *Z_array_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	mpz_t *cShares_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
+	mpz_set(alphaAndA_V[1], *tempMPZ);
+
+	
+
+	verified = verifierChecks(params_V, Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
+
+	return verified;
 }
 
 
@@ -326,7 +439,7 @@ int test_ZKPoK()
 	unsigned char *commBuffer;
 	unsigned char sigmaBit = 0x00;
 
-	int i, j, k, numTests = 10, comp_SecParam = 1024, cCheck = 0;
+	int i, j, k, numTests = 10, comp_SecParam = 1024, cCheck = 0, verified = 0;
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
 	gmp_randstate_t *state = seedRandGen();
@@ -346,9 +459,6 @@ int test_ZKPoK()
 	commBuffer = (unsigned char *) calloc(sizeof(int) + (sizeof(mp_limb_t) * mpz_size(alphaAndA_P[0])), sizeof(unsigned char));
 	serialiseMPZ(alphaAndA_P[0], commBuffer, &bufferOffset);
 
-
-	// gmp_printf("1 %Zd\n2 %Zd\n3 %Zd\n\n", params_P -> group -> g, alphaAndA_P[0], alphaAndA_P[1]);
-	// gmp_printf("<> %Zd\n", alphaAndA_P[0]);
 
 	alphaAndA_V = (mpz_t*) calloc(2, sizeof(mpz_t));
 	bufferOffset = 0;
@@ -401,7 +511,8 @@ int test_ZKPoK()
 	mpz_set(alphaAndA_V[1], *tempMPZ);
 
 	
-	verifierChecks(params_V, Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
-	// CHANGE C TO VERIFIER QUERY -> c
+	verified = verifierChecks(params_V, Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
+
+	printf("%d\n",verified);
 
 }

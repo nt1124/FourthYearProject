@@ -21,6 +21,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 
 
 	// When truly doing it we need to have the ZKPOK here...
+	ZKPoK_Prover(writeSocket, readSocket, params_R, state);
 
 
 	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*));

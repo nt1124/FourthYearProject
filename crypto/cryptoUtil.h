@@ -9,6 +9,7 @@
 #include "gmpUtils.c"
 #include "rsa.c"
 #include "DDH_Primitive.h"
+#include "EllipticCurves/eccUtils.c"
 
 #include "OT/otToy.c"
 #include "OT/otSemiHonestRSA.c"
@@ -23,6 +24,7 @@
 
 #include "SecretSharing/lagrangeInterpolation.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
+
 
 const int wireKeysLengths = 16;
 

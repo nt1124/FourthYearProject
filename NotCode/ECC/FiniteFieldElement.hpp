@@ -58,7 +58,8 @@ namespace Cryptography
         */
 
         // ::: Will need to include a wrapper for mpz_mod that deals with this little extra snag.
-	// ::: Actually not, this guy is fixing the stupid crap behaviour of C mod. mpz_mod is fine.
+        // ::: Actually not, this guy is fixing the stupid crap behaviour of C mod. mpz_mod is fine.
+        // ::: Or is he... I don't know.
         template<int P>
         class   FiniteFieldElement
         {
