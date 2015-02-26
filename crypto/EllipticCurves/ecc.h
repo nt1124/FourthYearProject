@@ -1,3 +1,8 @@
+#ifndef ECC_CRYPTO
+#define ECC_CRYPTO
+
+
+
 typedef struct eccPoint
 {
 	mpz_t x;
@@ -17,12 +22,28 @@ typedef struct eccParams
 } eccParams;
 
 
-typedef struct eccPubKey
+typedef struct ecc_Ciphertext
 {
+	struct eccPoint *sessionKey;
+	
+	mpz_t c1;
+	mpz_t c2;
+} ecc_Ciphertext;
 
-}eccPubKey;
+
+typedef struct eccPublicKey
+{
+	struct eccPoint *basePK;		// Equivalent to g?
+	struct eccPoint *PK_mul_SK;		// Equivalent to h?
+} eccPublicKey;
 
 
 
 #include "eccUtils.c"
+#include "eccGroup.c"
 #include "ecc_enc.c"
+
+
+
+
+#endif
