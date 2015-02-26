@@ -9,7 +9,7 @@
 #include "gmpUtils.c"
 #include "rsa.c"
 #include "DDH_Primitive.h"
-#include "EllipticCurves/eccUtils.c"
+#include "EllipticCurves/ecc.h"
 
 #include "OT/otToy.c"
 #include "OT/otSemiHonestRSA.c"

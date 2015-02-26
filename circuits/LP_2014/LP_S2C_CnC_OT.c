@@ -149,7 +149,10 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath );
+		if(0x00 == J_set[i])
+		{
+			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath );
+		}
 	}
 
 	ext_c_1 = clock();
