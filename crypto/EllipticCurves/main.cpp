@@ -440,17 +440,20 @@ int main(int argc, char *argv[])
     cout << "G = " << G << ", order(G) is " << G.Order() << "\n";
     
     // Alice
-    int a = irand(1,myEllipticCurve.Degree()-1);
+    // int a = irand(1,myEllipticCurve.Degree()-1);
+    int a = 132;
     ec_t::Point Pa = a*G;  // public key
     cout << "Alice' public key Pa = " << a << "*" << G << " = " << Pa << endl;    
         
     // Bob
-    int b = irand(1,myEllipticCurve.Degree()-1);;
+    // int b = irand(1,myEllipticCurve.Degree()-1);
+    int b = 155;
     ec_t::Point Pb = b*G;  // public key       
     cout << "Bob's public key Pb = " << b << "*" << G << " = " << Pb << endl;    
     
     // Jane, the eavesdropper
-    int j = irand(1,myEllipticCurve.Degree()-1);;
+    // int j = irand(1,myEllipticCurve.Degree()-1);;
+    int j = 145;
     ec_t::Point Pj = j*G;
     cout << "Jane's public key Pj = " << j << "*" << G << " = " << Pj << endl;    
 

@@ -100,27 +100,23 @@ struct ecc_Ciphertext *initECC_Ciphertext()
 	struct ecc_Ciphertext *output = (struct ecc_Ciphertext *) calloc(1, sizeof(struct ecc_Ciphertext));
 
 	output -> sessionKey = initECC_Point();
-
-	mpz_init(output -> c1);
-	mpz_init(output -> c2);
+	output -> msgPart = initECC_Point();
 
 
 	return output;
 }
 
 
+/*
 struct eccPublicKey *initECC_PublicKey()
 {
 	struct eccPublicKey *output = (struct eccPublicKey *) calloc(1, sizeof(struct eccPublicKey));
 
 
-	output -> basePK = initECC_Point();
+	output -> PK_FromOther = initECC_Point();
 	output -> PK_mul_SK = initECC_Point();
 
 
 	return output;
 }
-
-
-
-
+*/

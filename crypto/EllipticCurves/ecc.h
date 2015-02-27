@@ -25,17 +25,25 @@ typedef struct eccParams
 typedef struct ecc_Ciphertext
 {
 	struct eccPoint *sessionKey;
-	
-	mpz_t c1;
-	mpz_t c2;
+	struct eccPoint *msgPart;
 } ecc_Ciphertext;
 
 
+
+/*
 typedef struct eccPublicKey
 {
-	struct eccPoint *basePK;		// Equivalent to g?
-	struct eccPoint *PK_mul_SK;		// Equivalent to h?
+	struct eccPoint *PK_FromOther;		// a.g where a is the secret key
 } eccPublicKey;
+
+typedef struct eccPublicKey
+{
+	struct eccPoint *PK_FromOther;		// Equivalent to g? g * a times the 
+	struct eccPoint *PK_mul_SK;		// Equivalent to h?
+} eccPublicKeyPair;
+*/
+
+
 
 
 

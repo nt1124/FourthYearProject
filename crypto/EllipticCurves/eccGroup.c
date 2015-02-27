@@ -181,3 +181,15 @@ struct eccPoint *scalarMulti(mpz_t k, struct eccPoint *P, struct eccParams *para
 	return tempPoint;
 }
 
+
+struct eccPoint *invertPoint(struct eccPoint *P, struct eccParams *params)
+{
+	struct eccPoint *invP = initECC_Point();
+
+
+	mpz_set(invP -> x, P -> x);
+	mpz_invert(invP -> y, P -> y, params -> p);
+
+
+	return invP;
+}
