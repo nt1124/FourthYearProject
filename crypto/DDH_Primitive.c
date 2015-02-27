@@ -103,8 +103,6 @@ struct DDH_Group *getSchnorrGroup(int securityParam, gmp_randstate_t state)
 	// getSafePrimeGMP(group -> p, group -> q, state, securityParam);
 	gmp_sscanf (pStr, "%Zx", group -> p);
 	gmp_sscanf (qStr, "%Zx", group -> q);
-	// gmp_printf("%Zx\n\n", group -> p);
-	// gmp_printf("%Zx\n\n", group -> q);
 
 	do
 	{

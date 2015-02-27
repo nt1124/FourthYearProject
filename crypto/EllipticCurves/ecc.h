@@ -29,19 +29,14 @@ typedef struct ecc_Ciphertext
 } ecc_Ciphertext;
 
 
-
-/*
-typedef struct eccPublicKey
+typedef struct u_v_Pair_ECC
 {
-	struct eccPoint *PK_FromOther;		// a.g where a is the secret key
-} eccPublicKey;
+	struct eccPoint *u;
+	struct eccPoint *v;
+} u_v_Pair_ECC;
 
-typedef struct eccPublicKey
-{
-	struct eccPoint *PK_FromOther;		// Equivalent to g? g * a times the 
-	struct eccPoint *PK_mul_SK;		// Equivalent to h?
-} eccPublicKeyPair;
-*/
+
+
 
 
 

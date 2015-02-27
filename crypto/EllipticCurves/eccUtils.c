@@ -51,6 +51,16 @@ struct eccPoint *copyECC_Point(struct eccPoint *toCopy)
 }
 
 
+
+void clearECC_Point(struct eccPoint *toClear)
+{
+	mpz_clear(toClear -> x);
+	mpz_clear(toClear -> y);
+
+	free(toClear);
+}
+
+
 void printPoint(struct eccPoint *P)
 {
 	if(0 == P -> pointAtInf)
@@ -107,16 +117,176 @@ struct ecc_Ciphertext *initECC_Ciphertext()
 }
 
 
-/*
-struct eccPublicKey *initECC_PublicKey()
+int sizeOfSerial_ECCPoint(struct eccPoint *P)
 {
-	struct eccPublicKey *output = (struct eccPublicKey *) calloc(1, sizeof(struct eccPublicKey));
+	int totalLength = sizeof(int) * 2 + 1;
+
+	totalLength += sizeof(mp_limb_t) * (mpz_size(P -> x) + mpz_size(P -> y));
+
+	
+	return totalLength;
+}
 
 
-	output -> PK_FromOther = initECC_Point();
-	output -> PK_mul_SK = initECC_Point();
 
+void serialise_ECC_Point(struct eccPoint *P, unsigned char *outputBuffer, int *outputOffset)
+{
+
+	int offset = *outputOffset;
+
+	serialiseMPZ(P -> x, outputBuffer, &offset);
+	serialiseMPZ(P -> y, outputBuffer, &offset);
+	memcpy(outputBuffer + offset, &(P -> pointAtInf), sizeof(unsigned char));
+
+
+	*outputOffset = offset;
+}
+
+
+struct eccPoint *deserialise_ECC_Point(unsigned char *inputBuffer, int *inputOffset)
+{
+	struct eccPoint *output = initECC_Point();
+	int offset = *inputOffset;
+	mpz_t *tempMPZ;
+
+
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	memcpy(&(output -> pointAtInf), inputBuffer + offset, sizeof(unsigned char));
+
+
+	*inputOffset = offset + 1;
 
 	return output;
 }
-*/
+
+
+
+unsigned char *serialiseECC_Params(struct eccParams *params, int *outputLen)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 4 * sizeof(int), offset = 0;
+
+	totalLength += sizeof(mp_limb_t) * mpz_size(params -> p);
+	totalLength += sizeof(mp_limb_t) * mpz_size(params -> a);
+	totalLength += sizeof(mp_limb_t) * mpz_size(params -> b);
+	totalLength += sizeof(mp_limb_t) * mpz_size(params -> n);
+	totalLength += sizeOfSerial_ECCPoint(params -> g);
+
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+	serialiseMPZ(params -> p, outputBuffer, &offset);
+	serialiseMPZ(params -> a, outputBuffer, &offset);
+	serialiseMPZ(params -> b, outputBuffer, &offset);
+	serialiseMPZ(params -> n, outputBuffer, &offset);
+	serialise_ECC_Point(params -> g, outputBuffer, &offset);
+
+
+	*outputLen = offset;
+
+	return outputBuffer;
+}
+
+
+struct eccParams *deserialiseECC_Params(unsigned char *inputBuffer, int *inputOffset)
+{
+	struct eccParams *output = initECC_Params();
+	int offset = *inputOffset;
+	mpz_t *tempMPZ;
+
+
+
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> p, *tempMPZ);
+	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> a, *tempMPZ);
+	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> b, *tempMPZ);
+	free(tempMPZ);
+
+	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> n, *tempMPZ);
+	free(tempMPZ);
+
+	output -> g = deserialise_ECC_Point(inputBuffer, &offset);
+
+
+	*inputOffset = offset;
+
+	return output;
+}
+
+
+
+void serialise_U_V_pair_ECC(struct u_v_Pair_ECC *c, unsigned char *outputBuffer, int *bufferOffset)
+{
+	int outputOffset = *bufferOffset;
+
+
+	serialise_ECC_Point(c -> u, outputBuffer, &outputOffset);
+	serialise_ECC_Point(c -> v, outputBuffer, &outputOffset);
+
+
+	*bufferOffset = outputOffset;
+}
+
+
+struct u_v_Pair_ECC *deserialise_U_V_pair_ECC(unsigned char *inputBuffer, int *bufferOffset)
+{
+	struct u_v_Pair_ECC *c = (struct u_v_Pair_ECC*) calloc(1, sizeof(u_v_Pair_ECC));
+	int tempOffset = *bufferOffset;
+
+
+	c -> u = deserialise_ECC_Point(inputBuffer, &tempOffset);	
+	c -> v = deserialise_ECC_Point(inputBuffer, &tempOffset);
+
+
+	*bufferOffset = tempOffset;
+
+	return c;
+}
+
+
+unsigned char *serialise_U_V_Pair_ECC_Array(struct u_v_Pair_ECC **inputs, int num_u_v_Pairs, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 2 * sizeof(int) * num_u_v_Pairs;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		totalLength += sizeOfSerial_ECCPoint(inputs[i] -> u);
+		totalLength += sizeOfSerial_ECCPoint(inputs[i] -> v);
+	}
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		serialise_U_V_pair_ECC(inputs[i], outputBuffer, &bufferOffset);
+	}
+
+	*outputLength = totalLength;
+
+	return outputBuffer;
+}
+
+
+struct u_v_Pair_ECC **deserialise_U_V_Pair_ECC_Array(unsigned char *inputBuffer, int num_u_v_Pairs)
+{
+	struct u_v_Pair_ECC **outputKeys = (struct u_v_Pair_ECC **) calloc(num_u_v_Pairs, sizeof(struct u_v_Pair_ECC*));
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		outputKeys[i] = deserialise_U_V_pair_ECC(inputBuffer, &bufferOffset);
+	}
+
+	return outputKeys;
+}

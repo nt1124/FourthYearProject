@@ -36,14 +36,12 @@ struct eccPoint *generate_ECC_KeyPair(struct eccParams *params, mpz_t SK, gmp_ra
 	struct eccPoint *PK = initECC_Point();
 
 
-	mpz_init(SK);
-
 	do
 	{
-		mpz_urandomm(SK, state, params -> p);
-	} while( 0 != mpz_cmp_ui(SK, 0) );
+		mpz_urandomm(SK, state, params -> n);
+	} while( 0 == mpz_cmp_ui(SK, 0) );
 
-	PK = scalarMulti(SK, params -> g, params);
+	PK = doubleAndAdd_ScalarMul(SK, params -> g, params);
 
 
 	return PK;
@@ -62,36 +60,36 @@ struct ecc_Ciphertext *ECC_Enc(struct eccPoint *PK, struct eccPoint *msg, struct
 
 	do
 	{
-		mpz_urandomm(k, state, params -> p);
-	} while( 0 != mpz_cmp_ui(k, 0) );
+		mpz_urandomm(k, state, params -> n);
+	} while( 0 == mpz_cmp_ui(k, 0) );
 
-	ciphertext -> sessionKey = scalarMulti(k, params -> g, params);
-	tempPoint = scalarMulti(k, PK, params);
+	ciphertext -> sessionKey = doubleAndAdd_ScalarMul(k, params -> g, params);
+	tempPoint = doubleAndAdd_ScalarMul(k, PK, params);
 	ciphertext -> msgPart = groupOp(msg, tempPoint, params);
 
 
-	free(tempPoint);
+	mpz_clear(k);
+	clearECC_Point(tempPoint);
 
 	return ciphertext;
 }
 
 
-struct eccPoint *ECC_Dec(mpz_t SK, struct eccPoint *plaintext, struct eccParams *params)
+struct eccPoint *ECC_Dec(mpz_t SK, struct ecc_Ciphertext *ciphertext, struct eccParams *params)
 {
-	// struct eccPoint *ciphertext;
-	// mpz_t temp;
+	struct eccPoint *plaintext, *SK_Scalar_Key, *invKey;
 
 
-	// mpz_init(temp);
-	// ciphertext = initECC_Point();
+	SK_Scalar_Key = doubleAndAdd_ScalarMul(SK, ciphertext -> sessionKey, params);
 
-	// mpz_mul(temp, plaintext -> x, PK -> PK_mul_SK -> x);
-	// mpz_mod(ciphertext -> x, temp, params -> p);
-	// mpz_mul(temp, plaintext -> y, PK -> PK_mul_SK -> y);
-	// mpz_mod(ciphertext -> y, temp, params -> p);
+	invKey = invertPoint(SK_Scalar_Key, params);
+	plaintext = groupOp(ciphertext -> msgPart, invKey, params);
+
+	clearECC_Point(SK_Scalar_Key);
+	clearECC_Point(invKey);
 
 
-	// return ciphertext;
+	return plaintext;
 }
 
 
@@ -99,7 +97,7 @@ struct eccPoint *ECC_Dec(mpz_t SK, struct eccPoint *plaintext, struct eccParams 
 
 
 /*	----------------------------------------------------
-	----    ----    ----++++8888++++----    ----    ----
+	----    ----    ----TESTING LAND----    ----    ----
 	----------------------------------------------------	*/
 
 
@@ -109,58 +107,34 @@ struct eccPoint *ECC_Dec(mpz_t SK, struct eccPoint *plaintext, struct eccParams 
 
 void testECC_Utils()
 {
-	mpz_t p, a, b, n, g_x, g_y, plaintext_x, plaintext_y;
-	mpz_t SK_a, SK_b, SK_j;
-	struct eccPoint *g, *plaintext, *PK_a, *PK_b, *PK_j, *PK_for_use;
+	mpz_t plaintext_x, plaintext_y, SK;
+	struct eccPoint *plaintext, *plaintextDot, *PK;
+	struct ecc_Ciphertext *ciphertext;
 	struct eccParams *params;
-	struct eccPublicKey *PK;
-	struct eccPoint *ciphertext, *SK;
+	gmp_randstate_t *state = seedRandGen();
 
-	mpz_t c_x, c_y, temp;
 
-	mpz_init_set_ui(p, 263);
-	mpz_init_set_ui(a, 1);
-	mpz_init_set_ui(b, 1);
-	mpz_init_set_ui(g_x, 184);
-	mpz_init_set_ui(g_y, 220);
-	mpz_init_set_ui(n, 64);
+	mpz_init(SK);
 	mpz_init_set_ui(plaintext_x, 19);
 	mpz_init_set_ui(plaintext_y, 72);
 
-	mpz_init_set_ui(SK_a, 132);
-	mpz_init_set_ui(SK_b, 155);
-	mpz_init_set_ui(SK_j, 145);
-
-	mpz_init(c_x);
-	mpz_init(c_y);
-	mpz_init(temp);
-
-
-	g = initAndSetECC_Point(g_x, g_y, 0);
 	plaintext = initAndSetECC_Point(plaintext_x, plaintext_y, 0);
-	params = initAndSetECC_Params(p, a, b, g, n);
-	/*
-	PK = initECC_PublicKey();
+	params = initBrainpool_256_Curve();
 
 
-	// Test the public key crap.
-	PK_a = scalarMulti(SK_a, g, params);
-	printPoint(PK_a);
-	PK_b = scalarMulti(SK_b, g, params);
-	printPoint(PK_b);
-	PK_j = scalarMulti(SK_j, g, params);
-	printPoint(PK_j);
+	PK = generate_ECC_KeyPair(params, SK, *state);
+	ciphertext = ECC_Enc(PK, plaintext, params, *state);
+	plaintextDot = ECC_Dec(SK, ciphertext, params);
 
-
-	PK -> PK_FromOther = copyECC_Point(PK_b);
-	PK -> PK_mul_SK = scalarMulti(SK_a, PK_b, params);
-
-	SK = getDecryptionKey(SK, PK, params);
-
-	ciphertext = ECC_Enc(PK, plaintext, params);
-
-	printPoint(ciphertext);
-	*/
-
+	printPoint(plaintext);
+	printPoint(plaintextDot);
 
 }
+
+
+
+
+
+
+
+
