@@ -94,14 +94,9 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 
 	while(NULL != current)
 	{
-		printf("<0><c> <>\n");
-		fflush(stdout);
-
 		outputWire = inputCircuit -> gates[current -> id] -> outputWire;
 		outputWire -> wireOwner = ownerFlag;
 
-		printf("<0><c> <>\n");
-		fflush(stdout);
 		if( 0x01 == current -> value )
 		{
 			// outputWire -> wirePermedValue = outputWire -> outputGarbleKeys -> key1[16];
@@ -115,8 +110,6 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 			memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 		}
 
-		printf("<0><c> <>\n");
-		fflush(stdout);
 		current = current -> next;
 	}
 }

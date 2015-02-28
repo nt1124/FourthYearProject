@@ -36,15 +36,6 @@ typedef struct u_v_Pair_ECC
 } u_v_Pair_ECC;
 
 
-typedef struct ECC_PK
-{
-	struct eccPoint *g;
-	struct eccPoint *g_x;
-	struct eccPoint *h;
-	struct eccPoint *h_x;
-} ECC_PK;
-
-
 
 
 
