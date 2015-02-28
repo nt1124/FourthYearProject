@@ -9,12 +9,11 @@
 #include "gmpUtils.c"
 #include "rsa.c"
 #include "DDH_Primitive.h"
-#include "EllipticCurves/ecc.h"
+// #include "EllipticCurves/ecc.h"
 
 #include "OT/otToy.c"
-// #include "OT/otSemiHonestRSA.c"
 #include "OT/otPVW_DDH.h"
-#include "OT/otPVW_ECC.h"
+// #include "OT/otPVW_ECC.h"
 #include "OT/ot_LP_CnC.h"
 
 #include "Hashing/sha256.h"

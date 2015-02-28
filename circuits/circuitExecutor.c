@@ -84,6 +84,67 @@ void readLocalExec(char *filepath, struct Circuit *inputCircuit)
 }
 
 
+/*
+void executor_side_OT(int writeSocket, int readSocket,
+					struct decParams_ECC *params, struct Circuit *inputCircuit,
+					gmp_randstate_t *state)
+{
+	struct otKeyPair_ECC **otKeyPairs;
+	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength, idOffset;
+	unsigned char *tempBuffer, *commBuffer;
+	unsigned char value;
+
+
+
+	tempSize = inputCircuit -> numInputsExecutor;
+
+	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
+
+
+	for(i = 0; i < inputCircuit -> numGates; i ++)
+	{
+		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
+		{
+			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+			otKeyPairs[j++] = bulk_one_receiverOT_UC_ECC(value, params, state);
+		}
+	}
+
+
+	commBuffer = serialise_PKs_otKeyPair_ECC_Array(otKeyPairs, tempSize, &bufferOffset);
+	sendInt(writeSocket, bufferOffset);
+	send(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
+
+	bufferOffset = receiveInt(readSocket);
+	commBuffer = (unsigned char*) calloc(bufferOffset, sizeof(unsigned char));
+	receive(readSocket, commBuffer, bufferOffset);
+
+
+	bufferOffset = 0;
+	j = 0;
+	idOffset = inputCircuit -> numInputsBuilder;
+
+	// #pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
+	for(i = idOffset; i < idOffset + inputCircuit -> numInputsBuilder; i ++)
+	{
+		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
+		{
+			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+			tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
+			memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
+			free(tempBuffer);
+		}
+	}
+}
+*/
+
 void executor_side_OT(int writeSocket, int readSocket,
 					struct decParams *params, struct Circuit *inputCircuit,
 					gmp_randstate_t *state)
@@ -142,7 +203,6 @@ void executor_side_OT(int writeSocket, int readSocket,
 	}
 }
 
-
 // Read the file containing our input data.
 void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, struct Circuit *inputCircuit)
 {
@@ -158,7 +218,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	clock_t c_0, c_1;
 	c_0 = clock();
 
-	struct otKeyPair **otKeyPairs;
+	// struct decParams_ECC *params = receiverCRS_ECC_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
 	struct decParams *params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
 
 
