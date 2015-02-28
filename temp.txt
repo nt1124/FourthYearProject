@@ -1,72 +1,395 @@
-0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 
-+++ 0
-123260462738953393869305589905997674671669785493304817535113672103923397687940680077339188787896041433945567169829860907359949711171990912833835652664592352963190580315341416979769318084196130739604137371254454667276929297088149144450635277752520780744036322287472559151949394270393884452788171427791614231900
-123260462738953393869305589905997674671669785493304817535113672103923397687940680077339188787896041433945567169829860907359949711171990912833835652664592352963190580315341416979769318084196130739604137371254454667276929297088149144450635277752520780744036322287472559151949394270393884452788171427791614231900
+Flat profile:
 
-113928761082917569151651557575726678165473372867469647756824841553490560229473014659424589973345729362332367280520108166575157343165257731382160758301664517641976160395895548990004483203338021098967612873201685759906586615360369913054711511917476778949951625194405402872475588176285164557365721040617727925480
-113928761082917569151651557575726678165473372867469647756824841553490560229473014659424589973345729362332367280520108166575157343165257731382160758301664517641976160395895548990004483203338021098967612873201685759906586615360369913054711511917476778949951625194405402872475588176285164557365721040617727925480
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total           
+ time   seconds   seconds    calls  ms/call  ms/call  name    
+ 50.00      0.01     0.01    24868     0.00     0.00  freeXOR_Gate(gateOrWire*, gateOrWire**)
+ 50.00      0.02     0.01        1    10.00    10.00  receiveGatesOfCircuit(unsigned char*, int)
+  0.00      0.02     0.00    97668     0.00     0.00  groupOp_Equal_Y_NotZero(eccPoint*, eccPoint*, eccParams*)
+  0.00      0.02     0.00    49358     0.00     0.00  groupOp(eccPoint*, eccPoint*, eccParams*)
+  0.00      0.02     0.00    48974     0.00     0.00  addEC_Point(eccPoint*, eccPoint*, eccParams*)
+  0.00      0.02     0.00    33872     0.00     0.00  freeGateOrWire(gateOrWire*)
+  0.00      0.02     0.00    33616     0.00     0.00  deserialiseGate(gate**, unsigned char*, int)
+  0.00      0.02     0.00    31608     0.00     0.00  aes_128_decrypt(unsigned char*, unsigned char*, unsigned int*)
+  0.00      0.02     0.00    15805     0.00     0.00  expand_key(unsigned char*)
+  0.00      0.02     0.00    15805     0.00     0.00  convertCharStringToUINT(unsigned char*)
+  0.00      0.02     0.00    15804     0.00     0.00  decryptionKeySchedule_128(unsigned int*)
+  0.00      0.02     0.00     8749     0.00     0.00  getUintKeySchedule(unsigned char*)
+  0.00      0.02     0.00     8748     0.00     0.00  decryptGate(gateOrWire*, gateOrWire**)
+  0.00      0.02     0.00     8748     0.00     0.00  decryptMultipleKeys(unsigned char**, int, unsigned char*, int)
+  0.00      0.02     0.00     1038     0.00     0.00  deserialiseMPZ(unsigned char*, int*)
+  0.00      0.02     0.00      517     0.00     0.00  deserialise_ECC_Point(unsigned char*, int*)
+  0.00      0.02     0.00      512     0.00     0.00  serialiseMPZ(__mpz_struct*, unsigned char*, int*)
+  0.00      0.02     0.00      384     0.00     0.00  copyECC_Point(eccPoint*)
+  0.00      0.02     0.00      384     0.00     0.00  doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*)
+  0.00      0.02     0.00      256     0.00     0.00  deserialiseInputWire(gateOrWire*, unsigned char*, int)
+  0.00      0.02     0.00      128     0.00     0.00  keyGen_ECC(CRS_ECC*, unsigned char, eccParams*, __gmp_randstate_struct*)
+  0.00      0.02     0.00      128     0.00     0.00  PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*)
+  0.00      0.02     0.00      128     0.00     0.00  bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*)
+  0.00      0.02     0.00        4     0.00     0.00  receiveInt(int)
+  0.00      0.02     0.00        4     0.00     0.00  printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*)
+  0.00      0.02     0.00        2     0.00     0.00  receiveBoth(int, int&)
+  0.00      0.02     0.00        2     0.00     0.00  getDataAsString(char const*)
+  0.00      0.02     0.00        2     0.00     0.00  set_up_client_socket(int&, char const*, int, sockaddr_in&)
+  0.00      0.02     0.00        1     0.00    20.00  runProtocol(char*, char*, char*, char*, int)
+  0.00      0.02     0.00        1     0.00     0.00  seedRandGen()
+  0.00      0.02     0.00        1     0.00    10.00  runCircuitExec(Circuit*, int, int, char*)
+  0.00      0.02     0.00        1     0.00    20.00  runExecutor_SH(char*, char*, char*)
+  0.00      0.02     0.00        1     0.00     0.00  aes_128_encrypt(unsigned char*, unsigned char*, unsigned int*)
+  0.00      0.02     0.00        1     0.00    10.00  receiveFullCircuit(int, int)
+  0.00      0.02     0.00        1     0.00     0.00  testAES_FromRandom()
+  0.00      0.02     0.00        1     0.00     0.00  encryptMultipleKeys(unsigned char**, int, unsigned char*, int)
+  0.00      0.02     0.00        1     0.00     0.00  executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1])
+  0.00      0.02     0.00        1     0.00     0.00  printOutputHexString(Circuit*)
+  0.00      0.02     0.00        1     0.00     0.00  receiveDecParams_ECC(int, int)
+  0.00      0.02     0.00        1     0.00     0.00  deserialiseECC_Params(unsigned char*, int*)
+  0.00      0.02     0.00        1     0.00     0.00  readInputDetailsFile_Alt(char*)
+  0.00      0.02     0.00        1     0.00     0.00  serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*)
+  0.00      0.02     0.00        1     0.00     0.00  sendInt(int, int)
 
-+++ 1
-149072577685318390683014129028248094342571899179944518455555474777472765661127053645908780144678163254182403484597554525238310768286984782238461165859644146980177210163218064094888059445419693397432313199052325519965703938915422202939846109222682344968557176878558634989109263146257293969214564768784935257911
-149072577685318390683014129028248094342571899179944518455555474777472765661127053645908780144678163254182403484597554525238310768286984782238461165859644146980177210163218064094888059445419693397432313199052325519965703938915422202939846109222682344968557176878558634989109263146257293969214564768784935257911
+ %         the percentage of the total running time of the
+time       program used by this function.
 
-170637545938489721113372075397057140269149384842905030724754967088797659873003806781004451792318815833870388359368363265250938678978925133057755149895230867688901298604886499282247415442471537550298943315298789088940701623628304010103048587962484744562032365649800625422623589880962206522980286520258637937820
-170637545938489721113372075397057140269149384842905030724754967088797659873003806781004451792318815833870388359368363265250938678978925133057755149895230867688901298604886499282247415442471537550298943315298789088940701623628304010103048587962484744562032365649800625422623589880962206522980286520258637937820
+cumulative a running sum of the number of seconds accounted
+ seconds   for by this function and those listed above it.
 
-+++ 2
-37245618961368929234598965019934451512786685693828652974876671123346848472192201890681388145562043545957654414205362150661239229003830804303040207689853127149136247414319105910374398753039048864433825002664222250578984505503948691002343313843194026622523622578462252656671649981368127132778256143315332654592
-37245618961368929234598965019934451512786685693828652974876671123346848472192201890681388145562043545957654414205362150661239229003830804303040207689853127149136247414319105910374398753039048864433825002664222250578984505503948691002343313843194026622523622578462252656671649981368127132778256143315332654592
+ self      the number of seconds accounted for by this
+seconds    function alone.  This is the major sort for this
+           listing.
 
-103553171963196106987146231399432211029291461775518058282360726901038462913283346614273199503868982541931131078097244335630637006138789948708131940215427017381596944063265262282114266962607656305522478104094219252716219554944144100828900957871548788588599466012868244887561017772482821867521250500255030969284
-103553171963196106987146231399432211029291461775518058282360726901038462913283346614273199503868982541931131078097244335630637006138789948708131940215427017381596944063265262282114266962607656305522478104094219252716219554944144100828900957871548788588599466012868244887561017772482821867521250500255030969284
+calls      the number of times this function was invoked, if
+           this function is profiled, else blank.
+ 
+ self      the average number of milliseconds spent in this
+ms/call    function per call, if this function is profiled,
+	   else blank.
 
-+++ 3
-15794354220676553592666631492934950728392073942219696164540789665771796120677066542775049312010296407202991521689398674214689204640584653101857498484034154125559025600558186165207785227316925804478211065180106642501040231396080393146383571668295978079923102921940529522532388206134750681900248442779532943718
-15794354220676553592666631492934950728392073942219696164540789665771796120677066542775049312010296407202991521689398674214689204640584653101857498484034154125559025600558186165207785227316925804478211065180106642501040231396080393146383571668295978079923102921940529522532388206134750681900248442779532943718
+ total     the average number of milliseconds spent in this
+ms/call    function and its descendents per call, if this 
+	   function is profiled, else blank.
 
-73805859696811457070914683963881444617174434302757561937382945812945444502460110850981303950930122285218882660745161241634972843911603387778364476894549089301361360715312934115736147420761022426298477664133543741815269873165767897824855774922553968969501079294395142144944285454708013152556470164431681907702
-73805859696811457070914683963881444617174434302757561937382945812945444502460110850981303950930122285218882660745161241634972843911603387778364476894549089301361360715312934115736147420761022426298477664133543741815269873165767897824855774922553968969501079294395142144944285454708013152556470164431681907702
+name       the name of the function.  This is the minor sort
+           for this listing. The index shows the location of
+	   the function in the gprof listing. If the index is
+	   in parenthesis it shows where it would appear in
+	   the gprof listing if it were to be printed.
+
+Copyright (C) 2012-2014 Free Software Foundation, Inc.
 
-+++ 4
-109118003111375116346532529934006997914463602391830273655194031675182124894070284506604796724771498275879759200759552925926929430996369673255885647673534219375021708670389032786681212109862264746926057643523533553728994716378184412351923137281797149906777216983726431585840857284604300584915751652449301214416
-109118003111375116346532529934006997914463602391830273655194031675182124894070284506604796724771498275879759200759552925926929430996369673255885647673534219375021708670389032786681212109862264746926057643523533553728994716378184412351923137281797149906777216983726431585840857284604300584915751652449301214416
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+		     Call graph (explanation follows)
 
-123648829595026822692610409532150841188598187766451593877015382458705351649047720982454473493046994692996539037616811881688286827970316265968326296479141432973073608870595772095794495048520994448760595102516650535254497582346881045360717483102970379450270146862885990888914696255657983369901888644055451520869
-123648829595026822692610409532150841188598187766451593877015382458705351649047720982454473493046994692996539037616811881688286827970316265968326296479141432973073608870595772095794495048520994448760595102516650535254497582346881045360717483102970379450270146862885990888914696255657983369901888644055451520869
 
-+++ 5
-29455509820514961895646012744465585786801882636247651458205628867304544945713063272298657392697768773732030376724045981732989102699046125719743450808785698813505294808721677621640428649590629708959800837317054586057690156640623428489751055054093581022376839782597955852268739608535296994729855890675503754086
-29455509820514961895646012744465585786801882636247651458205628867304544945713063272298657392697768773732030376724045981732989102699046125719743450808785698813505294808721677621640428649590629708959800837317054586057690156640623428489751055054093581022376839782597955852268739608535296994729855890675503754086
+granularity: each sample hit covers 4 byte(s) for 50.00% of 0.02 seconds
 
-162582698861648403746169515784568236058602295976293745561352587249970425587654677715307355997670886089246575198532469928291982745826281442793087969473876532575714253743253673180407615406291236840973290088885554544607900559363551203822433301877101646809328483843337152809880836691905292641459126589941684049046
-162582698861648403746169515784568236058602295976293745561352587249970425587654677715307355997670886089246575198532469928291982745826281442793087969473876532575714253743253673180407615406291236840973290088885554544607900559363551203822433301877101646809328483843337152809880836691905292641459126589941684049046
+index % time    self  children    called     name
+                                                 <spontaneous>
+[1]    100.0    0.00    0.02                 main [1]
+                0.00    0.02       1/1           runProtocol(char*, char*, char*, char*, int) [2]
+-----------------------------------------------
+                0.00    0.02       1/1           main [1]
+[2]    100.0    0.00    0.02       1         runProtocol(char*, char*, char*, char*, int) [2]
+                0.00    0.02       1/1           runExecutor_SH(char*, char*, char*) [3]
+-----------------------------------------------
+                0.00    0.02       1/1           runProtocol(char*, char*, char*, char*, int) [2]
+[3]    100.0    0.00    0.02       1         runExecutor_SH(char*, char*, char*) [3]
+                0.00    0.01       1/1           receiveFullCircuit(int, int) [6]
+                0.00    0.01       1/1           runCircuitExec(Circuit*, int, int, char*) [5]
+                0.00    0.00   33872/33872       freeGateOrWire(gateOrWire*) [97]
+                0.00    0.00       2/2           set_up_client_socket(int&, char const*, int, sockaddr_in&) [119]
+                0.00    0.00       2/4           printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*) [116]
+                0.00    0.00       1/1           readInputDetailsFile_Alt(char*) [128]
+                0.00    0.00       1/1           seedRandGen() [120]
+                0.00    0.00       1/1           receiveDecParams_ECC(int, int) [126]
+                0.00    0.00       1/1           executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+                0.00    0.00       1/1           printOutputHexString(Circuit*) [125]
+                0.00    0.00       1/1           testAES_FromRandom() [122]
+-----------------------------------------------
+                0.01    0.00   24868/24868       runCircuitExec(Circuit*, int, int, char*) [5]
+[4]     50.0    0.01    0.00   24868         freeXOR_Gate(gateOrWire*, gateOrWire**) [4]
+-----------------------------------------------
+                0.00    0.01       1/1           runExecutor_SH(char*, char*, char*) [3]
+[5]     50.0    0.00    0.01       1         runCircuitExec(Circuit*, int, int, char*) [5]
+                0.01    0.00   24868/24868       freeXOR_Gate(gateOrWire*, gateOrWire**) [4]
+                0.00    0.00    8748/8748        decryptGate(gateOrWire*, gateOrWire**) [104]
+                0.00    0.00       1/4           printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*) [116]
+-----------------------------------------------
+                0.00    0.01       1/1           runExecutor_SH(char*, char*, char*) [3]
+[6]     50.0    0.00    0.01       1         receiveFullCircuit(int, int) [6]
+                0.01    0.00       1/1           receiveGatesOfCircuit(unsigned char*, int) [7]
+                0.00    0.00       1/4           receiveInt(int) [115]
+-----------------------------------------------
+                0.01    0.00       1/1           receiveFullCircuit(int, int) [6]
+[7]     50.0    0.01    0.00       1         receiveGatesOfCircuit(unsigned char*, int) [7]
+                0.00    0.00   33616/33616       deserialiseGate(gate**, unsigned char*, int) [98]
+                0.00    0.00     256/256         deserialiseInputWire(gateOrWire*, unsigned char*, int) [111]
+                0.00    0.00       1/4           printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*) [116]
+-----------------------------------------------
+                0.00    0.00   97668/97668       doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+[94]     0.0    0.00    0.00   97668         groupOp_Equal_Y_NotZero(eccPoint*, eccPoint*, eccParams*) [94]
+-----------------------------------------------
+                0.00    0.00     128/49358       PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [113]
+                0.00    0.00   49230/49358       doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+[95]     0.0    0.00    0.00   49358         groupOp(eccPoint*, eccPoint*, eccParams*) [95]
+-----------------------------------------------
+                0.00    0.00     128/48974       PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [113]
+                0.00    0.00   48846/48974       doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+[96]     0.0    0.00    0.00   48974         addEC_Point(eccPoint*, eccPoint*, eccParams*) [96]
+-----------------------------------------------
+                0.00    0.00   33872/33872       runExecutor_SH(char*, char*, char*) [3]
+[97]     0.0    0.00    0.00   33872         freeGateOrWire(gateOrWire*) [97]
+-----------------------------------------------
+                0.00    0.00   33616/33616       receiveGatesOfCircuit(unsigned char*, int) [7]
+[98]     0.0    0.00    0.00   33616         deserialiseGate(gate**, unsigned char*, int) [98]
+-----------------------------------------------
+                0.00    0.00   31608/31608       decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+[99]     0.0    0.00    0.00   31608         aes_128_decrypt(unsigned char*, unsigned char*, unsigned int*) [99]
+-----------------------------------------------
+                0.00    0.00    7056/15805       decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+                0.00    0.00    8749/15805       getUintKeySchedule(unsigned char*) [103]
+[100]    0.0    0.00    0.00   15805         expand_key(unsigned char*) [100]
+-----------------------------------------------
+                0.00    0.00    7056/15805       decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+                0.00    0.00    8749/15805       getUintKeySchedule(unsigned char*) [103]
+[101]    0.0    0.00    0.00   15805         convertCharStringToUINT(unsigned char*) [101]
+-----------------------------------------------
+                0.00    0.00   15804/15804       decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+[102]    0.0    0.00    0.00   15804         decryptionKeySchedule_128(unsigned int*) [102]
+-----------------------------------------------
+                0.00    0.00       1/8749        encryptMultipleKeys(unsigned char**, int, unsigned char*, int) [123]
+                0.00    0.00    8748/8749        decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+[103]    0.0    0.00    0.00    8749         getUintKeySchedule(unsigned char*) [103]
+                0.00    0.00    8749/15805       expand_key(unsigned char*) [100]
+                0.00    0.00    8749/15805       convertCharStringToUINT(unsigned char*) [101]
+-----------------------------------------------
+                0.00    0.00    8748/8748        runCircuitExec(Circuit*, int, int, char*) [5]
+[104]    0.0    0.00    0.00    8748         decryptGate(gateOrWire*, gateOrWire**) [104]
+                0.00    0.00    8748/8748        decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+-----------------------------------------------
+                0.00    0.00    8748/8748        decryptGate(gateOrWire*, gateOrWire**) [104]
+[105]    0.0    0.00    0.00    8748         decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [105]
+                0.00    0.00   31608/31608       aes_128_decrypt(unsigned char*, unsigned char*, unsigned int*) [99]
+                0.00    0.00   15804/15804       decryptionKeySchedule_128(unsigned int*) [102]
+                0.00    0.00    8748/8749        getUintKeySchedule(unsigned char*) [103]
+                0.00    0.00    7056/15805       expand_key(unsigned char*) [100]
+                0.00    0.00    7056/15805       convertCharStringToUINT(unsigned char*) [101]
+-----------------------------------------------
+                0.00    0.00       4/1038        deserialiseECC_Params(unsigned char*, int*) [127]
+                0.00    0.00    1034/1038        deserialise_ECC_Point(unsigned char*, int*) [107]
+[106]    0.0    0.00    0.00    1038         deserialiseMPZ(unsigned char*, int*) [106]
+-----------------------------------------------
+                0.00    0.00       1/517         deserialiseECC_Params(unsigned char*, int*) [127]
+                0.00    0.00       4/517         receiveDecParams_ECC(int, int) [126]
+                0.00    0.00     512/517         bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*) [114]
+[107]    0.0    0.00    0.00     517         deserialise_ECC_Point(unsigned char*, int*) [107]
+                0.00    0.00    1034/1038        deserialiseMPZ(unsigned char*, int*) [106]
+-----------------------------------------------
+                0.00    0.00     512/512         serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) [129]
+[108]    0.0    0.00    0.00     512         serialiseMPZ(__mpz_struct*, unsigned char*, int*) [108]
+-----------------------------------------------
+                0.00    0.00     384/384         doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+[109]    0.0    0.00    0.00     384         copyECC_Point(eccPoint*) [109]
+-----------------------------------------------
+                0.00    0.00     128/384         PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [113]
+                0.00    0.00     256/384         keyGen_ECC(CRS_ECC*, unsigned char, eccParams*, __gmp_randstate_struct*) [112]
+[110]    0.0    0.00    0.00     384         doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+                0.00    0.00   97668/97668       groupOp_Equal_Y_NotZero(eccPoint*, eccPoint*, eccParams*) [94]
+                0.00    0.00   49230/49358       groupOp(eccPoint*, eccPoint*, eccParams*) [95]
+                0.00    0.00   48846/48974       addEC_Point(eccPoint*, eccPoint*, eccParams*) [96]
+                0.00    0.00     384/384         copyECC_Point(eccPoint*) [109]
+-----------------------------------------------
+                0.00    0.00     256/256         receiveGatesOfCircuit(unsigned char*, int) [7]
+[111]    0.0    0.00    0.00     256         deserialiseInputWire(gateOrWire*, unsigned char*, int) [111]
+-----------------------------------------------
+                0.00    0.00     128/128         executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+[112]    0.0    0.00    0.00     128         keyGen_ECC(CRS_ECC*, unsigned char, eccParams*, __gmp_randstate_struct*) [112]
+                0.00    0.00     256/384         doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+-----------------------------------------------
+                0.00    0.00     128/128         bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*) [114]
+[113]    0.0    0.00    0.00     128         PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [113]
+                0.00    0.00     128/384         doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*) [110]
+                0.00    0.00     128/48974       addEC_Point(eccPoint*, eccPoint*, eccParams*) [96]
+                0.00    0.00     128/49358       groupOp(eccPoint*, eccPoint*, eccParams*) [95]
+-----------------------------------------------
+                0.00    0.00     128/128         executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+[114]    0.0    0.00    0.00     128         bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*) [114]
+                0.00    0.00     512/517         deserialise_ECC_Point(unsigned char*, int*) [107]
+                0.00    0.00     128/128         PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [113]
+-----------------------------------------------
+                0.00    0.00       1/4           executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+                0.00    0.00       1/4           receiveFullCircuit(int, int) [6]
+                0.00    0.00       2/4           receiveBoth(int, int&) [117]
+[115]    0.0    0.00    0.00       4         receiveInt(int) [115]
+-----------------------------------------------
+                0.00    0.00       1/4           runCircuitExec(Circuit*, int, int, char*) [5]
+                0.00    0.00       1/4           receiveGatesOfCircuit(unsigned char*, int) [7]
+                0.00    0.00       2/4           runExecutor_SH(char*, char*, char*) [3]
+[116]    0.0    0.00    0.00       4         printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*) [116]
+-----------------------------------------------
+                0.00    0.00       2/2           receiveDecParams_ECC(int, int) [126]
+[117]    0.0    0.00    0.00       2         receiveBoth(int, int&) [117]
+                0.00    0.00       2/4           receiveInt(int) [115]
+-----------------------------------------------
+                0.00    0.00       2/2           testAES_FromRandom() [122]
+[118]    0.0    0.00    0.00       2         getDataAsString(char const*) [118]
+-----------------------------------------------
+                0.00    0.00       2/2           runExecutor_SH(char*, char*, char*) [3]
+[119]    0.0    0.00    0.00       2         set_up_client_socket(int&, char const*, int, sockaddr_in&) [119]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[120]    0.0    0.00    0.00       1         seedRandGen() [120]
+-----------------------------------------------
+                0.00    0.00       1/1           encryptMultipleKeys(unsigned char**, int, unsigned char*, int) [123]
+[121]    0.0    0.00    0.00       1         aes_128_encrypt(unsigned char*, unsigned char*, unsigned int*) [121]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[122]    0.0    0.00    0.00       1         testAES_FromRandom() [122]
+                0.00    0.00       2/2           getDataAsString(char const*) [118]
+                0.00    0.00       1/1           encryptMultipleKeys(unsigned char**, int, unsigned char*, int) [123]
+-----------------------------------------------
+                0.00    0.00       1/1           testAES_FromRandom() [122]
+[123]    0.0    0.00    0.00       1         encryptMultipleKeys(unsigned char**, int, unsigned char*, int) [123]
+                0.00    0.00       1/8749        getUintKeySchedule(unsigned char*) [103]
+                0.00    0.00       1/1           aes_128_encrypt(unsigned char*, unsigned char*, unsigned int*) [121]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[124]    0.0    0.00    0.00       1         executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+                0.00    0.00     128/128         keyGen_ECC(CRS_ECC*, unsigned char, eccParams*, __gmp_randstate_struct*) [112]
+                0.00    0.00     128/128         bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*) [114]
+                0.00    0.00       1/1           serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) [129]
+                0.00    0.00       1/1           sendInt(int, int) [130]
+                0.00    0.00       1/4           receiveInt(int) [115]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[125]    0.0    0.00    0.00       1         printOutputHexString(Circuit*) [125]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[126]    0.0    0.00    0.00       1         receiveDecParams_ECC(int, int) [126]
+                0.00    0.00       4/517         deserialise_ECC_Point(unsigned char*, int*) [107]
+                0.00    0.00       2/2           receiveBoth(int, int&) [117]
+                0.00    0.00       1/1           deserialiseECC_Params(unsigned char*, int*) [127]
+-----------------------------------------------
+                0.00    0.00       1/1           receiveDecParams_ECC(int, int) [126]
+[127]    0.0    0.00    0.00       1         deserialiseECC_Params(unsigned char*, int*) [127]
+                0.00    0.00       4/1038        deserialiseMPZ(unsigned char*, int*) [106]
+                0.00    0.00       1/517         deserialise_ECC_Point(unsigned char*, int*) [107]
+-----------------------------------------------
+                0.00    0.00       1/1           runExecutor_SH(char*, char*, char*) [3]
+[128]    0.0    0.00    0.00       1         readInputDetailsFile_Alt(char*) [128]
+-----------------------------------------------
+                0.00    0.00       1/1           executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+[129]    0.0    0.00    0.00       1         serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) [129]
+                0.00    0.00     512/512         serialiseMPZ(__mpz_struct*, unsigned char*, int*) [108]
+-----------------------------------------------
+                0.00    0.00       1/1           executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [124]
+[130]    0.0    0.00    0.00       1         sendInt(int, int) [130]
+-----------------------------------------------
 
-+++ 6
-44519721882697079186860520857508434869752939613715894254419357682463115377626622029628132238593227350416146413488834838360030370088380829315410680935510391314277743177130094758290223509431250930227522245008167379667677137074000586722032980867606311547208859460992886029470085267791917587635228285074444243133
-44519721882697079186860520857508434869752939613715894254419357682463115377626622029628132238593227350416146413488834838360030370088380829315410680935510391314277743177130094758290223509431250930227522245008167379667677137074000586722032980867606311547208859460992886029470085267791917587635228285074444243133
+ This table describes the call tree of the program, and was sorted by
+ the total amount of time spent in each function and its children.
 
-28738276548811304825519032788295786918440016917804664209221113545389941447126583920424936540773541537984026713725364978960310269995011130546697874897202216139959822389454169018104884191922965576174469757522109060770816510069787056404279360279077198207187740862068118627119771054703534582944182773073384448666
-28738276548811304825519032788295786918440016917804664209221113545389941447126583920424936540773541537984026713725364978960310269995011130546697874897202216139959822389454169018104884191922965576174469757522109060770816510069787056404279360279077198207187740862068118627119771054703534582944182773073384448666
+ Each entry in this table consists of several lines.  The line with the
+ index number at the left hand margin lists the current function.
+ The lines above it list the functions that called this function,
+ and the lines below it list the functions this one called.
+ This line lists:
+     index	A unique number given to each element of the table.
+		Index numbers are sorted numerically.
+		The index number is printed next to every function name so
+		it is easier to look up where the function is in the table.
 
-+++ 7
-113592017659404554483685175332822866296173900825269791843113045230022688709176547289109240148307564304453352995326242590635409660768279673210220913537274470878877463371046557558331222626646721312054946414119219851182388983666990478953447225932577735044102562062362302047574245051973288471254622183306649879539
-113592017659404554483685175332822866296173900825269791843113045230022688709176547289109240148307564304453352995326242590635409660768279673210220913537274470878877463371046557558331222626646721312054946414119219851182388983666990478953447225932577735044102562062362302047574245051973288471254622183306649879539
+     % time	This is the percentage of the `total' time that was spent
+		in this function and its children.  Note that due to
+		different viewpoints, functions excluded by options, etc,
+		these numbers will NOT add up to 100%.
 
-57518702084029098123401050598041903179674379756719924927842878524488937023511453053640236891242905144680005835524522534604993002023238906485244445958833478390074111107613828959622217580551002282706077583308054818419574098480892613800657018000942986626116729653217486788754453090321198542097296165706099607055
-57518702084029098123401050598041903179674379756719924927842878524488937023511453053640236891242905144680005835524522534604993002023238906485244445958833478390074111107613828959622217580551002282706077583308054818419574098480892613800657018000942986626116729653217486788754453090321198542097296165706099607055
+     self	This is the total amount of time spent in this function.
 
-+++ 8
-21719222862119717984023214522025836350847187679624719291405129691556335764310617995688954783344372646570945245325683008754638566829583448132429497440870249130193457424869024142436658885840025730334157745573207633459805213653075958711085137971188342335770077029284494107947863413943985338508129042223568089949
-21719222862119717984023214522025836350847187679624719291405129691556335764310617995688954783344372646570945245325683008754638566829583448132429497440870249130193457424869024142436658885840025730334157745573207633459805213653075958711085137971188342335770077029284494107947863413943985338508129042223568089949
+     children	This is the total amount of time propagated into this
+		function by its children.
 
-46242457104953014425883139313608876552505250391786504669638813754009890750325908579897016154354083806018676180294312089093437310194888816688944184418918821536065243987703887168728460469692747848173260611955038981236411815488651756575000914622024187702845852986931966580530662422508396972432879292491054602700
-46242457104953014425883139313608876552505250391786504669638813754009890750325908579897016154354083806018676180294312089093437310194888816688944184418918821536065243987703887168728460469692747848173260611955038981236411815488651756575000914622024187702845852986931966580530662422508396972432879292491054602700
+     called	This is the number of times the function was called.
+		If the function called itself recursively, the number
+		only includes non-recursive calls, and is followed by
+		a `+' and the number of recursive calls.
 
-+++ 9
-99756098477403918063370504806335795117781112018049106210467653967755510977754385606103710059644317466315758376668701555682910301425385980531451153497938467539471962482048790317190168584893329847452102932583060871382056370087172686298213857437466281005915947432378340410403241329441392704179761266220837278187
-99756098477403918063370504806335795117781112018049106210467653967755510977754385606103710059644317466315758376668701555682910301425385980531451153497938467539471962482048790317190168584893329847452102932583060871382056370087172686298213857437466281005915947432378340410403241329441392704179761266220837278187
+     name	The name of the current function.  The index number is
+		printed after it.  If the function is a member of a
+		cycle, the cycle number is printed between the
+		function's name and the index number.
 
-15910473261470377514467852337899468090303052171230381537188007395591383603115203858839893085285612374322509385832428367999320500761386005757753551332709563545695606671806071639351463991911622545826468373356432883001079141837869894793239130894650768983594702476769052725358325544552346339663259253438602079415
-15910473261470377514467852337899468090303052171230381537188007395591383603115203858839893085285612374322509385832428367999320500761386005757753551332709563545695606671806071639351463991911622545826468373356432883001079141837869894793239130894650768983594702476769052725358325544552346339663259253438602079415
 
-0  -  0
+ For the function's parents, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the function into this parent.
+
+     children	This is the amount of time that was propagated from
+		the function's children into this parent.
+
+     called	This is the number of times this parent called the
+		function `/' the total number of times the function
+		was called.  Recursive calls to the function are not
+		included in the number after the `/'.
+
+     name	This is the name of the parent.  The parent's index
+		number is printed after it.  If the parent is a
+		member of a cycle, the cycle number is printed between
+		the name and the index number.
+
+ If the parents of the function cannot be determined, the word
+ `<spontaneous>' is printed in the `name' field, and all the other
+ fields are blank.
+
+ For the function's children, the fields have the following meanings:
+
+     self	This is the amount of time that was propagated directly
+		from the child into the function.
+
+     children	This is the amount of time that was propagated from the
+		child's children to the function.
+
+     called	This is the number of times the function called
+		this child `/' the total number of times the child
+		was called.  Recursive calls by the child are not
+		listed in the number after the `/'.
+
+     name	This is the name of the child.  The child's index
+		number is printed after it.  If the child is a
+		member of a cycle, the cycle number is printed
+		between the name and the index number.
+
+ If there are any cycles (circles) in the call graph, there is an
+ entry for the cycle-as-a-whole.  This entry shows who called the
+ cycle (as parents) and the members of the cycle (as children.)
+ The `+' recursive calls entry shows the number of function calls that
+ were internal to the cycle, and the calls entry for each member shows,
+ for that member, how many times it was called from other members of
+ the cycle.
+
+Copyright (C) 2012-2014 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+
+Index by function name
+
+ [100] expand_key(unsigned char*) [5] runCircuitExec(Circuit*, int, int, char*) [119] set_up_client_socket(int&, char const*, int, sockaddr_in&)
+ [112] keyGen_ECC(CRS_ECC*, unsigned char, eccParams*, __gmp_randstate_struct*) [3] runExecutor_SH(char*, char*, char*) [127] deserialiseECC_Params(unsigned char*, int*)
+ [115] receiveInt(int)        [99] aes_128_decrypt(unsigned char*, unsigned char*, unsigned int*) [107] deserialise_ECC_Point(unsigned char*, int*)
+  [96] addEC_Point(eccPoint*, eccPoint*, eccParams*) [121] aes_128_encrypt(unsigned char*, unsigned char*, unsigned int*) [7] receiveGatesOfCircuit(unsigned char*, int)
+ [104] decryptGate(gateOrWire*, gateOrWire**) [98] deserialiseGate(gate**, unsigned char*, int) [110] doubleAndAdd_ScalarMul(__mpz_struct*, eccPoint*, eccParams*)
+ [116] printTiming(timespec*, timespec*, unsigned long, unsigned long, char const*) [118] getDataAsString(char const*) [101] convertCharStringToUINT(unsigned char*)
+ [117] receiveBoth(int, int&) [103] getUintKeySchedule(unsigned char*) [94] groupOp_Equal_Y_NotZero(eccPoint*, eccPoint*, eccParams*)
+   [2] runProtocol(char*, char*, char*, char*, int) [6] receiveFullCircuit(int, int) [128] readInputDetailsFile_Alt(char*)
+ [120] seedRandGen()         [122] testAES_FromRandom()  [102] decryptionKeySchedule_128(unsigned int*)
+   [4] freeXOR_Gate(gateOrWire*, gateOrWire**) [105] decryptMultipleKeys(unsigned char**, int, unsigned char*, int) [114] bulk_two_receiverOT_UC_ECC(unsigned char*, int*, otKeyPair_ECC*, decParams_ECC*, unsigned char, int*)
+ [108] serialiseMPZ(__mpz_struct*, unsigned char*, int*) [123] encryptMultipleKeys(unsigned char**, int, unsigned char*, int) [129] serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*)
+ [109] copyECC_Point(eccPoint*) [111] deserialiseInputWire(gateOrWire*, unsigned char*, int) [95] groupOp(eccPoint*, eccPoint*, eccParams*)
+ [113] PVW_OT_Dec_ECC(u_v_Pair_ECC*, CRS_ECC*, eccParams*, __mpz_struct*) [124] executor_side_OT_ECC(int, int, decParams_ECC*, Circuit*, __gmp_randstate_struct (*) [1]) [130] sendInt(int, int)
+ [106] deserialiseMPZ(unsigned char*, int*) [125] printOutputHexString(Circuit*)
+  [97] freeGateOrWire(gateOrWire*) [126] receiveDecParams_ECC(int, int)

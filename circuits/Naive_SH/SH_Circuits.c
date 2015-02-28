@@ -69,7 +69,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     struct Circuit *inputCircuit;
     struct idAndValue *startOfInputChain;
     gmp_randstate_t *state;
-    struct decParams *params;
+    struct decParams_ECC *params;
 
     set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
@@ -89,8 +89,10 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     free_idAndValueChain(startOfInputChain);
 
     state = seedRandGen();
-    params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
-    executor_side_OT(writeSocket, readSocket, params, inputCircuit, state);
+
+    params = receiverCRS_ECC_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
+
+    executor_side_OT_ECC(writeSocket, readSocket, params, inputCircuit, state);
 
     c_1 = clock();
     t_1 = timestamp();

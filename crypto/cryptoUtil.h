@@ -12,7 +12,6 @@
 #include "EllipticCurves/ecc.h"
 
 #include "OT/otToy.c"
-// #include "OT/otSemiHonestRSA.c"
 #include "OT/otPVW_DDH.h"
 #include "OT/otPVW_ECC.h"
 #include "OT/ot_LP_CnC.h"

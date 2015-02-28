@@ -256,19 +256,12 @@ void senderOT_UC(int writeSocket, int readSocket,
 	free(tempMPZ);
 }
 
-/*
-void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
-					struct decParams *params, gmp_randstate_t *state,
-					unsigned char *inputBuffer, int *inputOffset,
-					struct u_v_Pair **c_i_Array, int u_v_index)
-*/
+
 void bulk_senderOT_UC(unsigned char *input0Bytes, unsigned char *input1Bytes, int inputLengths,
 					struct decParams *params, gmp_randstate_t *state,
 					struct otKeyPair *keyPair,
 					struct u_v_Pair **c_i_Array, int u_v_index)
 {
-	// struct otKeyPair *keyPair = initKeyPair();
-
 	mpz_t *outputMPZ, *tempMPZ;
 	mpz_t *input0 = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t *input1 = (mpz_t*) calloc(1, sizeof(mpz_t));

@@ -7,22 +7,31 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inpu
 
 	unsigned char *R = generateRandBytes(16, 17);
 	int j;
-
+	printf("<0><a>\n");
+	fflush(stdout);
 
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
 		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j], public_inputs, j, group);
 	}
-
+	printf("<0><b>\n");
+	fflush(stdout);
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+	printf("<0><c>\n");
+	fflush(stdout);
 	for(j = 0; j < stat_SecParam; j++)
 	{
+		printf("<0><c> %d\n", j);
+		fflush(stdout);
 		start = startOfInputChain;
 		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
 	}
 	free_idAndValueChain(startOfInputChain);
+
+	printf("<0><d>\n");
+	fflush(stdout);
 
 	return circuitsArray;
 }
@@ -46,6 +55,9 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
 
+	printf("<0><>\n");
+	fflush(stdout);
+
 	params_S = setup_CnC_OT_Sender(commBuffer);
 	free(commBuffer);
 
@@ -65,7 +77,7 @@ void full_CnC_OT_Sender(int writeSocket, int readSocket, struct Circuit **circui
 	c_i_Array_S = (struct u_v_Pair **) calloc(2*totalOTs, sizeof(struct u_v_Pair*));
 
 
-	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire)
+	// #pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);

@@ -44,6 +44,55 @@ void readInputDetailsFileBuilder(char *filepath, struct gateOrWire **inputCircui
 }
 
 
+
+
+void builder_side_OT_ECC(int writeSocket, int readSocket, struct decParams_ECC *params, struct Circuit *inputCircuit, gmp_randstate_t *state)
+{
+	struct u_v_Pair_ECC **c_i_array;
+	struct otKeyPair_ECC **keyPairs;
+	struct wire *tempWire;
+
+	unsigned char *receivedBuffer, *outputBuffer;
+	int receivedOffset = 0, outputOffset = 0, tempSize, numInputs = 0;
+	int i, j, inputGatesOffset = 0;
+
+
+	receivedOffset = receiveInt(readSocket);
+	receivedBuffer = (unsigned char*) calloc(receivedOffset, sizeof(unsigned char));
+	receive(readSocket, receivedBuffer, receivedOffset);
+	receivedOffset = 0;
+
+	numInputs = inputCircuit -> numInputsExecutor;
+
+	c_i_array = (struct u_v_Pair_ECC **) calloc(numInputs * 2, sizeof(struct u_v_Pair_ECC*));
+	keyPairs = deserialise_PKs_otKeyPair_ECC_Array(receivedBuffer, numInputs);
+	outputOffset = 0;
+
+	inputGatesOffset = inputCircuit -> numInputsBuilder;
+
+	// #pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
+	for(i = inputGatesOffset; i < inputGatesOffset + inputCircuit -> numInputsExecutor; i ++)
+	{
+		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
+			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
+		{
+			j = i - inputGatesOffset;
+			outputOffset = j * 2;
+			tempWire = inputCircuit -> gates[i] -> outputWire;
+
+			bulk_senderOT_UC_ECC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state, keyPairs[j], c_i_array, outputOffset);
+		}
+	}
+
+	outputBuffer = serialise_U_V_Pair_ECC_Array(c_i_array, numInputs * 2, &outputOffset);
+
+	// sendInt(writeSocket, outputOffset);
+	// send(writeSocket, outputBuffer, outputOffset);
+	sendBoth(writeSocket, outputBuffer, outputOffset);
+}
+
+
+
 void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, struct Circuit *inputCircuit, gmp_randstate_t *state)
 {
 	struct u_v_Pair **c_i_array;
@@ -102,10 +151,14 @@ void runCircuitBuilder( struct Circuit *inputCircuit, int writeSocket, int readS
 	clock_t c_0, c_1;
 	c_0 = clock();
 
-	gmp_randstate_t *state = seedRandGen();
-	struct decParams *params = senderCRS_Syn_Dec(writeSocket, readSocket, 1024, *state);
 
-	builder_side_OT(writeSocket, readSocket, params, inputCircuit, state);
+	gmp_randstate_t *state = seedRandGen();
+
+
+	struct decParams_ECC *params = senderCRS_ECC_Syn_Dec(writeSocket, readSocket, 1024, *state);
+
+
+	builder_side_OT_ECC(writeSocket, readSocket, params, inputCircuit, state);
 
 	c_1 = clock();
 	timestamp_1 = timestamp();

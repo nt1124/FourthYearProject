@@ -117,6 +117,22 @@ struct ecc_Ciphertext *initECC_Ciphertext()
 }
 
 
+// Initialise the dec side of the params
+struct ECC_PK *initPK_For_Use()
+{
+	struct ECC_PK *pk = (struct ECC_PK*) calloc(1, sizeof(struct ECC_PK));
+
+
+	pk -> g = initECC_Point();
+	pk -> g_x = initECC_Point();
+	pk -> h = initECC_Point();
+	pk -> h_x = initECC_Point();
+
+
+	return pk;
+}
+
+
 int sizeOfSerial_ECCPoint(struct eccPoint *P)
 {
 	int totalLength = sizeof(int) * 2 + 1;
@@ -139,7 +155,7 @@ void serialise_ECC_Point(struct eccPoint *P, unsigned char *outputBuffer, int *o
 	memcpy(outputBuffer + offset, &(P -> pointAtInf), sizeof(unsigned char));
 
 
-	*outputOffset = offset;
+	*outputOffset = offset + 1;
 }
 
 
@@ -151,7 +167,13 @@ struct eccPoint *deserialise_ECC_Point(unsigned char *inputBuffer, int *inputOff
 
 
 	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> x, *tempMPZ);
+	free(tempMPZ);
+
 	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
+	mpz_set(output -> y, *tempMPZ);
+	free(tempMPZ);
+
 	memcpy(&(output -> pointAtInf), inputBuffer + offset, sizeof(unsigned char));
 
 

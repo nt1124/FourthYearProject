@@ -193,6 +193,7 @@ struct RawCircuit *readInCircuit_Raw(char* filepath)
 	outputCircuit -> gates = gatesList;
 	outputCircuit -> execOrder = execOrder;
 
+
 	return outputCircuit;
 }
 
@@ -236,15 +237,12 @@ void evaluateRawCircuit(struct RawCircuit *inputCircuit)
 }
 
 
-// unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
 unsigned char *getOutputAsHex_Raw(struct RawCircuit *inputCircuit, int *outputLength)
 {
 	unsigned char *binaryOutput, *hexOutput;
 	unsigned char tempBit, tempHex;
 	int i, j = 0, k, iAdjusted, binaryLength = 0;
 
-
-	//binaryOutput = getOutputAsBinary(inputCircuit, &binaryLength);
 
 	hexOutput = (unsigned char*) calloc( (inputCircuit -> numOutputs / 8) + 2, sizeof(unsigned char) );
 

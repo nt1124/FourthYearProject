@@ -17,6 +17,7 @@ int sendCRS_ECC(int writeSocket, int readSocket, struct CRS_ECC *crs)
 	unsigned char *final_bytes;
 	int final_length, g_0_length, g_1_length, h_0_length, h_1_length, offset = 0;
 
+
 	g_0_length = sizeOfSerial_ECCPoint(crs -> g_0);
 	g_1_length = sizeOfSerial_ECCPoint(crs -> g_1);
 	h_0_length = sizeOfSerial_ECCPoint(crs -> h_0);
@@ -24,6 +25,7 @@ int sendCRS_ECC(int writeSocket, int readSocket, struct CRS_ECC *crs)
 	final_length = g_0_length + g_1_length + h_0_length + h_1_length;
 
 	final_bytes = (unsigned char*) calloc(final_length, sizeof(unsigned char));
+
 
 	serialise_ECC_Point(crs -> g_0, final_bytes, &offset);
 	serialise_ECC_Point(crs -> g_1, final_bytes, &offset);
@@ -71,7 +73,7 @@ struct messyParams_ECC *initMessyParams_ECC()
 }
 
 // Ronseal
-int sendMessyParams(int writeSocket, int readSocket, struct messyParams_ECC *paramsToSend)
+int sendMessyParams_ECC(int writeSocket, int readSocket, struct messyParams_ECC *paramsToSend)
 {
 	unsigned char *eccParamsBuffer;
 	int bufferLen = 0;
@@ -121,6 +123,7 @@ struct decParams_ECC *initDecParams_ECC()
 }
 
 
+
 // Ronseal
 int sendDecParams_ECC(int writeSocket, int readSocket, struct decParams_ECC *paramsToSend)
 {
@@ -129,7 +132,6 @@ int sendDecParams_ECC(int writeSocket, int readSocket, struct decParams_ECC *par
 
 	sendCRS_ECC(writeSocket, readSocket, paramsToSend -> crs);
 
-	//sendDDH_Group(writeSocket, readSocket, paramsToSend -> group);
 	eccParamsBuffer = serialiseECC_Params(paramsToSend -> params, &bufferLen);
 	sendBoth(writeSocket, eccParamsBuffer, bufferLen);
 
@@ -149,9 +151,9 @@ struct decParams_ECC *receiveDecParams_ECC(int writeSocket, int readSocket)
 	params -> crs = receiveCRS_ECC(writeSocket, readSocket);
 
 	inputBuffer = receiveBoth(readSocket, tempOffset);
+
 	tempOffset = 0;
 	params -> params = deserialiseECC_Params(inputBuffer, &tempOffset);
-
 
 	return params;
 }
@@ -211,6 +213,59 @@ struct otKeyPair_ECC **deserialise_PKs_otKeyPair_ECC_Array(unsigned char *inputB
 
 		outputKeys[i] -> pk -> g = deserialise_ECC_Point(inputBuffer, &bufferOffset);		
 		outputKeys[i] -> pk -> h = deserialise_ECC_Point(inputBuffer, &bufferOffset);
+	}
+
+	return outputKeys;
+}
+
+
+
+int sizeOfSerial_ECC_U_V_Pair(struct u_v_Pair_ECC *input)
+{
+	int sizeNeeded = 0;
+
+	sizeNeeded += sizeOfSerial_ECCPoint(input -> u);
+	sizeNeeded += sizeOfSerial_ECCPoint(input -> v);
+
+	return sizeNeeded;
+}
+
+
+unsigned char *serialise_U_V_Pair_Array_ECC(struct u_v_Pair_ECC **inputs, int num_u_v_Pairs, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int totalLength = 0;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		totalLength += sizeOfSerial_ECC_U_V_Pair(inputs[i]);
+	}
+
+	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		serialise_U_V_pair_ECC(inputs[i], outputBuffer, &bufferOffset);
+	}
+
+	*outputLength = totalLength;
+
+	return outputBuffer;
+}
+
+
+struct u_v_Pair_ECC **deserialise_U_V_Pair_Array_ECC(unsigned char *inputBuffer, int num_u_v_Pairs)
+{
+	struct u_v_Pair_ECC **outputKeys = (struct u_v_Pair_ECC **) calloc(num_u_v_Pairs, sizeof(struct u_v_Pair_ECC*));
+	mpz_t *tempMPZ;
+	int i, bufferOffset = 0;
+
+
+	for(i = 0; i < num_u_v_Pairs; i ++)
+	{
+		outputKeys[i] = deserialise_U_V_pair_ECC(inputBuffer, &bufferOffset);
 	}
 
 	return outputKeys;
