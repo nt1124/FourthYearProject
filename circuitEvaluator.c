@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
 {
 	srand( time(NULL) );
 
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testPolys();
 	// test_ZKPoK();
-	testECC_Utils();
+	// testOT_PWV_DDH_Local_ECC();
 
 	return 0;
 }
