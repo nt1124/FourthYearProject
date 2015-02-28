@@ -89,7 +89,6 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     free_idAndValueChain(startOfInputChain);
 
     state = seedRandGen();
-    // params = receiverCRS_ECC_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
     params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
     executor_side_OT(writeSocket, readSocket, params, inputCircuit, state);
 

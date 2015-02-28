@@ -1,4 +1,4 @@
-const int stat_SecParam = 4;
+const int stat_SecParam = 2;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -45,11 +45,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_c_0 = clock();
 
 	seedList = generateRandUintList(stat_SecParam + 1);
-	printf("<0><>\n");
-	fflush(stdout);
 	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, group, secret_inputs, public_inputs);
-	printf("<1><>\n");
-	fflush(stdout);
 	srand(seedList[stat_SecParam]);
 
 	int_c_1 = clock();

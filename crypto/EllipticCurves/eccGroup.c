@@ -226,32 +226,6 @@ struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccP
 }
 
 
-struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
-{
-	struct eccPoint *pointOutput = initECC_Point();
-	mpz_t temp1, temp2, temp3;
-
-
-	mpz_init(temp1);
-	mpz_init(temp2);
-	mpz_init(temp3);
-
-	mpz_set(pointOutput -> x, msg);
-
-	mpz_powm_ui(temp1, msg, 3, params -> p);
-	mpz_mul(temp2, msg, params -> a);
-	mpz_add(temp3, temp1, temp2);
-	mpz_add(temp1, temp3, params -> b);
-	mpz_mod(temp2, temp1, params -> p);
-
-	quadratic_residue(pointOutput -> y, temp2, params -> p);
-
-
-	return pointOutput;
-}
-
-
-
 struct eccParams *initBrainpool_160_Curve()
 {
 	const char *pStr = "E95E4A5F737059DC60DFC7AD95B3D8139515620F";
