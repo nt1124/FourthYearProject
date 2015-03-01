@@ -84,16 +84,16 @@ struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
 		// R = P
 		output = copyECC_Point(P);
 	}
-	else if(0 == mpz_cmp_ui(P -> y, 0))
+	else if(0 != mpz_cmp_ui(P -> y, 0))
+	{
+		// R = P * P
+		output = groupOp_Equal_Y_NotZero(P, P, params);
+	}
+	else
 	{
 		// R = (@, @)
 		output = initECC_Point();
 		output -> pointAtInf = 1;
-	}
-	else
-	{
-		// R = P * P
-		output = groupOp_Equal_Y_NotZero(P, P, params);
 	}
 
 
