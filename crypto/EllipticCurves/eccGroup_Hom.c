@@ -1,9 +1,16 @@
-struct eccPoint_Hom *doublePoint_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom *Q, struct eccParams_Hom *params)
+struct eccPoint_Hom *doublePoint_Hom(struct eccPoint_Hom *P, struct eccParams_Hom *params)
 {
 	mpz_t temp1, temp2, temp3, temp4, w, wSq, wCb, pY_Sq;
 	struct eccPoint_Hom *output = initECC_Point_Hom();
 
-	mpz_inits(temp1, temp2, temp3, temp4, w, wSq, wCb, pY_Sq, NULL);
+	mpz_init(temp1);
+	mpz_init(temp2);
+	mpz_init(temp3);
+	mpz_init(temp4);
+	mpz_init(w);
+	mpz_init(wSq);
+	mpz_init(wCb);
+	mpz_init(pY_Sq);
 
 
 	// w = 3 * X1^2 + a * Z1^2
@@ -19,30 +26,30 @@ struct eccPoint_Hom *doublePoint_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom
 
 
     // X3 = 2 * Y1 * Z1 * (w^2 - 8 * X1 * Y1^2 * Z1)
-	mpz_mul_ui(temp1, P -> x, 8);
+	mpz_mul_2exp(temp1, P -> x, 3);
 	mpz_mul(temp2, temp1, pY_Sq);
 	mpz_submul(wSq, temp2, P -> z);
 	mpz_mul(temp1, wSq, P -> z);
 	mpz_mul(temp2, temp1, P -> y);
-	mpz_mul_ui(temp3, temp2, 2);
+	mpz_mul_2exp(temp3, temp2, 1);
 	mpz_mod(output -> x, temp3, params -> p);
 
     // Y3 = 4 * Y1^2 * Z1 * (3 * w * X1 - 2 * Y1^2 * Z1) - w^3
 	mpz_mul_ui(temp1, w, 3);
 	mpz_mul(temp2, temp1, P -> x);
-	mpz_mul_ui(temp3, pY_Sq, 2);
+	mpz_mul_2exp(temp3, pY_Sq, 1);
 	mpz_submul(temp2, temp3, P -> z);
 	mpz_mul(temp3, temp2, P -> z);
 	mpz_mul(temp4, temp3, pY_Sq);
-	mpz_mul_ui(temp1, temp4, 4);
+	mpz_mul_2exp(temp1, temp4, 2);
 	mpz_sub(temp2, temp1, wCb);
 	mpz_mod(output -> y, temp2, params -> p);
 
     // Z3 = 8 * (Y1 * Z1)^3
 	mpz_mul(temp1, P -> y, P -> z);
-	mpz_powm_ui(temp2, temp1, 3, params -> p);
-	mpz_mul_ui(temp3, temp2, 8);
-	mpz_mod(output -> z, temp3, params -> p);
+	mpz_mul_2exp(temp2, temp1, 1);
+	mpz_powm_ui(output -> z, temp2, 3, params -> p);
+	// mpz_mod(output -> z, temp3, params -> p);
 
 
 	return output;
@@ -54,7 +61,15 @@ struct eccPoint_Hom *addEC_Point_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom
 	mpz_t temp1, temp2, temp3, temp4, temp5, uSq, vSq, uCb, vCb;
 	struct eccPoint_Hom *output = initECC_Point_Hom();
 
-	mpz_inits(temp1, temp2, temp3, temp4, temp5, uSq, vSq, uCb, vCb, NULL);
+	mpz_init(temp1);
+	mpz_init(temp2);
+	mpz_init(temp3);
+	mpz_init(temp4);
+	mpz_init(temp5);
+	mpz_init(uSq);
+	mpz_init(vSq);
+	mpz_init(uCb);
+	mpz_init(vCb);
 
 
 	mpz_mul(uSq, u, u);
@@ -83,8 +98,8 @@ struct eccPoint_Hom *addEC_Point_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom
 	mpz_mod(output -> y, temp4, params -> p);
 
 	// Z3 = v^3 * Z1 * Z2
-	mpz_mul(temp1, vSq, v);
-	mpz_mul(temp2, temp1, P -> z);
+	// mpz_mul(temp1, vSq, v);
+	mpz_mul(temp2, vCb, P -> z);
 	mpz_mul(temp3, temp2, Q -> z);
 	mpz_mod(output -> z, temp3, params -> p);
 
@@ -95,49 +110,69 @@ struct eccPoint_Hom *addEC_Point_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom
 
 struct eccPoint_Hom *groupOp_Hom(struct eccPoint_Hom *P, struct eccPoint_Hom *Q, struct eccParams_Hom *params)
 {
-	struct eccPoint_Hom *output;
-	mpz_t u, v, temp1, temp2, temp3;
+	mpz_t u, v, temp1;
 
-	mpz_inits(u, v, temp1, temp2, temp3, NULL);
+	mpz_init(u);
+	mpz_init(v);
+	mpz_init(temp1);
+
 
 	// u = Y2 * Z1 - Y1 * Z2 and v = X2 * Z1 - X1 * Z2.
-	mpz_mul(u, Q -> y, P -> z);
-	mpz_submul(u, P -> y, Q -> z);
+	mpz_mul(temp1, Q -> y, P -> z);
+	mpz_submul(temp1, P -> y, Q -> z);
+	mpz_mod(u, temp1, params -> p);
 
-	mpz_mul(v, Q -> x, P -> z);
-	mpz_submul(v, P -> x, Q -> z);
-
+	mpz_mul(temp1, Q -> x, P -> z);
+	mpz_submul(temp1, P -> x, Q -> z);
+	mpz_mod(v, temp1, params -> p);
 
 	if(P -> pointAtInf == 0x01)
 	{
 		// R = Q
-		output = copyECC_Point_Hom(Q);
+		return copyECC_Point_Hom(Q);
 	}
 	else if(Q -> pointAtInf == 0x01)
 	{
 		// R = P
-		output = copyECC_Point_Hom(P);
+		return copyECC_Point_Hom(P);
 	}
-	else if(0 != mpz_cmp_ui(u, 0) && 0 == mpz_cmp_ui(v, 0))
+	else if(0 == mpz_cmp_ui(v, 0))
 	{
-		// R = (@, @)
-		output = initECC_Point_Hom();
-		output -> pointAtInf = 1;
-	}
-	else if(0 != mpz_cmp_ui(u, 0) && 0 != mpz_cmp_ui(v, 0))
-	{
-		// R = P * Q
-		output = addEC_Point_Hom(P, Q, u, v, params);
+		if(0 != mpz_cmp_ui(u, 0))
+		{
+			// R = (@, @, @)
+			return init_Identity_ECC_Point_Hom();
+		}
+		else
+		{
+			return doublePoint_Hom(P, params);
+		}
 	}
 	else
 	{
-		// This is effectively double
 		// R = P * Q
-		output = doublePoint_Hom(P, Q, params);
+		return addEC_Point_Hom(P, Q, u, v, params);
+	}
+
+	return NULL;
+}
+
+
+struct eccPoint_Hom *standaloneDouble(struct eccPoint_Hom *P, struct eccParams_Hom *params)
+{
+	if(P -> pointAtInf == 0x00)
+	{
+		// R = P * Q
+		return doublePoint_Hom(P, params);
+	}
+	else
+	{
+		// R = Q
+		return init_Identity_ECC_Point_Hom();
 	}
 
 
-	return output;
+	return NULL;
 }
 
 
@@ -148,8 +183,8 @@ struct eccPoint_Hom *invertPoint_Hom(struct eccPoint_Hom *P, struct eccParams_Ho
 
 
 	mpz_set(invP -> x, P -> x);
-	mpz_set(invP -> z, P -> z);
 	mpz_sub(invP -> y, params -> p, P -> y);
+	mpz_set(invP -> z, P -> z);
 
 	return invP;
 }
@@ -170,7 +205,7 @@ struct eccPoint_Hom *doubleAndAdd_ScalarMul_Hom(mpz_t k, struct eccPoint_Hom *P,
 			Q = temp;
 		}
 
-		temp = groupOp_Hom(tempP, tempP, params);
+		temp = standaloneDouble(tempP, params);
 		clearECC_Point_Hom(tempP);
 		tempP = temp;
 	}
@@ -227,7 +262,8 @@ struct eccPoint *convertToAffineRep(struct eccPoint_Hom *inputPoint, struct eccP
 	struct eccPoint *pointOutput = initECC_Point();
 	mpz_t unmodded, invZ;
 
-	mpz_inits(unmodded, invZ);
+	mpz_init(unmodded);
+	mpz_init(invZ);
 
 
 	mpz_invert(invZ, inputPoint -> z, params -> p);
@@ -301,13 +337,11 @@ struct eccPoint_Hom **preComputePoints_Hom(struct eccPoint_Hom *base, struct ecc
 {
 	struct eccPoint_Hom **output;
 	int i, windowSize = 16;
-	mpz_t baseSquared;
 
 
 	output = (struct eccPoint_Hom **) calloc(windowSize, sizeof(struct eccPoint_Hom*));
 
-	output[0] = init_Identity_ECC_Point_Hom();
-	output[1] = copyECC_Point_Hom(base);
+	output[1] = base;//copyECC_Point_Hom(base);
 
 	for(i = 2; i < windowSize; i ++)
 	{
@@ -341,16 +375,16 @@ struct eccPoint_Hom *windowedScalarPoint_Hom(mpz_t exponent, struct eccPoint_Hom
 		u = 0;
 		for(j = 0; j < k && i >= 0; j ++)
 		{
-			temp = groupOp_Hom(Q, Q, params);
-			clearECC_Point_Hom(Q);
-			Q = temp;
+			// temp = groupOp_Hom(Q, Q, params);
+			Q = standaloneDouble(Q, params);
+			// clearECC_Point_Hom(Q);
+			// Q = temp;
 
-			u = u << 1;
-			u += mpz_tstbit(exponent, i);
+			u = (u << 1) + mpz_tstbit(exponent, i);
 			i --;
 		}
 
-		if(0 != u)
+		if(u)
 		{
 			temp = groupOp_Hom(Q, preComputes[u], params);
 			clearECC_Point_Hom(Q);
@@ -359,10 +393,84 @@ struct eccPoint_Hom *windowedScalarPoint_Hom(mpz_t exponent, struct eccPoint_Hom
 	}
 
 	//Take out the rubbish
-	for(i = 0; i < twoPowerK; i += 2)
+	for(i = 2; i < twoPowerK; i ++)
 	{
 		clearECC_Point_Hom(preComputes[i]);
 	}
+	free(preComputes);
+
+	return Q;
+}
+
+
+
+
+// Precomputes the power for slidingWindowExp.
+// This is mega ugly. We're just ignoring the even entries.
+struct eccPoint_Hom **preComputeSlidingPoints_Hom(struct eccPoint_Hom *base, struct eccParams_Hom *params)
+{
+	struct eccPoint_Hom **output;
+	int i, windowSize = 16;
+
+
+	output = (struct eccPoint_Hom **) calloc(windowSize, sizeof(struct eccPoint_Hom*));
+
+	output[1] = base;//copyECC_Point_Hom(base);
+
+	for(i = 2; i < windowSize; i ++)
+	{
+		output[i] = groupOp_Hom(output[i-1], base, params);
+	}
+
+	return output;
+}
+
+
+
+struct eccPoint_Hom *slidingWindowScalarPoint_Hom(mpz_t exponent, struct eccPoint_Hom *P, struct eccParams_Hom *params)
+{
+	//Get size of exponent in base 2.
+	int i = mpz_sizeinbase(exponent, 2) - 1, h, s, u, j;
+	int k = 4, twoPowerK = 16;
+
+	struct eccPoint_Hom **preComputes;
+	struct eccPoint_Hom *Q = init_Identity_ECC_Point_Hom();
+	struct eccPoint_Hom *tempP = copyECC_Point_Hom(P), *temp;
+
+
+
+	//Precompute the values for base to power of all possible windows. 
+	preComputes = preComputeSlidingPoints_Hom(P, params);
+
+	while (i >= 0)
+	{
+		//If the i-th bit (of exponent) is a zero, we just square the current result, move to next bit.
+		u = 0;
+		for(j = 0; j < k && i >= 0; j ++)
+		{
+			// temp = groupOp_Hom(Q, Q, params);
+			Q = standaloneDouble(Q, params);
+			// clearECC_Point_Hom(Q);
+			// Q = temp;
+
+			u = (u << 1) + mpz_tstbit(exponent, i);
+			i --;
+		}
+
+		if(u)
+		{
+			temp = groupOp_Hom(Q, preComputes[u], params);
+			clearECC_Point_Hom(Q);
+			Q = temp;
+		}
+	}
+
+	//Take out the rubbish
+	for(i = 2; i < twoPowerK; i ++)
+	{
+		clearECC_Point_Hom(preComputes[i]);
+	}
+	free(preComputes);
 
 	return Q;
 }

@@ -101,6 +101,7 @@ void testECC_Utils_Hom()
 	struct u_v_Pair_ECC_Hom *ciphertext;
 	struct eccParams_Hom *params;
 	gmp_randstate_t *state = seedRandGen();
+	int i;
 
 	mpz_init_set_ui(SK, 14);
 	mpz_init_set_ui(plaintext_x, 19);
@@ -109,15 +110,63 @@ void testECC_Utils_Hom()
 
 	plaintext = initAndSetECC_Point_Hom(plaintext_x, plaintext_y, plaintext_z, 0);
 	params = initBrainpool_256_Curve_Hom();
+	struct eccParams *other_params = initBrainpool_256_Curve();
 
+	struct eccPoint *other_plaintext = initAndSetECC_Point(plaintext_x, plaintext_y, 0);
+	struct eccPoint *other_plaintext_dot;
 
 	mpz_set_ui(plaintext_z, 2);
 
+
+	struct timespec timestamp_0 = timestamp(), timestamp_1;
+	clock_t c_0, c_1;
+	c_0 = clock();
+
+	mpz_urandomm(plaintext_x, *state, params -> p);
+
+	for(i = 0; i < 4000; i ++)
+	{
+		plaintextDot = windowedScalarPoint_Hom(plaintext_x, plaintext, params);
+		// plaintextDot = doubleAndAdd_ScalarMul_Hom(plaintext_x, plaintext, params);
+		clearECC_Point_Hom(plaintext);
+		plaintext = plaintextDot;
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Hom test");
+
+	printPoint_Hom(plaintext);
+
+	timestamp_0 = timestamp();
+	c_0 = clock();
+
+
+	for(i = 0; i < 4000; i ++)
+	{
+		other_plaintext_dot = windowedScalarPoint(plaintext_x, other_plaintext, other_params);
+		// other_plaintext_dot = doubleAndAdd_ScalarMul(plaintext_x, other_plaintext, other_params);
+		clearECC_Point(other_plaintext);
+		other_plaintext = other_plaintext_dot;
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Old Test");
+
+	printPoint(other_plaintext);
+	struct eccPoint *converted = convertToAffineRep(plaintext, params);
+
+	printPoint(converted);
+	/*
 	struct eccPoint_Hom *pkPoint = generate_ECC_KeyPair_Hom(params, SK, *state);
 
 	ciphertext = ECC_Enc_Hom(pkPoint, plaintext, params, *state);
 
 	PK = ECC_Dec_Hom(SK, ciphertext, params);
+	*/
 }
 
 

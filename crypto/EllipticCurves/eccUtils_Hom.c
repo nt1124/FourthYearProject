@@ -253,6 +253,18 @@ struct eccParams_Hom *deserialiseECC_Params_Hom(unsigned char *inputBuffer, int 
 
 
 
+int sizeOfSerial_ECC_U_V_Pair_Hom(struct u_v_Pair_ECC_Hom *c)
+{
+	int curLength;
+
+	curLength = sizeOfSerial_ECCPoint_Hom(c -> u);
+	curLength += sizeOfSerial_ECCPoint_Hom(c -> v);
+
+	return curLength;
+}
+
+
+
 void serialise_U_V_pair_ECC_Hom(struct u_v_Pair_ECC_Hom *c, unsigned char *outputBuffer, int *bufferOffset)
 {
 	int outputOffset = *bufferOffset;

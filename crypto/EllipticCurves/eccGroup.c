@@ -317,16 +317,16 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 			i --;
 		}
 
-		if(0 != u)
-		{
-			temp = groupOp(Q, preComputes[u], params);
-			clearECC_Point(Q);
-			Q = temp;
-		}
+		temp = groupOp(Q, preComputes[u], params);
+		clearECC_Point(Q);
+		Q = temp;
+		// if(0 != u)
+		// {
+		// }
 	}
 
 	//Take out the rubbish
-	for(i = 0; i < twoPowerK; i += 2)
+	for(i = 0; i < twoPowerK; i ++)
 	{
 		clearECC_Point(preComputes[i]);
 	}

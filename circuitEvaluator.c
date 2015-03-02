@@ -59,14 +59,10 @@ int main(int argc, char *argv[])
 {
 	srand( time(NULL) );
 
-	printf("%s\n", argv[1]);
-	fflush(stdout);
-
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	// testPolys();
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// test_ZKPoK();
 	// testECC_Utils();
-	testECC_Utils_Hom();
+	// testECC_Utils_Hom();
 	// testOT_PWV_DDH_Local_ECC();
 
 	return 0;
