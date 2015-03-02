@@ -294,12 +294,13 @@ int quadratic_residue(mpz_t x, mpz_t q, mpz_t n)
 
 	if(mod4==3) // directly, x = q^(n+1)/4 mod n
 	{
-	mpz_add_ui(tmp,tmp,1UL);
-	mpz_tdiv_q_2exp(tmp,tmp,2);
-	mpz_powm(x,q,tmp,n);
-	mpz_clear(tmp);
+		mpz_add_ui(tmp,tmp,1UL);
+		mpz_tdiv_q_2exp(tmp,tmp,2);
+		mpz_powm(x,q,tmp,n);
+		mpz_clear(tmp);
 
 	}
+	/*
 	else // Tonelli-Shanks
 	{
 		// split n - 1 into odd number times power of 2 ofac*2^twofac
@@ -353,7 +354,7 @@ int quadratic_residue(mpz_t x, mpz_t q, mpz_t n)
 		mpz_set(x,r);
 		mpz_clears(tmp,ofac,nr,t,r,c,b,NULL);
    }
-
+	*/
 
 	return 1;
 }
