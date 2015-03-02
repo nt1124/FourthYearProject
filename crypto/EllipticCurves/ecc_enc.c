@@ -27,6 +27,8 @@ struct u_v_Pair_ECC *randomiseDDH_ECC(struct ECC_PK *pk, struct eccParams *param
 	clearECC_Point(tempScalarS);
 	clearECC_Point(tempScalarT);
 
+	mpz_clear(s);
+	mpz_clear(t);
 
 	return toReturn;
 }

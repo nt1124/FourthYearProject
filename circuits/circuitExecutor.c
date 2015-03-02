@@ -93,24 +93,24 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength, idOffset;
 	unsigned char *tempBuffer, *commBuffer;
 	unsigned char value;
+	int startIndex, endIndex;
 
-
+	startIndex = inputCircuit -> numInputsBuilder;
+	endIndex = startIndex + inputCircuit -> numInputsExecutor;
 
 	tempSize = inputCircuit -> numInputsExecutor;
 
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	for(i = 0; i < inputCircuit -> numGates; i ++)
+	#pragma omp parallel for private(value, i, j) schedule(auto)	
+	for(i = startIndex; i < endIndex; i ++)
 	{
-		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-		{
-			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
-			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+		j = i - startIndex;
+		value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-			otKeyPairs[j++] = bulk_one_receiverOT_UC_ECC(value, params, state);
-		}
+		otKeyPairs[j] = bulk_one_receiverOT_UC_ECC(value, params, state);
 	}
 
 
@@ -124,23 +124,18 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	receive(readSocket, commBuffer, bufferOffset);
 
 
-	bufferOffset = 0;
 	j = 0;
-	idOffset = inputCircuit -> numInputsBuilder;
+	bufferOffset = 0;
 
-	// #pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
-	for(i = idOffset; i < idOffset + inputCircuit -> numInputsBuilder; i ++)
+	// #pragma omp parallel for private(i, j, outputOffset) schedule(auto)
+	for(i = startIndex; i < endIndex; i ++)
 	{
-		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask))
-		{
-			value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
-			value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
+		value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-			tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
-			memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
-			free(tempBuffer);
-		}
+		tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
+		memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
+		free(tempBuffer);
 	}
 }
 
