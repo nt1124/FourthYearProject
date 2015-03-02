@@ -71,23 +71,17 @@ void builder_side_OT_ECC(int writeSocket, int readSocket, struct decParams_ECC *
 	inputGatesOffset = inputCircuit -> numInputsBuilder;
 
 	#pragma omp parallel for private(tempWire, i, j, outputOffset) schedule(auto)
-	for(i = inputGatesOffset; i < inputGatesOffset + inputCircuit -> numInputsExecutor; i ++)
+	for(i = inputGatesOffset; i < inputGatesOffset + numInputs; i ++)
 	{
-		if( 0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&
-			0x01 == (0x0F & inputCircuit -> gates[i] -> outputWire -> wireMask) )
-		{
-			j = i - inputGatesOffset;
-			outputOffset = j * 2;
-			tempWire = inputCircuit -> gates[i] -> outputWire;
+		j = i - inputGatesOffset;
+		outputOffset = j * 2;
+		tempWire = inputCircuit -> gates[i] -> outputWire;
 
-			bulk_senderOT_UC_ECC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state, keyPairs[j], c_i_array, outputOffset);
-		}
+		bulk_senderOT_UC_ECC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16, params, state, keyPairs[j], c_i_array, outputOffset);
 	}
 
 	outputBuffer = serialise_U_V_Pair_ECC_Array(c_i_array, numInputs * 2, &outputOffset);
 
-	// sendInt(writeSocket, outputOffset);
-	// send(writeSocket, outputBuffer, outputOffset);
 	sendBoth(writeSocket, outputBuffer, outputOffset);
 }
 

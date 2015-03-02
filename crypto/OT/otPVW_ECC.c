@@ -150,6 +150,13 @@ struct u_v_Pair_ECC *PVW_OT_Enc_ECC(mpz_t M,
 
 	CT = ECC_Enc(pk, msgPoint, params, state);
 
+
+	clearECC_Point(msgPoint);
+	clearECC_Point(pk -> g);
+	clearECC_Point(pk -> g_x);
+	clearECC_Point(pk -> h);
+	clearECC_Point(pk -> h_x);
+
 	return CT;
 }
 

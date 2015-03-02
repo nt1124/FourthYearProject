@@ -275,14 +275,15 @@ int quadratic_residue(mpz_t x, mpz_t q, mpz_t n)
 	int leg;
 	mpz_t tmp,ofac,nr,t,r,c,b;
 	unsigned int mod4;
-	mp_bitcnt_t twofac=0,m,i,ix;
+	int twofac=0,m,i,ix;
 
-
+	/*
 	mod4=mpz_tstbit(n,0);
 	if(!mod4) // must be odd
 		return 0;
 
 	mod4 += 2 * mpz_tstbit(n,1);
+	*/
 
 	/*	This check disabled. If we appear to have an infinite loop hereabouts this might be needed again.
 	leg=mpz_legendre(q,n);
@@ -291,16 +292,20 @@ int quadratic_residue(mpz_t x, mpz_t q, mpz_t n)
 	*/
 
 	mpz_init_set(tmp,n);
+	mpz_add_ui(tmp,tmp,1UL);
+	mpz_tdiv_q_2exp(tmp,tmp,2);
+	mpz_powm(x,q,tmp,n);
+	mpz_clear(tmp);
 
+	/*	
 	if(mod4==3) // directly, x = q^(n+1)/4 mod n
 	{
+		mpz_init_set(tmp,n);
 		mpz_add_ui(tmp,tmp,1UL);
 		mpz_tdiv_q_2exp(tmp,tmp,2);
 		mpz_powm(x,q,tmp,n);
 		mpz_clear(tmp);
-
 	}
-	/*
 	else // Tonelli-Shanks
 	{
 		// split n - 1 into odd number times power of 2 ofac*2^twofac

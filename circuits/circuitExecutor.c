@@ -213,8 +213,8 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 	clock_t c_0, c_1;
 	c_0 = clock();
 
-	struct decParams_ECC *params = receiverCRS_ECC_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
-	// struct decParams *params = receiverCRS_Syn_Dec(writeSocket, readSocket);//, 1024, *state);
+	struct decParams_ECC *params = receiverCRS_ECC_Syn_Dec(writeSocket, readSocket);
+	// struct decParams *params = receiverCRS_Syn_Dec(writeSocket, readSocket);
 
 
 	if ( file != NULL )

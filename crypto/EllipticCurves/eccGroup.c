@@ -1,4 +1,4 @@
-struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccPoint *Q, struct eccParams *params)
+struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccParams *params)
 {
 	mpz_t topHalf, lowerHalf, lowerHalf_inv, temp1, temp2, fractionPart, unmodded;
 	struct eccPoint *output = initECC_Point();
@@ -34,6 +34,13 @@ struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccPoint *Q, struct ec
 	mpz_sub(unmodded, temp2, P -> y);
 	mpz_mod(output -> y, unmodded, params -> p);
 
+	mpz_clear(topHalf);
+	mpz_clear(lowerHalf);
+	mpz_clear(lowerHalf_inv);
+	mpz_clear(temp1);
+	mpz_clear(temp2);
+	mpz_clear(fractionPart);
+	mpz_clear(unmodded);
 
 	return output;
 }
@@ -70,6 +77,15 @@ struct eccPoint *addEC_Point(struct eccPoint *P, struct eccPoint *Q, struct eccP
 	mpz_mod(output -> y, unmodded, params -> p);
 
 
+	mpz_clear(topHalf);
+	mpz_clear(lowerHalf);
+	mpz_clear(lowerHalf_inv);
+	mpz_clear(temp1);
+	mpz_clear(temp2);
+	mpz_clear(unmodded);
+	mpz_clear(lambda);
+	mpz_clear(lambdaSq);
+
 	return output;
 }
 
@@ -77,8 +93,6 @@ struct eccPoint *addEC_Point(struct eccPoint *P, struct eccPoint *Q, struct eccP
 
 struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
 {
-	// struct eccPoint *output;
-
 	if(P -> pointAtInf == 0x01)
 	{
 		// R = P
@@ -87,7 +101,7 @@ struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
 	else if(0 != mpz_cmp_ui(P -> y, 0))
 	{
 		// R = P * P
-		return doubleGroupOp(P, P, params);
+		return doubleGroupOp(P, params);
 	}
 	else
 	{
@@ -102,8 +116,6 @@ struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
 
 struct eccPoint *groupOp(struct eccPoint *P, struct eccPoint *Q, struct eccParams *params)
 {
-	// struct eccPoint *output;
-
 	if(P -> pointAtInf == 0x01)
 	{
 		// R = Q
@@ -134,7 +146,7 @@ struct eccPoint *groupOp(struct eccPoint *P, struct eccPoint *Q, struct eccParam
 	{
 		// This is effectively double
 		// R = P * Q
-		return doubleGroupOp(P, Q, params);
+		return doubleGroupOp(P, params);
 	}
 
 
@@ -174,6 +186,8 @@ struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccP
 		tempP = temp;
 	}
 
+	clearECC_Point(tempP);
+
 	return Q;
 }
 
@@ -199,6 +213,9 @@ struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 	quadratic_residue(pointOutput -> y, temp1, params -> p);
 
 	// z ^ ((p+1)/4) (mod p)
+	mpz_clear(temp1);
+	mpz_clear(temp2);
+	mpz_clear(temp3);
 
 	return pointOutput;
 }
@@ -232,7 +249,7 @@ struct eccParams *initBrainpool_160_Curve()
 }
 
 
-
+// Ask Nigel about whether Brainpool is `trusted'
 struct eccParams *initBrainpool_256_Curve()
 {
 	const char *pStr = "A9FB57DBA1EEA9BC3E660A909D838D726E3BF623D52620282013481D1F6E5377";
@@ -264,19 +281,17 @@ struct eccPoint **preComputePoints(struct eccPoint *base, struct eccParams *para
 {
 	struct eccPoint **output;
 	int i, windowSize = 16;
-	mpz_t baseSquared;
 
 
 	output = (struct eccPoint **) calloc(windowSize, sizeof(struct eccPoint*));
-
-	// output[0] = init_Identity_ECC_Point();
-	// output[1] = copyECC_Point(base);
 	output[1] = base;
+	output[2] = doubleGroupOp(base, params);
 
-	for(i = 2; i < windowSize; i ++)
+	for(i = 3; i < windowSize; i ++)
 	{
 		output[i] = groupOp(output[i-1], base, params);
 	}
+
 
 	return output;
 }
@@ -292,7 +307,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 
 	struct eccPoint **preComputes;
 	struct eccPoint *Q = init_Identity_ECC_Point();
-	struct eccPoint *tempP = copyECC_Point(P), *temp;
+	struct eccPoint *temp;
 
 
 
@@ -326,6 +341,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 	{
 		clearECC_Point(preComputes[i]);
 	}
+	free(preComputes);
 
 	return Q;
 }

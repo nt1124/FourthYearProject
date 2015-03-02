@@ -245,12 +245,17 @@ mpz_t *mapPoint_Hom_To_MPZ(struct eccPoint_Hom *inputPoint, struct eccParams_Hom
 	mpz_t *output = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_t unmodded, invZ;
 
-	mpz_inits(*output, unmodded, invZ);
 
+	mpz_init(*output);
+	mpz_init(unmodded);
+	mpz_init(invZ);
 
 	mpz_invert(invZ, inputPoint -> z, params -> p);
 	mpz_mul(unmodded, inputPoint -> x, invZ);
 	mpz_mod(*output, unmodded, params -> p);
+
+	mpz_clear(unmodded);
+	mpz_clear(invZ);
 
 
 	return output;
