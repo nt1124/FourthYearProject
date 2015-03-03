@@ -103,7 +103,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	#pragma omp parallel for private(value, i, j) schedule(auto)	
+	// #pragma omp parallel for private(value, i, j) schedule(auto)	
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
@@ -127,13 +127,14 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	j = 0;
 	bufferOffset = 0;
 
-	// #pragma omp parallel for private(i, j, outputOffset) schedule(auto)
+	// #pragma omp parallel for private(i, j, value, tempBuffer) schedule(auto)
 	for(i = startIndex; i < endIndex; i ++)
 	{
+		j = i - startIndex;
 		value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-		tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j++], params, value, &outputLength);
+		tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j], params, value, &outputLength);
 		memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
 	}
