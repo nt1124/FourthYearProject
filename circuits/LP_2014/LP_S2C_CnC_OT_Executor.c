@@ -19,8 +19,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
 
-
-	// When truly doing it we need to have the ZKPOK here...
+	// Prove that we did indeed select s/2 many to open.
 	ZKPoK_Prover(writeSocket, readSocket, params_R, state);
 
 

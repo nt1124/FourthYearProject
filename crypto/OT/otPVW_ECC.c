@@ -338,18 +338,17 @@ struct otKeyPair_ECC *bulk_one_receiverOT_UC_ECC(unsigned char inputBit,
 
 // Perform the second half of the receiver side of the OT, deserialising the buffer returned by
 // the sender and using this to extract the requested data.
-unsigned char *bulk_two_receiverOT_UC_ECC(unsigned char *inputBuffer, int *bufferOffset,
+unsigned char *bulk_two_receiverOT_UC_ECC(struct u_v_Pair_ECC **u_v_array, int u_v_index,
 							struct otKeyPair_ECC *keyPair, struct decParams_ECC *params,
 							unsigned char inputBit, int *outputLength)
 {
 	struct u_v_Pair_ECC *c_0, *c_1;
-	mpz_t *outputMPZ, *tempMPZ;
-	unsigned char *outputBytes, *curBytes;
-	int curLength;
+	unsigned char *outputBytes;
+	mpz_t *outputMPZ;
 
 
-	c_0 = deserialise_U_V_pair_ECC(inputBuffer, bufferOffset);
-	c_1 = deserialise_U_V_pair_ECC(inputBuffer, bufferOffset);
+	c_0 = u_v_array[u_v_index];
+	c_1 = u_v_array[u_v_index + 1];
 
 
 	if(0x00 == inputBit)
@@ -412,7 +411,7 @@ int testOT_PWV_DDH_Local_ECC()
 	return 0;
 }
 
-// Testing function for single OT. No gurantee this still works.
+
 void testSender_OT_PVW_ECC()
 {
 	struct sockaddr_in destWrite, destRead;

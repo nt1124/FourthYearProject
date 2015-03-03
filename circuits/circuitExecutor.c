@@ -90,10 +90,11 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 					gmp_randstate_t *state)
 {
 	struct otKeyPair_ECC **otKeyPairs;
-	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength, idOffset;
+	struct u_v_Pair_ECC **c_i_Array;
 	unsigned char *tempBuffer, *commBuffer;
 	unsigned char value;
-	int startIndex, endIndex;
+	int tempSize = 0, i, j = 0, bufferOffset = 0, outputLength, idOffset;
+	int startIndex, endIndex, u_v_index;
 
 	startIndex = inputCircuit -> numInputsBuilder;
 	endIndex = startIndex + inputCircuit -> numInputsExecutor;
@@ -103,7 +104,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	// #pragma omp parallel for private(value, i, j) schedule(auto)	
+	#pragma omp parallel for private(value, i, j) schedule(auto)	
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
@@ -124,19 +125,25 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	receive(readSocket, commBuffer, bufferOffset);
 
 
-	j = 0;
 	bufferOffset = 0;
+	u_v_index = 0;
+	c_i_Array = deserialise_U_V_Pair_ECC_Array(commBuffer, 2 * inputCircuit -> numInputsExecutor);
 
-	// #pragma omp parallel for private(i, j, value, tempBuffer) schedule(auto)
+	// This pragma slows things down. Probably just because this isn't a very big computation.
+	// Still of use in the CnC because bigger chunks.
+	// #pragma omp parallel for private(i, j, u_v_index, value, tempBuffer) schedule(auto)
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
+
 		value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-		tempBuffer = bulk_two_receiverOT_UC_ECC(commBuffer, &bufferOffset, otKeyPairs[j], params, value, &outputLength);
+		tempBuffer = bulk_two_receiverOT_UC_ECC(c_i_Array, u_v_index, otKeyPairs[j], params, value, &outputLength);
 		memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
+
+		u_v_index += 2;
 	}
 }
 
@@ -157,6 +164,7 @@ void executor_side_OT(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair **) calloc(tempSize, sizeof(struct otKeyPair *));
 
 
+	// for(i = idOffset; i < idOffset + inputCircuit -> numInputsBuilder; i ++)
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		if(0x00 == inputCircuit -> gates[i] -> outputWire -> wireOwner &&

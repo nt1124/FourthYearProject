@@ -53,16 +53,10 @@ struct eccPoint *generate_ECC_KeyPair(struct eccParams *params, mpz_t SK, gmp_ra
 // http://crypto.stackexchange.com/questions/9987/elgamal-with-elliptic-curves
 struct u_v_Pair_ECC *ECC_Enc(struct ECC_PK *pk, struct eccPoint *msg, struct eccParams *params, gmp_randstate_t state)
 {
-	struct u_v_Pair_ECC *ciphertext = (struct u_v_Pair_ECC *) calloc(1, sizeof(struct u_v_Pair_ECC));
-	struct eccPoint *tempPoint;
-
+	struct u_v_Pair_ECC *ciphertext;
 
 	ciphertext = randomiseDDH_ECC(pk, params, state);
-	tempPoint = groupOp(ciphertext -> v, msg, params);
-
-	clearECC_Point(ciphertext -> v);
-	ciphertext -> v = tempPoint;
-
+	groupOp_PlusEqual(ciphertext -> v, msg, params);
 
 	return ciphertext;
 }
@@ -113,12 +107,13 @@ void testECC_Utils()
 	params = initBrainpool_256_Curve();
 
 	mpz_urandomm(plaintext_y, *state, params -> n);
-
-	PK = doubleAndAdd_ScalarMul(plaintext_y, plaintext, params);
 	plaintextDot = windowedScalarPoint(plaintext_y, plaintext, params);
 
+	PK = groupOp(plaintext, plaintextDot, params);
+	groupOp_PlusEqual(plaintext, plaintextDot, params);
+
 	printPoint(PK);
-	printPoint(plaintextDot);
+	printPoint(plaintext);
 
 	/*
 
