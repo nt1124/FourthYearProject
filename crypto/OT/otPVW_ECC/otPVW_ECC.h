@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../comms/sockets.h"
-#include "../EllipticCurves/ecc.h"
+#include "../../../comms/sockets.h"
+#include "../../EllipticCurves/ecc.h"
 
 
 

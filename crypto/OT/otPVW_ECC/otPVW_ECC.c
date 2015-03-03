@@ -161,6 +161,7 @@ struct u_v_Pair_ECC *PVW_OT_Enc_ECC(mpz_t M,
 }
 
 
+
 mpz_t *PVW_OT_Dec_ECC(struct u_v_Pair_ECC *CT,
 				struct CRS_ECC *crs, struct eccParams *params, mpz_t sk)
 {

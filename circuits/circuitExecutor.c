@@ -104,7 +104,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	#pragma omp parallel for private(value, i, j) schedule(auto)	
+	// #pragma omp parallel for private(value, i, j) schedule(auto)	
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;

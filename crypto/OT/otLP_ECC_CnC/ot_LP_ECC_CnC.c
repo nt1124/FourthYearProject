@@ -1,46 +1,45 @@
-struct otKeyPair *keyGen_CnC_OT(struct params_CnC *params, unsigned char sigmaBit, gmp_randstate_t state, int j)
+struct otKeyPair_ECC *keyGen_CnC_OT(struct params_CnC_ECC *params, unsigned char sigmaBit, gmp_randstate_t state, int j)
 {
-	struct otKeyPair *keyPair = initKeyPair();
+	struct otKeyPair_ECC *keyPair = initKeyPair_ECC();
 
 	do
 	{
-		mpz_urandomm( *(keyPair -> sk), state, params -> group -> p);
-	} while( 0 == mpz_cmp_ui(*(keyPair -> sk), 0) );
+		mpz_urandomm(keyPair -> sk, state, params -> params -> p);
+	} while( 0 == mpz_cmp_ui(keyPair -> sk, 0) );
 
 	
 	if(0x00 == sigmaBit)
 	{
-		mpz_powm(keyPair -> pk -> g, params -> group -> g, *(keyPair -> sk), params -> group -> p);
-		mpz_powm(keyPair -> pk -> h, params -> crs -> h_0_List[j], *(keyPair -> sk), params -> group -> p);
+		keyPair -> pk -> g = windowedScalarPoint(keyPair -> sk, params -> params -> g, params -> params);
+		keyPair -> pk -> h = windowedScalarPoint(keyPair -> sk, params -> crs -> h_0_List[j], params -> params);
 	}
 	else if(0x01 == sigmaBit)
 	{
-		mpz_powm(keyPair -> pk -> g, params -> crs -> g_1, *(keyPair -> sk), params -> group -> p);
-		mpz_powm(keyPair -> pk -> h, params -> crs -> h_1_List[j], *(keyPair -> sk), params -> group -> p);
+		keyPair -> pk -> g = windowedScalarPoint(keyPair -> sk, params -> crs -> g_1, params -> params);
+		keyPair -> pk -> h = windowedScalarPoint(keyPair -> sk, params -> crs -> h_1_List[j], params -> params);
 	}
 
 	return keyPair;
 }
 
 
-struct DDH_PK *setPrimitivePK_CnC_OT(struct params_CnC *params, struct PVM_OT_PK *otPK, unsigned char sigmaBit, int j)
+struct ECC_PK *setPrimitivePK_ECC_CnC_OT(struct params_CnC_ECC *params, struct PVM_OT_PK_ECC *otPK, unsigned char sigmaBit, int j)
 {
-	struct DDH_PK *pk = initPublicKey();
+	struct ECC_PK *pk = (struct ECC_PK*) calloc(1, sizeof(struct ECC_PK));
 
 
-	mpz_set(pk -> g_x, otPK -> g);
-	mpz_set(pk -> h_x, otPK -> h);
+	pk -> g_x = copyECC_Point(otPK -> g);
+	pk -> h_x = copyECC_Point(otPK -> h);
 
-
-	if(0x00 == sigmaBit)
+	if(0 == sigmaBit)
 	{
-		mpz_set(pk -> g, params -> group -> g);
-		mpz_set(pk -> h, params -> crs -> h_0_List[j]);
+		pk -> g = copyECC_Point(params -> params -> g);
+		pk -> h = copyECC_Point(params -> crs -> h_0_List[j]);
 	}
 	else
 	{
-		mpz_set(pk -> g, params -> crs -> g_1);
-		mpz_set(pk -> h, params -> crs -> h_1_List[j]);
+		pk -> g = copyECC_Point(params -> crs -> g_1);
+		pk -> h = copyECC_Point(params -> crs -> h_1_List[j]);
 	}
 
 
@@ -49,36 +48,58 @@ struct DDH_PK *setPrimitivePK_CnC_OT(struct params_CnC *params, struct PVM_OT_PK
 
 
 // Could we speed up by passing in the DDH_PK Blue Peter-ed?
-struct u_v_Pair *CnC_OT_Enc(mpz_t M,
-							struct params_CnC *params, gmp_randstate_t state,
-							struct PVM_OT_PK *otPK, unsigned char sigmaBit, int j)
+struct u_v_Pair_ECC *ECC_CnC_OT_Enc(mpz_t M,
+									struct params_CnC_ECC *params, gmp_randstate_t state,
+									struct PVM_OT_PK_ECC *otPK, unsigned char sigmaBit, int j)
 {
-	struct u_v_Pair *CT = init_U_V();
+	struct u_v_Pair_ECC *CT;
+	struct ECC_PK *pk = setPrimitivePK_ECC_CnC_OT(params, otPK, sigmaBit, j);
+	struct eccPoint *msgPoint = mapMPZ_To_Point(M, params -> params);
 
-	struct DDH_PK *pk = setPrimitivePK_CnC_OT(params, otPK, sigmaBit, j);
+	CT = ECC_Enc(pk, msgPoint, params -> params, state);
 
-	CT = encDDH(pk, params -> group, M, state);
+
+	clearECC_Point(msgPoint);
+	clearECC_Point(pk -> g);
+	clearECC_Point(pk -> g_x);
+	clearECC_Point(pk -> h);
+	clearECC_Point(pk -> h_x);
 
 	return CT;
 }
 
 
-mpz_t *CnC_OT_Dec(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk)
+mpz_t *ECC_CnC_OT_Dec(struct u_v_Pair_ECC *CT, struct params_CnC_ECC *params, mpz_t *sk)
 {
-	mpz_t *M_Prime = decDDH(sk, params -> group, CT);
+	mpz_t *M_Prime = (mpz_t*) calloc(1, sizeof(mpz_t));	
+	struct eccPoint *M_Point = ECC_Dec(*sk, CT, params -> params);
 	
+	mpz_init_set(*M_Prime, M_Point -> x);
+
+	clearECC_Point(M_Point);
+
 	return M_Prime;
 }
 
 
-mpz_t *CnC_OT_Dec_Alt(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk, unsigned char sigmaBit)
+/*
+// mpz_t *ECC_CnC_OT_Dec_Alt(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk, unsigned char sigmaBit)
+mpz_t *ECC_CnC_OT_Dec_Alt(mpz_t sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair *C, unsigned char sigmaBit)
 {
-	mpz_t *M_Prime = decDDH_Alt(sk, params -> y, params -> group, CT, sigmaBit);
+	//mpz_t *M_Prime = decDDH_Alt(sk, params -> y, params -> group, CT, sigmaBit);
 	
+	mpz_t *M_Prime = (mpz_t*) calloc(1, sizeof(mpz_t));	
+	struct eccPoint *M_Point = ECC_Dec(*sk, CT, params -> params);
+	
+	mpz_init_set(*M_Prime, M_Point -> x);
+
+	clearECC_Point(M_Point);
+
 	return M_Prime;
 }
 
 
+/*
 struct params_CnC *setup_CnC_OT_Receiver(int stat_SecParam,	int comp_SecParam, gmp_randstate_t state)
 {
 	struct params_CnC *params = initParams_CnC(stat_SecParam, comp_SecParam, state);
@@ -366,3 +387,4 @@ void test_local_CnC_OT()
 	testVictory(numTests, inputBytes, outputBytes, sigmaBit, params_R -> crs -> J_set);
 }
 
+*/

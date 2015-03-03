@@ -271,7 +271,8 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 		if(0x01 == J_set[i])
 		{
 			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[i]) );
-			totalLength += sizeof(unsigned int);		
+			totalLength += sizeof(int);
+			totalLength += sizeof(unsigned int);
 		}
 	}
 
@@ -320,12 +321,14 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 
 			if(0 != mpz_cmp(scratchMPZ, public_input -> public_circuitKeys[j]))
 			{
+				printf("Drat\n");
+				fflush(stdout);
 				return NULL;
 			}
 			memcpy(revealedSeeds + j * sizeof(unsigned int), inputBuffer + inputOffset, sizeof(unsigned int));
 			inputOffset += sizeof(unsigned int);
 
-			free(tempMPZ);
+			// free(tempMPZ);
 		}
 	}
 

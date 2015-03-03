@@ -45,11 +45,9 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_c_0 = clock();
 
 	seedList = generateRandUintList(stat_SecParam + 1);
-	printf("<0><>\n");
-	fflush(stdout);
+
 	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, group, secret_inputs, public_inputs);
-	printf("<1><>\n");
-	fflush(stdout);
+
 	srand(seedList[stat_SecParam]);
 
 	int_c_1 = clock();
@@ -143,14 +141,20 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	state = seedRandGen();
 	J_set = full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
+	printf("<0><>\n");
+	fflush(stdout);
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> group, J_set, stat_SecParam);
 
+	printf("<1><>\n");
+	fflush(stdout);
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> group,
 								J_set, stat_SecParam);
 
+	printf("<2><>\n");
+	fflush(stdout);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])
@@ -167,7 +171,7 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	printMajorityOutputAsHex(circuitsArray, stat_SecParam);
+	printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
 
 	testAES_FromRandom();
 

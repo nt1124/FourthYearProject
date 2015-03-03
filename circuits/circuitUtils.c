@@ -93,21 +93,24 @@ void printAllOutput(struct Circuit *inputCircuit)
 
 
 // Get the output from a set of Circuits 
-unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam, int *outputLength)
+unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam, int *outputLength, unsigned char *J_set)
 {
 	unsigned char *finalOutput;
 	unsigned char *curBinaryStr;
 	int **outputBitCounts = (int**) calloc(2, sizeof(int*));
 	int i, j, count = 0, curLength;
 
+	int k;
+
 	outputBitCounts[0] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
 	outputBitCounts[1] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
 
 	for(i = 0; i < securityParam; i ++)
 	{
-		if(0x00 == circuitsArray[i] -> checkFlag)
+		if(0x00 == J_set[i])
 		{
 			curBinaryStr = getOutputAsBinary(circuitsArray[i], &curLength);
+
 			if(curLength != circuitsArray[0] -> numOutputs)
 			{
 				printf("Circuits have differing number of outputs.");
@@ -144,14 +147,14 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 
 
 // Prints all outputs as a hex string, taking gates in ascending position in the gates table.
-void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam)
+void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
 {
 	unsigned char *hexOutput;
 	int i, outputLength;
 	
 	if(1 < securityParam)
 	{
-		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength);
+		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
 	}
 	else
 	{

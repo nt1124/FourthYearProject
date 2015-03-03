@@ -13,9 +13,10 @@
 #include "EllipticCurves/ecc_Hom.h"
 
 #include "OT/otToy.c"
-#include "OT/otPVW_DDH.h"
-#include "OT/otPVW_ECC.h"
-#include "OT/ot_LP_CnC.h"
+#include "OT/otPVW/otPVW_DDH.h"
+#include "OT/otPVW_ECC/otPVW_ECC.h"
+#include "OT/otLP_CnC/ot_LP_CnC.h"
+#include "OT/otLP_ECC_CnC/ot_LP_ECC_CnC.h"
 
 #include "Hashing/sha256.h"
 

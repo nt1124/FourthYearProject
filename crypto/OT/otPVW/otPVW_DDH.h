@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "../../comms/sockets.h"
-#include "../DDH_Primitive.h"
+#include "../../../comms/sockets.h"
+#include "../../DDH_Primitive.h"
 
 
 

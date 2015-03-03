@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 	// testECC_Utils();
 	// testECC_Utils_Hom();
 	// testOT_PWV_DDH_Local_ECC();
+	// test_local_CnC_OT();
 
 	return 0;
 }

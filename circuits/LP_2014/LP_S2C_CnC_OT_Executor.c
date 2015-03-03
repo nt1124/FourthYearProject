@@ -26,7 +26,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 	keyPairs_R = (struct otKeyPair **) calloc(totalOTs, sizeof(struct otKeyPair*));
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
-	// #pragma omp parallel for private(i, j, iOffset, value, tempWire)
+	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);
@@ -53,7 +53,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 	free(commBuffer);
 
 
-	// #pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);
@@ -61,6 +61,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
@@ -71,6 +72,7 @@ unsigned char *full_CnC_OT_Receiver(int writeSocket, int readSocket, struct Circ
 
 			if(0x00 == value)
 			{
+
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
@@ -111,12 +113,12 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 	struct revealedCheckSecrets *secretsJ_set;
 	struct wire *tempWire;
 	unsigned char *commBuffer;
-	int i, commBufferLen, tempOffset = stat_SecParam;
+	int i, commBufferLen, tempOffset = stat_SecParam * sizeof(unsigned char);
 
-	commBufferLen = stat_SecParam + 16 * stat_SecParam;
+	commBufferLen = stat_SecParam + (16 * 2) * (stat_SecParam / 2);
 	commBuffer = (unsigned char*) calloc(commBufferLen, sizeof(unsigned char));
 
-	memcpy(commBuffer, J_set, stat_SecParam);
+	memcpy(commBuffer, J_set, stat_SecParam * sizeof(unsigned char));
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
@@ -132,10 +134,20 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 		}
 	}
 
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+	// printf("Checkpoint 3\n");
+	// fflush(stdout);
 
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	// free(commBuffer);
+
+	// printf("Checkpoint 4  -  %d\n", commBufferLen);
+	// fflush(stdout);
+
+	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
+
+	// printf("Checkpoint 5  -  %d\n", commBufferLen);
+	// fflush(stdout);
 
 
 	if(1 != commBufferLen)
@@ -164,15 +176,27 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	{
 		if(0x01 == J_set[j])
 		{
+			printf("<1><%d><a>\n", j);
+			fflush(stdout);
+
 			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 			{
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+				
+				if(NULL == tempWire)
+				{
+					printf("<1><%d><a> %d\n", j, i);
+					fflush(stdout);
+				}
 
 				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
 				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x00);
 				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x01);
 			}
+
+			printf("<1><%d><b>\n", j);
+			fflush(stdout);
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, group);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
