@@ -2,6 +2,12 @@
 #define ECC_CRYPTO
 
 
+/*
+typedef struct eccPoint
+{
+	mpz_t x_y[2];
+} eccPoint;
+*/
 
 typedef struct eccPoint
 {
@@ -43,10 +49,6 @@ typedef struct ECC_PK
 	struct eccPoint *h;
 	struct eccPoint *h_x;
 } ECC_PK;
-
-
-
-
 
 
 

@@ -312,3 +312,18 @@ struct u_v_Pair_ECC **deserialise_U_V_Pair_ECC_Array(unsigned char *inputBuffer,
 
 	return outputKeys;
 }
+
+
+int eccPointsEqual(struct eccPoint *P, struct eccPoint *Q)
+{
+	int output = 1;
+
+	if( 0 == mpz_cmp(P -> x, Q -> x) &&
+		0 == mpz_cmp(P -> y, Q -> y) )
+	{
+		output = 0;
+	}
+
+
+	return output;
+}

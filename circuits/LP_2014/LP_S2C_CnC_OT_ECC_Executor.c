@@ -20,7 +20,7 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 	free(commBuffer);
 
 	// Prove that we did indeed select s/2 many to open.
-	// ZKPoK_Prover_ECC(writeSocket, readSocket, params_R, state);
+	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R, state);
 
 
 	keyPairs_R = (struct otKeyPair_ECC **) calloc(totalOTs, sizeof(struct otKeyPair_ECC*));

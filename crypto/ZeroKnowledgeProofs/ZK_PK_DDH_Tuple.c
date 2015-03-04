@@ -207,7 +207,7 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 	*outputLen = zLength + cLength;
 
 
-	temp = deserialiseMPZ(commBuffer, outputLen);
+	// temp = deserialiseMPZ(commBuffer, outputLen);
 
 	return commBuffer;
 }

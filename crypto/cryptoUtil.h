@@ -10,7 +10,7 @@
 #include "rsa.c"
 #include "DDH_Primitive.h"
 #include "EllipticCurves/ecc.h"
-#include "EllipticCurves/ecc_Hom.h"
+// #include "EllipticCurves/ecc_Hom.h"
 
 #include "OT/otToy.c"
 #include "OT/otPVW/otPVW_DDH.h"

@@ -177,8 +177,6 @@ mpz_t *PVW_OT_Dec_ECC(struct u_v_Pair_ECC *CT,
 
 
 // All the infrastructre is now complete, now we use what we have to perform OT.
-
-
 // Request a set of params from the Receiver who will run setupDec.
 struct decParams_ECC *senderCRS_ECC_Syn_Dec(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state)
 {	

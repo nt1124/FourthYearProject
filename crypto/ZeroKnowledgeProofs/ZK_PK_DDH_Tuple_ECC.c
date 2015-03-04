@@ -130,7 +130,7 @@ int checkC_prover_ECC(struct params_CnC_ECC *params, struct verifierCommitment_E
 	groupOp_PlusEqual(checkC, temp1, params -> params);
 
 
-	checkC_Correct = mpz_cmp(checkC -> x, commitment_box -> C_commit -> x) & mpz_cmp(checkC -> y, commitment_box -> C_commit -> y) ;
+	checkC_Correct = eccPointsEqual(checkC, commitment_box -> C_commit);
 
 	clearECC_Point(checkC);
 	clearECC_Point(temp1);
@@ -189,10 +189,8 @@ unsigned char *computeAndSerialise_ECC(struct params_CnC_ECC *params, struct msg
 	memcpy(commBuffer + zLength, cBuffer, cLength);
 	memcpy(commBuffer + zLength + cLength, aBuffer, aLength);
 
-	*outputLen = zLength + cLength;
+	*outputLen = zLength + cLength + aLength;
 
-
-	temp = deserialiseMPZ(commBuffer, outputLen);
 
 	return commBuffer;
 }
@@ -254,7 +252,7 @@ int verifierChecks_ECC(struct params_CnC_ECC *params, mpz_t *Z_array, struct ecc
 
 
 	alpha = windowedScalarPoint(alphaAndA -> a, params -> params -> g, params -> params);
-	alphaCheck = mpz_cmp(alpha -> x, alphaAndA -> alpha -> x) & mpz_cmp(alpha -> y, alphaAndA -> alpha -> y);
+	alphaCheck = eccPointsEqual(alpha, alphaAndA -> alpha);
 
 
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
@@ -285,8 +283,8 @@ int verifierChecks_ECC(struct params_CnC_ECC *params, mpz_t *Z_array, struct ecc
 		clearECC_Point(topHalf);
 		clearECC_Point(bottomHalf);
 
-		AB_check |= mpz_cmp(A_array[i] -> x, A_check_array[i] -> x) & mpz_cmp(A_array[i] -> y, A_check_array[i] -> y);
-		AB_check |= mpz_cmp(B_array[i] -> x, B_check_array[i] -> x) & mpz_cmp(B_array[i] -> y, B_check_array[i] -> y);
+		AB_check |= eccPointsEqual(A_array[i], A_check_array[i]);
+		AB_check |= eccPointsEqual(B_array[i], B_check_array[i]);
 	}
 
 	finalDecision |= AB_check;
@@ -365,6 +363,7 @@ int ZKPoK_Verifier_ECC(int writeSocket, int readSocket, struct params_CnC_ECC *p
 	free(commBuffer);
 	// Round 1
 
+
 	commitment_box_V = verifierSetupCommitment_ECC(params_V, alphaAndA_V -> alpha, *state);
 
 	bufferOffset = 0;
@@ -391,9 +390,11 @@ int ZKPoK_Verifier_ECC(int writeSocket, int readSocket, struct params_CnC_ECC *p
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 4
 
+
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
+
 	Z_array_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	cShares_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
@@ -407,7 +408,7 @@ int ZKPoK_Verifier_ECC(int writeSocket, int readSocket, struct params_CnC_ECC *p
 }
 
 
-int test_ZKPoK_ECC()
+void test_ZKPoK_ECC()
 {
 	struct params_CnC_ECC *params_P,  *params_V;
 	struct witnessStruct *witnessSet;
@@ -473,15 +474,19 @@ int test_ZKPoK_ECC()
 	}
 	free(commBuffer);
 
+
 	bufferOffset = 0;
 	commBuffer = verifierQuery_ECC(commitment_box_V, &bufferOffset);
+
 
 	bufferOffset = 0;
 	deserialisedSecrets_CommitmentBox(commitment_box_P, commBuffer, &bufferOffset);
 	free(commBuffer);
 
+
 	bufferOffset = 0;
 	commBuffer = proverMessageTwo_ECC(params_P, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
+
 
 	bufferOffset = 0;
 	mpz_t *Z_array_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
