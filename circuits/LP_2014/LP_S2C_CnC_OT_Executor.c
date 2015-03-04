@@ -120,6 +120,9 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 
 	memcpy(commBuffer, J_set, stat_SecParam * sizeof(unsigned char));
 
+
+	// For each circuit we send both value on our first input wire wire, thus proving that
+	// we indeed opened that circuit for checking (i.e. It's J_set value was 1).
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x01 == J_set[i])

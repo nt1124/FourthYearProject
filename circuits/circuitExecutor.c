@@ -104,7 +104,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	// #pragma omp parallel for private(value, i, j) schedule(auto)	
+	#pragma omp parallel for private(value, i, j) schedule(auto)	
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
@@ -130,11 +130,12 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	c_i_Array = deserialise_U_V_Pair_ECC_Array(commBuffer, 2 * inputCircuit -> numInputsExecutor);
 
 	// This pragma slows things down. Probably just because this isn't a very big computation.
-	// Still of use in the CnC because bigger chunks.
-	// #pragma omp parallel for private(i, j, u_v_index, value, tempBuffer) schedule(auto)
+	// Still of use in the CnC because bigger chunks means more benefit to Parallelisation.
+	#pragma omp parallel for private(i, j, u_v_index, value, tempBuffer) schedule(auto)
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
+		u_v_index = 2 * j;
 
 		value = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (inputCircuit -> gates[i] -> outputWire -> wirePerm & 0x01);
@@ -142,8 +143,6 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 		tempBuffer = bulk_two_receiverOT_UC_ECC(c_i_Array, u_v_index, otKeyPairs[j], params, value, &outputLength);
 		memcpy(inputCircuit -> gates[i] -> outputWire -> wireOutputKey, tempBuffer, 16);
 		free(tempBuffer);
-
-		u_v_index += 2;
 	}
 }
 
