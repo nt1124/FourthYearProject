@@ -307,21 +307,27 @@ struct eccPoint *invertPoint(struct eccPoint *P, struct eccParams *params)
 struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccParams *params)
 {
 	struct eccPoint *Q = init_Identity_ECC_Point();
-	struct eccPoint *tempP = copyECC_Point(P), *temp;
+	struct eccPoint *tempP = copyECC_Point(P);//, *temp;
 	int numBitsInK = mpz_sizeinbase(k, 2), i;
 
 	for(i = 0; i < numBitsInK; i ++)
 	{
 		if(1 == mpz_tstbit(k, i))
 		{
+			/*
 			temp = groupOp(Q, tempP, params);
 			clearECC_Point(Q);
 			Q = temp;
+			*/
+			groupOp_PlusEqual(Q, tempP, params);
 		}
 
+		/*
 		temp = doublePoint(tempP, params);
 		clearECC_Point(tempP);
 		tempP = temp;
+		*/
+		doublePointInPlace(tempP, params);
 	}
 
 	clearECC_Point(tempP);

@@ -33,6 +33,7 @@ struct u_v_Pair_ECC *randomiseDDH_ECC(struct ECC_PK *pk, struct eccParams *param
 	return toReturn;
 }
 
+
 struct eccPoint *generate_ECC_KeyPair(struct eccParams *params, mpz_t SK, gmp_randstate_t state)
 {
 	struct eccPoint *PK = initECC_Point();
