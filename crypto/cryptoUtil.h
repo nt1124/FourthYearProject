@@ -26,6 +26,7 @@
 
 #include "SecretSharing/lagrangeInterpolation.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
+#include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple_ECC.h"
 
 
 const int wireKeysLengths = 16;

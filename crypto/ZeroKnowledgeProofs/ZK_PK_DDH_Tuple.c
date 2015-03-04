@@ -188,7 +188,6 @@ unsigned char *computeAndSerialise(struct params_CnC *params, struct msgOneArray
 			mpz_add(temp2, temp1, msgArray -> roeArray[j_in_I]);
 			mpz_mod(z_ToSend[i], temp2, params -> group -> q);
 
-			//gmp_printf("--- %d\n%Zd\n%Zd\n\n", i, z_ToSend[i], cShares[i]);
 
 			j_in_I ++;
 		}
@@ -471,7 +470,7 @@ int test_ZKPoK()
 
 	
 	bufferOffset = 0;
-	commBuffer = (unsigned char *) calloc(sizeof(int) + (sizeof(mp_limb_t) * mpz_size(alphaAndA_P[0])), sizeof(unsigned char));
+	commBuffer = (unsigned char *) calloc(sizeof(int) + (sizeof(mp_limb_t) * mpz_size(commitment_box_V -> C_commit)), sizeof(unsigned char));
 	serialiseMPZ(commitment_box_V -> C_commit, commBuffer, &bufferOffset);
 
 	
