@@ -34,15 +34,15 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
-		runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		// runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
+		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
+		runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 	}
 	else
 	{
 		printf("Running Builder.\n");
-		runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
-		// runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
+		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
+		runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
 		// testSender_OT_PVW_ECC();
 	}
 

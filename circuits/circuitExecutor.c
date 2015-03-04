@@ -104,7 +104,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 	otKeyPairs = (struct otKeyPair_ECC **) calloc(tempSize, sizeof(struct otKeyPair_ECC *));
 
 
-	#pragma omp parallel for private(value, i, j) schedule(auto)	
+	// #pragma omp parallel for private(value, i, j) schedule(auto)	
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;
@@ -131,7 +131,7 @@ void executor_side_OT_ECC(int writeSocket, int readSocket,
 
 	// This pragma slows things down. Probably just because this isn't a very big computation.
 	// Still of use in the CnC because bigger chunks means more benefit to Parallelisation.
-	#pragma omp parallel for private(i, j, u_v_index, value, tempBuffer) schedule(auto)
+	// #pragma omp parallel for private(i, j, u_v_index, value, tempBuffer) schedule(auto)
 	for(i = startIndex; i < endIndex; i ++)
 	{
 		j = i - startIndex;

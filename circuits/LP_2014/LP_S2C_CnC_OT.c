@@ -1,4 +1,4 @@
-const int stat_SecParam = 4;
+const int stat_SecParam = 8;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -69,7 +69,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_c_0 = clock();
 
 
-	full_CnC_OT_Sender(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
@@ -139,7 +139,7 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 
 	state = seedRandGen();
-	J_set = full_CnC_OT_Receiver(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	J_set = full_CnC_OT_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 	printf("<0><>\n");
 	fflush(stdout);
