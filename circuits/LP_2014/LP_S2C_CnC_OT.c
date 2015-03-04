@@ -73,7 +73,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	// builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
+	builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
 
 
 	int_c_1 = clock();
@@ -141,7 +141,7 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	state = seedRandGen();
 	J_set = full_CnC_OT_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
-	/*
+
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> group, J_set, stat_SecParam);
@@ -149,7 +149,7 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> group,
 								J_set, stat_SecParam);
-	*/
+
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
