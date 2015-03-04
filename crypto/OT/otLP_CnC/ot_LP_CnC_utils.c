@@ -179,10 +179,11 @@ void testVictory(int numTests, unsigned char *inputBytes[][2], unsigned char *ou
 
 	for(i = 0; i < numTests; i ++)
 	{
-		success += memcmp(inputBytes[i][1 - sigmaInt], outputBytes[i][1 - sigmaInt], 16);
+		success |= memcmp(inputBytes[i][1 - sigmaInt], outputBytes[i][1 - sigmaInt], 16);
+
 		if(0x01 == J_set[i])
 		{
-			success += memcmp(inputBytes[i][sigmaInt], outputBytes[i][sigmaInt], 16);
+			success |= memcmp(inputBytes[i][sigmaInt], outputBytes[i][sigmaInt], 16);
 		}
 	}
 

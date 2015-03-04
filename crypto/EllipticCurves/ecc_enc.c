@@ -79,8 +79,8 @@ struct eccPoint *ECC_Dec(mpz_t SK, struct u_v_Pair_ECC *ciphertext, struct eccPa
 	return plaintext;
 }
 
-/*
-struct eccPoint *ECC_Dec_Alt(mpz_t sk, mpz_t y, struct eccParams *params, struct u_v_Pair_ECC *C, unsigned char sigmaBit)
+
+struct eccPoint *ECC_Dec_Alt(mpz_t sk, mpz_t y, struct u_v_Pair_ECC *CT, struct eccParams *params, unsigned char sigmaBit)
 {
 	struct eccPoint *plaintext, *SK_Scalar_Key, *invKey, *invKeyY;
 	mpz_t *M = (mpz_t *) calloc(1, sizeof(mpz_t));
@@ -99,32 +99,34 @@ struct eccPoint *ECC_Dec_Alt(mpz_t sk, mpz_t y, struct eccParams *params, struct
 
 	if(0x00 == sigmaBit)
 	{
-		mpz_invert(y_Inv, y, group -> q);
+		mpz_invert(y_Inv, y, params -> n);
 
 		mpz_mul(finalFactor, y_Inv, sk);
-		// mpz_mul(y_Inv, finalFactor, group -> q);
+		mpz_mod(y_Inv, finalFactor, params -> n);
 
-		// mpz_powm(c1_sk, C -> u, finalFactor, group -> p);
-		// mpz_invert(c1_sk_inv, c1_sk, group -> p);
+		SK_Scalar_Key = windowedScalarPoint(y_Inv, CT -> u, params);
+		invKey = invertPoint(SK_Scalar_Key, params);
 
+		plaintext = groupOp(CT -> v, invKey, params);
 	}
 	else
 	{
-		SK_Scalar_Key = windowedScalarPoint(SK, ciphertext -> u, params);
+		SK_Scalar_Key = windowedScalarPoint(sk, CT -> u, params);
 		invKey = invertPoint(SK_Scalar_Key, params);
 
 		invKeyY = windowedScalarPoint(y, invKey, params);
 
-		plaintext = groupOp(ciphertext -> v, invKeyY, params);
+		plaintext = groupOp(CT -> v, invKeyY, params);
+
+		clearECC_Point(invKeyY);
 	}
 
 	clearECC_Point(SK_Scalar_Key);
 	clearECC_Point(invKey);
-	clearECC_Point(invKeyY);
 
 	return plaintext;
 }
-*/
+
 
 /*	----------------------------------------------------
 	----    ----    ----TESTING LAND----    ----    ----

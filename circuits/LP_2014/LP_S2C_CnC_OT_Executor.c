@@ -176,31 +176,17 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	{
 		if(0x01 == J_set[j])
 		{
-			printf("<1><%d><a>\n", j);
-			fflush(stdout);
-
 			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 			{
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-				
-				if(NULL == tempWire)
-				{
-					printf("<1><%d><a> %d\n", j, i);
-					fflush(stdout);
-				}
-
 				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
 				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x00);
 				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x01);
 			}
 
-			printf("<1><%d><b>\n", j);
-			fflush(stdout);
-
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, group);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
-			// freeCircuitStruct(tempGarbleCircuit);
 		}
 	}
 

@@ -79,7 +79,7 @@ struct CRS_CnC_ECC *deserialise_CRS_ECC(unsigned char *inputBuffer, int *bufferO
 {
 	struct CRS_CnC_ECC *crs;
 	int i, tempInt;
-	
+
 
 	memcpy(&tempInt, inputBuffer + *bufferOffset, sizeof(int));
 	crs = initCRS_CnC_ECC(tempInt);

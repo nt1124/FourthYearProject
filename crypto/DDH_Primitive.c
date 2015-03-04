@@ -202,9 +202,9 @@ mpz_t *decDDH_Alt(DDH_SK *sk, mpz_t y, struct DDH_Group *group, struct u_v_Pair 
 		mpz_invert(y_Inv, y, group -> q);
 
 		mpz_mul(finalFactor, y_Inv, *sk);
-		mpz_mul(y_Inv, finalFactor, group -> q);
+		mpz_mod(y_Inv, finalFactor, group -> q);
 
-		mpz_powm(c1_sk, C -> u, finalFactor, group -> p);
+		mpz_powm(c1_sk, C -> u, y_Inv, group -> p);
 		mpz_invert(c1_sk_inv, c1_sk, group -> p);
 
 		mpz_mul(M_unmodded, c1_sk_inv, C -> v);

@@ -34,15 +34,15 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
-		runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		// runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
+		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
+		runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 	}
 	else
 	{
 		printf("Running Builder.\n");
-		runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
-		// runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
+		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
+		runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
 		// testSender_OT_PVW_ECC();
 	}
 
@@ -62,9 +62,9 @@ int main(int argc, char *argv[])
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// test_ZKPoK();
 	// testECC_Utils();
-	// testECC_Utils_Hom();
 	// testOT_PWV_DDH_Local_ECC();
 	// test_local_CnC_OT();
+	// test_local_CnC_OT_ECC();
 
 	return 0;
 }
