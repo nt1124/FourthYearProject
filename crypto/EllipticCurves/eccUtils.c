@@ -168,11 +168,11 @@ struct eccPoint *deserialise_ECC_Point(unsigned char *inputBuffer, int *inputOff
 
 	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
 	mpz_set(output -> x, *tempMPZ);
-	free(tempMPZ);
+	// free(tempMPZ);
 
 	tempMPZ = deserialiseMPZ(inputBuffer, &offset);
 	mpz_set(output -> y, *tempMPZ);
-	free(tempMPZ);
+	// free(tempMPZ);
 
 	memcpy(&(output -> pointAtInf), inputBuffer + offset, sizeof(unsigned char));
 

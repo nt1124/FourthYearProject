@@ -68,7 +68,7 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	#pragma omp parallel for ordered private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		#pragma omp ordered
+		// #pragma omp ordered
 		{
 			iOffset = stat_SecParam * (i - numInputsBuilder);
 			u_v_index = 2 * iOffset;

@@ -27,7 +27,7 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
 
-	// #pragma omp parallel for private(i, j, iOffset, value, tempWire)
+	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);
@@ -54,7 +54,7 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 	free(commBuffer);
 
 
-	// #pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);
