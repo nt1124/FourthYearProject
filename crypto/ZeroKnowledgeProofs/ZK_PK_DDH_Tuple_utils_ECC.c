@@ -26,16 +26,7 @@ struct msgOneArrays_ECC *initMsgOneArray_ECC(int stat_SecParam)
 	for(i = 0; i < stat_SecParamDiv2; i ++)
 	{
 		mpz_init(msgOne -> roeArray[i]);
-		// mpz_init(msgOne -> A_array[i]);
-		// mpz_init(msgOne -> B_array[i]);
 	}
-	/*
-	for(i = stat_SecParamDiv2; i < stat_SecParam; i ++)
-	{
-		mpz_init(msgOne -> A_array[i]);
-		mpz_init(msgOne -> B_array[i]);
-	}
-	*/
 
 
 	return msgOne;

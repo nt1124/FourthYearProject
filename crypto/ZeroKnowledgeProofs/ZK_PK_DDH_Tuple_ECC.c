@@ -200,9 +200,10 @@ unsigned char *proverMessageTwo_ECC(struct params_CnC_ECC *params, struct verifi
 								struct witnessStruct *witnessesArray, struct alphaAndA_Struct *alphaAndA, int *outputLen)
 {
 	unsigned char *commBuffer;
-	mpz_t temp1, *cShares, *tempPointer;
-	int i, checkC_Correct = 0, totalLength, bufferOffset = 0;
+	mpz_t *cShares, *tempPointer;
+	int i, checkC_Correct = 0, bufferOffset = 0;
 	int *tempDeltaI = (int*) calloc(params -> crs -> stat_SecParam, sizeof(int));
+	int tempIndex = 0;
 
 
 	checkC_Correct = checkC_prover_ECC(params, commitment_box, alphaAndA -> alpha);
@@ -217,13 +218,19 @@ unsigned char *proverMessageTwo_ECC(struct params_CnC_ECC *params, struct verifi
 	}
 
 	// Here the secret sharing distrbution happens. Reed-Solomon etc.
-	cShares = completePartialSecretSharing(msgArray -> notI_Struct -> not_in_I_index, msgArray -> notI_Struct -> C_array,
-											commitment_box -> c, params -> params -> n, params -> crs -> stat_SecParam);
-
-	struct Fq_poly *tempPoly = getPolyFromCodewords(cShares, tempDeltaI, params -> crs -> stat_SecParam, params -> params -> p);
-
-	mpz_init_set_ui(temp1, (params -> crs -> stat_SecParam + 1));
-	tempPointer = evalutePoly(tempPoly, temp1, params -> params -> p);
+	if(params -> crs -> stat_SecParam != 2)
+	{
+		cShares = completePartialSecretSharing(msgArray -> notI_Struct -> not_in_I_index, msgArray -> notI_Struct -> C_array,
+												commitment_box -> c, params -> params -> n, params -> crs -> stat_SecParam);
+	}
+	else
+	{
+		cShares = (mpz_t *) calloc(2, sizeof(mpz_t));
+		tempIndex = msgArray -> notI_Struct -> not_in_I_index[0] - 1;
+		mpz_init(cShares[1 - tempIndex]);
+		mpz_init_set(cShares[tempIndex], msgArray -> notI_Struct -> C_array[0]);
+		mpz_add(cShares[1 - tempIndex], cShares[tempIndex], commitment_box -> c);
+	}
 
 
 	commBuffer = computeAndSerialise_ECC(params, msgArray, witnessesArray, cShares, alphaAndA, &bufferOffset);
@@ -242,6 +249,7 @@ int verifierChecks_ECC(struct params_CnC_ECC *params, mpz_t *Z_array, struct ecc
 	struct eccPoint **A_check_array, **B_check_array, *alpha;
 	struct eccPoint *topHalf, *bottomHalf;
 
+	mpz_t cShares2Check, cShares2CheckAbs;
 	int *delta_i = (int*) calloc(params -> crs -> stat_SecParam, sizeof(int*));
 	int i, alphaCheck = 0, AB_check = 0, finalDecision = 0;
 
@@ -260,8 +268,22 @@ int verifierChecks_ECC(struct params_CnC_ECC *params, mpz_t *Z_array, struct ecc
 		delta_i[i] = i + 1;
 	}
 
-	secretPoly = getPolyFromCodewords(codewords, delta_i, params -> crs -> stat_SecParam / 2 + 1, params -> params -> n);
-	finalDecision = testSecretScheme(secretPoly, c, params -> params -> n, (params -> crs -> stat_SecParam / 2) + 1, params -> crs -> stat_SecParam);
+
+	if(2 != params -> crs -> stat_SecParam)
+	{
+		secretPoly = getPolyFromCodewords(codewords, delta_i, params -> crs -> stat_SecParam / 2 + 1, params -> params -> n);
+		finalDecision = testSecretScheme(secretPoly, c, params -> params -> n, (params -> crs -> stat_SecParam / 2) + 1, params -> crs -> stat_SecParam);
+	}
+	else
+	{
+		mpz_init(cShares2Check);
+		mpz_init(cShares2CheckAbs);
+
+		mpz_sub(cShares2Check, codewords[0], codewords[1]);
+		mpz_abs(cShares2CheckAbs, cShares2Check);
+
+		finalDecision = mpz_cmp(c, cShares2CheckAbs);
+	}
 
 
 	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
