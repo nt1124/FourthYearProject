@@ -1,4 +1,4 @@
-const int stat_SecParam = 2;
+const int stat_SecParam = 32;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {

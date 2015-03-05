@@ -20,17 +20,18 @@
 #include "OT/otPVW_ECC/otPVW_ECC.h"
 #include "OT/otLP_CnC/ot_LP_CnC.h"
 #include "OT/otLP_ECC_CnC/ot_LP_ECC_CnC.h"
-#include "OT/otL_Mod_CnC/ZKPoK_DiscreteLog.c"
+
+#include "ZeroKnowledgeProofs/ZKPoK_DiscreteLog.c"
 #include "OT/otL_Mod_CnC/otL_Mod_CnC.h"
 
-// #include "CommitmentSchemes/commit_elgamal.h"
-// #include "CommitmentSchemes/commit_hash_elgamal.h"
+
 #include "ConsistencyChecks/builder_keys.h"
 
 
 #include "SecretSharing/lagrangeInterpolation.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple_ECC.h"
+#include "ZeroKnowledgeProofs/ZKPoK_ExtDH_Tuple.h"
 
 
 

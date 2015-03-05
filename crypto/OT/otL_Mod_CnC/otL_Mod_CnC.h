@@ -19,8 +19,6 @@ typedef struct tildeCRS
 
 
 
-#include "ZKPoK_DiscreteLog.c"
-#include "ZKPoK_ExtDH_Tuple.c"
 #include "otL_Mod_CnC_utils.c"
 #include "otL_Mod_CnC.c"
 

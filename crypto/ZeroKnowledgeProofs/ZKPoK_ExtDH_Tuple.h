@@ -3,5 +3,7 @@
 
 
 // Stuff goes here.
+#include "ZKPoK_ExtDH_Tuple.c"
+
 
 #endif

@@ -1,8 +1,3 @@
-#ifndef ZKPoP_DL
-#define ZKPoP_DL
-
-
-
 // Classic Sigma proof of knowledge of a Discrete Logarithm
 int ZKPoK_DL_Prover(int writeSocket, int readSocket, struct eccPoint *g_1, mpz_t x,
 					struct eccParams *params, gmp_randstate_t state)
@@ -92,7 +87,3 @@ int ZKPoK_DL_Verifier(int writeSocket, int readSocket, struct eccParams *params,
 	return verified;
 }
 
-
-
-
-#endif

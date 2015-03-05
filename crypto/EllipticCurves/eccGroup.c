@@ -314,19 +314,9 @@ struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccP
 	{
 		if(1 == mpz_tstbit(k, i))
 		{
-			/*
-			temp = groupOp(Q, tempP, params);
-			clearECC_Point(Q);
-			Q = temp;
-			*/
 			groupOp_PlusEqual(Q, tempP, params);
 		}
 
-		/*
-		temp = doublePoint(tempP, params);
-		clearECC_Point(tempP);
-		tempP = temp;
-		*/
 		doublePointInPlace(tempP, params);
 	}
 
