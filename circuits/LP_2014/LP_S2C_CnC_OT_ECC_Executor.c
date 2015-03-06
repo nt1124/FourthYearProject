@@ -21,7 +21,8 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 
 	// Prove that we did indeed select s/2 many to open.
 	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,
-					params_R -> crs -> g_1, params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
+					params_R -> params -> g, params_R -> crs -> g_1,
+					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
 					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
 
 

@@ -23,8 +23,8 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 
 
 	// When doing this properly the ZKPOK goes here.
-	tupleVerified = ZKPoK_Verifier_ECC(writeSocket, readSocket,
-									params_S -> crs -> stat_SecParam, params_S -> params, params_S -> crs -> g_1,
+	tupleVerified = ZKPoK_Verifier_ECC(writeSocket, readSocket, params_S -> params, params_S -> crs -> stat_SecParam,
+									params_S -> params -> g, params_S -> crs -> g_1,
 									params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
 									state);
 	// int stat_SecParam, struct eccParams *params, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List

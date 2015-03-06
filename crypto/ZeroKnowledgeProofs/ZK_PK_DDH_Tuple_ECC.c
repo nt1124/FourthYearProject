@@ -14,7 +14,7 @@ struct witnessStruct *proverSetupWitnesses(int stat_SecParam, mpz_t *alphas_List
 }
 
 
-struct alphaAndA_Struct *proverSetupCommitment_ECC(struct eccParams *params, gmp_randstate_t state)
+struct alphaAndA_Struct *proverSetupCommitment_ECC(struct eccParams *params, struct eccPoint *g_0, gmp_randstate_t state)
 {
 	struct alphaAndA_Struct *alphaAndA = (struct alphaAndA_Struct*) calloc(1, sizeof(struct alphaAndA_Struct));
 
@@ -22,13 +22,14 @@ struct alphaAndA_Struct *proverSetupCommitment_ECC(struct eccParams *params, gmp
 	mpz_init(alphaAndA -> a);
 
 	mpz_urandomm(alphaAndA -> a, state, params -> n);
-	alphaAndA -> alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	alphaAndA -> alpha = windowedScalarPoint(alphaAndA -> a, g_0, params);
 
 	return alphaAndA;
 }
 
 
-struct verifierCommitment_ECC *verifierSetupCommitment_ECC(struct eccParams *params, struct eccPoint *alpha, gmp_randstate_t state)
+struct verifierCommitment_ECC *verifierSetupCommitment_ECC(struct eccParams *params, struct eccPoint *g_0,
+															struct eccPoint *alpha, gmp_randstate_t state)
 {
 	struct verifierCommitment_ECC *commitment_box = initVerifierCommitment_ECC();
 	struct eccPoint *temp1, *temp2;
@@ -37,7 +38,7 @@ struct verifierCommitment_ECC *verifierSetupCommitment_ECC(struct eccParams *par
 	mpz_urandomm(commitment_box -> t, state, params -> n);
 	mpz_urandomm(commitment_box -> c, state, params -> n);
 
-	temp1 = windowedScalarPoint(commitment_box -> c, params -> g, params);
+	temp1 = windowedScalarPoint(commitment_box -> c, g_0, params);
 	temp2 = windowedScalarPoint(commitment_box -> t, alpha, params);
 
 	commitment_box -> C_commit = groupOp(temp1, temp2, params);
@@ -47,7 +48,9 @@ struct verifierCommitment_ECC *verifierSetupCommitment_ECC(struct eccParams *par
 }
 
 	
-struct msgOneArrays_ECC *proverMessageOne_ECC(int stat_SecParam, struct eccParams *params, unsigned char *J_set, struct eccPoint *alpha, struct eccPoint *g_1,
+struct msgOneArrays_ECC *proverMessageOne_ECC(int stat_SecParam, struct eccParams *params,
+											unsigned char *J_set, struct eccPoint *alpha,
+											struct eccPoint *g_0, struct eccPoint *g_1,
 											struct eccPoint **h_0_List, struct eccPoint **h_1_List, gmp_randstate_t state)
 {
 	struct msgOneArrays_ECC *msgArray = initMsgOneArray_ECC(stat_SecParam);
@@ -65,7 +68,7 @@ struct msgOneArrays_ECC *proverMessageOne_ECC(int stat_SecParam, struct eccParam
 			mpz_urandomm(msgArray -> notI_Struct -> C_array[j_not_I], state, params -> n);
 			mpz_urandomm(msgArray -> notI_Struct -> Z_array[j_not_I], state, params -> n);
 			
-			topHalf = windowedScalarPoint(msgArray -> notI_Struct -> Z_array[j_not_I], params -> g, params);
+			topHalf = windowedScalarPoint(msgArray -> notI_Struct -> Z_array[j_not_I], g_0, params);
 			bottomHalf = windowedScalarPoint(msgArray -> notI_Struct -> C_array[j_not_I], h_0_List[i], params);
 			msgArray -> A_array[i] = invertPoint(bottomHalf, params);
 			groupOp_PlusEqual(msgArray -> A_array[i], topHalf, params);
@@ -89,7 +92,7 @@ struct msgOneArrays_ECC *proverMessageOne_ECC(int stat_SecParam, struct eccParam
 
 			mpz_urandomm(msgArray -> roeArray[j_in_I], state, params -> n);
 
-			msgArray -> A_array[i] = windowedScalarPoint(msgArray -> roeArray[j_in_I], params -> g, params);
+			msgArray -> A_array[i] = windowedScalarPoint(msgArray -> roeArray[j_in_I], g_0, params);
 			msgArray -> B_array[i] = windowedScalarPoint(msgArray -> roeArray[j_in_I], g_1, params);
 
 			j_in_I ++;
@@ -120,14 +123,14 @@ unsigned char *verifierQuery_ECC(struct verifierCommitment_ECC *commitment_box, 
 }
 
 
-int checkC_prover_ECC(struct eccParams *params, struct verifierCommitment_ECC *commitment_box, struct eccPoint *alpha)
+int checkC_prover_ECC(struct eccParams *params, struct eccPoint *g_0, struct verifierCommitment_ECC *commitment_box, struct eccPoint *alpha)
 {
 	struct eccPoint *checkC, *temp1;
 	int i, checkC_Correct = 0;
 
 
 	// Check the C = (g_0)^c * (alpha)^t
-	temp1 = windowedScalarPoint(commitment_box -> c, params -> g, params);
+	temp1 = windowedScalarPoint(commitment_box -> c, g_0, params);
 	checkC = windowedScalarPoint(commitment_box -> t, alpha, params);
 	groupOp_PlusEqual(checkC, temp1, params);
 
@@ -199,8 +202,10 @@ unsigned char *computeAndSerialise_ECC(struct eccParams *params, int stat_SecPar
 }
 
 
-unsigned char *proverMessageTwo_ECC(struct eccParams *params, int stat_SecParam, unsigned char *J_set, struct verifierCommitment_ECC *commitment_box,
-								struct msgOneArrays_ECC *msgArray, struct witnessStruct *witnessesArray, struct alphaAndA_Struct *alphaAndA, int *outputLen)
+unsigned char *proverMessageTwo_ECC(struct eccParams *params, int stat_SecParam, unsigned char *J_set,
+								struct verifierCommitment_ECC *commitment_box, struct eccPoint *g_0,
+								struct msgOneArrays_ECC *msgArray, struct witnessStruct *witnessesArray,
+								struct alphaAndA_Struct *alphaAndA, int *outputLen)
 {
 	unsigned char *commBuffer;
 	mpz_t *cShares, *tempPointer;
@@ -209,7 +214,7 @@ unsigned char *proverMessageTwo_ECC(struct eccParams *params, int stat_SecParam,
 	int tempIndex = 0;
 
 
-	checkC_Correct = checkC_prover_ECC(params, commitment_box, alphaAndA -> alpha);
+	checkC_Correct = checkC_prover_ECC(params, g_0, commitment_box, alphaAndA -> alpha);
 	if(0 != checkC_Correct)
 	{
 		return NULL;
@@ -246,12 +251,14 @@ unsigned char *proverMessageTwo_ECC(struct eccParams *params, int stat_SecParam,
 }
 
 
-int verifierChecks_ECC(struct eccParams *params, int stat_SecParam, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List,
-					mpz_t *Z_array, struct eccPoint **A_array,
-					struct eccPoint **B_array, struct alphaAndA_Struct *alphaAndA, mpz_t *codewords, mpz_t c)
+int verifierChecks_ECC(struct eccParams *params, int stat_SecParam,
+					struct eccPoint *g_0, struct eccPoint *g_1,
+					struct eccPoint **h_0_List, struct eccPoint **h_1_List,
+					mpz_t *Z_array, struct eccPoint **A_array, struct eccPoint **B_array,
+					struct alphaAndA_Struct *alphaAndA, mpz_t *codewords, mpz_t c)
 {
 	struct Fq_poly *secretPoly;
-	struct eccPoint **A_check_array, **B_check_array, *alpha;
+	struct eccPoint *A_check, *B_check, *alpha;
 	struct eccPoint *topHalf, *bottomHalf;
 
 	mpz_t cShares2Check, cShares2CheckAbs;
@@ -260,11 +267,11 @@ int verifierChecks_ECC(struct eccParams *params, int stat_SecParam, struct eccPo
 
 
 
-	A_check_array = (struct eccPoint**) calloc(stat_SecParam, sizeof(struct eccPoint*));
-	B_check_array = (struct eccPoint**) calloc(stat_SecParam, sizeof(struct eccPoint*));
+	A_check = (struct eccPoint*) calloc(1, sizeof(struct eccPoint));
+	B_check = (struct eccPoint*) calloc(1, sizeof(struct eccPoint));
 
 
-	alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	alpha = windowedScalarPoint(alphaAndA -> a, g_0, params);
 	alphaCheck = eccPointsEqual(alpha, alphaAndA -> alpha);
 
 
@@ -293,10 +300,10 @@ int verifierChecks_ECC(struct eccParams *params, int stat_SecParam, struct eccPo
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		topHalf = windowedScalarPoint(Z_array[i], params -> g, params);
+		topHalf = windowedScalarPoint(Z_array[i], g_0, params);
 		bottomHalf = windowedScalarPoint(codewords[i], h_0_List[i], params);
-		A_check_array[i] = invertPoint(bottomHalf, params);
-		groupOp_PlusEqual(A_check_array[i], topHalf, params);
+		A_check = invertPoint(bottomHalf, params);
+		groupOp_PlusEqual(A_check, topHalf, params);
 		
 		clearECC_Point(topHalf);
 		clearECC_Point(bottomHalf);
@@ -304,14 +311,17 @@ int verifierChecks_ECC(struct eccParams *params, int stat_SecParam, struct eccPo
 
 		topHalf = windowedScalarPoint(Z_array[i], g_1, params);
 		bottomHalf = windowedScalarPoint(codewords[i], h_1_List[i], params);
-		B_check_array[i] = invertPoint(bottomHalf, params);
-		groupOp_PlusEqual(B_check_array[i], topHalf, params);
+		B_check = invertPoint(bottomHalf, params);
+		groupOp_PlusEqual(B_check, topHalf, params);
 		
 		clearECC_Point(topHalf);
 		clearECC_Point(bottomHalf);
 
-		AB_check |= eccPointsEqual(A_array[i], A_check_array[i]);
-		AB_check |= eccPointsEqual(B_array[i], B_check_array[i]);
+		AB_check |= eccPointsEqual(A_array[i], A_check);
+		AB_check |= eccPointsEqual(B_array[i], B_check);
+
+		clearECC_Point(A_check);
+		clearECC_Point(B_check);
 	}
 
 	finalDecision |= AB_check;
@@ -322,8 +332,9 @@ int verifierChecks_ECC(struct eccParams *params, int stat_SecParam, struct eccPo
 
 
 
-void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 
-					struct eccParams *params, int stat_SecParam, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List,
+void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params, int stat_SecParam,
+					struct eccPoint *g_0, struct eccPoint *g_1,
+					struct eccPoint **h_0_List, struct eccPoint **h_1_List,
 					mpz_t *alphas_List, unsigned char *J_set, gmp_randstate_t *state)
 {
 	struct witnessStruct *witnessSet;
@@ -337,7 +348,7 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket,
 
 
 	witnessSet = proverSetupWitnesses(stat_SecParam, alphas_List);
-	alphaAndA_P = proverSetupCommitment_ECC(params, *state);
+	alphaAndA_P = proverSetupCommitment_ECC(params, g_0, *state);
 
 	bufferOffset = 0;
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(alphaAndA_P -> alpha), sizeof(unsigned char));
@@ -356,7 +367,7 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket,
 
 
 	bufferOffset = 0;
-	msgOne_P = proverMessageOne_ECC(stat_SecParam, params, J_set, alphaAndA_P -> alpha, g_1,
+	msgOne_P = proverMessageOne_ECC(stat_SecParam, params, J_set, alphaAndA_P -> alpha, g_0, g_1,
 									h_0_List, h_1_List, *state);
 	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, stat_SecParam, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
@@ -371,15 +382,16 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket,
 	// Round 4
 
 	bufferOffset = 0;
-	commBuffer = proverMessageTwo_ECC(params, stat_SecParam, J_set, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
+	commBuffer = proverMessageTwo_ECC(params, stat_SecParam, J_set, commitment_box_P, g_0, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 5
 }
 
 
 
-int ZKPoK_Verifier_ECC(int writeSocket, int readSocket,
-						int stat_SecParam, struct eccParams *params, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List,
+int ZKPoK_Verifier_ECC(int writeSocket, int readSocket, struct eccParams *params, int stat_SecParam,
+						struct eccPoint *g_0, struct eccPoint *g_1,
+						struct eccPoint **h_0_List, struct eccPoint **h_1_List,
 						gmp_randstate_t *state)
 {
 	struct alphaAndA_Struct *alphaAndA_V = (struct alphaAndA_Struct *) calloc(1, sizeof(struct alphaAndA_Struct));
@@ -398,7 +410,7 @@ int ZKPoK_Verifier_ECC(int writeSocket, int readSocket,
 	// Round 1
 
 
-	commitment_box_V = verifierSetupCommitment_ECC(params, alphaAndA_V -> alpha, *state);
+	commitment_box_V = verifierSetupCommitment_ECC(params, g_0, alphaAndA_V -> alpha, *state);
 
 	bufferOffset = 0;
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(commitment_box_V -> C_commit), sizeof(unsigned char));
@@ -435,7 +447,7 @@ int ZKPoK_Verifier_ECC(int writeSocket, int readSocket,
 	mpz_set(alphaAndA_V -> a, *tempMPZ);
 
 
-	verified = verifierChecks_ECC(params, stat_SecParam, g_1, h_0_List, h_1_List, Z_array_V,
+	verified = verifierChecks_ECC(params, stat_SecParam, g_0, g_1, h_0_List, h_1_List, Z_array_V,
 								msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
 
 	return verified;
@@ -468,7 +480,7 @@ void test_ZKPoK_ECC()
 
 
 	witnessSet = proverSetupWitnesses(params_P -> crs -> stat_SecParam, params_P -> crs -> alphas_List);
-	alphaAndA_P = proverSetupCommitment_ECC(params_P -> params, *state);
+	alphaAndA_P = proverSetupCommitment_ECC(params_P -> params, params_P -> params -> g, *state);
 
 
 	bufferOffset = 0;
@@ -482,7 +494,8 @@ void test_ZKPoK_ECC()
 	free(commBuffer);
 
 
-	commitment_box_V = verifierSetupCommitment_ECC(params_V -> params, alphaAndA_V -> alpha, *state);
+	commitment_box_V = verifierSetupCommitment_ECC(params_V -> params, params_V -> params -> g,
+													alphaAndA_V -> alpha, *state);
 
 	bufferOffset = 0;
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(commitment_box_V -> C_commit), sizeof(unsigned char));
@@ -496,7 +509,9 @@ void test_ZKPoK_ECC()
 
 
 	bufferOffset = 0;
-	msgOne_P = proverMessageOne_ECC(params_P -> crs -> stat_SecParam, params_P -> params, params_P -> crs -> J_set, alphaAndA_P -> alpha, params_P -> crs -> g_1,
+	msgOne_P = proverMessageOne_ECC(params_P -> crs -> stat_SecParam, params_P -> params,
+									params_P -> crs -> J_set, alphaAndA_P -> alpha,
+									params_P -> params -> g, params_P -> crs -> g_1,
 									params_P -> crs -> h_0_List, params_P -> crs -> h_1_List, *state);
 	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, params_P -> crs -> stat_SecParam, &bufferOffset);
 
@@ -521,7 +536,8 @@ void test_ZKPoK_ECC()
 
 
 	bufferOffset = 0;
-	commBuffer = proverMessageTwo_ECC(params_P -> params, params_P -> crs -> stat_SecParam, params_P -> crs -> J_set, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
+	commBuffer = proverMessageTwo_ECC(params_P -> params, params_P -> crs -> stat_SecParam,params_P -> crs -> J_set,
+									commitment_box_P, params_P -> params -> g, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
 
 
 	bufferOffset = 0;
@@ -532,8 +548,10 @@ void test_ZKPoK_ECC()
 
 
 	// struct eccParams *params, int stat_SecParam, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List,
-	verified = verifierChecks_ECC(params_V -> params, params_V -> crs -> stat_SecParam, params_V -> crs -> g_1,
-								params_V -> crs -> h_0_List, params_V -> crs -> h_1_List, Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array,
+	verified = verifierChecks_ECC(params_V -> params, params_V -> crs -> stat_SecParam,
+								params_V -> params -> g,params_V -> crs -> g_1,
+								params_V -> crs -> h_0_List, params_V -> crs -> h_1_List,
+								Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array,
 								alphaAndA_V, cShares_V, commitment_box_V -> c);
 
 	printf("%d\n",verified);
