@@ -31,7 +31,7 @@
 #include "SecretSharing/lagrangeInterpolation.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple_ECC.h"
-#include "ZeroKnowledgeProofs/ZKPoK_ExtDH_Tuple.h"
+#include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple.h"
 
 
 
