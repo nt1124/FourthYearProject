@@ -44,7 +44,7 @@
 
  struct twoDH_Tuples *initTwoDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
 										struct eccPoint *h_0, struct eccPoint *h_1,
-										struct eccPoint *u0, struct eccPoint *u1,
+										struct eccPoint *u_0, struct eccPoint *u_1,
 										struct eccPoint *v)
 {
 	struct twoDH_Tuples *toReturn = (struct twoDH_Tuples*) calloc(1, sizeof(struct twoDH_Tuples));
@@ -57,8 +57,8 @@
 	toReturn -> g_0_List[0] = g_0;
 	toReturn -> g_0_List[1] = g_1;
 
-	toReturn -> g_1_List[0] = u0;
-	toReturn -> g_1_List[1] = u1;
+	toReturn -> g_1_List[0] = u_0;
+	toReturn -> g_1_List[1] = u_1;
 
 	toReturn -> h_0_List[0] = h_0;
 	toReturn -> h_0_List[1] = h_1;
@@ -68,6 +68,161 @@
 
 
 	return toReturn;
+}
+
+ struct twoDH_Tuples *initTwoDH_Tuples_2U_2V(struct eccPoint *g_0, struct eccPoint *g_1,
+										struct eccPoint *h_0, struct eccPoint *h_1,
+										struct eccPoint *u_0, struct eccPoint *u_1,
+										struct eccPoint *v_0, struct eccPoint *v_1)
+{
+	struct twoDH_Tuples *toReturn = (struct twoDH_Tuples*) calloc(1, sizeof(struct twoDH_Tuples));
+	
+	toReturn -> g_0_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
+	toReturn -> g_1_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
+	toReturn -> h_0_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
+	toReturn -> h_1_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
+
+	toReturn -> g_0_List[0] = g_0;
+	toReturn -> g_0_List[1] = g_1;
+
+	toReturn -> g_1_List[0] = u_0;
+	toReturn -> g_1_List[1] = u_1;
+
+	toReturn -> h_0_List[0] = h_0;
+	toReturn -> h_0_List[1] = h_1;
+
+	toReturn -> h_1_List[0] = v_0;
+	toReturn -> h_1_List[1] = v_1;
+
+
+	return toReturn;
+}
+
+
+struct twoDH_Tuples *getDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
+								struct eccPoint *h_0, struct eccPoint *h_1,
+								struct eccPoint **u_array, struct eccPoint **v_array,
+								int length, struct eccParams *params, mpz_t *lambda)
+{
+	struct eccPoint *u_Product, *v_Product;
+	struct eccPoint *u_temp, *v_temp;
+	struct twoDH_Tuples *tuples;
+	int i;
+
+
+	u_Product = init_Identity_ECC_Point();
+	v_Product = init_Identity_ECC_Point();
+
+	for(i = 0; i < length; i ++)
+	{
+		u_temp = windowedScalarPoint(lambda[i], u_array[i], params);
+		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
+
+		groupOp_PlusEqual(u_Product, u_temp, params);
+		groupOp_PlusEqual(v_Product, v_temp, params);
+
+		clearECC_Point(u_temp);
+		clearECC_Point(v_temp);
+	}
+
+
+	tuples = initTwoDH_Tuples(g_0, g_1, h_0, h_1, u_Product, v_Product);
+
+	clearECC_Point(u_Product);
+	clearECC_Point(v_Product);
+
+	return tuples;
+}
+
+
+struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
+										struct eccPoint *h_0, struct eccPoint *h_1,
+										struct eccPoint **u0_array, struct eccPoint **u1_array,
+										struct eccPoint **v_array,
+										int length,
+										struct eccParams *params, mpz_t *lambda)
+{
+	struct eccPoint *u0_Product, *u1_Product, *v_Product;
+	struct eccPoint *u0_temp, *u1_temp, *v_temp;
+	struct twoDH_Tuples *tuples;
+	int i;
+
+
+	u0_Product = init_Identity_ECC_Point();
+	u1_Product = init_Identity_ECC_Point();
+	v_Product = init_Identity_ECC_Point();
+
+	for(i = 0; i < length; i ++)
+	{
+		u0_temp = windowedScalarPoint(lambda[i], u0_array[i], params);
+		u1_temp = windowedScalarPoint(lambda[i], u1_array[i], params);
+		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
+
+		groupOp_PlusEqual(u0_Product, u0_temp, params);
+		groupOp_PlusEqual(u1_Product, u1_temp, params);
+		groupOp_PlusEqual(v_Product, v_temp, params);
+
+		clearECC_Point(u0_temp);
+		clearECC_Point(u1_temp);
+		clearECC_Point(v_temp);
+	}
+
+
+	tuples = initTwoDH_Tuples_2U(g_0, g_1, h_0, h_1, u0_Product, u1_Product, v_Product);
+
+	clearECC_Point(u0_Product);
+	clearECC_Point(u1_Product);
+	clearECC_Point(v_Product);
+
+	return tuples;
+}
+
+
+struct twoDH_Tuples *getDH_Tuples_2U_2V(struct eccPoint *g_0, struct eccPoint *g_1,
+										struct eccPoint *h_0, struct eccPoint *h_1,
+										struct eccPoint **u0_array, struct eccPoint **u1_array,
+										struct eccPoint **v0_array, struct eccPoint **v1_array,
+										int length,
+										struct eccParams *params, mpz_t *lambda)
+{
+	struct eccPoint *u0_Product, *u1_Product, *v0_Product, *v1_Product;
+	struct eccPoint *u0_temp, *u1_temp, *v0_temp, *v1_temp;
+	struct twoDH_Tuples *tuples;
+	int i;
+
+
+	u0_Product = init_Identity_ECC_Point();
+	u1_Product = init_Identity_ECC_Point();
+	v0_Product = init_Identity_ECC_Point();
+	v1_Product = init_Identity_ECC_Point();
+
+	for(i = 0; i < length; i ++)
+	{
+		u0_temp = windowedScalarPoint(lambda[i], u0_array[i], params);
+		u1_temp = windowedScalarPoint(lambda[i], u1_array[i], params);
+		v0_temp = windowedScalarPoint(lambda[i], v0_array[i], params);
+		v1_temp = windowedScalarPoint(lambda[i], v1_array[i], params);
+
+		groupOp_PlusEqual(u0_Product, u0_temp, params);
+		groupOp_PlusEqual(u1_Product, u1_temp, params);
+		groupOp_PlusEqual(v0_Product, v0_temp, params);
+		groupOp_PlusEqual(v1_Product, v1_temp, params);
+
+		clearECC_Point(u0_temp);
+		clearECC_Point(u1_temp);
+		clearECC_Point(v0_temp);
+		clearECC_Point(v1_temp);
+	}
+
+
+	tuples = initTwoDH_Tuples_2U_2V(g_0, g_1, h_0, h_1, u0_Product, u1_Product, v0_Product, v1_Product);
+
+	clearECC_Point(u0_Product);
+	clearECC_Point(u1_Product);
+	clearECC_Point(v0_Product);
+	clearECC_Point(v1_Product);
+
+	return tuples;
 }
 
 
@@ -126,44 +281,25 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 							struct eccPoint **u_array, struct eccPoint **v_array,
 							struct eccParams *params, gmp_randstate_t *state)
 {
-	struct eccPoint *uProduct, *vProduct, *u_temp, *v_temp;
 	struct twoDH_Tuples *tuples;
 
 	mpz_t *lambda;
 	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
 	int i, commBufferLen = 0, bufferOffset = 0;
 
-
-	uProduct = init_Identity_ECC_Point();
-	vProduct = init_Identity_ECC_Point();
-
-
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 
 
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		u_temp = windowedScalarPoint(lambda[i], u_array[i], params);
-		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
-
-		groupOp_PlusEqual(uProduct, u_temp, params);
-		groupOp_PlusEqual(vProduct, v_temp, params);
-
-		clearECC_Point(u_temp);
-		clearECC_Point(v_temp);
-	}
-
-
 	J_set[inputBit] = 0x01;
 
+	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
+						stat_SecParam, params, lambda);
 
-	tuples = initTwoDH_Tuples(g_0, g_1, h_0, h_1, uProduct, vProduct);
 	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
-					tuples -> g_0_List, tuples -> g_1_List,
-					tuples -> h_0_List, tuples -> h_1_List,
-					witness, J_set, state);
-
+						tuples -> g_0_List, tuples -> g_1_List,
+						tuples -> h_0_List, tuples -> h_1_List,
+						witness, J_set, state);
 }
 
 
@@ -173,7 +309,6 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 							struct eccPoint **u_array, struct eccPoint **v_array,
 							struct eccParams *params, gmp_randstate_t *state)
 {
-	struct eccPoint *uProduct, *vProduct, *u_temp, *v_temp;
 	struct twoDH_Tuples *tuples;
 
 	mpz_t *lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
@@ -192,23 +327,9 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 	free(commBuffer);
 
 
-	uProduct = init_Identity_ECC_Point();
-	vProduct = init_Identity_ECC_Point();
+	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
+						stat_SecParam, params, lambda);
 
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		u_temp = windowedScalarPoint(lambda[i], u_array[i], params);
-		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
-
-		groupOp_PlusEqual(uProduct, u_temp, params);
-		groupOp_PlusEqual(vProduct, v_temp, params);
-
-		clearECC_Point(u_temp);
-		clearECC_Point(v_temp);
-	}
-
-
-	tuples = initTwoDH_Tuples(g_0, g_1, h_0, h_1, uProduct, vProduct);
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
@@ -224,8 +345,6 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 								struct eccPoint **v_array,
 								struct eccParams *params, gmp_randstate_t *state)
 {
-	struct eccPoint *u0_Product, *u1_Product, *vProduct;
-	struct eccPoint *u0_temp, *u1_temp, *v_temp;
 	struct twoDH_Tuples *tuples;
 
 	mpz_t *lambda;
@@ -233,36 +352,15 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
 
 
-
-	u0_Product = init_Identity_ECC_Point();
-	u1_Product = init_Identity_ECC_Point();
-	vProduct = init_Identity_ECC_Point();
-
-
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	free(commBuffer);
 
-
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		u0_temp = windowedScalarPoint(lambda[i], u0_array[i], params);
-		u1_temp = windowedScalarPoint(lambda[i], u1_array[i], params);
-		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
-
-		groupOp_PlusEqual(u0_Product, u0_temp, params);
-		groupOp_PlusEqual(u1_Product, u1_temp, params);
-		groupOp_PlusEqual(vProduct, v_temp, params);
-
-		clearECC_Point(u0_temp);
-		clearECC_Point(u1_temp);
-		clearECC_Point(v_temp);
-	}
-
-
 	J_set[inputBit] = 0x01;
 
-	tuples = initTwoDH_Tuples_2U(g_0, g_1, h_0, h_1, u0_Product, u1_Product, vProduct);
+	tuples = getDH_Tuples_2U(g_0, g_1, h_0, h_1,
+							u0_array, u1_array, v_array,
+							stat_SecParam, params, lambda);
 
 	printTwoDH_TuplePowered(tuples, *witness, params);
 
@@ -281,8 +379,76 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 								struct eccPoint **v_array,
 								struct eccParams *params, gmp_randstate_t *state)
 {
-	struct eccPoint *u0_Product, *u1_Product, *vProduct;
-	struct eccPoint *u0_temp, *u1_temp, *v_temp;
+	struct twoDH_Tuples *tuples;
+
+	mpz_t *lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));;
+	unsigned char *commBuffer;
+	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
+
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_init(lambda[i]);
+		mpz_urandomm(lambda[i], *state, params -> n);
+	}
+
+
+	commBuffer = serialiseMPZ_Array(lambda, stat_SecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+
+	tuples = getDH_Tuples_2U(g_0, g_1, h_0, h_1,
+							u0_array, u1_array, v_array,
+							stat_SecParam, params, lambda);
+
+	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
+									tuples -> g_0_List, tuples -> g_1_List,
+									tuples -> h_0_List, tuples -> h_1_List, state);
+}
+
+
+
+void ZKPoK_Ext_DH_TupleProver_2U_2V(int writeSocket, int readSocket, int stat_SecParam,
+								mpz_t *witness, unsigned char inputBit,
+								struct eccPoint *g_0, struct eccPoint *g_1,
+								struct eccPoint *h_0, struct eccPoint *h_1,
+								struct eccPoint **u0_array, struct eccPoint **u1_array,
+								struct eccPoint **v0_array, struct eccPoint **v1_array,
+								struct eccParams *params, gmp_randstate_t *state)
+{
+	struct twoDH_Tuples *tuples;
+
+	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
+	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
+	mpz_t *lambda;
+
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	free(commBuffer);
+
+	tuples = getDH_Tuples_2U_2V(g_0, g_1, h_0, h_1,
+								u0_array, u1_array, 
+								v0_array, v1_array,
+								stat_SecParam, params, lambda);
+	J_set[inputBit] = 0x01;
+
+
+	printTwoDH_TuplePowered(tuples, *witness, params);
+
+	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
+					tuples -> g_0_List, tuples -> g_1_List,
+					tuples -> h_0_List, tuples -> h_1_List,
+					witness, J_set, state);
+}
+
+
+int ZKPoK_Ext_DH_TupleVerifier_2U_2V(int writeSocket, int readSocket, int stat_SecParam,
+								struct eccPoint *g_0, struct eccPoint *g_1,
+								struct eccPoint *h_0, struct eccPoint *h_1,
+								struct eccPoint **u0_array, struct eccPoint **u1_array,
+								struct eccPoint **v0_array, struct eccPoint **v1_array,
+								struct eccParams *params, gmp_randstate_t *state)
+{
 	struct twoDH_Tuples *tuples;
 
 	mpz_t *lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));;
@@ -302,27 +468,10 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 
 
-	u0_Product = init_Identity_ECC_Point();
-	u1_Product = init_Identity_ECC_Point();
-	vProduct = init_Identity_ECC_Point();
-
-
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		u0_temp = windowedScalarPoint(lambda[i], u0_array[i], params);
-		u1_temp = windowedScalarPoint(lambda[i], u1_array[i], params);
-		v_temp = windowedScalarPoint(lambda[i], v_array[i], params);
-
-		groupOp_PlusEqual(u0_Product, u0_temp, params);
-		groupOp_PlusEqual(u1_Product, u1_temp, params);
-		groupOp_PlusEqual(vProduct, v_temp, params);
-
-		clearECC_Point(u0_temp);
-		clearECC_Point(u1_temp);
-		clearECC_Point(v_temp);
-	}
-
-	tuples = initTwoDH_Tuples_2U(g_0, g_1, h_0, h_1, u0_Product, u1_Product, vProduct);
+	tuples = getDH_Tuples_2U_2V(g_0, g_1, h_0, h_1,
+								u0_array, u1_array, 
+								v0_array, v1_array,
+								stat_SecParam, params, lambda);
 	
 
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
