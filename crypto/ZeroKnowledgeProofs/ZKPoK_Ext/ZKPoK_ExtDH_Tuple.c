@@ -96,6 +96,9 @@ struct twoDH_Tuples *getDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
 	u_Product = init_Identity_ECC_Point();
 	v_Product = init_Identity_ECC_Point();
 
+
+
+
 	for(i = 0; i < length; i ++)
 	{
 		u_temp = windowedScalarPoint(lambda[i], u_array[i], params);
@@ -108,11 +111,8 @@ struct twoDH_Tuples *getDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
 		clearECC_Point(v_temp);
 	}
 
-
 	tuples = initTwoDH_Tuples(g_0, g_1, h_0, h_1, u_Product, v_Product);
 
-	clearECC_Point(u_Product);
-	clearECC_Point(v_Product);
 
 	return tuples;
 }
@@ -153,9 +153,6 @@ struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
 
 	tuples = initTwoDH_Tuples_2U(g_0, g_1, h_0, h_1, u0_Product, u1_Product, v_Product);
 
-	clearECC_Point(u0_Product);
-	clearECC_Point(u1_Product);
-	clearECC_Point(v_Product);
 
 	return tuples;
 }
@@ -270,14 +267,17 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
 	int i, commBufferLen = 0, bufferOffset = 0;
 
+
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 
 
 	J_set[inputBit] = 0x01;
 
+
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, lambda);
+
 
 	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
 						tuples -> g_0_List, tuples -> g_1_List,
@@ -312,6 +312,7 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, lambda);
+
 
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,

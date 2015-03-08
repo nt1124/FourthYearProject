@@ -269,10 +269,6 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 
 	finalDecision = mpz_cmp(c, cShares2CheckAbs);
 
-	printf("++   %d\n", finalDecision);
-	fflush(stdout);
-
-
 
 	for(i = 0; i < 2; i ++)
 	{
@@ -283,7 +279,6 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 		
 		clearECC_Point(topHalf);
 		clearECC_Point(bottomHalf);
-
 
 		topHalf = windowedScalarPoint(Z_array[i], g_1[i], params);
 		bottomHalf = windowedScalarPoint(codewords[i], h_1_List[i], params);
@@ -296,9 +291,6 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 		AB_check |= eccPointsEqual(A_array[i], A_check);
 		AB_check |= eccPointsEqual(B_array[i], B_check);
 
-		printf("++   %d   %d\n", eccPointsEqual(A_array[i], A_check), eccPointsEqual(B_array[i], B_check));
-		fflush(stdout);
-
 		clearECC_Point(A_check);
 		clearECC_Point(B_check);
 	}
@@ -306,9 +298,6 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 	finalDecision |= AB_check;
 	finalDecision |= alphaCheck;
 
-
-	printf("++  %d\n", alphaCheck);
-	fflush(stdout);
 
 	return finalDecision;
 }

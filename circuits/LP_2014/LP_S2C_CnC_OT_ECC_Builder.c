@@ -225,10 +225,15 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 
 	struct idAndValue *curValue = startOfInputChain -> next;
 	unsigned char inputBit;
+	mpz_t *lambda;
 
 
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
+
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{
@@ -248,12 +253,13 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 			}
 		}
 
-		ZKPoK_Ext_DH_TupleProver(writeSocket, readSocket, stat_SecParam,
+		ZKPoK_Ext_DH_TupleProver(writeSocket, readSocket, k,
 								secret_inputs -> secret_keyPairs[i], inputBit,
 								params -> g, params -> g,
 								public_inputs -> public_keyPairs[i][0],
 								public_inputs -> public_keyPairs[i][1],
 								tempU, tempV, params, state);
+
 		curValue = curValue -> next;
 	}
 

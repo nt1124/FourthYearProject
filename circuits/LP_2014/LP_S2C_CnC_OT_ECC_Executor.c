@@ -237,19 +237,31 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 										struct eccParams *params, gmp_randstate_t *state)
 {
 	struct eccPoint **tempU, **tempV;
-	int i, j, k, l;
+	int i, j, k, l = 0, numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
 	const int stat_SecParam = public_inputs -> stat_SecParam;
+	mpz_t *lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
+	unsigned char *commBuffer;
+	int commBufferLen;
 
 
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
 
+	for(i = 0; i < numLambdas; i ++)
+	{
+		mpz_init(lambda[i]);
+		mpz_urandomm(lambda[i], *state, params -> n);
+	}
+	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+
+
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{
+		k = 0;
 		for(j = 0; j < stat_SecParam; j ++)
 		{
-			k = 0;
 			if(0x00 == J_set[j])
 			{
 				tempU[k] = public_inputs -> public_circuitKeys[j];
