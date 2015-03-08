@@ -97,6 +97,11 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	free(commBuffer);
 
 
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, startOfInputChain,
+											builderInputs, public_inputs, secret_inputs,
+											params, state);
+
+
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
@@ -182,6 +187,11 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	setBuilderInputs(builderInputs, J_set, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
+
+	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set,
+										builderInputs, pubInputGroup -> public_inputs,
+										pubInputGroup -> params, state);
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])
@@ -191,6 +201,8 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath);
 		}
 	}
+
+
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 

@@ -225,3 +225,46 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 		}
 	}
 }
+
+
+
+
+
+void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
+										unsigned char *J_set,
+										struct eccPoint **builderInputs,
+										struct public_builderPRS_Keys *public_inputs,
+										struct eccParams *params, gmp_randstate_t *state)
+{
+	struct eccPoint **tempU, **tempV;
+	int i, j, k, l;
+	const int stat_SecParam = public_inputs -> stat_SecParam;
+
+
+	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
+	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
+
+
+	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
+	{
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			k = 0;
+			if(0x00 == J_set[j])
+			{
+				tempU[k] = public_inputs -> public_circuitKeys[j];
+				tempV[k] = builderInputs[l];
+
+				k ++;
+				l ++;
+			}
+		}
+
+		ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
+								params -> g, params -> g,
+								public_inputs -> public_keyPairs[i][0],
+								public_inputs -> public_keyPairs[i][1],
+								tempU, tempV, params, state);
+	}
+
+}
