@@ -1,3 +1,35 @@
+struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inputFilepath, gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
+								struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs)
+{
+	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
+
+	struct idAndValue *startOfInputChain, *start;
+
+	unsigned char *R = generateRandBytes(16, 17);
+	int j;
+
+
+
+	for(j = 0; j < stat_SecParam; j++)
+	{
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
+	}
+
+	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+
+	for(j = 0; j < stat_SecParam; j++)
+	{
+		start = startOfInputChain;
+		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
+	}
+	free_idAndValueChain(startOfInputChain);
+
+
+	return circuitsArray;
+}
+
+
+
 void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
 						int stat_SecParam, int comp_SecParam)
 {
@@ -27,7 +59,6 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 									params_S -> params -> g, params_S -> crs -> g_1,
 									params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
 									state);
-	// int stat_SecParam, struct eccParams *params, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
 	keyPairs_S = deserialise_PKs_otKeyPair_ECC_Array(commBuffer, totalOTs);
@@ -63,15 +94,14 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 }
 
 
-
-void sendPublicCommitments_ECC(int writeSocket, int readSocket, struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group)
+void sendPublicCommitments(int writeSocket, int readSocket, struct public_builderPRS_Keys *public_inputs, struct eccParams *params)
 {
 	unsigned char *publicInputsBytes, *groupBytes, *finalBuffer;
 	int publicInputsLen = 0, groupLen = 0, finalLength;
 
 
 	publicInputsBytes = serialisePublicInputs(public_inputs, &publicInputsLen);
-	groupBytes = serialiseDDH_Group(group, &groupLen);
+	groupBytes = serialiseECC_Params(params, &groupLen);
 
 
 	finalLength = publicInputsLen + groupLen;
@@ -87,7 +117,8 @@ void sendPublicCommitments_ECC(int writeSocket, int readSocket, struct public_bu
 }
 
 
-void builder_decommitToJ_Set_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+
+void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam,
 							unsigned int *seedList)
 {

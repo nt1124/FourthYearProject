@@ -92,7 +92,7 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 }
 
 
-struct publicInputsWithGroup *receivePublicCommitments_ECC(int writeSocket, int readSocket)
+struct publicInputsWithGroup *receivePublicCommitments(int writeSocket, int readSocket)
 {
 	struct publicInputsWithGroup *toReturn = (struct publicInputsWithGroup *) calloc(1, sizeof(struct publicInputsWithGroup));
 	unsigned char *commBuffer;
@@ -101,7 +101,7 @@ struct publicInputsWithGroup *receivePublicCommitments_ECC(int writeSocket, int 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
 	toReturn -> public_inputs = deserialisePublicInputs(commBuffer, &bufferOffset);
-	toReturn -> group = deserialise_DDH_Group(commBuffer, &bufferOffset);
+	toReturn -> params = deserialiseECC_Params(commBuffer, &bufferOffset);
 
 
 	free(commBuffer);
@@ -110,8 +110,8 @@ struct publicInputsWithGroup *receivePublicCommitments_ECC(int writeSocket, int 
 }
 
 
-struct revealedCheckSecrets *executor_decommitToJ_Set_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
-							struct public_builderPRS_Keys *public_inputs, struct DDH_Group *group,
+struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+							struct public_builderPRS_Keys *public_inputs, struct eccParams *params,
 							unsigned char *J_set, int stat_SecParam)
 {
 	struct revealedCheckSecrets *secretsJ_set;
@@ -141,25 +141,17 @@ struct revealedCheckSecrets *executor_decommitToJ_Set_ECC(int writeSocket, int r
 		}
 	}
 
-	// printf("Checkpoint 3\n");
-	// fflush(stdout);
+
 
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	// free(commBuffer);
 
-	// printf("Checkpoint 4  -  %d\n", commBufferLen);
-	// fflush(stdout);
-
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
-	// printf("Checkpoint 5  -  %d\n", commBufferLen);
-	// fflush(stdout);
-
-
 	if(1 != commBufferLen)
 	{
-		secretsJ_set = deserialise_Requested_CircuitSecrets(commBuffer, stat_SecParam, J_set, public_inputs, group);
+		secretsJ_set = deserialise_Requested_CircuitSecrets(commBuffer, stat_SecParam, J_set, public_inputs, params);
 		return secretsJ_set;
 	}
 
@@ -167,9 +159,9 @@ struct revealedCheckSecrets *executor_decommitToJ_Set_ECC(int writeSocket, int r
 }
 
 
-int secretInputsToCheckCircuits_ECC(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
+int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs,
-								mpz_t *secret_J_set, unsigned int *seedList, struct DDH_Group *group,
+								mpz_t *secret_J_set, unsigned int *seedList, struct eccParams *params,
 								unsigned char *J_set, int stat_SecParam)
 {
 	struct Circuit *tempGarbleCircuit;
@@ -188,11 +180,11 @@ int secretInputsToCheckCircuits_ECC(struct Circuit **circuitsArray, struct RawCi
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x00);
-				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, group, i, 0x01);
+				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x00);
+				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
 			}
 
-			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, group);
+			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 		}
 	}

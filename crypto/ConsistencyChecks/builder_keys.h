@@ -16,16 +16,16 @@ typedef struct secret_builderPRS_Keys
 typedef struct public_builderPRS_Keys
 {
 	int numKeyPairs;
-	mpz_t **public_keyPairs;
+	struct eccPoint ***public_keyPairs;
 
 	int stat_SecParam;
-	mpz_t *public_circuitKeys;
+	struct eccPoint **public_circuitKeys;
 } public_builderPRS_Keys;
 
 
 typedef struct publicInputsWithGroup
 {
-	struct DDH_Group *group;
+	struct eccParams *params;
 	struct public_builderPRS_Keys *public_inputs;
 } publicInputsWithGroup;
 

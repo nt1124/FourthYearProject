@@ -1,13 +1,13 @@
-struct witnessStruct *proverSetupWitnesses_1Of2(mpz_t *alphas_List)
+struct witnessStruct *proverSetupWitnesses_1Of2(mpz_t *alphas_List, unsigned char *J_set)
 {
 	struct witnessStruct *witnessSet = initWitnessStruc(2);
-	int i, j = 0;
+	int i;
 
 
 	for(i = 0; i < 2; i ++)
 	{
 		mpz_set(witnessSet -> witnesses[i], alphas_List[i]);
-		j++;
+
 	}
 
 	return witnessSet;
@@ -269,6 +269,10 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 
 	finalDecision = mpz_cmp(c, cShares2CheckAbs);
 
+	printf("++   %d\n", finalDecision);
+	fflush(stdout);
+
+
 
 	for(i = 0; i < 2; i ++)
 	{
@@ -292,12 +296,19 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 		AB_check |= eccPointsEqual(A_array[i], A_check);
 		AB_check |= eccPointsEqual(B_array[i], B_check);
 
+		printf("++   %d   %d\n", eccPointsEqual(A_array[i], A_check), eccPointsEqual(B_array[i], B_check));
+		fflush(stdout);
+
 		clearECC_Point(A_check);
 		clearECC_Point(B_check);
 	}
 
 	finalDecision |= AB_check;
 	finalDecision |= alphaCheck;
+
+
+	printf("++  %d\n", alphaCheck);
+	fflush(stdout);
 
 	return finalDecision;
 }
@@ -320,9 +331,13 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	int bufferOffset = 0, commBufferLen = 0;
 
 
+	witnessSet = proverSetupWitnesses_1Of2(alphas_List, J_set);
 
-	witnessSet = proverSetupWitnesses_1Of2(alphas_List);
+
+
 	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params, *state);
+
+
 
 	bufferOffset = 0;
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(alphaAndA_P -> alpha), sizeof(unsigned char));
@@ -334,6 +349,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commitment_box_P = initVerifierCommitment_ECC();
+
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commitment_box_P -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
@@ -393,10 +409,14 @@ int ZKPoK_Verifier_ECC_1Of2(int writeSocket, int readSocket, struct eccParams *p
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 2
 
+
+
 	msgOne_V = initMsgOneArray_ECC(2);
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
+
+
 
 	for(i = 0; i < 2; i ++)
 	{
@@ -405,6 +425,8 @@ int ZKPoK_Verifier_ECC_1Of2(int writeSocket, int readSocket, struct eccParams *p
 	}
 	free(commBuffer);
 	// Round 3
+
+
 
 	bufferOffset = 0;
 	commBuffer = verifierQuery_ECC_1Of2(commitment_box_V, &bufferOffset);
@@ -472,12 +494,13 @@ void test_ZKPoK_ECC_1Of2()
 	g_0[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
-	g_1[0] = windowedScalarPoint(*tempMPZ, g_0[0], params_P -> params);
+	g_1[0] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
-	g_1[1] = windowedScalarPoint(*tempMPZ, g_0[1], params_P -> params);
+	g_1[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	h_0[0] = windowedScalarPoint(*tempMPZ, g_0[0], params_P -> params);
+	// mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	h_1[0] = windowedScalarPoint(*tempMPZ, g_1[0], params_P -> params);
 	mpz_set(params_P -> crs -> alphas_List[0], *tempMPZ);
 
@@ -485,11 +508,13 @@ void test_ZKPoK_ECC_1Of2()
 	h_0[1] = windowedScalarPoint(*tempMPZ, g_0[1], params_P -> params);
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	h_1[1] = windowedScalarPoint(*tempMPZ, g_1[1], params_P -> params);
+	mpz_set(params_P -> crs -> alphas_List[1], *tempMPZ);
 
 	params_P -> crs -> J_set[0] = 0x01;
 	params_P -> crs -> J_set[1] = 0x00;
 
-	witnessSet = proverSetupWitnesses_1Of2(params_P -> crs -> alphas_List);
+
+	witnessSet = proverSetupWitnesses_1Of2(params_P -> crs -> alphas_List, params_P -> crs -> J_set);
 	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params_P -> params, *state);
 
 
@@ -518,8 +543,7 @@ void test_ZKPoK_ECC_1Of2()
 
 
 	bufferOffset = 0;
-	msgOne_P = proverMessageOne_ECC_1Of2(params_P -> params, params_P -> crs -> J_set, alphaAndA_P -> alpha,
-									g_0, g_1, h_0, h_1, *state);
+	msgOne_P = proverMessageOne_ECC_1Of2(params_P -> params, params_P -> crs -> J_set, alphaAndA_P -> alpha, g_0, g_1, h_0, h_1, *state);
 	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, params_P -> crs -> stat_SecParam, &bufferOffset);
 
 

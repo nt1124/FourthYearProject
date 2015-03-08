@@ -40,3 +40,51 @@ struct tildeCRS *initTildeCRS(int stat_secParam, struct eccParams *params, gmp_r
 		mpz_urandomm(output -> r_List[i], state, params -> n);
 	}
 }
+
+
+unsigned char *serialiseTildeList(struct tildeList *listToSerialise, int listLength, int *outputLength)
+{
+	unsigned char *commBuffer;
+	int commBufferLen, hTildesBufferLen = 0, bufferOffset = 0;
+	int i;
+
+
+	for(i = 0; i < listLength; i ++)
+	{
+		hTildesBufferLen += sizeOfSerial_ECCPoint(listToSerialise -> h_tildeList[i]);
+	}
+
+
+	*outputLength = hTildesBufferLen + sizeOfSerial_ECCPoint(listToSerialise -> g_tilde);
+	commBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
+
+
+	serialise_ECC_Point(listToSerialise -> g_tilde, commBuffer, &bufferOffset);
+	for(i = 0; i < listLength; i ++)
+	{
+		serialise_ECC_Point(listToSerialise -> h_tildeList[i], commBuffer, &bufferOffset);
+	}
+
+
+	return commBuffer;
+}
+
+
+
+struct tildeList *deserialiseTildeList(unsigned char *commBuffer, int listLength, int *inputOffset)
+{
+	struct tildeList *toReturn = (struct tildeList*) calloc(1, sizeof(struct tildeList));;
+	int bufferOffset =  *inputOffset, i;
+
+
+	toReturn -> h_tildeList = (struct eccPoint **) calloc(listLength, sizeof(struct eccPoint*));
+
+	toReturn -> g_tilde = deserialise_ECC_Point(commBuffer, &bufferOffset);
+	for(i = 0; i < listLength; i ++)
+	{
+		toReturn -> h_tildeList[i] = deserialise_ECC_Point(commBuffer, &bufferOffset);
+	}
+
+
+	return toReturn;
+}

@@ -359,7 +359,7 @@ struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 
 
 
-struct eccParams *initBrainpool_256_Curve()
+struct eccParams *initBrainpool_160_Curve()
 {
 	const char *pStr = "E95E4A5F737059DC60DFC7AD95B3D8139515620F";
 	const char *aStr = "340E7BE2A280EB74E2BE61BADA745D97E8F7C300";
@@ -384,7 +384,7 @@ struct eccParams *initBrainpool_256_Curve()
 
 
 // Ask Nigel about whether Brainpool is `trusted'
-struct eccParams *initBrainpool_160_Curve()
+struct eccParams *initBrainpool_256_Curve()
 {
 	const char *pStr = "A9FB57DBA1EEA9BC3E660A909D838D726E3BF623D52620282013481D1F6E5377";
 	const char *aStr = "7D5A0975FC2C3057EEF67530417AFFE7FB8055C126DC5C6CE94A4B44F330B5D9";

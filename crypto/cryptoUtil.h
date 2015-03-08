@@ -25,14 +25,12 @@
 #include "OT/otL_Mod_CnC/otL_Mod_CnC.h"
 
 
-#include "ConsistencyChecks/builder_keys.h"
-
-
 #include "SecretSharing/lagrangeInterpolation.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple.h"
 #include "ZeroKnowledgeProofs/ZK_PK_DDH_Tuple_ECC.h"
 #include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple.h"
 
+#include "ConsistencyChecks/builder_keys.h"
 
 
 const int wireKeysLengths = 16;

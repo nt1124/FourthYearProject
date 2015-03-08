@@ -102,7 +102,7 @@ struct gateOrWire *initInputWire_FromRaw(int idNum, unsigned char owner, unsigne
 struct gateOrWire *initInputWire_FromRaw_ConsistentInput(int idNum, unsigned char owner, unsigned char *R,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
-													int j, struct DDH_Group *group)
+													int j, struct eccParams *params)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	struct bitsGarbleKeys *tempOutput;
@@ -115,14 +115,15 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(int idNum, unsigned cha
 	// toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
 
 	tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+
 	/*
 	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, idNum, j,
 														0x00, toReturn -> outputWire -> wirePerm);
 	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, idNum, j,
-														0x01, toReturn -> outputWire -> wirePerm);
-	*/
-	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, group, idNum,	0x00);
-	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, group, idNum,	0x01);
+														0x01, toReturn -> outputWire -> wirePerm); */
+
+	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum,	0x00);
+	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum,	0x01);
 
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
 
@@ -138,14 +139,14 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(int idNum, unsigned cha
 struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(struct RawCircuit *rawInputCircuit, unsigned char *R,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
-													int j, struct DDH_Group *group)
+													int j, struct eccParams *params)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
 	int i, numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
 
 	for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 	{
-		gates[i] = initInputWire_FromRaw_ConsistentInput(i, 0xFF, R, secret_input, public_inputs, j, group);
+		gates[i] = initInputWire_FromRaw_ConsistentInput(i, 0xFF, R, secret_input, public_inputs, j, params);
 	}
 
 	for(; i < numInputs; i ++)
@@ -183,7 +184,7 @@ struct gateOrWire **initAllInputs_FromRaw(struct RawCircuit *rawInputCircuit, un
 struct Circuit *readInCircuit_FromRaw_ConsistentInput(struct RawCircuit *rawInputCircuit,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
-													int j, struct DDH_Group *group)
+													int j, struct eccParams *params)
 {
 struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;
@@ -203,7 +204,7 @@ struct gateOrWire *tempGateOrWire;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
-	gatesList = initAllInputs_FromRaw_ConsistentInput( rawInputCircuit, R, secret_input, public_inputs, j, group );
+	gatesList = initAllInputs_FromRaw_ConsistentInput( rawInputCircuit, R, secret_input, public_inputs, j, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
 	{
@@ -294,12 +295,12 @@ struct Circuit *readInCircuit_FromRaw_Seeded(struct RawCircuit *rawInputCircuit,
 struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(struct RawCircuit *rawInputCircuit, unsigned int seed, 
 															mpz_t secret_input,
 															struct public_builderPRS_Keys *public_inputs,
-															int j, struct DDH_Group *group)
+															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
 	srand(seed);
 
-	toReturn = readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_input, public_inputs, j, group);
+	toReturn = readInCircuit_FromRaw_ConsistentInput(rawInputCircuit, secret_input, public_inputs, j, params);
 	toReturn -> seed = seed;
 
 	return toReturn;

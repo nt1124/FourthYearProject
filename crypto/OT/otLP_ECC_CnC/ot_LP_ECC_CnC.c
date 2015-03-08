@@ -281,32 +281,6 @@ void CnC_OT_Output_One_Receiver_ECC(struct u_v_Pair_ECC *c_0, struct u_v_Pair_EC
 }
 
 
-/*
-// Function used purely to suss out what the heck was going on and why I was failing so hard.
-// Turns out I forgot First Year Group Theory...Whoops.
-void testStuff_ECC(struct params_CnC *params, int j)
-{
-	mpz_t temp0, temp1, temp2, temp3, temp4, temp5;
-	mpz_init(temp0);	mpz_init(temp1);
-	mpz_init(temp2);	mpz_init(temp3);
-	mpz_init(temp4);	mpz_init(temp5);
-
-	mpz_invert(temp0, params -> y, params -> group -> q);
-	mpz_powm(temp1, params -> crs -> h_1_List[j], temp0, params -> group -> p);
-
-	gmp_printf("+ %Zd\n\n", params -> crs -> h_0_List[j]);
-	gmp_printf("+ %Zd\n\n", temp1);
-
-
-	mpz_powm(temp1, params -> crs -> h_0_List[j], params -> y, params -> group -> p);
-	mpz_invert(temp2, temp1, params -> group -> p);
-	mpz_mul(temp3, temp2, params -> crs -> h_1_List[j]);
-	mpz_mod(temp4, temp3, params -> group -> p);
-
-	gmp_printf("- %Zd\n\n", temp4);
-}
-*/
-
 void test_local_CnC_OT_ECC()
 {
 	struct params_CnC_ECC *params_R, *params_S;
@@ -377,10 +351,6 @@ void test_local_CnC_OT_ECC()
 		outputBytes[i][1] = tempChars_1;
 		u_v_index += 2;
 	}
-
-
-	// printf("Checkpoint Gettysburg\n");
-	// fflush(stdout);
 
 	// printTrueTestInputs(numTests, inputBytes, sigmaBit);
 	// printTrueTestInputs(numTests, outputBytes, sigmaBit);

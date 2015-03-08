@@ -1,4 +1,4 @@
-const int stat_SecParam = 4;
+const int stat_SecParam = 8;
 
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
@@ -21,15 +21,16 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	gmp_randstate_t *state;
 	struct public_builderPRS_Keys *public_inputs;
 	struct secret_builderPRS_Keys *secret_inputs;
-	struct DDH_Group *group;
+	struct eccParams *params;
 
 
 	initRandGen();
 	state = seedRandGen();
 
-	group = getSchnorrGroup(1024, *state);
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, group, *state);
-	public_inputs = computePublicInputs(secret_inputs, group);
+	// group = getSchnorrGroup(1024, *state);
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
 
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
@@ -46,7 +47,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	seedList = generateRandUintList(stat_SecParam + 1);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, group, secret_inputs, public_inputs);
+	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
 
 	srand(seedList[stat_SecParam]);
 
@@ -57,7 +58,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	fflush(stdout);
 
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
-	sendPublicCommitments(writeSocket, readSocket, public_inputs, group);
+	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 
 	for(i = 0; i < stat_SecParam; i++)
 	{
@@ -144,10 +145,11 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
-							pubInputGroup -> group, J_set, stat_SecParam);
+							pubInputGroup -> params, J_set, stat_SecParam);
+
 
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> group,
+								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 								J_set, stat_SecParam);
 
 
