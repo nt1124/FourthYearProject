@@ -116,14 +116,9 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(int idNum, unsigned cha
 
 	tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-	/*
-	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, idNum, j,
-														0x00, toReturn -> outputWire -> wirePerm);
-	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_inputs, public_inputs, group, idNum, j,
-														0x01, toReturn -> outputWire -> wirePerm); */
+	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum, 0x00);
+	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum, 0x01);
 
-	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum,	0x00);
-	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum,	0x01);
 
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
 

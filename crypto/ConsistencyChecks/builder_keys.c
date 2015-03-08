@@ -157,21 +157,20 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 	int outputLength = 0;
 
 
-
 	pointRep = windowedScalarPoint(secret_input, public_inputs -> public_keyPairs[i][inputBit], params);
+
 
 	rawBytes = convertMPZToBytes(pointRep -> x, &outputLength);
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
-	memcpy(halfHash, rawBytes, 16);
+	memcpy(halfHash, hashedBytes, 16);
+
 
 	free(hashedBytes);
 	free(rawBytes);
 
 	return halfHash;
 }
-
-
 
 
 unsigned char *serialisePublicInputs(struct public_builderPRS_Keys *public_inputs, int *outputLength)
@@ -250,19 +249,20 @@ struct public_builderPRS_Keys *deserialisePublicInputs(unsigned char *inputBuffe
 }
 
 
-unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs, unsigned int *seedList,
+unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs,
+												unsigned int *seedList,
 												unsigned char *J_set, int *outputLength)
 {
 	unsigned char *outputBuffer;
 	int totalLength = 0, outputOffset = 0;
-	int i = 0;
+	int j = 0;
 
 
-	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
+	for(j = 0; j < secret_inputs -> stat_SecParam; j ++)
 	{
-		if(0x01 == J_set[i])
+		if(0x01 == J_set[j])
 		{
-			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[i]) );
+			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[j]) );
 			totalLength += sizeof(int);
 			totalLength += sizeof(unsigned int);
 		}
@@ -270,12 +270,12 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 
 	outputBuffer = (unsigned char *) calloc(totalLength, sizeof(unsigned char));
 
-	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
+	for(j = 0; j < secret_inputs -> stat_SecParam; j ++)
 	{
-		if(0x01 == J_set[i])
+		if(0x01 == J_set[j])
 		{
-			serialiseMPZ(secret_inputs -> secret_circuitKeys[i], outputBuffer, &outputOffset);
-			memcpy(outputBuffer + outputOffset, seedList + sizeof(unsigned int) * i, sizeof(unsigned int));
+			serialiseMPZ(secret_inputs -> secret_circuitKeys[j], outputBuffer, &outputOffset);
+			memcpy(outputBuffer + outputOffset, seedList + sizeof(unsigned int) * j, sizeof(unsigned int));
 			outputOffset += sizeof(unsigned int);
 		}
 	}
@@ -335,7 +335,68 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 
 
 
+void proveConsistencyEvaluationKeys_Builder_i(int writeSocket, int readSocket,
+											unsigned char inputBit, unsigned char *J_set,
+											struct public_builderPRS_Keys *public_inputs, int i,
+											struct secret_builderPRS_Keys *secret_inputs,
+											struct eccParams *params, gmp_randstate_t *state)
+{
+	struct eccPoint **tempV;
+	int j, k = 0;
+	const int stat_SecParam = secret_inputs -> stat_SecParam;
+
+
+	tempV = (struct eccPoint**) calloc(stat_SecParam, sizeof(struct eccPoint*));
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		if(0x00 == J_set[j])
+		{
+			tempV[k] = windowedScalarPoint(secret_inputs -> secret_keyPairs[i][inputBit],
+										public_inputs -> public_circuitKeys[j], params);
+			k ++;
+		}
+	}
+
+	ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, stat_SecParam,
+							params -> g, params -> g,
+							public_inputs -> public_keyPairs[i][0],
+							public_inputs -> public_keyPairs[i][1],
+							public_inputs -> public_circuitKeys, tempV,
+							params, state);
+
+}
 
 
 
+void proveConsistencyEvaluationKeys_Exec_i(int writeSocket, int readSocket,
+										unsigned char inputBit, unsigned char *J_set,
+										struct public_builderPRS_Keys *public_inputs, int i,
+										struct secret_builderPRS_Keys *secret_inputs,
+										struct eccParams *params, gmp_randstate_t *state)
+{
+	struct eccPoint **tempV;
+	int j, k = 0;
+	const int stat_SecParam = secret_inputs -> stat_SecParam;
 
+
+	tempV = (struct eccPoint**) calloc(stat_SecParam, sizeof(struct eccPoint*));
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		if(0x00 == J_set[j])
+		{
+			tempV[k] = windowedScalarPoint(secret_inputs -> secret_keyPairs[i][inputBit],
+										public_inputs -> public_circuitKeys[j], params);
+			k ++;
+		}
+	}
+
+	ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
+							params -> g, params -> g,
+							public_inputs -> public_keyPairs[i][0],
+							public_inputs -> public_keyPairs[i][1],
+							public_inputs -> public_circuitKeys, tempV,
+							params, state);
+
+}

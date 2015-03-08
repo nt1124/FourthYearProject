@@ -1,13 +1,13 @@
-struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inputFilepath, gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
+struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
+								gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
 								struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs)
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
 
-	struct idAndValue *startOfInputChain, *start;
+	struct idAndValue *start;
 
 	unsigned char *R = generateRandBytes(16, 17);
 	int j;
-
 
 
 	for(j = 0; j < stat_SecParam; j++)
@@ -15,15 +15,12 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, char *inpu
 		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
 	}
 
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
 		start = startOfInputChain;
 		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
 	}
-	free_idAndValueChain(startOfInputChain);
-
 
 	return circuitsArray;
 }
@@ -71,7 +68,7 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		// #pragma omp ordered
-		{
+		// {
 			iOffset = stat_SecParam * (i - numInputsBuilder);
 			u_v_index = 2 * iOffset;
 
@@ -83,7 +80,7 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 											params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
 				u_v_index += 2;
 			}
-		}
+		// }
 	}
 
 	bufferLength = 0;
@@ -118,7 +115,7 @@ void sendPublicCommitments(int writeSocket, int readSocket, struct public_builde
 
 
 
-void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam,
 							unsigned int *seedList)
 {
@@ -164,4 +161,49 @@ void builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **c
 		commBuffer = (unsigned char *) calloc(1, sizeof(unsigned char));
 		sendBoth(writeSocket, commBuffer, 1);
 	}
+
+	return J_Set;
 }
+
+
+
+struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inputs,
+								struct secret_builderPRS_Keys *secret_inputs,
+								unsigned char *J_set, struct idAndValue *startOfInputChain, 
+								struct eccParams *params, int *outputLength)
+{
+	struct eccPoint **output;
+	struct idAndValue *curValue = startOfInputChain -> next;
+	unsigned char inputBit;
+
+	const int numInputs = public_inputs -> numKeyPairs;
+	const int numEvalCircuits = public_inputs -> stat_SecParam;
+	int i, j, k = 0;
+
+
+	output = (struct eccPoint**) calloc(numInputs * numEvalCircuits / 2, sizeof(struct eccPoint *));
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		inputBit = curValue -> value;
+		for(j = 0; j < numEvalCircuits; j ++)
+		{
+			if(0x00 == J_set[j])
+			{
+				output[k] = windowedScalarPoint(secret_inputs -> secret_circuitKeys[j],
+											public_inputs -> public_keyPairs[i][inputBit], params);
+				k ++;
+			}
+		}
+
+		curValue = curValue -> next;
+	}
+
+
+	*outputLength = k;
+
+	return output;
+}
+
+
+

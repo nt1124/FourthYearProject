@@ -183,6 +183,54 @@ struct eccPoint *deserialise_ECC_Point(unsigned char *inputBuffer, int *inputOff
 }
 
 
+unsigned char *serialise_ECC_Point_Array(struct eccPoint **inputArray, int arrayLen, int *outputLen)
+{
+	unsigned char *outputBuffer;
+	int bufferOffset = sizeof(int), totalLength = sizeof(int), i;
+
+
+	for(i = 0; i < arrayLen; i ++)
+	{
+		totalLength += sizeOfSerial_ECCPoint(inputArray[i]);
+	}
+
+	outputBuffer = (unsigned char*) calloc(totalLength, sizeof(unsigned char));
+
+	memcpy(outputBuffer, &arrayLen, sizeof(int));
+	for(i = 0; i < arrayLen; i ++)
+	{
+		serialise_ECC_Point(inputArray[i], outputBuffer, &bufferOffset);
+	}
+
+
+	*outputLen = bufferOffset;
+
+	return outputBuffer;
+}
+
+
+struct eccPoint **deserialise_ECC_Point_Array(unsigned char *inputBuffer, int *arrayLen, int *inputOffset)
+{
+	struct eccPoint **output;
+	int bufferOffset = *inputOffset, i;
+
+
+	memcpy(arrayLen, inputBuffer + bufferOffset, sizeof(int));
+	bufferOffset += sizeof(int);
+
+	output = (struct eccPoint **) calloc(*arrayLen, sizeof(struct eccPoint *));
+
+	for(i = 0; i < *arrayLen; i ++)
+	{
+		output[i] = deserialise_ECC_Point(inputBuffer, &bufferOffset);
+	}
+
+	*inputOffset = bufferOffset;
+
+	return output;
+}
+
+
 
 unsigned char *serialiseECC_Params(struct eccParams *params, int *outputLen)
 {

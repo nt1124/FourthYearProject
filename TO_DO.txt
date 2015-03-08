@@ -1,8 +1,0 @@
-TO_DO
-
-	+ 	Function to get majority output from an array of evaluated Circuits.
-	-	Rename circuit folder to something that clearly indicates purpose.
-	-	Function to grow circuits from a common skeleton to reduce File I/O.
-	-	Parallelise the OT computations (Massive performance gains to be made here).
-	-	Function to commit a Circuit array's keys.
-	+

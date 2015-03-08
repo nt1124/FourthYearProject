@@ -1,11 +1,6 @@
 #ifndef CIRCUIT_UTILS
 #define	CIRCUIT_UTILS
 
-#include "timingUtils.c"
-#include "../crypto/cryptoUtil.h"
-#include "gateOrWire.h"
-
-
 
 
 typedef struct idAndValue
@@ -15,6 +10,12 @@ typedef struct idAndValue
 
 	struct idAndValue *next;
 } idAndValue;
+
+
+#include "timingUtils.c"
+#include "../crypto/cryptoUtil.h"
+#include "gateOrWire.h"
+
 
 
 #include "../fileUtils/inputFileUtils.h"

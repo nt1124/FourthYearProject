@@ -1,21 +1,4 @@
- struct eccPoint **expand_gTilde(struct eccPoint *g_tilde, int sizeToExpandTo)
- {
- 	struct eccPoint **output = (struct eccPoint **) calloc(sizeToExpandTo, sizeof(struct eccPoint*));
- 	int i;
-
-
- 	for(i = 0; i < sizeToExpandTo; i ++)
- 	{
- 		output[i] = g_tilde;
- 	}
-
-
- 	return output;
- }
-
-
-
- struct twoDH_Tuples *initTwoDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
+struct twoDH_Tuples *initTwoDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
 									struct eccPoint *h_0, struct eccPoint *h_1,
 									struct eccPoint *u, struct eccPoint *v)
 {
@@ -342,8 +325,7 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 								struct eccPoint *g_0, struct eccPoint *g_1,
 								struct eccPoint *h_0, struct eccPoint *h_1,
 								struct eccPoint **u0_array, struct eccPoint **u1_array,
-								struct eccPoint **v_array,
-								struct eccParams *params, gmp_randstate_t *state)
+								struct eccPoint **v_array, struct eccParams *params, gmp_randstate_t *state)
 {
 	struct twoDH_Tuples *tuples;
 

@@ -142,7 +142,6 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 	}
 
 
-
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	// free(commBuffer);
 
@@ -169,7 +168,6 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	int i, j, temp = 0;
 
 
-
 	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
@@ -190,4 +188,40 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	}
 
 	return 1;
+}
+
+
+
+
+void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, struct Circuit **circuitsArray,
+					struct public_builderPRS_Keys *public_inputs, struct eccParams *params)
+{
+	unsigned char *rawInput, *hashedInput;
+	const int numInputs = public_inputs -> numKeyPairs;
+	const int numEvalCircuits = public_inputs -> stat_SecParam;
+	int i, j, k = 0;
+	int outputLength;
+
+	int h;
+
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		for(j = 0; j < numEvalCircuits; j ++)
+		{
+			if(0x00 == J_set[j])
+			{
+				outputLength = 0;
+				rawInput = convertMPZToBytes(builderInputs[k] -> x, &outputLength);
+				hashedInput = sha256_full(rawInput, outputLength);
+				//circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey = sha256_full(rawInput, outputLength);
+
+				memcpy(circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey, hashedInput, 16);
+				k ++;
+
+				free(hashedInput);
+				free(rawInput);
+			}
+		}
+	}
 }

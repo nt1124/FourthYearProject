@@ -23,6 +23,11 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	struct secret_builderPRS_Keys *secret_inputs;
 	struct eccParams *params;
 
+	struct eccPoint **builderInputs;
+	int arrayLen;
+	unsigned char *commBuffer, *J_set;
+	int commBufferLen = 0;
+
 
 	initRandGen();
 	state = seedRandGen();
@@ -47,7 +52,9 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	seedList = generateRandUintList(stat_SecParam + 1);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, inputFilepath, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
+	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
 
 	srand(seedList[stat_SecParam]);
 
@@ -74,18 +81,28 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
-
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 
 
+	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
+								J_set, startOfInputChain, 
+								params, &arrayLen);
+
+	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+
+	free_idAndValueChain(startOfInputChain);
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -109,6 +126,11 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	
 	struct idAndValue *startOfInputChain;
 	gmp_randstate_t *state;
+
+	struct eccPoint **builderInputs;
+	int arrayLen;
+	unsigned char *commBuffer;
+	int commBufferLen = 0;
 
 	struct timespec ext_t_0, ext_t_1;
 	clock_t ext_c_0, ext_c_1;
@@ -152,12 +174,21 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 								J_set, stat_SecParam);
 
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	commBufferLen = 0;
+	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
+
+
+	setBuilderInputs(builderInputs, J_set, circuitsArray,
+					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])
 		{
-			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath );
+			printf("Evaluating Circuit %d\n", i);
+			fflush(stdout);
+			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath);
 		}
 	}
 	ext_c_1 = clock();
