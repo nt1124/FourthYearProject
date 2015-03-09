@@ -228,6 +228,7 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 	mpz_t *lambda;
 	unsigned char *commBuffer;
 	int commBufferLen = 0, bufferOffset = 0;
+	int lambda_Index = 0;
 
 
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
@@ -260,8 +261,10 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 								params -> g, params -> g,
 								public_inputs -> public_keyPairs[i][0],
 								public_inputs -> public_keyPairs[i][1],
-								tempU, tempV, params, state);
+								tempU, tempV, params, state,
+								lambda, lambda_Index);
 
+		lambda_Index += k;
 		curValue = curValue -> next;
 	}
 

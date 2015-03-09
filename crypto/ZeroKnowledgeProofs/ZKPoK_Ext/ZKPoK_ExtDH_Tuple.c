@@ -259,24 +259,25 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 							struct eccPoint *g_0, struct eccPoint *g_1,
 							struct eccPoint *h_0, struct eccPoint *h_1,
 							struct eccPoint **u_array, struct eccPoint **v_array,
-							struct eccParams *params, gmp_randstate_t *state)
+							struct eccParams *params, gmp_randstate_t *state,
+							mpz_t *lambda, int lambdaIndex)
 {
 	struct twoDH_Tuples *tuples;
 
-	mpz_t *lambda;
-	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
-	int i, commBufferLen = 0, bufferOffset = 0;
+	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
+	unsigned char *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
+	int i;
 
 
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
-
-
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
+	}
 	J_set[inputBit] = 0x01;
 
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
-						stat_SecParam, params, lambda);
+						stat_SecParam, params, local_Lambda);
 
 
 	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
@@ -290,28 +291,22 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 							struct eccPoint *g_0, struct eccPoint *g_1,
 							struct eccPoint *h_0, struct eccPoint *h_1,
 							struct eccPoint **u_array, struct eccPoint **v_array,
-							struct eccParams *params, gmp_randstate_t *state)
+							struct eccParams *params, gmp_randstate_t *state,
+							mpz_t *lambda, int lambdaIndex)
 {
 	struct twoDH_Tuples *tuples;
 
-	mpz_t *lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
-	unsigned char *commBuffer;
-	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
+	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
+	int i, verified = 0;
 
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		mpz_init(lambda[i]);
-		mpz_urandomm(lambda[i], *state, params -> n);
+		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
 
-	commBuffer = serialiseMPZ_Array(lambda, stat_SecParam, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-
-
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
-						stat_SecParam, params, lambda);
+						stat_SecParam, params, local_Lambda);
 
 
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,

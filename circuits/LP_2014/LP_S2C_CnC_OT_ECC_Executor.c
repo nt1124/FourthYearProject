@@ -241,17 +241,20 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	mpz_t *lambda;
 
 	int i, j, k, l = 0, numLambdas, commBufferLen = 0;
+	int lambda_Index = 0;
 	const int stat_SecParam = public_inputs -> stat_SecParam;
 
 
-	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
-	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
+
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
+	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
+	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 
 	for(i = 0; i < numLambdas; i ++)
 	{
+		// gmp_printf("");
 		mpz_init(lambda[i]);
 		mpz_urandomm(lambda[i], *state, params -> n);
 	}
@@ -278,7 +281,10 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 								params -> g, params -> g,
 								public_inputs -> public_keyPairs[i][0],
 								public_inputs -> public_keyPairs[i][1],
-								tempU, tempV, params, state);
+								tempU, tempV, params, state,
+								lambda, lambda_Index);
+
+		lambda_Index += k;
 	}
 
 }
