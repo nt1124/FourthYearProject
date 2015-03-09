@@ -332,6 +332,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(alphaAndA_P -> alpha), sizeof(unsigned char));
 	serialise_ECC_Point(alphaAndA_P -> alpha, commBuffer, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 	// Round 1
 
 
@@ -339,6 +340,8 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	commBufferLen = 0;
 	commitment_box_P = initVerifierCommitment_ECC();
 
+	printf("MEH!\n");
+	fflush(stdout);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commitment_box_P -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
@@ -346,13 +349,18 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	// Round 2
 
 
+	printf("MEH!\n");
+	fflush(stdout);
 	bufferOffset = 0;
 	msgOne_P = proverMessageOne_ECC_1Of2(params, J_set, alphaAndA_P -> alpha, g_0, g_1,
 									h_0_List, h_1_List, *state);
 	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, 2, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 	// Round 3
 
+	printf("MEH!\n");
+	fflush(stdout);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -361,9 +369,12 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	free(commBuffer);
 	// Round 4
 
+	printf("MEH!\n");
+	fflush(stdout);
 	bufferOffset = 0;
 	commBuffer = proverMessageTwo_ECC_1Of2(params, J_set, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 	// Round 5
 }
 
@@ -396,15 +407,14 @@ int ZKPoK_Verifier_ECC_1Of2(int writeSocket, int readSocket, struct eccParams *p
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(commitment_box_V -> C_commit), sizeof(unsigned char));
 	serialise_ECC_Point(commitment_box_V -> C_commit, commBuffer, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 	// Round 2
-
 
 
 	msgOne_V = initMsgOneArray_ECC(2);
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-
 
 
 	for(i = 0; i < 2; i ++)
@@ -416,25 +426,37 @@ int ZKPoK_Verifier_ECC_1Of2(int writeSocket, int readSocket, struct eccParams *p
 	// Round 3
 
 
-
 	bufferOffset = 0;
 	commBuffer = verifierQuery_ECC_1Of2(commitment_box_V, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 4
-
+	free(commBuffer);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 
+
 	Z_array_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	cShares_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
 	mpz_set(alphaAndA_V -> a, *tempMPZ);
-
+	free(commBuffer);
 
 	verified = verifierChecks_ECC_1Of2(params, g_0, g_1, h_0_List, h_1_List, Z_array_V,
 								msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
+
+
+	for(i = 0; i < 2; i ++)
+	{
+		mpz_clear(Z_array_V[i]);
+		mpz_clear(cShares_V[i]);
+	}
+
+	mpz_clear(*tempMPZ);
+	free(Z_array_V);
+	free(cShares_V);
+	free(tempMPZ);
 
 	return verified;
 }

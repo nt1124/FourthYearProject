@@ -375,3 +375,19 @@ int eccPointsEqual(struct eccPoint *P, struct eccPoint *Q)
 
 	return output;
 }
+
+
+
+void freeECC_Params(struct eccParams *params)
+{
+	mpz_clear(params -> p);
+	mpz_clear(params -> a);
+	mpz_clear(params -> b);
+	mpz_clear(params -> n);
+	clearECC_Point(params -> g);
+
+	free(params);
+}
+
+
+

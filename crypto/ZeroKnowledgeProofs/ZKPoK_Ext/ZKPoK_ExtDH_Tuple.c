@@ -9,17 +9,17 @@ struct twoDH_Tuples *initTwoDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1
 	toReturn -> h_0_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 	toReturn -> h_1_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 
-	toReturn -> g_0_List[0] = g_0;
-	toReturn -> g_0_List[1] = g_1;
+	toReturn -> g_0_List[0] = copyECC_Point(g_0);
+	toReturn -> g_0_List[1] = copyECC_Point(g_1);
 
-	toReturn -> g_1_List[0] = u;
-	toReturn -> g_1_List[1] = u;
+	toReturn -> g_1_List[0] = copyECC_Point(u);
+	toReturn -> g_1_List[1] = copyECC_Point(u);
 
-	toReturn -> h_0_List[0] = h_0;
-	toReturn -> h_0_List[1] = h_1;
+	toReturn -> h_0_List[0] = copyECC_Point(h_0);
+	toReturn -> h_0_List[1] = copyECC_Point(h_1);
 
-	toReturn -> h_1_List[0] = v;
-	toReturn -> h_1_List[1] = v;
+	toReturn -> h_1_List[0] = copyECC_Point(v);
+	toReturn -> h_1_List[1] = copyECC_Point(v);
 
 
 	return toReturn;
@@ -37,17 +37,17 @@ struct twoDH_Tuples *initTwoDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1
 	toReturn -> h_0_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 	toReturn -> h_1_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 
-	toReturn -> g_0_List[0] = g_0;
-	toReturn -> g_0_List[1] = g_1;
+	toReturn -> g_0_List[0] = copyECC_Point(g_0);
+	toReturn -> g_0_List[1] = copyECC_Point(g_1);
 
-	toReturn -> g_1_List[0] = u_0;
-	toReturn -> g_1_List[1] = u_1;
+	toReturn -> g_1_List[0] = copyECC_Point(u_0);
+	toReturn -> g_1_List[1] = copyECC_Point(u_1);
 
-	toReturn -> h_0_List[0] = h_0;
-	toReturn -> h_0_List[1] = h_1;
+	toReturn -> h_0_List[0] = copyECC_Point(h_0);
+	toReturn -> h_0_List[1] = copyECC_Point(h_1);
 
-	toReturn -> h_1_List[0] = v;
-	toReturn -> h_1_List[1] = v;
+	toReturn -> h_1_List[0] = copyECC_Point(v);
+	toReturn -> h_1_List[1] = copyECC_Point(v);
 
 
 	return toReturn;
@@ -65,20 +65,45 @@ struct twoDH_Tuples *initTwoDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1
 	toReturn -> h_0_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 	toReturn -> h_1_List = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 
-	toReturn -> g_0_List[0] = g_0;
-	toReturn -> g_0_List[1] = g_1;
+	toReturn -> g_0_List[0] = copyECC_Point(g_0);
+	toReturn -> g_0_List[1] = copyECC_Point(g_1);
 
-	toReturn -> g_1_List[0] = u_0;
-	toReturn -> g_1_List[1] = u_1;
+	toReturn -> g_1_List[0] = copyECC_Point(u_0);
+	toReturn -> g_1_List[1] = copyECC_Point(u_1);
 
-	toReturn -> h_0_List[0] = h_0;
-	toReturn -> h_0_List[1] = h_1;
+	toReturn -> h_0_List[0] = copyECC_Point(h_0);
+	toReturn -> h_0_List[1] = copyECC_Point(h_1);
 
-	toReturn -> h_1_List[0] = v_0;
-	toReturn -> h_1_List[1] = v_1;
+	toReturn -> h_1_List[0] = copyECC_Point(v_0);
+	toReturn -> h_1_List[1] = copyECC_Point(v_1);
 
 
 	return toReturn;
+}
+
+
+void freeTwoDH_Tuples(struct twoDH_Tuples *tuplesToFree)
+{
+	clearECC_Point(tuplesToFree -> g_0_List[0]);
+	clearECC_Point(tuplesToFree -> g_0_List[1]);
+
+	clearECC_Point(tuplesToFree -> g_1_List[0]);
+	clearECC_Point(tuplesToFree -> g_1_List[1]);
+
+	clearECC_Point(tuplesToFree -> h_0_List[0]);
+	clearECC_Point(tuplesToFree -> h_0_List[1]);
+	
+	clearECC_Point(tuplesToFree -> h_1_List[0]);
+	clearECC_Point(tuplesToFree -> h_1_List[1]);
+
+
+	free(tuplesToFree -> g_0_List);
+	free(tuplesToFree -> g_1_List);
+	free(tuplesToFree -> h_0_List);
+	free(tuplesToFree -> h_1_List);
+
+
+	free(tuplesToFree);
 }
 
 
@@ -279,6 +304,7 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	local_Lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+	free(commBuffer);
 
 	J_set[inputBit] = 0x01;
 
@@ -291,6 +317,8 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 						tuples -> g_0_List, tuples -> g_1_List,
 						tuples -> h_0_List, tuples -> h_1_List,
 						witness, J_set, state);
+
+	freeTwoDH_Tuples(tuples);
 }
 
 
@@ -322,7 +350,7 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 
 	commBuffer = serialiseMPZ_Array(local_Lambda, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-
+	free(commBuffer);
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
@@ -331,6 +359,8 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
+
+	freeTwoDH_Tuples(tuples);
 }
 
 
@@ -359,13 +389,15 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 							u0_array, u1_array, v_array,
 							stat_SecParam, params, lambda);
 
-	printTwoDH_TuplePowered(tuples, *witness, params);
+	// printTwoDH_TuplePowered(tuples, *witness, params);
 
 	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
 					tuples -> g_0_List, tuples -> g_1_List,
 					tuples -> h_0_List, tuples -> h_1_List,
 					witness, J_set, state);
 
+
+	freeTwoDH_Tuples(tuples);
 }
 
 
@@ -390,8 +422,10 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 	}
 
 
+
 	commBuffer = serialiseMPZ_Array(lambda, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
 
 	tuples = getDH_Tuples_2U(g_0, g_1, h_0, h_1,
 							u0_array, u1_array, v_array,
@@ -400,6 +434,8 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
+
+	freeTwoDH_Tuples(tuples);
 }
 
 
@@ -436,7 +472,15 @@ void ZKPoK_Ext_DH_TupleProver_2U_2V(int writeSocket, int readSocket, int stat_Se
 					tuples -> g_0_List, tuples -> g_1_List,
 					tuples -> h_0_List, tuples -> h_1_List,
 					witness, J_set, state);
+
+	freeTwoDH_Tuples(tuples);
 }
+
+
+
+
+
+
 
 
 int ZKPoK_Ext_DH_TupleVerifier_2U_2V(int writeSocket, int readSocket, int stat_SecParam,
@@ -474,6 +518,8 @@ int ZKPoK_Ext_DH_TupleVerifier_2U_2V(int writeSocket, int readSocket, int stat_S
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
+
+	freeTwoDH_Tuples(tuples);
 }
 
 
@@ -537,8 +583,13 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 								params_P ->  params, state);
 
 
+
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
+
+	freeParams_CnC_ECC(params_P);
+	gmp_randclear(*state);
+	free(state);
 }
 
 
@@ -579,7 +630,6 @@ void test_ZKPoK_ExtDH_Tuple_Verifier()
 	free(commBuffer);
 
 
-
 	verified =  ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
 											params_V -> params -> g, params_V -> crs -> g_1,
 											receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
@@ -592,4 +642,9 @@ void test_ZKPoK_ExtDH_Tuple_Verifier()
 	close_server_socket(readSocket, mainReadSock);
 
 	printf("%d\n",verified);
+	fflush(stdout);
+
+	freeParams_CnC_ECC(params_V);
+	gmp_randclear(*state);
+	free(state);
 }

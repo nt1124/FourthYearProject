@@ -125,3 +125,28 @@ unsigned char *serialiseParams_CnC_ECC(struct params_CnC_ECC *params, int *outpu
 
 	return outputBytes;
 }
+
+
+
+void freeParams_CnC_ECC(struct params_CnC_ECC *params)
+{
+	int i;
+
+	for(i = 0; i < params -> crs -> stat_SecParam; i ++)
+	{
+		clearECC_Point(params -> crs -> h_0_List[i]);
+		clearECC_Point(params -> crs -> h_1_List[i]);
+		mpz_clear(params -> crs -> alphas_List[i]);
+	}
+	clearECC_Point(params -> crs -> g_1);
+	free(params -> crs -> h_0_List);
+	free(params -> crs -> h_1_List);
+	free(params -> crs -> alphas_List);
+	free(params -> crs -> J_set);
+
+	freeECC_Params(params -> params);
+
+	mpz_clear(params -> y);
+
+	free(params);
+}

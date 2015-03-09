@@ -37,6 +37,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
 		runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
+		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 	}
 	else
 	{
@@ -44,6 +45,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
 		runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
 		// testSender_OT_PVW_ECC();
+		// test_ZKPoK_ExtDH_Tuple_Verifier();
 	}
 
 	c_1 = clock();

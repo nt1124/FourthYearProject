@@ -112,6 +112,11 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	free_idAndValueChain(startOfInputChain);
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		freeCircuitStruct(circuitsArray[i]);
+	}
+
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 }

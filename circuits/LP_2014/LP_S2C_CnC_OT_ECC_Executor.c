@@ -184,6 +184,8 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+		
+			freeCircuitStruct(tempGarbleCircuit);
 		}
 	}
 
