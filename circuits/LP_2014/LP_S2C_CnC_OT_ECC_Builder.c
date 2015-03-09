@@ -226,6 +226,8 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 	struct idAndValue *curValue = startOfInputChain -> next;
 	unsigned char inputBit;
 	mpz_t *lambda;
+	unsigned char *commBuffer;
+	int commBufferLen = 0, bufferOffset = 0;
 
 
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));

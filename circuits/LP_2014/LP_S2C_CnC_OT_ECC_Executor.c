@@ -237,13 +237,15 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 										struct eccParams *params, gmp_randstate_t *state)
 {
 	struct eccPoint **tempU, **tempV;
-	int i, j, k, l = 0, numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
-	const int stat_SecParam = public_inputs -> stat_SecParam;
-	mpz_t *lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 	unsigned char *commBuffer;
-	int commBufferLen;
+	mpz_t *lambda;
+
+	int i, j, k, l = 0, numLambdas, commBufferLen = 0;
+	const int stat_SecParam = public_inputs -> stat_SecParam;
 
 
+	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
+	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
