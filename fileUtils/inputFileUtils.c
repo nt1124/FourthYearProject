@@ -99,10 +99,12 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 
 		if( 0x01 == current -> value )
 		{
+			memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key1, 16);
 			outputWire -> wirePermedValue = 0x01 ^ (0x01 & outputWire -> wirePerm);
 		}
 		else if( 0x00 == current -> value )
 		{
+			memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 			outputWire -> wirePermedValue = (0x01 & outputWire -> wirePerm);
 		}
 

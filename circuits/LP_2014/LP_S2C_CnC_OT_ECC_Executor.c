@@ -209,6 +209,8 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 	{
 		for(j = 0; j < numEvalCircuits; j ++)
 		{
+			// printf("%d >>> %d\n", j, numEvalCircuits);
+			// fflush(stdout);
 			if(0x00 == J_set[j])
 			{
 				outputLength = 0;
@@ -230,7 +232,7 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 
 
 
-void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
+int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 										unsigned char *J_set,
 										struct eccPoint **builderInputs,
 										struct public_builderPRS_Keys *public_inputs,
@@ -240,8 +242,8 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	unsigned char *commBuffer;
 	mpz_t *lambda;
 
-	int i, j, k, l = 0, numLambdas, commBufferLen = 0;
-	int lambda_Index = 0;
+	int i, j, k, l = 0, numLambdas, commBufferLen = 0, lambda_Index = 0;
+	int verified = 0;
 	const int stat_SecParam = public_inputs -> stat_SecParam;
 
 
@@ -249,6 +251,7 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
+	/*
 	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
 	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 
@@ -260,7 +263,7 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	}
 	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-
+	*/
 
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{
@@ -277,12 +280,12 @@ void proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 			}
 		}
 
-		ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
-								params -> g, params -> g,
-								public_inputs -> public_keyPairs[i][0],
-								public_inputs -> public_keyPairs[i][1],
-								tempU, tempV, params, state,
-								lambda, lambda_Index);
+		verified |= ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
+											params -> g, params -> g,
+											public_inputs -> public_keyPairs[i][0],
+											public_inputs -> public_keyPairs[i][1],
+											tempU, tempV, params, state,
+											lambda, lambda_Index);
 
 		lambda_Index += k;
 	}

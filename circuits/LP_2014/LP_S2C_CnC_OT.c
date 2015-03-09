@@ -97,10 +97,13 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	free(commBuffer);
 
 
+	printf("About to prove consistency.\n");
+	fflush(stdout);
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
 											params, state);
-
+	printf("Input consistency proved.\n");
+	fflush(stdout);
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -187,10 +190,13 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	setBuilderInputs(builderInputs, J_set, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
-
+	printf("About to check consistency.\n");
+	fflush(stdout);
 	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set,
 										builderInputs, pubInputGroup -> public_inputs,
 										pubInputGroup -> params, state);
+	printf("Input consistency checked.\n");
+	fflush(stdout);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{

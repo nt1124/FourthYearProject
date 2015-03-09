@@ -264,15 +264,22 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 {
 	struct twoDH_Tuples *tuples;
 
-	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
-	unsigned char *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
-	int i;
+	mpz_t *local_Lambda;
+	// = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
+	unsigned char *J_set = (unsigned char *) calloc(2, sizeof(unsigned char)), *commBuffer;
+	int i, commBufferLen = 0, bufferOffset = 0;
 
 
+	/*
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
+	*/
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	local_Lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+
 	J_set[inputBit] = 0x01;
 
 
@@ -296,14 +303,26 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 {
 	struct twoDH_Tuples *tuples;
 
+	unsigned char *commBuffer;
 	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
-	int i, verified = 0;
+	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
 
-
+/*
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
+*/
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_init(local_Lambda[i]);
+		mpz_urandomm(local_Lambda[i], *state, params -> n);
+	}
+
+	commBuffer = serialiseMPZ_Array(local_Lambda, stat_SecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
