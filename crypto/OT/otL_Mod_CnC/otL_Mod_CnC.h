@@ -20,7 +20,8 @@ typedef struct tildeCRS
 
 
 #include "otL_Mod_CnC_utils.c"
-#include "otL_Mod_CnC.c"
+#include "otL_Mod_CnC_Receiver.c"
+#include "otL_Mod_CnC_Sender.c"
 
 
 #endif

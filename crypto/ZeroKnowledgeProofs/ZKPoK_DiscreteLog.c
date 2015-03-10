@@ -1,5 +1,6 @@
 // Classic Sigma proof of knowledge of a Discrete Logarithm
-int ZKPoK_DL_Prover(int writeSocket, int readSocket, struct eccPoint *g_1, mpz_t x,
+int ZKPoK_DL_Prover(int writeSocket, int readSocket,
+					struct eccPoint *g_0, struct eccPoint *g_1, mpz_t x,
 					struct eccParams *params, gmp_randstate_t state)
 {
 	struct eccPoint *H;
@@ -13,7 +14,7 @@ int ZKPoK_DL_Prover(int writeSocket, int readSocket, struct eccPoint *g_1, mpz_t
 	mpz_urandomm(r, state, params -> n);
 	mpz_init_set(sUnmodded, r);
 
-	H = windowedScalarPoint(r, params -> g, params);
+	H = windowedScalarPoint(r, g_0, params);
 	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(H), sizeof(unsigned char));
 	serialise_ECC_Point(H, commBuffer, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
@@ -41,7 +42,9 @@ int ZKPoK_DL_Prover(int writeSocket, int readSocket, struct eccPoint *g_1, mpz_t
 }
 
 
-int ZKPoK_DL_Verifier(int writeSocket, int readSocket, struct eccParams *params, struct eccPoint *g_1, gmp_randstate_t state)
+
+int ZKPoK_DL_Verifier(int writeSocket, int readSocket, struct eccParams *params,
+					struct eccPoint *g_0, struct eccPoint *g_1, gmp_randstate_t state)
 {
 	struct eccPoint *H, *h_g_1PowC, *g_0PowS, finalH;
 	mpz_t C, *s;
@@ -66,13 +69,12 @@ int ZKPoK_DL_Verifier(int writeSocket, int readSocket, struct eccParams *params,
 	free(commBuffer);
 
 
-
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	s = deserialiseMPZ(commBuffer, &bufferOffset);
 	free(commBuffer);
 
-	g_0PowS = windowedScalarPoint(*s, params -> g, params);
+	g_0PowS = windowedScalarPoint(*s, g_0, params);
 	h_g_1PowC = windowedScalarPoint(C, g_1, params);
 	groupOp_PlusEqual(h_g_1PowC, H, params);
 
@@ -86,4 +88,3 @@ int ZKPoK_DL_Verifier(int writeSocket, int readSocket, struct eccParams *params,
 
 	return verified;
 }
-
