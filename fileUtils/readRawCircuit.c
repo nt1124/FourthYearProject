@@ -298,3 +298,38 @@ void setRawCircuitsInputs_Hardcode(struct idAndValue *start, struct RawGate **ga
 		current = current -> next;
 	}
 }
+
+
+void freeRawGate(struct RawGate *toFree)
+{
+	int i;
+
+
+	if(NULL != toFree)
+	{
+		if(NULL != toFree -> inputIDs)
+		{
+			free(toFree -> inputIDs);
+		}
+
+		if(NULL != toFree -> rawOutputTable)
+		{
+			free(toFree -> rawOutputTable);
+		}
+	}
+}
+
+void freeRawCircuit(struct RawCircuit *toFree)
+{
+	int i;
+
+	for(i = 0; i < toFree -> numGates; i ++)
+	{
+		freeRawGate(toFree -> gates[i]);
+	}
+
+	free(toFree -> gates);
+	free(toFree -> execOrder);
+
+	free(toFree);
+}

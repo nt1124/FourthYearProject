@@ -251,7 +251,7 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
-	/*
+
 	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
 	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 
@@ -263,7 +263,7 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	}
 	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-	*/
+
 
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{

@@ -15,7 +15,6 @@ typedef struct RawGate
 	unsigned char gateType;			// XOR, AND, INV, INP.
 	unsigned short outputTableSize;	// 2 ^ numInputs.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.
-									// Only used temporarily by Builder. Try to get rid of in future.
 
 	unsigned char outputValue;
 } RawGate;

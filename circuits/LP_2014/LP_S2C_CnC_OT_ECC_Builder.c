@@ -234,10 +234,10 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
 
-	/*
+
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
-	*/
+
 
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{

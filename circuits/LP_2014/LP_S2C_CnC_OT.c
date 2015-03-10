@@ -113,6 +113,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
+	freeRawCircuit(rawInputCircuit);
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -226,5 +227,5 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
-
+	freeRawCircuit(rawInputCircuit);
 }
