@@ -310,26 +310,37 @@ void freeRawGate(struct RawGate *toFree)
 		if(NULL != toFree -> inputIDs)
 		{
 			free(toFree -> inputIDs);
+			toFree -> inputIDs = NULL;
 		}
 
 		if(NULL != toFree -> rawOutputTable)
 		{
 			free(toFree -> rawOutputTable);
+			toFree -> rawOutputTable = NULL;
 		}
+
+		toFree = NULL;
 	}
 }
+
 
 void freeRawCircuit(struct RawCircuit *toFree)
 {
 	int i;
 
-	for(i = 0; i < toFree -> numGates; i ++)
+	if(NULL != toFree)
 	{
-		freeRawGate(toFree -> gates[i]);
+		for(i = 0; i < toFree -> numGates; i ++)
+		{
+			freeRawGate(toFree -> gates[i]);
+		}
+
+		if(NULL != toFree -> gates)
+		{
+			free(toFree -> gates);
+			toFree -> gates = NULL;
+		}
+
+		free(toFree);
 	}
-
-	free(toFree -> gates);
-	free(toFree -> execOrder);
-
-	free(toFree);
 }

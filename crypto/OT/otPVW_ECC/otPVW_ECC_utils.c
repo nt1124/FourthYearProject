@@ -270,3 +270,17 @@ struct u_v_Pair_ECC **deserialise_U_V_Pair_Array_ECC(unsigned char *inputBuffer,
 
 	return outputKeys;
 }
+
+
+
+
+void freeOT_Pair(struct otKeyPair_ECC *toFree)
+{
+	clearECC_Point(toFree -> pk -> g);
+	clearECC_Point(toFree -> pk -> h);
+
+	mpz_clear(toFree -> sk);
+
+	free(toFree -> pk);
+	free(toFree);
+}

@@ -22,6 +22,9 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
 	}
 
+	
+	free(R);
+
 	return circuitsArray;
 }
 
@@ -86,8 +89,13 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	bufferLength = 0;
 	commBuffer = serialise_U_V_Pair_Array_ECC(c_i_Array_S, totalOTs * 2, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
-
 	free(commBuffer);
+
+	for(i = 0; i < totalOTs; i ++)
+	{
+		freeOT_Pair(keyPairs_S[i]);
+	}
+	free(keyPairs_S);
 }
 
 
@@ -204,10 +212,6 @@ struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inp
 
 	return output;
 }
-
-
-
-
 
 
 

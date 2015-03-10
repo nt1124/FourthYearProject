@@ -101,9 +101,10 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 											builderInputs, public_inputs, secret_inputs,
 											params, state);
 
-
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
+
+	freeRawCircuit(rawInputCircuit);
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
@@ -113,7 +114,6 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
-	freeRawCircuit(rawInputCircuit);
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -185,10 +185,11 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 								J_set, stat_SecParam);
 
+
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commBufferLen = 0;
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
-
+	free(commBuffer);
 
 	setBuilderInputs(builderInputs, J_set, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
@@ -208,7 +209,7 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath);
 		}
 	}
-
+	freeRawCircuit(rawInputCircuit);
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -227,5 +228,5 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
-	freeRawCircuit(rawInputCircuit);
+	// freeRawCircuit(rawInputCircuit);
 }

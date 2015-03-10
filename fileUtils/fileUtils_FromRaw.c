@@ -181,7 +181,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(struct RawCircuit *rawInpu
 													struct public_builderPRS_Keys *public_inputs,
 													int j, struct eccParams *params)
 {
-struct gateOrWire *tempGateOrWire;
+	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;
 
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));

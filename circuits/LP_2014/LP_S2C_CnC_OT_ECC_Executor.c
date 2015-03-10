@@ -88,6 +88,13 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 		}
 	}
 
+
+	for(i = 0; i < totalOTs; i ++)
+	{
+		freeOT_Pair(keyPairs_R[i]);
+	}
+	free(keyPairs_R);
+
 	return params_R -> crs -> J_set;
 }
 
@@ -257,7 +264,6 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 	for(i = 0; i < numLambdas; i ++)
 	{
-		// gmp_printf("");
 		mpz_init(lambda[i]);
 		mpz_urandomm(lambda[i], *state, params -> n);
 	}

@@ -270,7 +270,7 @@ void printTwoDH_TuplePowered(struct twoDH_Tuples *toPrint, mpz_t power, struct e
 }
 
 
-
+// -----------------------------------------------------------------------------------------
 // witness is basically r_j.
 // g_0 is g from params, g_1 is g_1.
 // h_0, h_1 are the entry from the CRSs h_0_List and h_1_List
@@ -286,21 +286,21 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 {
 	struct twoDH_Tuples *tuples;
 
-	mpz_t *local_Lambda; // = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
+	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 	unsigned char *J_set = (unsigned char *) calloc(2, sizeof(unsigned char)), *commBuffer;
 	int i, commBufferLen = 0, bufferOffset = 0;
 
 
-	/*
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
-	*/
 
+	/*
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	local_Lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 	free(commBuffer);
+	*/
 
 	J_set[inputBit] = 0x01;
 
@@ -314,6 +314,11 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 						tuples -> h_0_List, tuples -> h_1_List,
 						witness, J_set, state);
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_clear(local_Lambda[i]);
+	}
+	free(local_Lambda);
 	freeTwoDH_Tuples(tuples);
 }
 
@@ -331,22 +336,19 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 	mpz_t *local_Lambda = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
 
-	/*
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
+		// mpz_init(local_Lambda[i]);
+		// mpz_urandomm(local_Lambda[i], *state, params -> n);
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
-	*/
 
-	for(i = 0; i < stat_SecParam; i ++)
-	{
-		mpz_init(local_Lambda[i]);
-		mpz_urandomm(local_Lambda[i], *state, params -> n);
-	}
-
+	/*
 	commBuffer = serialiseMPZ_Array(local_Lambda, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+	*/
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
@@ -356,8 +358,16 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_clear(local_Lambda[i]);
+	}
+	free(local_Lambda);
 	freeTwoDH_Tuples(tuples);
 }
+
+
+// -----------------------------------------------------------------------------------------
 
 
 
@@ -433,6 +443,11 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 
 	freeTwoDH_Tuples(tuples);
 }
+
+
+
+
+
 
 
 
@@ -517,6 +532,10 @@ int ZKPoK_Ext_DH_TupleVerifier_2U_2V(int writeSocket, int readSocket, int stat_S
 
 
 
+
+
+
+
 void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 {
 	struct params_CnC_ECC *params_P;
@@ -548,8 +567,6 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 	commBuffer = serialiseParams_CnC_ECC(params_P, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	free(commBuffer);
-
-
 
 
 	mpz_init(witness[inputBit]);
