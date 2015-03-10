@@ -141,8 +141,9 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
 	memcpy(halfHash, rawBytes, 16);
-	// halfHash[16] = (0x01 & permutation) ^ inputBit;
 
+
+	clearECC_Point(pointRep);
 	free(hashedBytes);
 	free(rawBytes);
 
@@ -166,6 +167,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 	memcpy(halfHash, hashedBytes, 16);
 
 
+	clearECC_Point(pointRep);
 	free(hashedBytes);
 	free(rawBytes);
 

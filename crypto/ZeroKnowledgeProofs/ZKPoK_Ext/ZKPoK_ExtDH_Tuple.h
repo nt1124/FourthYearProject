@@ -13,6 +13,7 @@ struct twoDH_Tuples
 
 
 // Stuff goes here.
+#include "ZKPoK_ExtDH_Tuple_1Of2_Utils.c"
 #include "ZKPoK_ExtDH_Tuple_1Of2.c"
 #include "ZKPoK_ExtDH_Tuple.c"
 
