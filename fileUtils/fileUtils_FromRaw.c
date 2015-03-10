@@ -44,7 +44,7 @@ struct gateOrWire *processGateOrWire_FromRaw(struct RawGate *rawGate, struct gat
 			if(inputID < numInputs1)
 			{
 				usingBuilderInput &= 0xE0;
-			}	
+			}
 		}
 
 		toReturn -> outputWire -> wireMask ^= usingBuilderInput;

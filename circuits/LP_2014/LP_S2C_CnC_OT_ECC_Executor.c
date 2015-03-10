@@ -185,7 +185,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 		
-			freeCircuitStruct(tempGarbleCircuit);
+			//freeCircuitStruct(tempGarbleCircuit, 0);
 		}
 	}
 
@@ -211,8 +211,6 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 	{
 		for(j = 0; j < numEvalCircuits; j ++)
 		{
-			// printf("%d >>> %d\n", j, numEvalCircuits);
-			// fflush(stdout);
 			if(0x00 == J_set[j])
 			{
 				outputLength = 0;
@@ -282,6 +280,7 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 			}
 		}
 
+
 		verified |= ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
 											params -> g, params -> g,
 											public_inputs -> public_keyPairs[i][0],
@@ -292,4 +291,5 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 		lambda_Index += k;
 	}
 
+	return verified;
 }

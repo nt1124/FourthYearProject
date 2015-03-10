@@ -340,17 +340,12 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	commBufferLen = 0;
 	commitment_box_P = initVerifierCommitment_ECC();
 
-	printf("MEH!\n");
-	fflush(stdout);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commitment_box_P -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
 	free(commBuffer);
 	// Round 2
 
-
-	printf("MEH!\n");
-	fflush(stdout);
 	bufferOffset = 0;
 	msgOne_P = proverMessageOne_ECC_1Of2(params, J_set, alphaAndA_P -> alpha, g_0, g_1,
 									h_0_List, h_1_List, *state);
@@ -359,9 +354,6 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	free(commBuffer);
 	// Round 3
 
-	printf("MEH!\n");
-	fflush(stdout);
-
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -369,8 +361,6 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	free(commBuffer);
 	// Round 4
 
-	printf("MEH!\n");
-	fflush(stdout);
 	bufferOffset = 0;
 	commBuffer = proverMessageTwo_ECC_1Of2(params, J_set, commitment_box_P, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);

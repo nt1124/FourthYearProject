@@ -51,7 +51,7 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     close_server_socket(readSocket, mainReadSock);
 
 
-    freeCircuitStruct(inputCircuit);
+    freeCircuitStruct(inputCircuit, 1);
 }
 
 
@@ -112,7 +112,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
 
     testAES_FromRandom();
 
-    freeCircuitStruct(inputCircuit);
+    freeCircuitStruct(inputCircuit, 1);
 }
 
 
@@ -133,7 +133,7 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
     printOutputHexString(inputCircuit);
     testAES_FromRandom();
 
-    freeCircuitStruct(inputCircuit);
+    freeCircuitStruct(inputCircuit, 1);
 }
 
 
@@ -148,7 +148,7 @@ void testRunZeroedInput(char *circuitFilepath)
     runCircuitLocal(inputCircuit);
     printOutputHexString(inputCircuit);
 
-    freeCircuitStruct(inputCircuit);
+    freeCircuitStruct(inputCircuit, 1);
     testAES_Zeroed();
 }
 

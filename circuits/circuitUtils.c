@@ -202,15 +202,22 @@ struct Circuit *initBasicCircuit()
 
 
 // Ronseal.
-void freeCircuitStruct(struct Circuit *toFree)
+void freeCircuitStruct(struct Circuit *toFree, int freeExecList)
 {
 	int i;
+
+
 	for(i = 0; i < toFree -> numGates; i ++)
 	{
 		freeGateOrWire(toFree -> gates[i]);
 	}
 
 	free(toFree -> gates);
-	free(toFree -> execOrder);
+
+	if(1 == freeExecList)
+	{
+		free(toFree -> execOrder);
+	}
+
 	free(toFree);
 }

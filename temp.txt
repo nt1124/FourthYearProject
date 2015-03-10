@@ -1,2 +1,456 @@
-Running Executor.
-Connected to builder.
+==3996==    by 0x8067E41: getDH_Tuples(eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, int, eccParams*, __mpz_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B13: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 11,796 (3,500 direct, 8,296 indirect) bytes in 125 blocks are definitely lost in loss record 613 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8064CE9: verifierSetupCommitment_ECC_1Of2(eccParams*, eccPoint*, __gmp_randstate_struct*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806601D: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 11,800 (3,472 direct, 8,328 indirect) bytes in 124 blocks are definitely lost in loss record 614 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8065741: verifierChecks_ECC_1Of2(eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __mpz_struct (*) [1], eccPoint**, eccPoint**, alphaAndA_Struct*, __mpz_struct (*) [1], __mpz_struct*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8066293: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 11,888 (3,556 direct, 8,332 indirect) bytes in 127 blocks are definitely lost in loss record 615 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8067E75: getDH_Tuples(eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, int, eccParams*, __mpz_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B13: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 11,956 (3,556 direct, 8,400 indirect) bytes in 127 blocks are definitely lost in loss record 616 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8064CD1: verifierSetupCommitment_ECC_1Of2(eccParams*, eccPoint*, __gmp_randstate_struct*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806601D: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 13,536 bytes in 1,692 blocks are possibly lost in loss record 617 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806CF0B: processGate_Raw(int, int, int*, char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806D478: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 15,936 bytes in 498 blocks are definitely lost in loss record 618 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DC54: convertMPZToBytes(__mpz_struct*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x804DD2B: serialiseMPZ(__mpz_struct*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x805134D: serialise_ECC_Point(eccPoint*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80581B9: serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075478: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 15,936 bytes in 498 blocks are definitely lost in loss record 619 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DC54: convertMPZToBytes(__mpz_struct*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x804DD2B: serialiseMPZ(__mpz_struct*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x805134D: serialise_ECC_Point(eccPoint*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80581D7: serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075478: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 16,128 bytes in 504 blocks are definitely lost in loss record 620 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DC54: convertMPZToBytes(__mpz_struct*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x804DD2B: serialiseMPZ(__mpz_struct*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8051337: serialise_ECC_Point(eccPoint*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80581B9: serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075478: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 16,128 bytes in 504 blocks are definitely lost in loss record 621 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DC54: convertMPZToBytes(__mpz_struct*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x804DD2B: serialiseMPZ(__mpz_struct*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8051337: serialise_ECC_Point(eccPoint*, unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80581D7: serialise_PKs_otKeyPair_ECC_Array(otKeyPair_ECC**, int, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075478: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 17,480 (2,016 direct, 15,464 indirect) bytes in 126 blocks are definitely lost in loss record 622 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8065FC4: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 18,692 bytes in 1 blocks are possibly lost in loss record 623 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804FC6D: receiveBoth(int, int&) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757DF: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 23,016 (3,500 direct, 19,516 indirect) bytes in 125 blocks are definitely lost in loss record 624 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8064C7A: verifierSetupCommitment_ECC_1Of2(eccParams*, eccPoint*, __gmp_randstate_struct*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806601D: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 23,724 (7,000 direct, 16,724 indirect) bytes in 250 blocks are definitely lost in loss record 625 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1A8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A2C8: _Z37initInputWire_FromRaw_ConsistentInputihPhP12__mpz_structP22public_builderPRS_KeysiP9eccParams.constprop.23 (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EB2C: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 23,756 (7,056 direct, 16,700 indirect) bytes in 252 blocks are definitely lost in loss record 626 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1A8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807574C: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 24,112 (7,112 direct, 17,000 indirect) bytes in 254 blocks are definitely lost in loss record 627 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1A8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A2EF: _Z37initInputWire_FromRaw_ConsistentInputihPhP12__mpz_structP22public_builderPRS_KeysiP9eccParams.constprop.23 (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EB2C: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 24,252 (7,112 direct, 17,140 indirect) bytes in 254 blocks are definitely lost in loss record 628 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8052C1A: windowedScalarPoint(__mpz_struct*, eccPoint*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1A8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075716: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 25,120 (8 direct, 25,112 indirect) bytes in 1 blocks are definitely lost in loss record 629 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8075163: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 25,272 bytes in 234 blocks are definitely lost in loss record 630 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8054697: sha256_full(unsigned char*, unsigned int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1C8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A2EF: _Z37initInputWire_FromRaw_ConsistentInputihPhP12__mpz_structP22public_builderPRS_KeysiP9eccParams.constprop.23 (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EB2C: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 25,380 bytes in 235 blocks are definitely lost in loss record 631 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8054697: sha256_full(unsigned char*, unsigned int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1C8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807574C: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 25,792 (25,704 direct, 88 indirect) bytes in 238 blocks are definitely lost in loss record 632 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8054697: sha256_full(unsigned char*, unsigned int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1C8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A2C8: _Z37initInputWire_FromRaw_ConsistentInputihPhP12__mpz_structP22public_builderPRS_KeysiP9eccParams.constprop.23 (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EB2C: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 26,244 bytes in 243 blocks are definitely lost in loss record 633 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8054697: sha256_full(unsigned char*, unsigned int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073BBD: setBuilderInputs(eccPoint**, unsigned char*, Circuit**, public_builderPRS_Keys*, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807588B: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 26,708 (26,676 direct, 32 indirect) bytes in 247 blocks are definitely lost in loss record 634 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8054697: sha256_full(unsigned char*, unsigned int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806A1C8: compute_Key_b_Input_i_Circuit_j(__mpz_struct*, public_builderPRS_Keys*, eccParams*, int, unsigned char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075716: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 28,672 bytes in 1,024 blocks are possibly lost in loss record 635 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8050F9F: initECC_Point() (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x805138E: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80584F5: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 28,672 bytes in 1,024 blocks are possibly lost in loss record 636 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8050F9F: initECC_Point() (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x805138E: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8058506: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 32,768 bytes in 1,024 blocks are possibly lost in loss record 641 of 666
+==3996==    at 0x402BF52: realloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x4058DC9: __gmp_default_reallocate (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406E825: __gmpz_realloc (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406F56B: __gmpz_set (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x80513B3: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80584F5: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 32,768 bytes in 1,024 blocks are possibly lost in loss record 642 of 666
+==3996==    at 0x402BF52: realloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x4058DC9: __gmp_default_reallocate (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406E825: __gmpz_realloc (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406F56B: __gmpz_set (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x80513D1: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80584F5: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 32,768 bytes in 1,024 blocks are possibly lost in loss record 643 of 666
+==3996==    at 0x402BF52: realloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x4058DC9: __gmp_default_reallocate (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406E825: __gmpz_realloc (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406F56B: __gmpz_set (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x80513B3: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8058506: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 32,768 bytes in 1,024 blocks are possibly lost in loss record 644 of 666
+==3996==    at 0x402BF52: realloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x4058DC9: __gmp_default_reallocate (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406E825: __gmpz_realloc (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x406F56B: __gmpz_set (in /usr/lib/i386-linux-gnu/libgmp.so.10.0.2)
+==3996==    by 0x80513D1: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8058506: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 44,044 (12,204 direct, 31,840 indirect) bytes in 1,017 blocks are definitely lost in loss record 645 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DD8D: deserialiseMPZ(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80513A7: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80584F5: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 44,204 (12,204 direct, 32,000 indirect) bytes in 1,017 blocks are definitely lost in loss record 646 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DD8D: deserialiseMPZ(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80513C2: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80584F5: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 44,236 (12,204 direct, 32,032 indirect) bytes in 1,017 blocks are definitely lost in loss record 647 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DD8D: deserialiseMPZ(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80513C2: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8058506: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 44,296 (12,264 direct, 32,032 indirect) bytes in 1,022 blocks are definitely lost in loss record 648 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x804DD8D: deserialiseMPZ(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80513A7: deserialise_ECC_Point(unsigned char*, int*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8058506: deserialise_U_V_Pair_Array_ECC(unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80754C8: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 58,744 (2,560 direct, 56,184 indirect) bytes in 128 blocks are definitely lost in loss record 649 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x8062AB6: initMsgOneArray_ECC(int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806609F: ZKPoK_Verifier_ECC_1Of2(int, int, eccParams*, eccPoint**, eccPoint**, eccPoint**, eccPoint**, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8068B4D: ZKPoK_Ext_DH_TupleVerifier(int, int, int, eccPoint*, eccPoint*, eccPoint*, eccPoint*, eccPoint**, eccPoint**, eccParams*, __gmp_randstate_struct (*) [1], __mpz_struct (*) [1], int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8073D3B: proveConsistencyEvaluationKeys_Exec(int, int, unsigned char*, eccPoint**, public_builderPRS_Keys*, eccParams*, __gmp_randstate_struct (*) [1]) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80758DC: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 135,488 bytes in 1 blocks are possibly lost in loss record 650 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806D2E5: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 135,488 bytes in 1 blocks are possibly lost in loss record 651 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806D105: initialiseAllInputs_Raw(int, int, int, int**) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806D311: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 260,976 bytes in 33,465 blocks are definitely lost in loss record 653 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806D3C1: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 262,160 bytes in 33,616 blocks are possibly lost in loss record 654 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806CE04: processGate_Raw(int, int, int*, char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806D478: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 270,976 bytes in 2 blocks are possibly lost in loss record 655 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806EB00: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 510,784 bytes in 31,924 blocks are possibly lost in loss record 656 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806CEC1: processGate_Raw(int, int, int*, char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806D478: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 537,856 bytes in 67,232 blocks are possibly lost in loss record 657 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806C587: genFreeXORPair(gateOrWire*, unsigned char*, gateOrWire**) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806E60A: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 806,784 bytes in 33,616 blocks are possibly lost in loss record 658 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806CDDE: processGate_Raw(int, int, int*, char) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806D478: readInCircuit_Raw(char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8075146: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 806,784 bytes in 67,232 blocks are possibly lost in loss record 659 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E4A1: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 806,784 bytes in 67,232 blocks are possibly lost in loss record 660 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E4C2: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 1,048,640 bytes in 67,232 blocks are possibly lost in loss record 661 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E560: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 1,075,712 bytes in 67,232 blocks are possibly lost in loss record 662 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E4DF: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 1,142,927 bytes in 67,231 blocks are possibly lost in loss record 663 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806C75A: genFreeXORPair(gateOrWire*, unsigned char*, gateOrWire**) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806E60A: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 1,142,944 bytes in 67,232 blocks are possibly lost in loss record 664 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806C59D: genFreeXORPair(gateOrWire*, unsigned char*, gateOrWire**) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806E60A: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 1,344,640 bytes in 67,232 blocks are possibly lost in loss record 665 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E512: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== 8,389,120 bytes in 262,160 blocks are possibly lost in loss record 666 of 666
+==3996==    at 0x402A5E6: calloc (in /usr/lib/valgrind/vgpreload_memcheck-x86-linux.so)
+==3996==    by 0x806E58B: processGateOrWire_FromRaw(RawGate*, gateOrWire**, unsigned char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x806EBC3: readInCircuit_FromRaw_ConsistentInput(RawCircuit*, __mpz_struct*, public_builderPRS_Keys*, int, eccParams*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x80757B1: runExecutor_LP_2014_CnC_OT(char*, char*, char*, char*) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x807647D: runProtocol(char*, char*, char*, char*, int) (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996==    by 0x8049CC4: main (in /home/ubuntu/Desktop/FourthYearProject/a.out)
+==3996== 
+==3996== LEAK SUMMARY:
+==3996==    definitely lost: 723,913 bytes in 51,691 blocks
+==3996==    indirectly lost: 462,392 bytes in 17,912 blocks
+==3996==      possibly lost: 18,881,459 bytes in 917,607 blocks
+==3996==    still reachable: 249,701 bytes in 5 blocks
+==3996==         suppressed: 0 bytes in 0 blocks
+==3996== Reachable blocks (those to which a pointer was found) are not shown.
+==3996== To see them, rerun with: --leak-check=full --show-reachable=yes
+==3996== 
+==3996== For counts of detected and suppressed errors, rerun with: -v
+==3996== ERROR SUMMARY: 426 errors from 426 contexts (suppressed: 0 from 0)

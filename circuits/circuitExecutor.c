@@ -369,5 +369,8 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 
 	inputCircuit -> gates = receiveGatesOfCircuit(receivedBuffer + bufferOffset, inputCircuit -> numGates);
 
+
+	free(receivedBuffer);
+
 	return inputCircuit;
 }
