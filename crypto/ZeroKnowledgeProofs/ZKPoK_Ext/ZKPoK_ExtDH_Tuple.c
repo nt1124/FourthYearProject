@@ -433,8 +433,6 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 		mpz_urandomm(lambda[i], *state, params -> n);
 	}
 
-
-
 	commBuffer = serialiseMPZ_Array(lambda, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);

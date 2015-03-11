@@ -217,6 +217,12 @@ void test_CnC_OT_Mod_Sender()
 	free(commBuffer);
 
 
+	ZKPoK_Ext_DH_TupleVerifierAll(writeSocket, readSocket, stat_SecParam,
+								params_S -> params -> g, params_S -> crs -> g_1,
+								checkTildes -> h_tildeList,
+								params_S -> params, state);
+
+
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 

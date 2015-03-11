@@ -12,8 +12,10 @@
 #include "EllipticCurves/ecc.h"
 
 
-#include "Hashing/sha256.h"
+#include "Hashing/sha256_good.c"
 
+
+#include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple_1OutOf1.c"
 
 #include "OT/otToy.c"
 #include "OT/otPVW/otPVW_DDH.h"

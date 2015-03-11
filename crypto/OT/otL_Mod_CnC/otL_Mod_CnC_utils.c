@@ -287,8 +287,6 @@ struct jSetCheckTildes *deserialise_jSet_CheckTildes(unsigned char *commBuffer, 
 	for(i = 0; i < 2 * arrayLen; i ++)
 	{
 		output -> h_tildeList[i] = deserialise_ECC_Point(commBuffer, &bufferOffset);
-		printf(">>  %d\n", i);
-		printPoint(output -> h_tildeList[i]);
 	}
 
 
@@ -409,9 +407,9 @@ struct ECC_PK *generateBase_CnC_OT_Mod_CheckPK(params_CnC_ECC *params_S, struct 
 
 
 	PK -> g = copyECC_Point(params_S -> crs -> h_0_List[j]);
-	PK -> h = copyECC_Point(checkTildes -> h_tildeList[jDoubled]);
+	PK -> h = groupOp(params_S -> crs -> h_1_List[j], invG1, params_S -> params);
 
-	PK -> g_x = groupOp(params_S -> crs -> h_1_List[j], invG1, params_S -> params);
+	PK -> g_x = copyECC_Point(checkTildes -> h_tildeList[jDoubled]);
 	PK -> h_x = copyECC_Point(checkTildes -> h_tildeList[jDoubled + 1]);
 
 

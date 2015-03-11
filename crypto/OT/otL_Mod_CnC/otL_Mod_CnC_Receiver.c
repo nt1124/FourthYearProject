@@ -376,6 +376,11 @@ void test_CnC_OT_Mod_Receiver(char *ipAddress)
 		}
 	}
 
+	ZKPoK_Ext_DH_TupleProverAll(writeSocket, readSocket, stat_SecParam, checkTildes -> roe_jList, params_R -> crs -> alphas_List,
+								params_R -> params -> g, params_R -> crs -> g_1,
+								checkTildes -> h_tildeList,
+								params_R -> params, state);
+
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);

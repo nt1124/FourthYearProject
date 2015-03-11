@@ -67,7 +67,7 @@ struct msgOneArrays_ECC *proverMessageOne_ECC(int stat_SecParam, struct eccParam
 
 			mpz_urandomm(msgArray -> notI_Struct -> C_array[j_not_I], state, params -> n);
 			mpz_urandomm(msgArray -> notI_Struct -> Z_array[j_not_I], state, params -> n);
-			
+
 			topHalf = windowedScalarPoint(msgArray -> notI_Struct -> Z_array[j_not_I], g_0, params);
 			bottomHalf = windowedScalarPoint(msgArray -> notI_Struct -> C_array[j_not_I], h_0_List[i], params);
 			msgArray -> A_array[i] = invertPoint(bottomHalf, params);
@@ -356,6 +356,7 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 1
 
+
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commitment_box_P = initVerifierCommitment_ECC();
@@ -380,6 +381,7 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	deserialisedSecrets_CommitmentBox(commitment_box_P, commBuffer, &bufferOffset);
 	free(commBuffer);
 	// Round 4
+
 
 	bufferOffset = 0;
 	commBuffer = proverMessageTwo_ECC(params, stat_SecParam, J_set, commitment_box_P, g_0, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
