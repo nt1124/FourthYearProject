@@ -1,6 +1,3 @@
-
-
-
 // Really this is just deserialising a params_CnC from bufferReceived
 struct params_CnC_ECC *setup_CnC_OT_Mod_Sender(unsigned char *bufferReceived)
 {
@@ -18,70 +15,29 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Sender(int writeSocket, int readSoc
 {
 	struct params_CnC_ECC *params_S;
 	unsigned char *commBuffer;
-	int bufferLength = 0;
+	int bufferLength = 0, verified = 0;
 
 	commBuffer = receiveBoth(readSocket, bufferLength);
 	params_S = setup_CnC_OT_Mod_Sender(commBuffer);
 	free(commBuffer);
 
-	ZKPoK_DL_Verifier(writeSocket, readSocket, params_S -> params,
+	verified = ZKPoK_DL_Verifier(writeSocket, readSocket, params_S -> params,
 					params_S -> params -> g, params_S -> crs -> g_1, state);
+
+	printf("Verified CnC_OT_Mod setup = %d\n", verified);
+
 
 	return params_S;
 }
 
 
-struct ECC_PK *generate_Base_CnC_OT_Mod_PK(struct params_CnC_ECC *params_S, struct tildeList *tildes, int j)
-{
-	struct ECC_PK *PK = (struct ECC_PK *) calloc(1, sizeof(struct ECC_PK));
-
-
-	PK -> g = initECC_Point();
-	// PK -> g = copyECC_Point(params_S -> params -> g);
-	PK -> h = initECC_Point();
-	// PK -> h = copyECC_Point(params_S -> crs -> h_0_List[j]);
-
-	PK -> g_x = copyECC_Point(tildes -> g_tilde);
-	PK -> h_x = initECC_Point();
-	// PK -> h_x = copyECC_Point(tildes -> h_tildeList[j]);
-
-	return PK;
-}
-
-
-void update_CnC_OT_Mod_PK_With_0(struct ECC_PK *PK, struct params_CnC_ECC *params_S, struct tildeList *tildes, int j)
-{
-	mpz_set(PK -> g -> x, params_S -> crs -> g_1 -> x);
-	mpz_set(PK -> g -> y, params_S -> crs -> g_1 -> y);
-
-	mpz_set(PK -> h -> x, params_S -> crs -> h_0_List[j] -> x);
-	mpz_set(PK -> h -> y, params_S -> crs -> h_0_List[j] -> y);
-
-	mpz_set(PK -> h_x -> x, tildes -> h_tildeList[j] -> x);
-	mpz_set(PK -> h_x -> y, tildes -> h_tildeList[j] -> y);
-}
-
-
-void update_CnC_OT_Mod_PK_With_1(struct ECC_PK *PK, struct params_CnC_ECC *params_S, int j)
-{
-	mpz_set(PK -> g -> x, params_S -> crs -> g_1 -> x);
-	mpz_set(PK -> g -> y, params_S -> crs -> g_1 -> y);
-
-	mpz_set(PK -> h -> x, params_S -> crs -> h_1_List[j] -> x);
-	mpz_set(PK -> h -> y, params_S -> crs -> h_1_List[j] -> y);
-}
-
-
-struct CnC_OT_Mod_CTs **CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct tildeList *tildes,
-								unsigned char *M,
-								gmp_randstate_t state)
+struct CnC_OT_Mod_CTs **transfer_CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct tildeList *tildes,
+												unsigned char **M_0, unsigned char **M_1, gmp_randstate_t state)
 {
 	struct CnC_OT_Mod_CTs **CTs;
 	struct ECC_PK *PK;
 	struct u_v_Pair_ECC *tempCT;
 	unsigned char *v_xBytes, *hashedV_x;
-
-	unsigned char *commBuffer;
 
 	const int stat_SecParam = params_S -> crs -> stat_SecParam, msgLength = 16;
 	int j, tempLength;
@@ -101,7 +57,7 @@ struct CnC_OT_Mod_CTs **CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct
 		hashedV_x = sha256_full(v_xBytes, tempLength);
 
 		CTs[j] -> u_0 = tempCT -> u;
-		CTs[j] -> w_0 = XOR_TwoStrings(hashedV_x, M, msgLength);
+		CTs[j] -> w_0 = XOR_TwoStrings(hashedV_x, M_0[j], msgLength);
 
 		clearECC_Point(tempCT -> v);
 		free(hashedV_x);
@@ -115,7 +71,7 @@ struct CnC_OT_Mod_CTs **CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct
 		hashedV_x = sha256_full(v_xBytes, tempLength);
 
 		CTs[j] -> u_1 = tempCT -> u;
-		CTs[j] -> w_1 = XOR_TwoStrings(hashedV_x, M, msgLength);
+		CTs[j] -> w_1 = XOR_TwoStrings(hashedV_x, M_1[j], msgLength);
 
 		clearECC_Point(tempCT -> v);
 		free(hashedV_x);
@@ -123,6 +79,148 @@ struct CnC_OT_Mod_CTs **CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct
 		free(tempCT);
 	}
 
-
 	return CTs;
+}
+
+
+struct CnC_OT_Mod_Check_CT **checkCnC_OT_Mod_Enc(struct params_CnC_ECC *params_S, struct jSetCheckTildes *checkTildes,
+												unsigned char **X_js, gmp_randstate_t state)
+{
+	struct CnC_OT_Mod_Check_CT **checkCTs;
+	struct ECC_PK *PK;
+	struct u_v_Pair_ECC *tempCT;
+	unsigned char *v_xBytes, *hashedV_x;
+	struct eccPoint *invG1;
+
+	const int stat_SecParam = params_S -> crs -> stat_SecParam, msgLength = 16;
+	int j, tempLength;
+
+
+	checkCTs = (struct CnC_OT_Mod_Check_CT **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_Check_CT *));
+	invG1 = invertPoint(params_S -> crs -> g_1, params_S -> params);
+
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		checkCTs[j] = (struct CnC_OT_Mod_Check_CT *) calloc(1, sizeof(struct CnC_OT_Mod_Check_CT ));
+		PK = generateBase_CnC_OT_Mod_CheckPK(params_S, checkTildes, invG1, j);
+
+		tempCT = randomiseDDH_ECC(PK, params_S -> params, state);
+		v_xBytes = convertMPZToBytes(tempCT -> v -> x, &tempLength);
+		hashedV_x = sha256_full(v_xBytes, tempLength);
+
+		checkCTs[j] -> u = tempCT -> u;
+		checkCTs[j] -> w = XOR_TwoStrings(hashedV_x, X_js[j], msgLength);
+
+		clearECC_Point(PK -> g);
+		clearECC_Point(PK -> g_x);
+		clearECC_Point(PK -> h);
+		clearECC_Point(PK -> h_x);
+		free(PK);
+
+		free(hashedV_x);
+		free(v_xBytes);
+
+		clearECC_Point(tempCT -> v);
+		free(tempCT);
+
+	}
+
+
+	return checkCTs;
+}
+
+
+
+
+void test_CnC_OT_Mod_Sender()
+{
+	struct params_CnC_ECC *params_S;
+	struct tildeList *receivedTildeList;
+	struct CnC_OT_Mod_CTs **CTs;
+	struct CnC_OT_Mod_Check_CT **checkCTs;
+	struct jSetCheckTildes *checkTildes;
+
+	struct sockaddr_in destWrite, destRead;
+	int writeSocket, readSocket, mainWriteSock, mainReadSock;
+	int writePort, readPort, i, j;
+
+	unsigned char *commBuffer;
+	unsigned char **M_0;
+	unsigned char **M_1;
+
+	int stat_SecParam = 8, comp_SecParam = 256;
+	int bufferOffset = 0, commBufferLen = 0;
+
+	const int DEBUG_TRANSFER = 0;
+	const int DEBUG_CHECK = 1;
+
+
+	M_0 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char*));
+	M_1 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char*));
+
+	writePort = 7654;
+	readPort = writePort + 1;
+	gmp_randstate_t *state = seedRandGen();
+
+
+	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
+	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
+
+
+	params_S = setup_CnC_OT_Mod_Full_Sender(writeSocket, readSocket, *state);
+
+
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
+	free(commBuffer);
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		M_0[j] = generateRandBytes(16, 16);
+		M_1[j] = generateRandBytes(16, 16);
+
+		if(DEBUG_TRANSFER || DEBUG_CHECK)
+		{
+			printf("M_%d_0 = ", j);
+			for(i = 0; i < 16; i ++)
+			{
+				printf("%02X", M_0[j][i]);
+			}
+			printf("\nM_%d_1 = ", j);
+			
+			for(i = 0; i < 16; i ++)
+			{
+				printf("%02X", M_1[j][i]);
+			}
+			printf("\n\n");
+		}
+	}
+
+
+	CTs = transfer_CnC_OT_Mod_Enc_i(params_S, receivedTildeList, M_0, M_1, *state);
+	commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	checkTildes = deserialise_jSet_CheckTildes(commBuffer, &bufferOffset);
+	free(commBuffer);
+
+
+	checkCTs = checkCnC_OT_Mod_Enc(params_S, checkTildes, M_0, *state);
+	commBuffer = serialise_OT_Mod_Check_CTs(checkCTs, stat_SecParam, &commBufferLen, 16);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
+	close_server_socket(writeSocket, mainWriteSock);
+	close_server_socket(readSocket, mainReadSock);
+
+	freeParams_CnC_ECC(params_S);
+	gmp_randclear(*state);
+	free(state);
 }

@@ -64,7 +64,7 @@ struct u_v_Pair_ECC *CnC_OT_Enc_ECC(mpz_t M,
 	clearECC_Point(pk -> g_x);
 	clearECC_Point(pk -> h);
 	clearECC_Point(pk -> h_x);
-
+	
 	return CT;
 }
 

@@ -171,7 +171,10 @@ unsigned char *XOR_TwoStrings(unsigned char *x_1, unsigned char *x_2, int length
 	for(i = 0; i < length; i ++)
 	{
 		output[i] = x_1[i] ^ x_2[i];
+		// printf("%02X  =  %02X  %02X\n", output[i], x_1[i], x_2[i]);
 	}
+
+	// printf("\n");
 
 	return output;
 }

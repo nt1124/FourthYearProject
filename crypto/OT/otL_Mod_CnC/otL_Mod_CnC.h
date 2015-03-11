@@ -18,6 +18,13 @@ typedef struct tildeCRS
 } tildeCRS;
 
 
+typedef struct CnC_OT_Mod_Check_CT
+{
+	struct eccPoint *u;
+	unsigned char *w;
+} CnC_OT_Mod_Check_CT;
+
+
 typedef struct CnC_OT_Mod_CTs
 {
 	struct eccPoint *u_0;
@@ -33,6 +40,13 @@ typedef struct CnC_OT_Mod_PK
 	struct eccPoint *u_1;
 } CnC_OT_Mod_PK;
 
+
+typedef struct jSetCheckTildes
+{
+	mpz_t *roe_jList;
+
+	struct eccPoint **h_tildeList;
+} jSetCheckTildes;
 
 
 #include "otL_Mod_CnC_utils.c"

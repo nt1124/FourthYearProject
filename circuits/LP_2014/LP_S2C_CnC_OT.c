@@ -1,5 +1,6 @@
 const int stat_SecParam = 4;
 
+
 void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
 	struct sockaddr_in destWrite, destRead;
@@ -254,5 +255,4 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
-	// freeRawCircuit(rawInputCircuit);
 }

@@ -35,17 +35,19 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
+		// runExecutor_LP_2014_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
+		test_CnC_OT_Mod_Receiver(ipAddress);
 	}
 	else
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
-		runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
+		// runBuilder_LP_2014_CnC_OT(circuitFilepath, inputFilename, portNumStr);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
+		test_CnC_OT_Mod_Sender();
 	}
 
 	c_1 = clock();

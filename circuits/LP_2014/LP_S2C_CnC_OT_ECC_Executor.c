@@ -76,7 +76,6 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 
 			if(0x00 == value)
 			{
-
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
