@@ -169,6 +169,8 @@ unsigned char *sha256_full(unsigned char inputData[], unsigned int inputLength)
 	sha256_update(ctx, inputData, inputLength);
 	sha256_final(ctx, output);
 
+	free(ctx);
+
 	return output;
 }
 

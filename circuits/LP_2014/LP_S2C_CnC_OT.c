@@ -200,6 +200,32 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 										pubInputGroup -> params, state);
 
 
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)
+	{
+		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][0]);
+		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][1]);
+
+		free(pubInputGroup -> public_inputs -> public_keyPairs[i]);
+	}
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < pubInputGroup -> public_inputs -> stat_SecParam; i ++)
+	{
+		clearECC_Point(pubInputGroup -> public_inputs -> public_circuitKeys[i]);
+	}
+	free(pubInputGroup -> public_inputs -> public_circuitKeys);
+	freeECC_Params(pubInputGroup -> params);
+
+
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < arrayLen; i ++)
+	{
+		clearECC_Point(builderInputs[i]);
+	}
+	free(builderInputs);
+
+
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])

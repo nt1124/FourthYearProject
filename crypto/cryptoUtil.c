@@ -161,3 +161,17 @@ void testAES_FromRandom()
 		printf("%02X", ciphertext[i]);
 	printf("\n");
 }
+
+
+unsigned char *XOR_TwoStrings(unsigned char *x_1, unsigned char *x_2, int length)
+{
+	unsigned char *output = (unsigned char *) calloc(length, sizeof(unsigned char));
+	int i;
+
+	for(i = 0; i < length; i ++)
+	{
+		output[i] = x_1[i] ^ x_2[i];
+	}
+
+	return output;
+}

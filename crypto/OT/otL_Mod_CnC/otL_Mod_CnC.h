@@ -18,6 +18,22 @@ typedef struct tildeCRS
 } tildeCRS;
 
 
+typedef struct CnC_OT_Mod_CTs
+{
+	struct eccPoint *u_0;
+	unsigned char *w_0;
+
+	struct eccPoint *u_1;
+	unsigned char *w_1;
+} CnC_OT_Mod_CTs;
+
+
+typedef struct CnC_OT_Mod_PK
+{
+	struct eccPoint *u_1;
+} CnC_OT_Mod_PK;
+
+
 
 #include "otL_Mod_CnC_utils.c"
 #include "otL_Mod_CnC_Receiver.c"

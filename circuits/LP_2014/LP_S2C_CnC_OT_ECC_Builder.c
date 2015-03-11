@@ -67,7 +67,7 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 
 	c_i_Array_S = (struct u_v_Pair_ECC **) calloc(2*totalOTs, sizeof(struct u_v_Pair_ECC*));
 
-	#pragma omp parallel for ordered private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		// #pragma omp ordered

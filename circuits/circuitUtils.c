@@ -221,3 +221,37 @@ void freeCircuitStruct(struct Circuit *toFree, int freeExecList)
 
 	free(toFree);
 }
+
+
+
+void freeTempGarbleCircuit(struct Circuit *tempGarbleCircuit)
+{
+	int i, j;
+
+	for(i = 0; i < tempGarbleCircuit -> numGates; i ++)
+	{
+		if(NULL != tempGarbleCircuit -> gates[i] -> gatePayload)
+		{
+			if(NULL != tempGarbleCircuit -> gates[i] -> gatePayload -> encOutputTable)
+			{
+				for(j = 0; j < tempGarbleCircuit -> gates[i] -> gatePayload -> outputTableSize; j ++)
+				{
+					free(tempGarbleCircuit -> gates[i] -> gatePayload -> encOutputTable[j]);
+				}
+				free(tempGarbleCircuit -> gates[i] -> gatePayload -> encOutputTable);
+			}
+			free(tempGarbleCircuit -> gates[i] -> gatePayload);
+		}
+
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys -> key0);
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys -> key1);
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys);
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> wireOutputKey);
+		free(tempGarbleCircuit -> gates[i] -> outputWire);
+
+		free(tempGarbleCircuit -> gates[i]);
+	}
+
+
+	free(tempGarbleCircuit);
+}

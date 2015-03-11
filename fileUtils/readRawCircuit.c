@@ -319,6 +319,7 @@ void freeRawGate(struct RawGate *toFree)
 			toFree -> rawOutputTable = NULL;
 		}
 
+		free(toFree);
 		toFree = NULL;
 	}
 }

@@ -51,7 +51,7 @@ struct eccPoint *generate_ECC_KeyPair(struct eccParams *params, mpz_t SK, gmp_ra
 }
 
 
-// http://crypto.stackexchange.com/questions/9987/elgamal-with-elliptic-curves
+
 struct u_v_Pair_ECC *ECC_Enc(struct ECC_PK *pk, struct eccPoint *msg, struct eccParams *params, gmp_randstate_t state)
 {
 	struct u_v_Pair_ECC *ciphertext;

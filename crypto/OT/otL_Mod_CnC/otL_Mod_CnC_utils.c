@@ -176,3 +176,66 @@ struct tildeCRS *deserialiseTildeCRS(unsigned char *commBuffer, int numLists, in
 
 
 
+unsigned char *serialise_Mod_CTs(struct CnC_OT_Mod_CTs **CTs, int arrayLen, int *outputLength, int keyLength)
+{
+	unsigned char *commBuffer;
+	int i, bufferOffset = sizeof(int), totalLength = sizeof(int);
+
+
+	for(i = 0; i < arrayLen; i ++)
+	{
+		totalLength += sizeOfSerial_ECCPoint(CTs[i] -> u_0);
+		totalLength += sizeOfSerial_ECCPoint(CTs[i] -> u_1);
+	}
+	totalLength += (2 * arrayLen * keyLength);
+
+
+	commBuffer = (unsigned char*) calloc(totalLength, sizeof(unsigned char));
+
+	memcpy(commBuffer, &arrayLen, sizeof(int));
+	for(i = 0; i < arrayLen; i ++)
+	{
+		serialise_ECC_Point(CTs[i] -> u_0, commBuffer, &bufferOffset);
+		serialise_ECC_Point(CTs[i] -> u_1, commBuffer, &bufferOffset);
+
+		memcpy(commBuffer + bufferOffset, CTs[i] -> w_0, keyLength);
+		bufferOffset += keyLength;
+		memcpy(commBuffer + bufferOffset, CTs[i] -> w_1, keyLength);
+		bufferOffset += keyLength;
+	}
+
+
+	return commBuffer;
+}
+
+
+struct CnC_OT_Mod_CTs **deserialise_Mod_CTs(unsigned char *commBuffer, int *inputOffset, int keyLength)
+{
+	struct CnC_OT_Mod_CTs **CTs;
+	int i, bufferOffset = *inputOffset, arrayLen;
+
+
+	memcpy(&arrayLen, commBuffer + bufferOffset, sizeof(int));
+	bufferOffset += sizeof(int);
+
+	CTs = (struct CnC_OT_Mod_CTs **) calloc(arrayLen, sizeof(struct CnC_OT_Mod_CTs *));
+
+	for(i = 0; i < arrayLen; i ++)
+	{
+		CTs[i] = (struct CnC_OT_Mod_CTs *) calloc(arrayLen, sizeof(struct CnC_OT_Mod_CTs));
+
+		CTs[i] -> u_0 = deserialise_ECC_Point(commBuffer, &bufferOffset);
+		CTs[i] -> u_1 = deserialise_ECC_Point(commBuffer, &bufferOffset);
+
+		CTs[i] -> w_0 = (unsigned char *) calloc(keyLength, sizeof(unsigned char));
+		memcpy(CTs[i] -> w_0, commBuffer + bufferOffset, keyLength);
+		bufferOffset += keyLength;
+
+		CTs[i] -> w_1 = (unsigned char *) calloc(keyLength, sizeof(unsigned char));
+		memcpy(CTs[i] -> w_1, commBuffer + bufferOffset, keyLength);
+		bufferOffset += keyLength;
+	}
+
+
+	return CTs;
+}

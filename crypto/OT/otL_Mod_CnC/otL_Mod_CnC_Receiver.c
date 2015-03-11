@@ -85,9 +85,9 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Receiver(int writeSocket, int readS
 
 
 
-struct tildeCRS *setup_Receiver_tildeCRS(struct params_CnC_ECC *params_R, int numInputs,
-													struct idAndValue *startOfInputChain,
-													gmp_randstate_t state)
+struct tildeCRS *setup_tildeCRS_Receiver(struct params_CnC_ECC *params_R, int numInputs,
+										struct idAndValue *startOfInputChain,
+										gmp_randstate_t state)
 {
 	struct tildeCRS *alteredCRS = initTildeCRS(numInputs, params_R -> params, state);
 	unsigned char inputBit;
@@ -108,7 +108,7 @@ struct tildeCRS *setup_Receiver_tildeCRS(struct params_CnC_ECC *params_R, int nu
 
 
 
-unsigned char *transfer_1_CnC_OT_Mod_Receiver(struct params_CnC_ECC *params_R, gmp_randstate_t state)
+unsigned char *transfer_CnC_OT_Mod_Receiver(struct params_CnC_ECC *params_R, gmp_randstate_t state)
 {
 
 }

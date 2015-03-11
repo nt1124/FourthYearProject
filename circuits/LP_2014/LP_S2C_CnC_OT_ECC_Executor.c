@@ -92,8 +92,19 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 	for(i = 0; i < totalOTs; i ++)
 	{
 		freeOT_Pair(keyPairs_R[i]);
+		clearECC_Point(c_i_Array_R[i] -> u);
+		clearECC_Point(c_i_Array_R[i] -> v);
+		free(c_i_Array_R[i]);
 	}
 	free(keyPairs_R);
+
+
+	for(; i < 2 * totalOTs; i ++)
+	{
+		clearECC_Point(c_i_Array_R[i] -> u);
+		clearECC_Point(c_i_Array_R[i] -> v);
+		free(c_i_Array_R[i]);
+	}
 
 	return params_R -> crs -> J_set;
 }
@@ -193,6 +204,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 		
 			//freeCircuitStruct(tempGarbleCircuit, 0);
+			freeTempGarbleCircuit(tempGarbleCircuit);
 		}
 	}
 

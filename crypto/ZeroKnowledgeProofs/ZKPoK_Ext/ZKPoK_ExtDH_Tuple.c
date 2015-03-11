@@ -136,6 +136,9 @@ struct twoDH_Tuples *getDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
 	tuples = initTwoDH_Tuples(g_0, g_1, h_0, h_1, u_Product, v_Product);
 
 
+	clearECC_Point(u_Product);
+	clearECC_Point(v_Product);
+
 	return tuples;
 }
 
@@ -175,6 +178,9 @@ struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
 
 	tuples = initTwoDH_Tuples_2U(g_0, g_1, h_0, h_1, u0_Product, u1_Product, v_Product);
 
+	clearECC_Point(u0_Product);
+	clearECC_Point(u1_Product);
+	clearECC_Point(v_Product);
 
 	return tuples;
 }
