@@ -14,7 +14,7 @@ struct witnessStruct *proverSetupWitnesses_1Of2(mpz_t *alphas_List, unsigned cha
 }
 
 
-struct witnessStruct *proverSetupWitnesses_1(mpz_t *alphas_List)
+struct witnessStruct *proverSetupWitnesses_1(mpz_t *alphas_List, unsigned char *J_set)
 {
 	struct witnessStruct *witnessSet = initWitnessStruc(2);
 	int i;
@@ -336,7 +336,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	int bufferOffset = 0, commBufferLen = 0;
 
 
-	witnessSet = proverSetupWitnesses_1(alphas_List);
+	witnessSet = proverSetupWitnesses_1(alphas_List, J_set);
 
 
 
@@ -469,156 +469,6 @@ int ZKPoK_Verifier_ECC_1Of2(int writeSocket, int readSocket, struct eccParams *p
 
 
 
-
-void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs,
-									struct eccParams *params,
-									struct twoDH_Tuples **tuples,
-									mpz_t *alphas_List, unsigned char **J_set, gmp_randstate_t *state)
-{
-	struct witnessStruct **witnessSet;
-	mpz_t *tempMPZ;
-	struct alphaAndA_Struct *alphaAndA_P;
-	struct verifierCommitment_ECC *commitment_box_P;
-	struct msgOneArrays_ECC *msgOne_P;
-
-	unsigned char *commBuffer;
-	int bufferOffset = 0, commBufferLen = 0;
-	int i = 0;
-
-
-	for(i = 0; i < numPairs; i ++)
-	{
-		witnessSet[i] = proverSetupWitnesses_1(alphas_List + i);
-	}
-
-	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params, *state);
-
-
-
-	bufferOffset = 0;
-	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(alphaAndA_P -> alpha), sizeof(unsigned char));
-	serialise_ECC_Point(alphaAndA_P -> alpha, commBuffer, &bufferOffset);
-	sendBoth(writeSocket, commBuffer, bufferOffset);
-	free(commBuffer);
-	// Round 1
-
-
-	bufferOffset = 0;
-	commBufferLen = 0;
-	commitment_box_P = initVerifierCommitment_ECC();
-
-
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	commitment_box_P -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
-	free(commBuffer);
-	// Round 2
-
-	i = 0;
-	bufferOffset = 0;
-	msgOne_P = proverMessageOne_ECC_1Of2(params, J_set[i], alphaAndA_P -> alpha, 
-									tuples[i] -> g_0_List, tuples[i] -> g_1_List,
-									tuples[i] -> h_0_List, tuples[i] -> h_1_List, *state);
-	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, 2, &bufferOffset);
-	sendBoth(writeSocket, commBuffer, bufferOffset);
-	free(commBuffer);
-	// Round 3
-
-	bufferOffset = 0;
-	commBufferLen = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	deserialisedSecrets_CommitmentBox(commitment_box_P, commBuffer, &bufferOffset);
-	free(commBuffer);
-	// Round 4
-
-	bufferOffset = 0;
-	commBuffer = proverMessageTwo_ECC_1Of2(params, J_set[i], commitment_box_P, msgOne_P, witnessSet[i], alphaAndA_P, &bufferOffset);
-	sendBoth(writeSocket, commBuffer, bufferOffset);
-	free(commBuffer);
-	// Round 5
-}
-
-
-
-int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, struct eccParams *params,
-						struct eccPoint **g_0, struct eccPoint **g_1,
-						struct eccPoint **h_0_List, struct eccPoint **h_1_List,
-						gmp_randstate_t *state)
-{
-	struct alphaAndA_Struct *alphaAndA_V = (struct alphaAndA_Struct *) calloc(1, sizeof(struct alphaAndA_Struct));
-	struct verifierCommitment_ECC *commitment_box_V;
-	struct msgOneArrays_ECC *msgOne_V;
-	mpz_t *tempMPZ, *Z_array_V, *cShares_V;
-	unsigned char *commBuffer;
-
-	int cCheck = 0, verified = 0, bufferOffset = 0, commBufferLen = 0, i;
-
-
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	alphaAndA_V -> alpha = deserialise_ECC_Point(commBuffer, &bufferOffset);
-	free(commBuffer);
-	// Round 1
-
-
-	commitment_box_V = verifierSetupCommitment_ECC_1Of2(params, alphaAndA_V -> alpha, *state);
-
-	bufferOffset = 0;
-	commBuffer = (unsigned char *) calloc(sizeOfSerial_ECCPoint(commitment_box_V -> C_commit), sizeof(unsigned char));
-	serialise_ECC_Point(commitment_box_V -> C_commit, commBuffer, &bufferOffset);
-	sendBoth(writeSocket, commBuffer, bufferOffset);
-	free(commBuffer);
-	// Round 2
-
-
-	msgOne_V = initMsgOneArray_ECC(2);
-	bufferOffset = 0;
-	commBufferLen = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-
-
-	for(i = 0; i < 2; i ++)
-	{
-		msgOne_V -> A_array[i] = deserialise_ECC_Point(commBuffer, &bufferOffset);
-		msgOne_V -> B_array[i] = deserialise_ECC_Point(commBuffer, &bufferOffset);
-	}
-	free(commBuffer);
-	// Round 3
-
-
-	bufferOffset = 0;
-	commBuffer = verifierQuery_ECC_1Of2(commitment_box_V, &bufferOffset);
-	sendBoth(writeSocket, commBuffer, bufferOffset);
-	// Round 4
-	free(commBuffer);
-
-	bufferOffset = 0;
-	commBufferLen = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-
-
-	Z_array_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
-	cShares_V = deserialiseMPZ_Array(commBuffer, &bufferOffset);
-	tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
-	mpz_set(alphaAndA_V -> a, *tempMPZ);
-	free(commBuffer);
-
-	verified = verifierChecks_ECC_1Of2(params, g_0, g_1, h_0_List, h_1_List, Z_array_V,
-								msgOne_V -> A_array, msgOne_V -> B_array, alphaAndA_V, cShares_V, commitment_box_V -> c);
-
-
-	for(i = 0; i < 2; i ++)
-	{
-		mpz_clear(Z_array_V[i]);
-		mpz_clear(cShares_V[i]);
-	}
-
-	mpz_clear(*tempMPZ);
-	free(Z_array_V);
-	free(cShares_V);
-	free(tempMPZ);
-
-	return verified;
-}
 
 
 
