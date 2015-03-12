@@ -122,6 +122,10 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 
 
+
+
+
+
 void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
@@ -145,7 +149,10 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	int commBufferLen = 0;
 
 	struct timespec ext_t_0, ext_t_1;
+	struct timespec int_t_0, int_t_1;
 	clock_t ext_c_0, ext_c_1;
+	clock_t int_c_0, int_c_1;
+
 
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
@@ -172,10 +179,17 @@ void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	}
 	free_idAndValueChain(startOfInputChain);
 
+	
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	state = seedRandGen();
 	J_set = full_CnC_OT_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,

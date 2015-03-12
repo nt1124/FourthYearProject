@@ -325,6 +325,7 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 		mpz_clear(local_Lambda[i]);
 	}
 	free(local_Lambda);
+	free(J_set);
 	freeTwoDH_Tuples(tuples);
 }
 
@@ -409,6 +410,12 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 					witness, J_set, state);
 
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_clear(lambda[i]);
+	}
+	free(lambda);
+	free(J_set);
 	freeTwoDH_Tuples(tuples);
 }
 
@@ -445,6 +452,11 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 									tuples -> g_0_List, tuples -> g_1_List,
 									tuples -> h_0_List, tuples -> h_1_List, state);
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_clear(lambda[i]);
+	}
+	free(lambda);
 	freeTwoDH_Tuples(tuples);
 }
 

@@ -1,18 +1,22 @@
 unsigned char *generate_Mod_J_Set(int stat_SecParam)
 {
 	unsigned char *J_set = (unsigned char *) calloc(stat_SecParam, sizeof(int));
-	int i = 0;
+	int i = 0, J_setSize;
 	unsigned int tempInt = 0;
 
 
-	for(i = 0; i < stat_SecParam; i ++)
+	do
 	{
-		tempInt = rand() % 2;
-		if(1 == tempInt)
+		J_setSize = 0;
+		for(i = 0; i < stat_SecParam; i ++)
 		{
-			J_set[i] = 0x01;
+			J_set[i] = rand() % 2;
+			if(0x01 == J_set[i])
+			{
+				J_setSize ++;
+			}
 		}
-	}
+	} while(stat_SecParam == J_setSize);
 
 
 	return J_set;
@@ -279,11 +283,11 @@ void test_CnC_OT_Mod_Receiver(char *ipAddress)
 
 	unsigned char *commBuffer, inputBit = 0x00;
 	int bufferOffset = 0, commBufferLen = 0;
-	int stat_SecParam = 8, comp_SecParam = 256;
+	int stat_SecParam = 4, comp_SecParam = 256;
 	int i, j = 0, k = 0;
 
 	const int DEBUG_TRANSFER = 0;
-	const int DEBUG_CHECK = 1;
+	const int DEBUG_CHECK = 0;
 
 	readPort = 7654;
 	writePort = readPort + 1;
@@ -297,42 +301,53 @@ void test_CnC_OT_Mod_Receiver(char *ipAddress)
 	params_R = setup_CnC_OT_Mod_Full_Receiver(writeSocket, readSocket, stat_SecParam, comp_SecParam, *state);
 
 	mpz_init(r_i);
-	mpz_urandomm(r_i, *state, params_R -> params -> n);
-
-	testTildeList = initTildeList(stat_SecParam, r_i, params_R -> crs, params_R -> params, inputBit);
-
-
-	commBufferLen = 0;
-	commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-
-
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
-	free(commBuffer);
 
 
 	output0 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 	output1 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
+	for(i = 0; i < 128; i ++)
+	{
+		mpz_urandomm(r_i, *state, params_R -> params -> n);
+
+		testTildeList = initTildeList(stat_SecParam, r_i, params_R -> crs, params_R -> params, inputBit);
+
+		commBufferLen = 0;
+		commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
+
+		// ZKPoK Here
+		ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, &r_i, inputBit,
+									params_R -> params -> g, params_R -> crs -> g_1,
+									testTildeList -> g_tilde, testTildeList -> g_tilde,
+									params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
+									testTildeList -> h_tildeList, params_R -> params, state);
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
+		free(commBuffer);
+
+
+		#pragma omp parallel for private(j) schedule(auto)
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			if(0x00 == inputBit)
+			{
+				output0[j] = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, inputBit, j);
+				output1[j] = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, inputBit, j);
+			}
+			else
+			{
+				output0[j] = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, inputBit, j);
+				output1[j] = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, inputBit, j);
+			}
+		}
+	}
+
+
 	for(j = 0; j < stat_SecParam; j ++)
 	{
-		k += params_R -> crs -> J_set[j];
-
-		if(0x00 == inputBit)
-		{
-			output0[j] = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, inputBit, j);
-			output1[j] = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, inputBit, j);
-		}
-		else
-		{
-			output0[j] = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, inputBit, j);
-			output1[j] = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, inputBit, j);
-		}
-
-
 		if(DEBUG_TRANSFER && NULL != output0[j])
 		{
 			printf("M_%d_0 = ", j);
@@ -356,19 +371,17 @@ void test_CnC_OT_Mod_Receiver(char *ipAddress)
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
-
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	checkCTs = deserialise_OT_Mod_Check_CTs(commBuffer, &bufferOffset, 16);
 	free(commBuffer);
-
 
 	output0 = decrypt_jSet_Checks(params_R, checkCTs, checkTildes);
 	for(j = 0; j < stat_SecParam; j ++)
 	{
 		if(DEBUG_CHECK && NULL != output0[j])
 		{
-			printf("M_%d_0 = ", j);
+			printf("X_%d   = ", j);
 			for(i = 0; i < 16; i ++)
 			{
 				printf("%02X", output0[j][i]);
@@ -376,11 +389,11 @@ void test_CnC_OT_Mod_Receiver(char *ipAddress)
 		}
 	}
 
+
 	ZKPoK_Ext_DH_TupleProverAll(writeSocket, readSocket, stat_SecParam, checkTildes -> roe_jList, params_R -> crs -> alphas_List,
 								params_R -> params -> g, params_R -> crs -> g_1,
 								checkTildes -> h_tildeList,
 								params_R -> params, state);
-
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);

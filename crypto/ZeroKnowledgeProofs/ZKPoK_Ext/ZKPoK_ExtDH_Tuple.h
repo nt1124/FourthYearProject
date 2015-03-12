@@ -12,9 +12,28 @@ struct twoDH_Tuples
 } twoDH_Tuples;
 
 
+
+typedef struct tildeList
+{
+	struct eccPoint *g_tilde;
+
+	struct eccPoint **h_tildeList;
+} tildeList;
+
+
+typedef struct tildeCRS
+{
+	mpz_t *r_List;
+
+	struct tildeList **lists;
+} tildeCRS;
+
+
+
 // Stuff goes here.
 #include "ZKPoK_ExtDH_Tuple_1Of2_Utils.c"
 #include "ZKPoK_ExtDH_Tuple_1Of2.c"
+#include "ZKPoK_ExtDH_Tuple_Utils.c"
 #include "ZKPoK_ExtDH_Tuple.c"
 
 
