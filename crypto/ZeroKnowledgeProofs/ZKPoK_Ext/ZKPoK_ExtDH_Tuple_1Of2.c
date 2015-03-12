@@ -14,22 +14,6 @@ struct witnessStruct *proverSetupWitnesses_1Of2(mpz_t *alphas_List, unsigned cha
 }
 
 
-struct witnessStruct *proverSetupWitnesses_1(mpz_t *alphas_List, unsigned char *J_set)
-{
-	struct witnessStruct *witnessSet = initWitnessStruc(2);
-	int i;
-
-
-	for(i = 0; i < 2; i ++)
-	{
-		mpz_set(witnessSet -> witnesses[i], *alphas_List);
-
-	}
-
-	return witnessSet;
-}
-
-
 struct alphaAndA_Struct *proverSetupCommitment_ECC_1Of2(struct eccParams *params, gmp_randstate_t state)
 {
 	struct alphaAndA_Struct *alphaAndA = (struct alphaAndA_Struct*) calloc(1, sizeof(struct alphaAndA_Struct));
@@ -336,7 +320,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	int bufferOffset = 0, commBufferLen = 0;
 
 
-	witnessSet = proverSetupWitnesses_1(alphas_List, J_set);
+	witnessSet = proverSetupWitnesses_1Of2(alphas_List, J_set);
 
 
 

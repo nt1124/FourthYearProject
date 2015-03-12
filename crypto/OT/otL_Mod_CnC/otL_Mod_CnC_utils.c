@@ -1,4 +1,3 @@
-/*
 struct tildeList *initTildeList(int stat_secParam, mpz_t r_i, struct CRS_CnC_ECC *crs,
 								struct eccParams *params, unsigned char inputBit)
 {
@@ -78,6 +77,7 @@ void serialiseTildeList_Alt(struct tildeList *listToSerialise, unsigned char *co
 
 	*outputOffset = bufferOffset;
 }
+
 
 
 
@@ -173,8 +173,6 @@ struct tildeCRS *deserialiseTildeCRS(unsigned char *commBuffer, int numLists, in
 
 	return toReturn;
 }
-*/
-
 
 
 
