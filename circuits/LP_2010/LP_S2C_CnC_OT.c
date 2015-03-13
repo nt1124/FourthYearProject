@@ -1,7 +1,7 @@
-const int stat_SecParam = 4;
+// const int stat_SecParam = 4;
 
 
-void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
+void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -122,7 +122,7 @@ void runBuilder_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 
 
-void runExecutor_LP_2014_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
+void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;

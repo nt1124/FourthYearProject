@@ -1,19 +1,22 @@
 unsigned char *generate_Mod_J_Set(int stat_SecParam)
 {
 	unsigned char *J_set = (unsigned char *) calloc(stat_SecParam, sizeof(int));
-	int i = 0;
+	int i = 0, J_set_size;
 	unsigned int tempInt = 0;
 
 
-	for(i = 0; i < stat_SecParam; i ++)
+	do
 	{
-		tempInt = rand() % 2;
-		if(1 == tempInt)
+		J_set_size = 0;
+		for(i = 0; i < stat_SecParam; i ++)
 		{
-			J_set[i] = 0x01;
+			J_set[i] = rand() % 2;
+			if(1 == J_set[i])
+			{
+				J_set_size ++;
+			}
 		}
-	}
-
+	} while(0 == J_set_size || stat_SecParam == J_set_size);
 
 	return J_set;
 }

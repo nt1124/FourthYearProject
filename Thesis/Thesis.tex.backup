@@ -232,18 +232,11 @@
 
 			It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
 
-	\section{Implementation Details} \label{sec:ImplementationDetails}
+	\section{Implementation Details}
 		\subsection{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use, instead it is for the purposes of comparing the performance of the protocols under consideration. For example we have not established a secure connection between the two parties.\\
 
-			Where possible I have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
-
-	\section{Results} \label{sec:Results}
-		\subsection{Experiments}
-		
-		\subsection{Measurement metrics}
-		
-		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
+			Where possible I have implemented everything myself and reused the same code across protocols, rather than using available libraries. This is due to a desire to maintain a consistent quality of implementation, using libraries in certain places would probably improve the quality of the implementation but would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another due to  
 
 	\begin{thebibliography}{5}
 		\bibitem{LindellPinkas2010}

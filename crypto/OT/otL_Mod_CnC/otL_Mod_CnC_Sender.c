@@ -216,7 +216,6 @@ void test_CnC_OT_Mod_Sender()
 												receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
 												params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
 												receivedTildeList -> h_tildeList, params_S -> params, state);
-		printf("Temp verify ?= %d\n", verified);
 
 		commBufferLen = 0;
 		CTs = transfer_CnC_OT_Mod_Enc_i(params_S, receivedTildeList, M_0, M_1, *state);
