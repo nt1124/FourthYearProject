@@ -1,7 +1,7 @@
 #ifndef CUT_AND_CHOOSE_OT_MOD
 #define CUT_AND_CHOOSE_OT_MOD
 
-
+/*
 typedef struct tildeList
 {
 	struct eccPoint *g_tilde;
@@ -15,7 +15,7 @@ typedef struct tildeCRS
 	mpz_t *r_List;
 
 	struct tildeList **lists;
-} tildeCRS;
+} tildeCRS;*/
 
 
 typedef struct CnC_OT_Mod_Check_CT

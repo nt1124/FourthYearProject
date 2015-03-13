@@ -388,7 +388,7 @@ void ZKPoK_Ext_DH_TupleProver_2U(int writeSocket, int readSocket, int stat_SecPa
 
 	mpz_t *lambda;
 	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
-	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
+	int i, commBufferLen = 0, bufferOffset = 0;
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -446,6 +446,8 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 									tuples -> h_0_List, tuples -> h_1_List, state);
 
 	freeTwoDH_Tuples(tuples);
+
+	return verified;
 }
 
 
@@ -466,7 +468,7 @@ void ZKPoK_Ext_DH_TupleProver_2U_2V(int writeSocket, int readSocket, int stat_Se
 	struct twoDH_Tuples *tuples;
 
 	unsigned char *commBuffer, *J_set = (unsigned char *) calloc(2, sizeof(unsigned char));
-	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
+	int i, commBufferLen = 0, bufferOffset = 0;
 	mpz_t *lambda;
 
 
@@ -489,6 +491,7 @@ void ZKPoK_Ext_DH_TupleProver_2U_2V(int writeSocket, int readSocket, int stat_Se
 					witness, J_set, state);
 
 	freeTwoDH_Tuples(tuples);
+
 }
 
 
@@ -530,6 +533,8 @@ int ZKPoK_Ext_DH_TupleVerifier_2U_2V(int writeSocket, int readSocket, int stat_S
 									tuples -> h_0_List, tuples -> h_1_List, state);
 
 	freeTwoDH_Tuples(tuples);
+
+	return verified;
 }
 
 
@@ -556,6 +561,7 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 	unsigned char *commBuffer, inputBit = 0x00;
 	int bufferOffset = 0, commBufferLen = 0;
 	int stat_SecParam = 8, comp_SecParam = 256;
+	int i;
 
 
 	readPort = 7654;
@@ -573,27 +579,29 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 	free(commBuffer);
 
 
-	mpz_init(witness[inputBit]);
-	mpz_urandomm(witness[inputBit], *state, params_P -> params -> n);
-	mpz_init_set(witness[1 - inputBit], witness[inputBit]);
+	for(i = 0; i < 20; i ++)
+	{
+		mpz_init(witness[inputBit]);
+		mpz_urandomm(witness[inputBit], *state, params_P -> params -> n);
+		mpz_init_set(witness[1 - inputBit], witness[inputBit]);
 
-	testTildeList = initTildeList(stat_SecParam, *witness, params_P -> crs, params_P -> params, inputBit);
-
-
-	commBufferLen = 0;
-	commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+		testTildeList = initTildeList(stat_SecParam, *witness, params_P -> crs, params_P -> params, inputBit);
 
 
+		commBufferLen = 0;
+		commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
 
-	ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, witness, inputBit,
-								params_P -> params -> g, params_P -> crs -> g_1,
-								testTildeList -> g_tilde, testTildeList -> g_tilde,
-								params_P -> crs -> h_0_List, params_P -> crs -> h_1_List,
-								testTildeList -> h_tildeList,
-								params_P ->  params, state);
 
+
+		ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, witness, inputBit,
+									params_P -> params -> g, params_P -> crs -> g_1,
+									testTildeList -> g_tilde, testTildeList -> g_tilde,
+									params_P -> crs -> h_0_List, params_P -> crs -> h_1_List,
+									testTildeList -> h_tildeList,
+									params_P ->  params, state);
+	}
 
 
 	close_client_socket(readSocket);
@@ -622,6 +630,7 @@ void test_ZKPoK_ExtDH_Tuple_Verifier()
 	int cCheck = 0, verified = 0;
 	int bufferOffset = 0, commBufferLen = 0;
 
+
 	writePort = 7654;
 	readPort = writePort + 1;
 	gmp_randstate_t *state = seedRandGen();
@@ -636,25 +645,28 @@ void test_ZKPoK_ExtDH_Tuple_Verifier()
 	free(commBuffer);
 
 
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
-	free(commBuffer);
+	for(i = 0; i < 20; i ++)
+	{
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
+		free(commBuffer);
 
 
-	verified =  ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
-											params_V -> params -> g, params_V -> crs -> g_1,
-											receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
-											params_V -> crs -> h_0_List, params_V -> crs -> h_1_List,
-											receivedTildeList -> h_tildeList,
-											params_V -> params, state);
+		verified =  ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
+												params_V -> params -> g, params_V -> crs -> g_1,
+												receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
+												params_V -> crs -> h_0_List, params_V -> crs -> h_1_List,
+												receivedTildeList -> h_tildeList,
+												params_V -> params, state);
 
+		printf(">> %d\n",verified);
+		fflush(stdout);
+	}
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 
-	printf("%d\n",verified);
-	fflush(stdout);
 
 	freeParams_CnC_ECC(params_V);
 	gmp_randclear(*state);

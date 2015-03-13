@@ -1,4 +1,4 @@
-struct tildeList *initTildeList(int stat_secParam, mpz_t r_i, struct CRS_CnC_ECC *crs,
+/*struct tildeList *initTildeList(int stat_secParam, mpz_t r_i, struct CRS_CnC_ECC *crs,
 								struct eccParams *params, unsigned char inputBit)
 {
 	struct tildeList *output = (struct tildeList*) calloc(1, sizeof(struct tildeList));
@@ -173,7 +173,7 @@ struct tildeCRS *deserialiseTildeCRS(unsigned char *commBuffer, int numLists, in
 
 	return toReturn;
 }
-
+*/
 
 
 unsigned char *serialise_Mod_CTs(struct CnC_OT_Mod_CTs **CTs, int arrayLen, int *outputLength, int keyLength)

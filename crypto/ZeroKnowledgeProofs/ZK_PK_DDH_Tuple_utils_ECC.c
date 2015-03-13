@@ -111,3 +111,56 @@ void deserialise_A_B_Arrays_ECC(struct msgOneArrays_ECC *outputStruct, unsigned 
 
 	*bufferOffset = localOffset;
 }
+
+
+unsigned char *serialise_Array_A_B_Arrays_ECC(struct msgOneArrays_ECC **toSerialise, int numTuples, int stat_SecParam, int *outputLength)
+{
+	unsigned char *outputBuffer, *A_Buffer, *B_Buffer;
+	int i, j, outputOffset = 0;
+
+	*outputLength = 0;
+
+	for(j = 0; j < numTuples; j ++)
+	{
+		for(i = 0; i < stat_SecParam; i ++)
+		{
+			*outputLength += sizeOfSerial_ECCPoint(toSerialise[j] -> A_array[i]);
+			*outputLength += sizeOfSerial_ECCPoint(toSerialise[j] -> B_array[i]);
+		}
+	}
+
+
+	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
+	
+	
+	for(j = 0; j < numTuples; j ++)
+	{
+		for(i = 0; i < stat_SecParam; i ++)
+		{
+			serialise_ECC_Point(toSerialise[j] -> A_array[i], outputBuffer, &outputOffset);
+			serialise_ECC_Point(toSerialise[j] -> B_array[i], outputBuffer, &outputOffset);
+		}
+	}
+
+
+	return outputBuffer;
+}
+
+
+void deserialise_Array_A_B_Arrays_ECC(struct msgOneArrays_ECC **outputStruct, int numTuples, unsigned char *inputBuffer, int *bufferOffset, int stat_SecParam)
+{
+	int localOffset = *bufferOffset, i, j;
+
+	
+	for(j = 0; j < numTuples; j ++)
+	{
+		for(i = 0; i < stat_SecParam; i ++)
+		{
+			outputStruct[j] -> A_array[i] = deserialise_ECC_Point(inputBuffer, &localOffset);
+			outputStruct[j] -> B_array[i] = deserialise_ECC_Point(inputBuffer, &localOffset);
+		}
+	}
+
+
+	*bufferOffset = localOffset;
+}

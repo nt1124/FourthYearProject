@@ -131,8 +131,6 @@ struct CnC_OT_Mod_Check_CT **checkCnC_OT_Mod_Enc(struct params_CnC_ECC *params_S
 }
 
 
-
-
 void test_CnC_OT_Mod_Sender()
 {
 	struct params_CnC_ECC *params_S;
@@ -146,16 +144,16 @@ void test_CnC_OT_Mod_Sender()
 	int writePort, readPort, i, j;
 
 	unsigned char *commBuffer;
-	unsigned char **M_0;
-	unsigned char **M_1;
+	unsigned char **inputX_js, **M_0, **M_1;
 
-	int stat_SecParam = 8, comp_SecParam = 256;
+	int stat_SecParam = 4, comp_SecParam = 256, verified = 0;
 	int bufferOffset = 0, commBufferLen = 0;
 
-	const int DEBUG_TRANSFER = 0;
-	const int DEBUG_CHECK = 1;
+	const int DEBUG_TRANSFER = 1;
+	const int DEBUG_CHECK = 0;
 
 
+	inputX_js = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char*));
 	M_0 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char*));
 	M_1 = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char*));
 
@@ -171,17 +169,13 @@ void test_CnC_OT_Mod_Sender()
 	params_S = setup_CnC_OT_Mod_Full_Sender(writeSocket, readSocket, *state);
 
 
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
-	free(commBuffer);
-
 	for(j = 0; j < stat_SecParam; j ++)
 	{
+		inputX_js[j] = generateRandBytes(16, 16);
 		M_0[j] = generateRandBytes(16, 16);
 		M_1[j] = generateRandBytes(16, 16);
 
-		if(DEBUG_TRANSFER || DEBUG_CHECK)
+		if(DEBUG_TRANSFER)
 		{
 			printf("M_%d_0 = ", j);
 			for(i = 0; i < 16; i ++)
@@ -196,14 +190,41 @@ void test_CnC_OT_Mod_Sender()
 			}
 			printf("\n\n");
 		}
+
+		if(DEBUG_CHECK)
+		{
+			printf("X_%d   = ", j);
+			for(i = 0; i < 16; i ++)
+			{
+				printf("%02X", inputX_js[j][i]);
+			}
+			printf("\n");
+		}
+
 	}
 
+	for(i = 0; i < 32; i ++)
+	{
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
+		free(commBuffer);
 
-	CTs = transfer_CnC_OT_Mod_Enc_i(params_S, receivedTildeList, M_0, M_1, *state);
-	commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+		// ZKPoK
+		verified |= ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
+												params_S -> params -> g, params_S -> crs -> g_1,
+												receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
+												params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
+												receivedTildeList -> h_tildeList, params_S -> params, state);
+		printf("Temp verify ?= %d\n", verified);
 
+		commBufferLen = 0;
+		CTs = transfer_CnC_OT_Mod_Enc_i(params_S, receivedTildeList, M_0, M_1, *state);
+		commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
+	}
+	printf("Sender verify ?= %d\n", verified);
 
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -211,7 +232,7 @@ void test_CnC_OT_Mod_Sender()
 	free(commBuffer);
 
 
-	checkCTs = checkCnC_OT_Mod_Enc(params_S, checkTildes, M_0, *state);
+	checkCTs = checkCnC_OT_Mod_Enc(params_S, checkTildes, inputX_js, *state);
 	commBuffer = serialise_OT_Mod_Check_CTs(checkCTs, stat_SecParam, &commBufferLen, 16);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);

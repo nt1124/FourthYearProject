@@ -14,6 +14,22 @@ struct witnessStruct *proverSetupWitnesses_1Of2(mpz_t *alphas_List, unsigned cha
 }
 
 
+struct witnessStruct *proverSetupWitnesses_1(mpz_t *alphas_List)
+{
+	struct witnessStruct *witnessSet = initWitnessStruc(2);
+	int i;
+
+
+	for(i = 0; i < 2; i ++)
+	{
+		mpz_set(witnessSet -> witnesses[i], *alphas_List);
+
+	}
+
+	return witnessSet;
+}
+
+
 struct alphaAndA_Struct *proverSetupCommitment_ECC_1Of2(struct eccParams *params, gmp_randstate_t state)
 {
 	struct alphaAndA_Struct *alphaAndA = (struct alphaAndA_Struct*) calloc(1, sizeof(struct alphaAndA_Struct));
@@ -295,6 +311,8 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 		clearECC_Point(B_check);
 	}
 
+
+
 	finalDecision |= AB_check;
 	finalDecision |= alphaCheck;
 
@@ -320,7 +338,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	int bufferOffset = 0, commBufferLen = 0;
 
 
-	witnessSet = proverSetupWitnesses_1Of2(alphas_List, J_set);
+	witnessSet = proverSetupWitnesses_1(alphas_List);
 
 
 
@@ -491,12 +509,12 @@ void test_ZKPoK_ECC_1Of2()
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_0[0] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
-	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
+	// mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_0[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_1[0] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
-	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
+	// mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_1[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
@@ -514,6 +532,7 @@ void test_ZKPoK_ECC_1Of2()
 	params_P -> crs -> J_set[0] = 0x01;
 	params_P -> crs -> J_set[1] = 0x00;
 
+	mpz_set(params_P -> crs -> alphas_List[1], params_P -> crs -> alphas_List[0]);
 
 	witnessSet = proverSetupWitnesses_1Of2(params_P -> crs -> alphas_List, params_P -> crs -> J_set);
 	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params_P -> params, *state);
@@ -585,4 +604,250 @@ void test_ZKPoK_ECC_1Of2()
 								alphaAndA_V, cShares_V, commitment_box_V -> c);
 
 	printf("%d\n",verified);
+}
+
+
+
+
+void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs,
+									struct eccParams *params,
+									struct twoDH_Tuples **tuples,
+									mpz_t *alphas_List, unsigned char **J_set, gmp_randstate_t *state)
+{
+	struct witnessStruct **witnessSet;
+	mpz_t *tempMPZ;
+	struct alphaAndA_Struct **alphaAndA_P;
+	struct verifierCommitment_ECC **commitment_box_P;
+	struct msgOneArrays_ECC **msgOne_P;
+
+	unsigned char *commBuffer, **listOfBuffers;
+	int bufferOffset = 0, commBufferLen = 0, *arrayOfLengths;
+	int i = 0;
+
+
+	witnessSet = (struct witnessStruct **) calloc(numPairs, sizeof(struct witnessStruct *));
+	alphaAndA_P = (struct alphaAndA_Struct **) calloc(numPairs, sizeof(struct alphaAndA_Struct *));
+	commitment_box_P = (struct verifierCommitment_ECC **) calloc(numPairs, sizeof(struct verifierCommitment_ECC *));
+	msgOne_P = (struct msgOneArrays_ECC **) calloc(numPairs, sizeof(struct msgOneArrays_ECC));
+
+
+	listOfBuffers = (unsigned char **) calloc(numPairs, sizeof(unsigned char*));
+	arrayOfLengths = (int*) calloc(numPairs, sizeof(int));
+
+
+	for(i = 0; i < numPairs; i ++)
+	{
+		witnessSet[i] = proverSetupWitnesses_1(alphas_List + i);
+	}
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	for(i = 0; i < numPairs; i ++)
+	{
+		alphaAndA_P[i] = proverSetupCommitment_ECC_1Of2(params, *state);
+		commBufferLen += sizeOfSerial_ECCPoint(alphaAndA_P[i] -> alpha);
+	}
+	commBuffer = (unsigned char *) calloc(commBufferLen, sizeof(unsigned char));
+	for(i = 0; i < numPairs; i ++)
+	{
+		serialise_ECC_Point(alphaAndA_P[i] -> alpha, commBuffer, &bufferOffset);
+	}
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
+	// Round 1
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	for(i = 0; i < numPairs; i ++)
+	{
+		commitment_box_P[i] = initVerifierCommitment_ECC();
+		commitment_box_P[i] -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
+		// Round 2
+	}
+	free(commBuffer);
+
+
+	for(i = 0; i < numPairs; i ++)
+	{
+		bufferOffset = 0;
+		msgOne_P[i] = proverMessageOne_ECC_1Of2(params, J_set[i], alphaAndA_P[i] -> alpha, 
+										tuples[i] -> g_0_List, tuples[i] -> g_1_List,
+										tuples[i] -> h_0_List, tuples[i] -> h_1_List, *state);
+	}
+	commBuffer = serialise_Array_A_B_Arrays_ECC(msgOne_P, numPairs, 2, &bufferOffset);
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
+	// Round 3
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	for(i = 0; i < numPairs; i ++)
+	{
+		deserialisedSecrets_CommitmentBox(commitment_box_P[i], commBuffer, &bufferOffset);
+	}
+	free(commBuffer);
+	// Round 4
+
+
+	commBufferLen = 0;
+	for(i = 0; i < numPairs; i ++)
+	{
+		// commBuffer = proverMessageTwo_ECC_1Of2(params, J_set[i], commitment_box_P[i], msgOne_P[i], witnessSet[i], alphaAndA_P[i], &bufferOffset);
+		listOfBuffers[i] = proverMessageTwo_ECC_1Of2(params, J_set[i], commitment_box_P[i], msgOne_P[i], witnessSet[i], alphaAndA_P[i], arrayOfLengths + i);
+		commBufferLen += arrayOfLengths[i];
+	}
+
+	bufferOffset = 0;
+	commBuffer = (unsigned char *) calloc(commBufferLen, sizeof(unsigned char));
+	for(i = 0; i < numPairs; i ++)
+	{
+		memcpy(commBuffer + bufferOffset, listOfBuffers[i], arrayOfLengths[i]);
+		bufferOffset += arrayOfLengths[i];
+		free(listOfBuffers[i]);
+	}
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
+	// Round 5
+}
+
+
+
+int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs, struct eccParams *params,
+						struct twoDH_Tuples **tuples, gmp_randstate_t *state)
+{
+	struct alphaAndA_Struct **alphaAndA_V = (struct alphaAndA_Struct **) calloc(1, sizeof(struct alphaAndA_Struct*));
+	struct verifierCommitment_ECC **commitment_box_V;
+	struct msgOneArrays_ECC **msgOne_V;
+	mpz_t *tempMPZ, **Z_array_V, **cShares_V;
+	unsigned char *commBuffer, **listOfBuffers;
+	int *arrayOfLengths;
+
+	int cCheck = 0, verified = 0, bufferOffset = 0, commBufferLen = 0, i, j;
+
+
+	alphaAndA_V = (struct alphaAndA_Struct **) calloc(numPairs, sizeof(struct alphaAndA_Struct *));
+	commitment_box_V = (struct verifierCommitment_ECC **) calloc(numPairs, sizeof(struct verifierCommitment_ECC *));
+	msgOne_V = (struct msgOneArrays_ECC **) calloc(numPairs, sizeof(struct msgOneArrays_ECC));
+
+
+	Z_array_V = (mpz_t**) calloc(numPairs, sizeof(mpz_t*));
+	cShares_V = (mpz_t**) calloc(numPairs, sizeof(mpz_t*));
+	listOfBuffers = (unsigned char **) calloc(numPairs, sizeof(unsigned char*));
+	arrayOfLengths = (int*) calloc(numPairs, sizeof(int));
+
+
+
+
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	for(i = 0; i < numPairs; i ++)
+	{
+		alphaAndA_V[i] -> alpha = deserialise_ECC_Point(commBuffer, &bufferOffset);
+	}
+	free(commBuffer);
+	// Round 1
+
+
+	commBufferLen = 0;
+	for(i = 0; i < numPairs; i ++)
+	{
+		commitment_box_V[i] = verifierSetupCommitment_ECC_1Of2(params, alphaAndA_V[i] -> alpha, *state);
+		listOfBuffers[i] = (unsigned char *) calloc(sizeOfSerial_ECCPoint(commitment_box_V[i] -> C_commit), sizeof(unsigned char));
+		serialise_ECC_Point(commitment_box_V[i] -> C_commit, listOfBuffers[i], arrayOfLengths + i);
+		commBufferLen += arrayOfLengths[i];
+	}
+
+	bufferOffset = 0;
+	commBuffer = (unsigned char *) calloc(commBufferLen, sizeof(unsigned char));
+	for(i = 0; i < numPairs; i ++)
+	{
+		memcpy(commBuffer + bufferOffset, listOfBuffers[i], arrayOfLengths[i]);
+		bufferOffset += arrayOfLengths[i];
+		free(listOfBuffers[i]);
+	}
+	// Round 2
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	for(i = 0; i < numPairs; i ++)
+	{
+		msgOne_V[i] = initMsgOneArray_ECC(2);
+		for(j = 0; j < 2; j ++)
+		{
+			msgOne_V[i] -> A_array[j] = deserialise_ECC_Point(commBuffer, &bufferOffset);
+			msgOne_V[i] -> B_array[j] = deserialise_ECC_Point(commBuffer, &bufferOffset);
+		}
+	}
+	free(commBuffer);
+	// Round 3
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	for(i = 0; i < numPairs; i ++)
+	{
+		arrayOfLengths[i] = 0;
+		listOfBuffers[i] = verifierQuery_ECC_1Of2(commitment_box_V[i], arrayOfLengths + i);
+		commBufferLen += arrayOfLengths[i];
+	}
+	commBuffer = (unsigned char *) calloc(commBufferLen, sizeof(unsigned char));
+	for(i = 0; i < numPairs; i ++)
+	{
+		memcpy(commBuffer + bufferOffset, listOfBuffers[i], arrayOfLengths[i]);
+		bufferOffset += arrayOfLengths[i];
+		free(listOfBuffers[i]);
+	}
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
+	// Round 4
+
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+
+	for(i = 0; i < numPairs; i ++)
+	{
+		Z_array_V[i] = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+		cShares_V[i] = deserialiseMPZ_Array(commBuffer, &bufferOffset);
+		tempMPZ = deserialiseMPZ(commBuffer, &bufferOffset);
+		mpz_set(alphaAndA_V[i] -> a, *tempMPZ);
+	}
+	free(commBuffer);
+
+
+	for(i = 0; i < numPairs; i ++)
+	{
+		verified |= verifierChecks_ECC_1Of2(params,
+											tuples[i] -> g_0_List, tuples[i] -> g_1_List,
+											tuples[i] -> h_0_List, tuples[i] -> h_1_List,
+											Z_array_V[i],
+											msgOne_V[i] -> A_array, msgOne_V[i] -> B_array,
+											alphaAndA_V[i], cShares_V[i], commitment_box_V[i] -> c);
+	}
+
+	for(i = 0; i < numPairs; i ++)
+	{
+		for(j = 0; j < 2; j ++)
+		{
+			mpz_clear(Z_array_V[i][j]);
+			mpz_clear(cShares_V[i][j]);
+		}
+		free(Z_array_V[i]);
+		free(cShares_V[i]);
+	}
+
+	mpz_clear(*tempMPZ);
+	free(Z_array_V);
+	free(cShares_V);
+	free(tempMPZ);
+
+	return verified;
 }
