@@ -36,68 +36,87 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_S;
-	struct otKeyPair_ECC **keyPairs_S;
-	struct u_v_Pair_ECC **c_i_Array_S;
 
+	struct CnC_OT_Mod_CTs **CTs;
+	struct tildeList *receivedTildeList;
+	struct ECC_PK *PK;
 	struct wire *tempWire;
 
 	unsigned char *commBuffer;
-	int i, j, bufferLength = 0, iOffset = 0, numInputsBuilder;
-	int totalOTs, u_v_index;
-
-	int k, tupleVerified = 0;
+	int i, j, iOffset = 0, numInputsBuilder;
+	int commBufferLen, verified = 0, bufferOffset;
 
 
-	commBuffer = receiveBoth(readSocket, bufferLength);
-	params_S = setup_CnC_OT_Sender_ECC(commBuffer);
+	printf("Checkpoint Zelda\n");
+	fflush(stdout);
+
+	// commBuffer = receiveBoth(readSocket, commBufferLen);
+	params_S = setup_CnC_OT_Mod_Full_Sender(writeSocket, readSocket, *state);
 	free(commBuffer);
 
-	totalOTs = params_S -> crs -> stat_SecParam * circuitsArray[0] -> numInputsExecutor;
+
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
+	CTs = (struct CnC_OT_Mod_CTs **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
 
-	// When doing this properly the ZKPOK goes here.
-	tupleVerified = ZKPoK_Verifier_ECC(writeSocket, readSocket, params_S -> params, params_S -> crs -> stat_SecParam,
-									params_S -> params -> g, params_S -> crs -> g_1,
-									params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
-									state);
-
-	commBuffer = receiveBoth(readSocket, bufferLength);
-	keyPairs_S = deserialise_PKs_otKeyPair_ECC_Array(commBuffer, totalOTs);
-	free(commBuffer);
-
-
-	c_i_Array_S = (struct u_v_Pair_ECC **) calloc(2*totalOTs, sizeof(struct u_v_Pair_ECC*));
-
-	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		// #pragma omp ordered
-		// {
-			iOffset = stat_SecParam * (i - numInputsBuilder);
-			u_v_index = 2 * iOffset;
+		bufferOffset = 0;
 
-			for(j = 0; j < stat_SecParam; j ++)
-			{
-				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
+		free(commBuffer);
 
-				CnC_OT_Transfer_One_Sender_ECC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16,
-											params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
-				u_v_index += 2;
-			}
-		// }
+		PK = generate_Base_CnC_OT_Mod_PK(params_S, receivedTildeList);
+
+		// ZKPoK
+		verified |= ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
+												params_S -> params -> g, params_S -> crs -> g_1,
+												receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
+												params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
+												receivedTildeList -> h_tildeList, params_S -> params, state);
+
+		commBufferLen = 0;
+		// #pragma omp parallel for private(j, tempWire, PK) schedule(auto)
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+			CTs[j] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16,
+												PK, receivedTildeList,
+												tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1,
+												*state, j);
+		}
+		commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			// clearECC_Point(CTs[j] -> u_0);
+			// clearECC_Point(CTs[j] -> u_1);
+			// free(CTs[j] -> w_0);
+			// free(CTs[j] -> w_1);
+		}
 	}
 
-	bufferLength = 0;
-	commBuffer = serialise_U_V_Pair_Array_ECC(c_i_Array_S, totalOTs * 2, &bufferLength);
-	sendBoth(writeSocket, commBuffer, bufferLength);
+	/*
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	checkTildes = deserialise_jSet_CheckTildes(commBuffer, &bufferOffset);
 	free(commBuffer);
 
-	for(i = 0; i < totalOTs; i ++)
-	{
-		freeOT_Pair(keyPairs_S[i]);
-	}
-	free(keyPairs_S);
+
+	checkCTs = checkCnC_OT_Mod_Enc(params_S, checkTildes, inputX_js, *state);
+	commBuffer = serialise_OT_Mod_Check_CTs(checkCTs, stat_SecParam, &commBufferLen, 16);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
+	ZKPoK_Ext_DH_TupleVerifierAll(writeSocket, readSocket, stat_SecParam,
+								params_S -> params -> g, params_S -> crs -> g_1,
+								checkTildes -> h_tildeList,
+								params_S -> params, state);
+	*/
 }
 
 

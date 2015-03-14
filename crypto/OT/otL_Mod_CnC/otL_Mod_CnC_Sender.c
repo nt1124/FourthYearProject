@@ -21,6 +21,7 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Sender(int writeSocket, int readSoc
 	params_S = setup_CnC_OT_Mod_Sender(commBuffer);
 	free(commBuffer);
 
+
 	verified = ZKPoK_DL_Verifier(writeSocket, readSocket, params_S -> params,
 					params_S -> params -> g, params_S -> crs -> g_1, state);
 
@@ -30,6 +31,49 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Sender(int writeSocket, int readSoc
 	return params_S;
 }
 
+
+struct CnC_OT_Mod_CTs *transfer_CnC_OT_Mod_Enc_i_j(struct params_CnC_ECC *params_S, const int msgLength,
+												struct ECC_PK *PK, struct tildeList *tildes,
+												unsigned char *M_0, unsigned char *M_1,
+												gmp_randstate_t state, int j)
+{
+	struct CnC_OT_Mod_CTs *CTs;
+	struct u_v_Pair_ECC *tempCT;
+	unsigned char *v_xBytes, *hashedV_x;
+	int tempLength;
+
+
+	CTs = (struct CnC_OT_Mod_CTs *) calloc(1, sizeof(struct CnC_OT_Mod_CTs ));
+
+	update_CnC_OT_Mod_PK_With_0(PK, params_S, tildes, j);
+	tempCT = randomiseDDH_ECC(PK, params_S -> params, state);
+	v_xBytes = convertMPZToBytes(tempCT -> v -> x, &tempLength);
+	hashedV_x = sha256_full(v_xBytes, tempLength);
+
+	CTs -> u_0 = tempCT -> u;
+	CTs -> w_0 = XOR_TwoStrings(hashedV_x, M_0, msgLength);
+
+	clearECC_Point(tempCT -> v);
+	free(hashedV_x);
+	free(v_xBytes);
+	free(tempCT);
+
+
+	update_CnC_OT_Mod_PK_With_1(PK, params_S, j);
+	tempCT = randomiseDDH_ECC(PK, params_S -> params, state);
+	v_xBytes = convertMPZToBytes(tempCT -> v -> x, &tempLength);
+	hashedV_x = sha256_full(v_xBytes, tempLength);
+
+	CTs -> u_1 = tempCT -> u;
+	CTs -> w_1 = XOR_TwoStrings(hashedV_x, M_1, msgLength);
+
+	clearECC_Point(tempCT -> v);
+	free(hashedV_x);
+	free(v_xBytes);
+	free(tempCT);
+
+	return CTs;
+}
 
 struct CnC_OT_Mod_CTs **transfer_CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_S, struct tildeList *tildes,
 												unsigned char **M_0, unsigned char **M_1, gmp_randstate_t state)
@@ -44,7 +88,7 @@ struct CnC_OT_Mod_CTs **transfer_CnC_OT_Mod_Enc_i(struct params_CnC_ECC *params_
 
 
 	CTs = (struct CnC_OT_Mod_CTs **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
-	PK = generate_Base_CnC_OT_Mod_PK(params_S, tildes, j);
+	PK = generate_Base_CnC_OT_Mod_PK(params_S, tildes);
 
 
 	for(j = 0; j < stat_SecParam; j ++)

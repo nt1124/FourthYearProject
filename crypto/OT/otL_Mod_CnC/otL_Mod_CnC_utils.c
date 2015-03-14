@@ -362,7 +362,7 @@ struct CnC_OT_Mod_Check_CT **deserialise_OT_Mod_Check_CTs(unsigned char *commBuf
 
 
 
-struct ECC_PK *generate_Base_CnC_OT_Mod_PK(struct params_CnC_ECC *params_S, struct tildeList *tildes, int j)
+struct ECC_PK *generate_Base_CnC_OT_Mod_PK(struct params_CnC_ECC *params_S, struct tildeList *tildes)
 {
 	struct ECC_PK *PK = (struct ECC_PK *) calloc(1, sizeof(struct ECC_PK));
 

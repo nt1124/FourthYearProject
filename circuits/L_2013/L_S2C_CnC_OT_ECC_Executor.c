@@ -2,35 +2,26 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_R;
-	struct otKeyPair_ECC **keyPairs_R;
-	struct u_v_Pair_ECC **c_i_Array_R;
+	struct tildeList *testTildeList;
+	struct jSetCheckTildes *checkTildes;
+	struct CnC_OT_Mod_CTs **CTs;
+	struct CnC_OT_Mod_Check_CT **checkCTs;
+	mpz_t r_i;
 
 	struct wire *tempWire;
 
-	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1;
+	unsigned char *commBuffer, value;
 	int bufferLength = 0, i, j, iOffset = 0, numInputsBuilder;
-	int totalOTs = circuitsArray[0] -> numInputsExecutor * stat_SecParam;
-	int u_v_index = 0;
-	int k;
+	int bufferOffset = 0, commBufferLen;
 
 
-	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, comp_SecParam, *state);
-	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
-	sendBoth(writeSocket, commBuffer, bufferLength);
-	free(commBuffer);
+	params_R = setup_CnC_OT_Mod_Full_Receiver(writeSocket, readSocket, stat_SecParam, comp_SecParam, *state);
 
-	// Prove that we did indeed select s/2 many to open.
-	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,
-					params_R -> params -> g, params_R -> crs -> g_1,
-					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
-					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
-
-
-	keyPairs_R = (struct otKeyPair_ECC **) calloc(totalOTs, sizeof(struct otKeyPair_ECC*));
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	mpz_init(r_i);
+	CTs = (struct CnC_OT_Mod_CTs **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
 
 
-	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * (i - numInputsBuilder);
@@ -38,72 +29,66 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
+		mpz_urandomm(r_i, *state, params_R -> params -> n);
+		testTildeList = initTildeList(stat_SecParam, r_i, params_R -> crs, params_R -> params, value);
 
-		for(j = 0; j < stat_SecParam; j ++)
-		{
-			keyPairs_R[iOffset + j] = CnC_OT_Transfer_One_Receiver_ECC(value, j, params_R, state);
-		}
-	}
+		commBufferLen = 0;
+		commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
 
-	bufferLength = 0;
-	commBuffer = serialise_PKs_otKeyPair_ECC_Array(keyPairs_R, totalOTs, &bufferLength);
-	sendBoth(writeSocket, commBuffer, bufferLength);
-	free(commBuffer);
+		// ZKPoK Here
 
+		ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, &r_i, value,
+									params_R -> params -> g, params_R -> crs -> g_1,
+									testTildeList -> g_tilde, testTildeList -> g_tilde,
+									params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
+									testTildeList -> h_tildeList, params_R -> params, state);
 
-	bufferLength = 0;
-	commBuffer = receiveBoth(readSocket, bufferLength);
-	c_i_Array_R = deserialise_U_V_Pair_Array_ECC(commBuffer, totalOTs * 2);
-	free(commBuffer);
-
-
-	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
-	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
-	{
-		iOffset = stat_SecParam * (i - numInputsBuilder);
-		u_v_index = 2 * iOffset;
-
-		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
-		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
+		free(commBuffer);
 
 
+		// #pragma omp parallel for private(j, tempWire) schedule(auto)
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-
-			tempWire -> outputGarbleKeys -> key0 = CnC_OT_Output_One_Receiver_0_ECC(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
-			tempWire -> outputGarbleKeys -> key1 = CnC_OT_Output_One_Receiver_1_ECC(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
-
 			if(0x00 == value)
 			{
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, value, j);
+
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
 			{
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, value, j);
+
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
 			}
-
-			u_v_index += 2;
 		}
+
+		/*
+		checkTildes = transfer_CheckValues_CnC_OT_Mod_Receiver(params_R, *state);
+		commBuffer = serialise_jSet_CheckTildes(checkTildes, params_R -> crs -> stat_SecParam, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
+
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		checkCTs = deserialise_OT_Mod_Check_CTs(commBuffer, &bufferOffset, 16);
+		free(commBuffer);
+
+		ZKPoK_Ext_DH_TupleProverAll(writeSocket, readSocket, stat_SecParam, checkTildes -> roe_jList, params_R -> crs -> alphas_List,
+									params_R -> params -> g, params_R -> crs -> g_1,
+									checkTildes -> h_tildeList,
+									params_R -> params, state);
+		*/
 	}
 
-
-	for(i = 0; i < totalOTs; i ++)
-	{
-		freeOT_Pair(keyPairs_R[i]);
-		clearECC_Point(c_i_Array_R[i] -> u);
-		clearECC_Point(c_i_Array_R[i] -> v);
-		free(c_i_Array_R[i]);
-	}
-	free(keyPairs_R);
-
-
-	for(; i < 2 * totalOTs; i ++)
-	{
-		clearECC_Point(c_i_Array_R[i] -> u);
-		clearECC_Point(c_i_Array_R[i] -> v);
-		free(c_i_Array_R[i]);
-	}
 
 	return params_R -> crs -> J_set;
 }
