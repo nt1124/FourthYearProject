@@ -10,9 +10,9 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	struct Circuit **circuitsArray;
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct idAndValue *startOfInputChain, *start;
+	unsigned char **Xj_checkValues;
 	unsigned int *seedList;
-	int i;
-
+	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -25,13 +25,12 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	struct eccParams *params;
 
 	struct eccPoint **builderInputs;
-	int arrayLen;
 	unsigned char *commBuffer, *J_set;
-	int commBufferLen = 0;
 
 
 	initRandGen();
 	state = seedRandGen();
+	Xj_checkValues = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
 	// group = getSchnorrGroup(1024, *state);
 	params = initBrainpool_256_Curve();
@@ -52,6 +51,11 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	int_c_0 = clock();
 
 	seedList = generateRandUintList(stat_SecParam + 1);
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		Xj_checkValues[i] = generateRandBytes(16, 16);		
+	}
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 
@@ -78,19 +82,19 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	int_c_0 = clock();
 
 
-	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray, Xj_checkValues, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 
 
-	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
-								J_set, startOfInputChain, 
+	builderInputs = computeBuilderInputs(public_inputs, secret_inputs,
+								J_set, J_setSize, startOfInputChain, 
 								params, &arrayLen);
 
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
@@ -98,7 +102,7 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	free(commBuffer);
 
 
-	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, startOfInputChain,
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
 											params, state);
 
@@ -140,12 +144,13 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	gmp_randstate_t *state;
 
 	struct eccPoint **builderInputs;
-	int arrayLen;
+	int arrayLen, commBufferLen = 0, bufferOffset, J_setSize = 0;
 	unsigned char *commBuffer;
-	int commBufferLen = 0;
 
 	struct timespec ext_t_0, ext_t_1;
+	struct timespec int_t_0, int_t_1;
 	clock_t ext_c_0, ext_c_1;
+	clock_t int_c_0, int_c_1;
 
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
@@ -173,30 +178,39 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	free_idAndValueChain(startOfInputChain);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	state = seedRandGen();
 	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
 
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
-							pubInputGroup -> params, J_set, stat_SecParam);
+							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
 
 
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
-								J_set, stat_SecParam);
+								J_set, J_setSize, stat_SecParam);
 
 
-	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commBufferLen = 0;
-	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &bufferOffset);
 	free(commBuffer);
 
-	setBuilderInputs(builderInputs, J_set, circuitsArray,
+
+	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 
-	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set,
+	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
 										builderInputs, pubInputGroup -> public_inputs,
 										pubInputGroup -> params, state);
 

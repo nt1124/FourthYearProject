@@ -33,11 +33,12 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Sender(int writeSocket, int readSoc
 
 
 struct CnC_OT_Mod_CTs *transfer_CnC_OT_Mod_Enc_i_j(struct params_CnC_ECC *params_S, const int msgLength,
-												struct ECC_PK *PK, struct tildeList *tildes,
+												struct tildeList *tildes,
 												unsigned char *M_0, unsigned char *M_1,
 												gmp_randstate_t state, int j)
 {
 	struct CnC_OT_Mod_CTs *CTs;
+	struct ECC_PK *PK;
 	struct u_v_Pair_ECC *tempCT;
 	unsigned char *v_xBytes, *hashedV_x;
 	int tempLength;
@@ -45,7 +46,9 @@ struct CnC_OT_Mod_CTs *transfer_CnC_OT_Mod_Enc_i_j(struct params_CnC_ECC *params
 
 	CTs = (struct CnC_OT_Mod_CTs *) calloc(1, sizeof(struct CnC_OT_Mod_CTs ));
 
-	update_CnC_OT_Mod_PK_With_0(PK, params_S, tildes, j);
+	// update_CnC_OT_Mod_PK_With_0(PK, params_S, tildes, j);
+	PK = generateFullKey(params_S, tildes, j, 0x00);
+
 	tempCT = randomiseDDH_ECC(PK, params_S -> params, state);
 	v_xBytes = convertMPZToBytes(tempCT -> v -> x, &tempLength);
 	hashedV_x = sha256_full(v_xBytes, tempLength);
@@ -71,6 +74,8 @@ struct CnC_OT_Mod_CTs *transfer_CnC_OT_Mod_Enc_i_j(struct params_CnC_ECC *params
 	free(hashedV_x);
 	free(v_xBytes);
 	free(tempCT);
+	freeECC_PK(PK);
+
 
 	return CTs;
 }

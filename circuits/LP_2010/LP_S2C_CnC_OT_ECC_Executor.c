@@ -129,14 +129,22 @@ struct publicInputsWithGroup *receivePublicCommitments(int writeSocket, int read
 
 struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 							struct public_builderPRS_Keys *public_inputs, struct eccParams *params,
-							unsigned char *J_set, int stat_SecParam)
+							unsigned char *J_set, int *J_setSize, int stat_SecParam)
 {
 	struct revealedCheckSecrets *secretsJ_set;
 	struct wire *tempWire;
 	unsigned char *commBuffer;
 	int i, commBufferLen, tempOffset = stat_SecParam * sizeof(unsigned char);
+	int count = 0;
 
-	commBufferLen = stat_SecParam + (16 * 2) * (stat_SecParam / 2);
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		count += J_set[i];		
+	}
+	*J_setSize = count;
+	
+	commBufferLen = stat_SecParam + (16 * 2) * count;
 	commBuffer = (unsigned char*) calloc(commBufferLen, sizeof(unsigned char));
 
 	memcpy(commBuffer, J_set, stat_SecParam * sizeof(unsigned char));
@@ -160,7 +168,7 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 
 
 	sendBoth(writeSocket, commBuffer, commBufferLen);
-	// free(commBuffer);
+	free(commBuffer);
 
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -168,6 +176,7 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 	if(1 != commBufferLen)
 	{
 		secretsJ_set = deserialise_Requested_CircuitSecrets(commBuffer, stat_SecParam, J_set, public_inputs, params);
+		free(commBuffer);
 		return secretsJ_set;
 	}
 
@@ -178,7 +187,7 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs,
 								mpz_t *secret_J_set, unsigned int *seedList, struct eccParams *params,
-								unsigned char *J_set, int stat_SecParam)
+								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
 	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
@@ -213,7 +222,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 
 
 
-void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, struct Circuit **circuitsArray,
+void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, int J_setSize, struct Circuit **circuitsArray,
 					struct public_builderPRS_Keys *public_inputs, struct eccParams *params)
 {
 	unsigned char *rawInput, *hashedInput;
@@ -222,7 +231,6 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 	int i, j, k = 0;
 	int outputLength;
 
-	int h;
 
 
 	for(i = 0; i < numInputs; i ++)
@@ -251,7 +259,7 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, str
 
 
 int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
-										unsigned char *J_set,
+										unsigned char *J_set, int J_setSize,
 										struct eccPoint **builderInputs,
 										struct public_builderPRS_Keys *public_inputs,
 										struct eccParams *params, gmp_randstate_t *state)
@@ -266,11 +274,11 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 
 
-	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
-	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
+	tempU = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
+	tempV = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
 
 
-	numLambdas = public_inputs -> numKeyPairs * stat_SecParam / 2;
+	numLambdas = public_inputs -> numKeyPairs * (stat_SecParam - J_setSize);
 	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 
 	for(i = 0; i < numLambdas; i ++)

@@ -11,7 +11,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct idAndValue *startOfInputChain, *start;
 	unsigned int *seedList;
-	int i;
+	int i, J_setSize = 0;
 
 
 	struct timespec ext_t_0, ext_t_1;
@@ -82,7 +82,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, seedList);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -90,7 +90,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
-								J_set, startOfInputChain, 
+								J_set, J_setSize, startOfInputChain, 
 								params, &arrayLen);
 
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
@@ -98,7 +98,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	free(commBuffer);
 
 
-	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, startOfInputChain,
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
 											params, state);
 
@@ -127,11 +127,10 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
-	int i;
+	int i, commBufferLen = 0, arrayLen, J_setSize  = 0;
 
 	struct RawCircuit *rawInputCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
-
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
 	unsigned char *J_set;
@@ -140,9 +139,7 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	gmp_randstate_t *state;
 
 	struct eccPoint **builderInputs;
-	int arrayLen;
 	unsigned char *commBuffer;
-	int commBufferLen = 0;
 
 	struct timespec ext_t_0, ext_t_1;
 	clock_t ext_c_0, ext_c_1;
@@ -179,12 +176,12 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
-							pubInputGroup -> params, J_set, stat_SecParam);
+							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
 
 
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
-								J_set, stat_SecParam);
+								J_set, J_setSize, stat_SecParam);
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -192,11 +189,11 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
 	free(commBuffer);
 
-	setBuilderInputs(builderInputs, J_set, circuitsArray,
+	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 
-	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set,
+	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
 										builderInputs, pubInputGroup -> public_inputs,
 										pubInputGroup -> params, state);
 

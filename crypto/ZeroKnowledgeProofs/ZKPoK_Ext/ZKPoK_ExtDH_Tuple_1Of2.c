@@ -770,6 +770,8 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 		bufferOffset += arrayOfLengths[i];
 		free(listOfBuffers[i]);
 	}
+	sendBoth(writeSocket, commBuffer, bufferOffset);
+	free(commBuffer);
 	// Round 2
 
 

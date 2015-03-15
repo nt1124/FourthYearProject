@@ -124,14 +124,14 @@ void sendPublicCommitments(int writeSocket, int readSocket, struct public_builde
 
 
 unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
-							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam,
+							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam, int *J_setSize,
 							unsigned int *seedList)
 {
 	struct wire *tempWire;
 	unsigned char *commBuffer, *J_Set;
 	int tempOffset = circuitsArray[0] -> numInputs, commBufferLen = 0;
 	unsigned char key0_Correct, key1_Correct, finalOutput = 0x00;
-	int i;
+	int i, count = 0;
 
 
 	J_Set = (unsigned char *) calloc(stat_SecParam, sizeof(unsigned char));
@@ -153,6 +153,7 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 			tempOffset += 16;
 
 			finalOutput = finalOutput | key0_Correct | key1_Correct;
+			count ++;
 		}
 	}
 	free(commBuffer);
@@ -170,6 +171,8 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 		sendBoth(writeSocket, commBuffer, 1);
 	}
 
+	*J_setSize = count;
+
 	return J_Set;
 }
 
@@ -177,7 +180,7 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 
 struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inputs,
 								struct secret_builderPRS_Keys *secret_inputs,
-								unsigned char *J_set, struct idAndValue *startOfInputChain, 
+								unsigned char *J_set, int J_setSize, struct idAndValue *startOfInputChain, 
 								struct eccParams *params, int *outputLength)
 {
 	struct eccPoint **output;
@@ -189,7 +192,7 @@ struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inp
 	int i, j, k = 0;
 
 
-	output = (struct eccPoint**) calloc(numInputs * numEvalCircuits / 2, sizeof(struct eccPoint *));
+	output = (struct eccPoint**) calloc(numInputs * (numEvalCircuits - J_setSize), sizeof(struct eccPoint *));
 
 	for(i = 0; i < numInputs; i ++)
 	{
@@ -216,7 +219,7 @@ struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inp
 
 
 void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
-											unsigned char *J_set,
+											unsigned char *J_set, int J_setSize,
 											struct idAndValue *startOfInputChain,
 											struct eccPoint **builderInputs,
 											struct public_builderPRS_Keys *public_inputs,
@@ -235,8 +238,8 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 	int lambda_Index = 0;
 
 
-	tempU = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
-	tempV = (struct eccPoint**) calloc(stat_SecParam / 2, sizeof(struct eccPoint*));
+	tempU = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
+	tempV = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
