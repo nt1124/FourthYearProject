@@ -609,6 +609,44 @@ void test_ZKPoK_ECC_1Of2()
 
 
 
+
+struct twoDH_Tuples *getAllTuplesProver(int writeSocket, int readSocket, struct params_CnC_ECC *params_P, int numInputs, int stat_SecParam,
+										struct tildeCRS *receivedTildeCRS,
+										gmp_randstate_t *state)
+{
+	struct twoDH_Tuples *tuples;
+	mpz_t *lambda;
+
+	unsigned char *commBuffer;
+	int commBufferLen = 0, bufferOffset = 0, numLambdas, i, j = 0;
+
+
+	numLambdas = numInputs * stat_SecParam;
+	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
+	tuples = (struct twoDH_Tuples*) calloc(numInputs, sizeof(struct twoDH_Tuples));
+
+	for(i = 0; i < numLambdas; i ++)
+	{
+		mpz_init(lambda[i]);
+		mpz_urandomm(lambda[i], *state, params -> n);
+	}
+	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		tuples[i] = getDH_Tuples_2U(params_P -> params -> g, params_P -> crs -> g_1,
+									receivedTildeCRS -> lists[i] -> g_tilde,
+									receivedTildeCRS -> lists[i] -> g_tilde,
+									params_P -> crs -> h_0_List, params_P -> crs -> h_1_List,
+									receivedTildeCRS -> lists[i] -> h_tildeList, params_P -> params, state);
+	}
+}
+
+
+
+
 void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs,
 									struct eccParams *params,
 									struct twoDH_Tuples **tuples,

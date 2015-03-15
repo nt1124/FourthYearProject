@@ -144,11 +144,10 @@ struct twoDH_Tuples *getDH_Tuples(struct eccPoint *g_0, struct eccPoint *g_1,
 
 
 struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
-										struct eccPoint *h_0, struct eccPoint *h_1,
-										struct eccPoint **u0_array, struct eccPoint **u1_array,
-										struct eccPoint **v_array,
-										int length,
-										struct eccParams *params, mpz_t *lambda)
+									struct eccPoint *h_0, struct eccPoint *h_1,
+									struct eccPoint **u0_array, struct eccPoint **u1_array,
+									struct eccPoint **v_array,
+									int length, struct eccParams *params, mpz_t *lambda)
 {
 	struct eccPoint *u0_Product, *u1_Product, *v_Product;
 	struct eccPoint *u0_temp, *u1_temp, *v_temp;
