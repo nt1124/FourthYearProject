@@ -106,7 +106,7 @@
 
 				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
-			\subsubsection{PROCEED - Computation on encrypted data} \label{AES_Application}
+			\subsubsection{PROCEED - Computation on encrypted data} \label{PROCEED_DARPA}
 				Recently US Defence Advanced Research Projects Agency (DARPA) has been running a project called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.
 
 				
@@ -242,58 +242,60 @@
 		\subsection{Experiments}
 		
 		\subsection{Measurement metrics}
+
+		\subsection{Testing Environment}
+			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz
 		
 		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
 
 	\begin{thebibliography}{5}
 		\bibitem{LindellPinkas2010}
-			Fast Cut-and-Choose Based Protocols for Malicious and Covert Adversaries,\\
-			Lindell and Pinkas (2010).
+			Y. Lindell, B. Pinkas. \emph{Secure two-party computation via cut-and-choose oblivious transfer} Journal of Cryptology 25(4), 680–722 (2012).
 
 		\bibitem{Lindell_CnC_2013}
-			Fast Cut-and-Choose Based Protocols for Malicious and Covert Adversaries,\\
-			Lindell (2013).
+			Y. Lindell,
+			\emph{Fast cut-and-choose based protocols for malicious and covert adversaries}, R. Canetti, J.A. Garay, (eds.) CRYPTO 2013, Part II. LNCS, vol. 8043, pp. 1–17. Springer, Heidelberg (2013).
 
 		\bibitem{Katz_Symm_CnC_2013}
-			Symmetric Cut and Choose [NAME HERE],\\
-			Katz (2013).
+			Y. Huang, J. Katz, D. Evans. \emph{Efficient Secure Two-Party Computation Using Symmetric Cut-and-Choose},\\
+			2013.
 
 		\bibitem{SugarBeets}
-			Multiparty Computation Goes Live,\\
-			Peter Bogetoft et al. (2008)
+			P. Bogetoft, D. Christensen, I. Damgård et al,\\
+			\emph{Secure Multiparty Computation Goes Live},
+			(2008)
 
 		\bibitem{ProofOfYaoSecurity}
-			A Proof of Security of Yao’s Protocol for Two-Party Computation,\\
-			Lindell and Pinkas (2006).
+			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), 161–188 (2009)
     
 		\bibitem{Rabin81}
 			How to Exchange Secrets with Oblivious Transfer,\\
-			Michael O. Rabin (1981)
+			M. Rabin (1981)
 
 		\bibitem{PinkasSlides2014}
 			Secure Computation Lecture Series,\\
 			Lecture 5 - Oblivious Transfer,\\
-			Pinkas (2014)
+			B. Pinkas (2014)
 
 		\bibitem{EvenEtAl85}
 			A randomized protocol for signing contracts,\\
 			Even, Goldreich and Lempel (1985)
 
 		\bibitem{PVW_OT_2008}
- 			A Framework for Efficient and Composable Oblivious Transfer,\\
-			Peikert, Vaikuntanathan and Waters (2008)
+ 			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008. LNCS, vol. 5157, pp. 554–571. Springer, Heidelberg (2008)
 
+		\bibitem{LindellAndPinkas2011}
+			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
+			
 		\bibitem{LindellAndPinkas2007}
 			An Efficient Protocol for Secure Two-Party Compuation in the Presence of Malicious Adversaries,
-			Lindell and Pinkas (2007).
+			Y. Lindell and B. Pinkas (2007).
 
 		\bibitem{YaoOriginal}
-			How to Generate and Exchange Secrets,
-			A. Yao (1986).
+			A. Yao. How to Generate and Exchange Secrets. In 27th FOCS, pages 162–167, 1986.
 
 		\bibitem{NigelCircuits}
-			http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/,
-			Tillich and Smart. 
+			Bristol Cryptography Group. Circuits of Basic Functions Suitable For MPC and FHE. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 
 
 	\end{thebibliography}
 

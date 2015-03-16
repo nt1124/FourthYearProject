@@ -247,7 +247,7 @@
 			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz.
 			
 		\subsection{Benchmarks}
-			Here I give some benchmarks of key parts of my implementation such as communication, ECC encryption and circuit evaluation.\\
+			Here I give some benchmarks of key parts of my implementation such as communication, ECC encryption and circuit evaluation.
 		
 		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
 
