@@ -368,6 +368,8 @@ struct tildeCRS *initTildeCRS(int numInput, struct eccParams *params, gmp_randst
 		mpz_urandomm(output -> r_List[i], state, params -> n);
 	}
 
+	output -> lists = (struct tildeList**) calloc(numInput, sizeof(struct tildeList*));
+
 
 	return output;
 }
@@ -401,7 +403,6 @@ void serialiseTildeList_Alt(struct tildeList *listToSerialise, unsigned char *co
 	{
 		serialise_ECC_Point(listToSerialise -> h_tildeList[i], commBuffer, &bufferOffset);
 	}
-
 
 	*outputOffset = bufferOffset;
 }

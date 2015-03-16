@@ -2,7 +2,10 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_R;
+
+	struct tildeCRS *fullTildeCRS;
 	struct tildeList *testTildeList;
+	struct twoDH_Tuples **tuplesList;
 	struct jSetCheckTildes *checkTildes;
 	struct CnC_OT_Mod_CTs **CTs;
 	struct CnC_OT_Mod_Check_CT **checkCTs;
@@ -22,23 +25,34 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	CTs = (struct CnC_OT_Mod_CTs **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
 
 
+	fullTildeCRS = initTildeCRS(circuitsArray[0] -> numInputsExecutor, params_R -> params, *state);
+	iOffset = 0;
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		iOffset = stat_SecParam * (i - numInputsBuilder);
-
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-		mpz_urandomm(r_i, *state, params_R -> params -> n);
-		testTildeList = initTildeList(stat_SecParam, r_i, params_R -> crs, params_R -> params, value);
+		fullTildeCRS -> lists[iOffset] = initTildeList(stat_SecParam, fullTildeCRS -> r_List[iOffset], params_R -> crs, params_R -> params, value);
+		iOffset ++;
+	}
 
-		commBufferLen = 0;
-		commBuffer = serialiseTildeList(testTildeList, stat_SecParam, &commBufferLen);
-		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
+	commBufferLen = 0;
+	commBuffer = serialiseTildeCRS(fullTildeCRS, circuitsArray[0] -> numInputsExecutor, stat_SecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor,
+									stat_SecParam, fullTildeCRS, state);
+
+	iOffset = 0;
+	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	{
+		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+		mpz_set(r_i, fullTildeCRS -> r_List[iOffset]);
+		testTildeList = fullTildeCRS -> lists[iOffset ++];
 
 		// ZKPoK Here
-
 		ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, &r_i, value,
 									params_R -> params -> g, params_R -> crs -> g_1,
 									testTildeList -> g_tilde, testTildeList -> g_tilde,

@@ -6,7 +6,9 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	struct CnC_OT_Mod_CTs **CTs;
 	struct CnC_OT_Mod_Check_CT **checkCTs;
 
+	struct tildeCRS *fullTildeCRS;
 	struct tildeList *receivedTildeList;
+	struct twoDH_Tuples **tuplesList;
 	struct jSetCheckTildes *checkTildes;
 	struct wire *tempWire;
 
@@ -23,13 +25,17 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	CTs = (struct CnC_OT_Mod_CTs **) calloc(stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
 
 
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	fullTildeCRS = deserialiseTildeCRS(commBuffer, circuitsArray[0] -> numInputsExecutor, stat_SecParam, &bufferOffset);
+	free(commBuffer);
+	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor,
+									stat_SecParam, fullTildeCRS, state);
+
+	iOffset = 0;
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		bufferOffset = 0;
-
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		receivedTildeList = deserialiseTildeList(commBuffer, stat_SecParam, &bufferOffset);
-		free(commBuffer);
+		receivedTildeList = fullTildeCRS -> lists[iOffset];
 
 		// ZKPoK
 		verified |= ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
@@ -59,6 +65,8 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 			free(CTs[j] -> w_0);
 			free(CTs[j] -> w_1);
 		}
+
+		iOffset ++;
 	}
 
 
