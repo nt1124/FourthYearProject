@@ -154,6 +154,9 @@ struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
 	struct eccPoint *u0_temp, *u1_temp, *v_temp;
 	struct twoDH_Tuples *tuples;
 	int i;
+	
+	mpz_t tempL;
+	mpz_init(tempL);
 
 
 	u0_Product = init_Identity_ECC_Point();
@@ -162,6 +165,8 @@ struct twoDH_Tuples *getDH_Tuples_2U(struct eccPoint *g_0, struct eccPoint *g_1,
 
 	for(i = 0; i < length; i ++)
 	{
+		mpz_set(tempL, lambda[i + lambdaIndex]);
+
 		u0_temp = windowedScalarPoint(lambda[i + lambdaIndex], u0_array[i], params);
 		u1_temp = windowedScalarPoint(lambda[i + lambdaIndex], u1_array[i], params);
 		v_temp = windowedScalarPoint(lambda[i + lambdaIndex], v_array[i], params);
@@ -273,9 +278,6 @@ struct twoDH_Tuples **getAllTuplesProver(int writeSocket, int readSocket, struct
 
 	for(i = 0; i < numInputs; i ++)
 	{
-		printf(">> %d\n", i);
-		fflush(stdout);
-
 		tuples[i] = getDH_Tuples_2U(params_P -> params -> g, params_P -> crs -> g_1,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									receivedTildeCRS -> lists[i] -> g_tilde,
@@ -283,11 +285,9 @@ struct twoDH_Tuples **getAllTuplesProver(int writeSocket, int readSocket, struct
 									receivedTildeCRS -> lists[i] -> h_tildeList, stat_SecParam,
 									params_P -> params, lambda, j);
 
-		j += numInputs;
+		j += stat_SecParam;
 	}
 
-	printf("Checkpoint Zelda\n");
-	fflush(stdout);
 
 	for(i = 0; i < numLambdas; i ++)
 	{
@@ -314,6 +314,7 @@ struct twoDH_Tuples **getAllTuplesVerifier(int writeSocket, int readSocket, stru
 	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 	tuples = (struct twoDH_Tuples**) calloc(numInputs, sizeof(struct twoDH_Tuples*));
 
+
 	for(i = 0; i < numLambdas; i ++)
 	{
 		mpz_init(lambda[i]);
@@ -326,9 +327,6 @@ struct twoDH_Tuples **getAllTuplesVerifier(int writeSocket, int readSocket, stru
 
 	for(i = 0; i < numInputs; i ++)
 	{
-		printf(">> %d\n", i);
-		fflush(stdout);
-
 		tuples[i] = getDH_Tuples_2U(params_P -> params -> g, params_P -> crs -> g_1,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									receivedTildeCRS -> lists[i] -> g_tilde,
@@ -336,11 +334,9 @@ struct twoDH_Tuples **getAllTuplesVerifier(int writeSocket, int readSocket, stru
 									receivedTildeCRS -> lists[i] -> h_tildeList, stat_SecParam,
 									params_P -> params, lambda, j);
 
-		j += numInputs;
+		j += stat_SecParam;
 	}
 
-	printf("Checkpoint Zelda\n");
-	fflush(stdout);
 
 	for(i = 0; i < numLambdas; i ++)
 	{
@@ -422,16 +418,9 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		// mpz_init(local_Lambda[i]);
-		// mpz_urandomm(local_Lambda[i], *state, params -> n);
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
 
-	/*
-	commBuffer = serialiseMPZ_Array(local_Lambda, stat_SecParam, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-	*/
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
@@ -752,17 +741,25 @@ void test_ZKPoK_ExtDH_Tuple_Verifier()
 void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs,
 									struct eccParams *params,
 									struct twoDH_Tuples **tuples,
-									mpz_t *alphas_List, unsigned char **J_set, gmp_randstate_t *state)
+									mpz_t *alphas_List,
+									struct idAndValue *startOfInputChain, gmp_randstate_t *state)
 {
 	struct witnessStruct **witnessSet;
 	mpz_t *tempMPZ;
 	struct alphaAndA_Struct **alphaAndA_P;
 	struct verifierCommitment_ECC **commitment_box_P;
 	struct msgOneArrays_ECC **msgOne_P;
+	struct idAndValue *curItem = startOfInputChain -> next;
 
 	unsigned char *commBuffer, **listOfBuffers;
 	int bufferOffset = 0, commBufferLen = 0, *arrayOfLengths;
 	int i = 0;
+
+	unsigned char **J_set = (unsigned char **) calloc(2, sizeof(unsigned char *));
+	J_set[0] = (unsigned char *) calloc(2, sizeof(unsigned char));
+	J_set[1] = (unsigned char *) calloc(2, sizeof(unsigned char));
+	J_set[0][0] = 0x01;
+	J_set[1][1] = 0x01;
 
 
 	witnessSet = (struct witnessStruct **) calloc(numPairs, sizeof(struct witnessStruct *));
@@ -809,19 +806,18 @@ void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPair
 	}
 	free(commBuffer);
 
-
 	for(i = 0; i < numPairs; i ++)
 	{
 		bufferOffset = 0;
-		msgOne_P[i] = proverMessageOne_ECC_1Of2(params, J_set[i], alphaAndA_P[i] -> alpha, 
+		msgOne_P[i] = proverMessageOne_ECC_1Of2(params, J_set[curItem -> value], alphaAndA_P[i] -> alpha, 
 										tuples[i] -> g_0_List, tuples[i] -> g_1_List,
 										tuples[i] -> h_0_List, tuples[i] -> h_1_List, *state);
+		curItem = curItem -> next;
 	}
 	commBuffer = serialise_Array_A_B_Arrays_ECC(msgOne_P, numPairs, 2, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	free(commBuffer);
 	// Round 3
-
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -835,11 +831,12 @@ void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPair
 
 
 	commBufferLen = 0;
+	curItem = startOfInputChain -> next;
 	for(i = 0; i < numPairs; i ++)
 	{
-		// commBuffer = proverMessageTwo_ECC_1Of2(params, J_set[i], commitment_box_P[i], msgOne_P[i], witnessSet[i], alphaAndA_P[i], &bufferOffset);
-		listOfBuffers[i] = proverMessageTwo_ECC_1Of2(params, J_set[i], commitment_box_P[i], msgOne_P[i], witnessSet[i], alphaAndA_P[i], arrayOfLengths + i);
+		listOfBuffers[i] = proverMessageTwo_ECC_1Of2(params, J_set[curItem -> value], commitment_box_P[i], msgOne_P[i], witnessSet[i], alphaAndA_P[i], arrayOfLengths + i);
 		commBufferLen += arrayOfLengths[i];
+		curItem = curItem -> next;
 	}
 
 	bufferOffset = 0;
@@ -860,12 +857,13 @@ void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPair
 int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPairs, struct eccParams *params,
 						struct twoDH_Tuples **tuples, gmp_randstate_t *state)
 {
-	struct alphaAndA_Struct **alphaAndA_V = (struct alphaAndA_Struct **) calloc(1, sizeof(struct alphaAndA_Struct*));
+	struct alphaAndA_Struct **alphaAndA_V;
 	struct verifierCommitment_ECC **commitment_box_V;
 	struct msgOneArrays_ECC **msgOne_V;
 	mpz_t *tempMPZ, **Z_array_V, **cShares_V;
 	unsigned char *commBuffer, **listOfBuffers;
 	int *arrayOfLengths;
+
 
 	int cCheck = 0, verified = 0, bufferOffset = 0, commBufferLen = 0, i, j;
 
@@ -882,19 +880,16 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 
 
 
-
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	for(i = 0; i < numPairs; i ++)
 	{
+		alphaAndA_V[i] = (struct alphaAndA_Struct *) calloc(1, sizeof(struct alphaAndA_Struct));
 		alphaAndA_V[i] -> alpha = deserialise_ECC_Point(commBuffer, &bufferOffset);
 	}
 	free(commBuffer);
 	// Round 1
 
-
-	printf("Checkpoint Verifier Alpha\n");
-	fflush(stdout);
 
 	commBufferLen = 0;
 	for(i = 0; i < numPairs; i ++)
@@ -917,8 +912,6 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 	free(commBuffer);
 	// Round 2
 
-	printf("Checkpoint Verifier Beta\n");
-	fflush(stdout);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -934,9 +927,6 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 	}
 	free(commBuffer);
 	// Round 3
-
-	printf("Checkpoint Verifier Charlie\n");
-	fflush(stdout);
 
 
 	bufferOffset = 0;
@@ -958,8 +948,6 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 	free(commBuffer);
 	// Round 4
 
-	printf("Checkpoint Verifier Delta\n");
-	fflush(stdout);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -984,6 +972,7 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 											msgOne_V[i] -> A_array, msgOne_V[i] -> B_array,
 											alphaAndA_V[i], cShares_V[i], commitment_box_V[i] -> c);
 	}
+
 
 	for(i = 0; i < numPairs; i ++)
 	{

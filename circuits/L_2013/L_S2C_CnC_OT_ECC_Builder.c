@@ -29,20 +29,15 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	fullTildeCRS = deserialiseTildeCRS(commBuffer, circuitsArray[0] -> numInputsExecutor, stat_SecParam, &bufferOffset);
 	free(commBuffer);
-	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor,
-									stat_SecParam, fullTildeCRS, state);
+	
+	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
+	printf("%d\n", verified);
 
 	iOffset = 0;
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		receivedTildeList = fullTildeCRS -> lists[iOffset];
-
-		// ZKPoK
-		verified |= ZKPoK_Ext_DH_TupleVerifier_2U(writeSocket, readSocket, stat_SecParam,
-												params_S -> params -> g, params_S -> crs -> g_1,
-												receivedTildeList -> g_tilde, receivedTildeList -> g_tilde,
-												params_S -> crs -> h_0_List, params_S -> crs -> h_1_List,
-												receivedTildeList -> h_tildeList, params_S -> params, state);
 
 		commBufferLen = 0;
 		#pragma omp parallel for private(j, tempWire) schedule(auto)

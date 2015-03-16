@@ -599,12 +599,11 @@ void test_ZKPoK_ECC_1Of2()
 	mpz_set(alphaAndA_V -> a, *tempMPZ);
 
 
-	// struct eccParams *params, int stat_SecParam, struct eccPoint *g_1, struct eccPoint **h_0_List, struct eccPoint **h_1_List,
 	verified = verifierChecks_ECC_1Of2(params_V -> params, g_0, g_1, h_0, h_1,
 								Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array,
 								alphaAndA_V, cShares_V, commitment_box_V -> c);
 
-	printf("%d\n",verified);
+
 }
 
 

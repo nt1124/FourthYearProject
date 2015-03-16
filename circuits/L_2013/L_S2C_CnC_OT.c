@@ -126,6 +126,7 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 
 
 
+
 void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
@@ -175,14 +176,13 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
-	free_idAndValueChain(startOfInputChain);
-
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
 	state = seedRandGen();
-	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, stat_SecParam, 1024);
+	free_idAndValueChain(startOfInputChain);
 
 
 	// Here we do the decommit...

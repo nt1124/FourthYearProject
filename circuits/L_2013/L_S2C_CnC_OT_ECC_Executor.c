@@ -1,5 +1,5 @@
 unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
-						int stat_SecParam, int comp_SecParam)
+						struct idAndValue *startOfInputChain, int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_R;
 
@@ -40,8 +40,10 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	commBuffer = serialiseTildeCRS(fullTildeCRS, circuitsArray[0] -> numInputsExecutor, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
-	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor,
-									stat_SecParam, fullTildeCRS, state);
+
+	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
+								tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
 
 	iOffset = 0;
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
@@ -52,12 +54,6 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 		mpz_set(r_i, fullTildeCRS -> r_List[iOffset]);
 		testTildeList = fullTildeCRS -> lists[iOffset ++];
 
-		// ZKPoK Here
-		ZKPoK_Ext_DH_TupleProver_2U(writeSocket, readSocket, stat_SecParam, &r_i, value,
-									params_R -> params -> g, params_R -> crs -> g_1,
-									testTildeList -> g_tilde, testTildeList -> g_tilde,
-									params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
-									testTildeList -> h_tildeList, params_R -> params, state);
 
 		bufferOffset = 0;
 		commBuffer = receiveBoth(readSocket, commBufferLen);
