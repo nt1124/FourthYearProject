@@ -46,20 +46,24 @@
 		\end{center}
 	\end{titlepage}
 
-	
+
 	% CONTENTS.
+	\tableofcontents
+	\clearpage
+
 	% NOTATION SECTION
 	
 	\section{Introduction}
-		\subsection{Problem definition} \label{InformalProbDef}
-			Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2C), but most two party approaches can be generalised to the multi-party case.\\
+		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. We shall be focusing on the case where there are only two parties(S2C).\\
 
-			A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the highest input and no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
+		A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the greatest input. Additionally, at the end of the computation no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
 
-			Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.\\
+		For many years Yao's protocol \cite{YaoOriginal} has been the most attractive avenue of theoretical research, mainly due to its conceptual simplicity and constant round nature. In particular recent work has endeavoured to produce variants of Yao's protocol that can provide security in the presence of malicious adversaries (\cite{LindellAndPinkas2007}, \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013}, \cite{Katz_Symm_CnC_2013}, \cite{OnCommittedInputs}, \cite{LEGO_Paper}, \cite{MiniLEGO}) and to improve the efficiency of the original protocol itself (\cite{SMC_Is_Practical}, \cite{FreeXOR}).\\
 
-			Some time should be taken at this point to note also that we are pursuing a generalised solution to this problem. Many SMC protocols exist that are designed for a specific problem, whilst these will tend to be more efficient than any general solution applied to the same problem they are limited to one problem. We will be focusing on general protocols that can be applied to any computation.
 
+		% Perhaps mention here the Lindell talk where he lists off the time taken to compute certain functions and how it's improved.
+
+		In this paper we shall be producing implementations of several recently proposed protocols based on Yao's protocol and, several of which are as yet unimplemented, producing a practical comparison of them. The purpose being to explore which protocol suggests the most potential, allowing future research to be directed in the most promising direction.
 
 		\subsection{The ideal model}
 			There are three main properties that we wish to achieve with any SMC protocol,
@@ -81,26 +85,26 @@
 			\subsubsection{Semi-honest Adversary}
 				The Semi-honest adversary is the weakest adversary, with very limited capabilities. The Semi-honest adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol (i.e. they are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
 
-			\subsubsection{Malicious Model}
+			\subsubsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
-			\subsubsection{Covert Model}
+			\subsubsection{Covert Adversary}
 				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain probability of detection, this probability represents the point at which the expected payoff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught, effectively a game theory problem.\\
 
 				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
 
-		\subsection{Applications} \label{Applications}
-			At first it might appear that SMC lacks applications beyond those like the trivial example provided in \ref{InformalProbDef}. In fact as this is often the first example given many dismiss SMC as of limited real world application. Here we shall provide a number of other applications either already in use or in development.
-
+		\subsection{Applications of SMC} \label{Applications}
+			Here we take time to motivate the study of SMC by giving several actual or proposed applications.
 
 			\subsubsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
 				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
 
-				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been run multiple times \\
+				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times \\
 
 				As far as team behind this auction are aware this was the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
+			% SHOULD REALLY PROVIDE CITATION TO THEIR WEBSITE. AND TO RSA
 			\subsubsection{Distributed secrets} \label{DistributedSecretApplication}
 				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
@@ -109,7 +113,6 @@
 			\subsubsection{PROCEED - Computation on encrypted data} \label{PROCEED_DARPA}
 				Recently US Defence Advanced Research Projects Agency (DARPA) has been running a project called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.
 
-				
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME.
 		\subsection{Yao Garbled Circuits} \label{Yao_Circuits}
 
@@ -219,83 +222,123 @@
 
 				So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
  
-		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
-			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
+% 		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
+% 			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
+% 
+% 			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.\\
+% 
+% 			The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
+% 
+% 			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
+% 
+%  			Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.\\
+% 
+% 			It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
 
-			The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.\\
 
-			The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
+	\section{Protocols} \label{sec:Protocols}
+		\subsection{Lindell and Pinkas 2011}
+			The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. This protocol originally gave a cheating detection rate of $\epsilon = 1 - 2^{-0.311s}$, though improvements put forward in \cite{ShelatAndShen} give an better cheating detection rate of $\epsilon = 1 - 2^{-0.32s}$. \\
 
-			The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
+			The main new idea in this protocol is a modification of the Peikert-Vaikuntanathan-Waters Oblivious Transfer \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
 
- 			Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.\\
+			This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal both values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
 
-			It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
+			When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit.\\
+
+			Clearly this requries that 
+
 
 	\section{Implementation Details} \label{sec:ImplementationDetails}
 		\subsection{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use, instead it is for the purposes of comparing the performance of the protocols under consideration. For example we have not established a secure connection between the two parties.\\
 
-			Where possible I have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
+			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
 
-	\section{Results} \label{sec:Results}
-		\subsection{Experiments}
+		\subsection{}
+
+
+	\section{Experiments} \label{sec:Results}
+		We shall be using the circuits provided in \cite{NigelCircuits} for our experiments with varying randomised inputs, in particular we shall consider
 		
+		\begin{itemize}
+			\item AES (expanded and non-expanded),
+			\item 32-bit Addition,
+			\item 32-bit Multiplication,
+			\item SHA-256 hashing.
+		\end{itemize}
+
+
 		\subsection{Measurement metrics}
+			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent.\\
+
+			
 
 		\subsection{Testing Environment}
-			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz.
-			
+			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz each with 8GB of RAM. Compilation was performed with g++ ver. 4.4.7. 
+
 		\subsection{Benchmarks}
-			Here I give some benchmarks of key parts of my implementation such as communication, ECC encryption and circuit evaluation.
-		
+			Here I give some benchmarks of key components in my implemenation such as communication, ECC encryption and circuit evaluation. I include thee measurements so that 
+
 		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
 
-	\begin{thebibliography}{5}
-		\bibitem{LindellPinkas2010}
-			Y. Lindell, B. Pinkas. \emph{Secure two-party computation via cut-and-choose oblivious transfer} Journal of Cryptology 25(4), 680–722 (2012).
+	
 
+	\section{Conclusions}
+
+
+	\begin{thebibliography}{5}
 		\bibitem{Lindell_CnC_2013}
 			Y. Lindell,
 			\emph{Fast cut-and-choose based protocols for malicious and covert adversaries}, R. Canetti, J.A. Garay, (eds.) CRYPTO 2013, Part II. LNCS, vol. 8043, pp. 1–17. Springer, Heidelberg (2013).
 
 		\bibitem{Katz_Symm_CnC_2013}
-			Y. Huang, J. Katz, D. Evans. \emph{Efficient Secure Two-Party Computation Using Symmetric Cut-and-Choose},\\
-			2013.
+			Y. Huang, J. Katz, D. Evans. \emph{Efficient Secure Two-Party Computation Using Symmetric Cut-and-Choose}, In 33rd International Cryptology Conference (CRYPTO 2013), 2013.
 
 		\bibitem{SugarBeets}
-			P. Bogetoft, D. Christensen, I. Damgård et al,\\
-			\emph{Secure Multiparty Computation Goes Live},
-			(2008)
+			P. Bogetoft, D. Christensen, I. Damgård et al, \emph{Secure Multiparty Computation Goes Live}, In Financial Cryptography and Data Security 2009, Springer LNCS 5628, pages 325-343, 2009.
 
 		\bibitem{ProofOfYaoSecurity}
-			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), 161–188 (2009)
+			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), pages 161 - 188 (2009).
     
+		\bibitem{SMC_Is_Practical}
+			Benny Pinkas, Thomas Schneider, Nigel P. Smart and Stephen C. Williams. \emph{Secure Two-Party Computation is Practical}, ASIACRYPT 2009, December 6-10, 2009.
+
+		\bibitem{FreeXOR}
+			V. Kolesnikov and T. Schneider. \emph{Improved garbled circuit: Free XOR gates and applications}. In Automata, Languages and Programming – ICALP 2008, Springer-Verlag (LNCS 5126), pages 486 - 498, 2008.
+
+		\bibitem{OnCommittedInputs}
+			S. Jarecki and V. Shmatikov. \emph{Efficient Two-Party Secure Computation on Committed Inputs.} In EUROCRYPT 2007, Springer (LNCS 4515), pages 97 - 114, 2007.
+
+		\bibitem{LEGO_Paper}
+			J.B. Nielsen and C. Orlandi. \emph{LEGO for Two-Party Secure Computation}. In TCC 2009, Springer (LNCS 5444), pages 368 - 386, 2009.
+
+		\bibitem{MiniLEGO}
+			T. Frederiksen, T. Jakobsen, J. Nielsen, et al. \emph{MiniLEGO: Efficient Secure Two-Party Computation from General Assumptions}, In Advances in Cryptology - EUROCRYPT 2013, Springer (LNCS 7881), pages 537 - 556, 2013.
+
 		\bibitem{Rabin81}
-			How to Exchange Secrets with Oblivious Transfer,\\
-			M. Rabin (1981)
+		M. Rabin. \emph{How to exchange secrets with oblivious transfer}. Technical Report, TR-81, Aiken Computation Lab, Harvard University, 1981.
 
 		\bibitem{PinkasSlides2014}
-			Secure Computation Lecture Series,\\
-			Lecture 5 - Oblivious Transfer,\\
-			B. Pinkas (2014)
+			B. Pinkas. \emph{Secure Computation Lecture Series}, Lecture 5 - Oblivious Transfer, 2014.
 
 		\bibitem{EvenEtAl85}
-			A randomized protocol for signing contracts,\\
-			Even, Goldreich and Lempel (1985)
+			Even, Goldreich and Lempel. \emph{A randomized protocol for signing contracts}, In Communications of the ACM, Vol. 28 Iss. 6, pages 637 - 647 (1985)
 
 		\bibitem{PVW_OT_2008}
- 			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008. LNCS, vol. 5157, pp. 554–571. Springer, Heidelberg (2008)
+ 			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008, Springer (LNCS 5157), pages 554–571. (2008)
+ 
+		\bibitem{LindellAndPinkas2007}
+			Y. Lindell and B. Pinkas. \emph{An Efficient Protocol for Secure Two-Party Computation in the Presence of Malicious Adversaries}. To appear in the Journal of Cryptology. (Extended abstract appeared in EUROCRYPT 2007, Springer (LNCS 4515), pages 52–78, 2007.)
 
 		\bibitem{LindellAndPinkas2011}
 			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
-			
-		\bibitem{LindellAndPinkas2007}
-			An Efficient Protocol for Secure Two-Party Compuation in the Presence of Malicious Adversaries,
-			Y. Lindell and B. Pinkas (2007).
+
+		\bibitem{ShelatAndShen}
+			A. Shelat, C.H. Shen. Two-Output Secure Computation with Malicious Adversaries. In EUROCRYPT 2011, Springer (LNCS 6632), pages 386–405, 2011.
 
 		\bibitem{YaoOriginal}
-			A. Yao. How to Generate and Exchange Secrets. In 27th FOCS, pages 162–167, 1986.
+			A. Yao. \emph{How to Generate and Exchange Secrets.} In 27th FOCS, pages 162–167, 1986.
 
 		\bibitem{NigelCircuits}
 			Bristol Cryptography Group. Circuits of Basic Functions Suitable For MPC and FHE. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 

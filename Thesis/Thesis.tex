@@ -46,8 +46,11 @@
 		\end{center}
 	\end{titlepage}
 
-	
+
 	% CONTENTS.
+	\tableofcontents
+	\clearpage
+
 	% NOTATION SECTION
 	
 	\section{Introduction}
@@ -190,34 +193,34 @@
 				A protocol is considered secure with regards to Semi-honest adversaries if neither a Semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a Semi-honest adversary in the role of the Receiver learn anything about values other than the one it requested. The protocol being secure against Malicious adversaries is defined by the obvious extension of the Semi-honest case.\\
 
 				Usually proof of the security of an OT is carried out via \emph{simulation}, proving that the protocol under consideration is equivalent to the ideal model with a trusted third party taking both parties inputs and sending the proper outputs to each party.
-% 
-% 			\subsubsection{Even-Goldreich-Lempel SH Protocol}
-% 				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.
-% 
-% 				\begin{figure}[!htb]
-% 					\begin{tabular}[!htb]{p{6cm} p{6cm}}
-% 						\textbf{Receiver} & \textbf{Sender}\\
-% 						Inputs : $b \in \{0, 1\}$ & Inputs : $X_1$, $X_2$\\
-% 						Outputs : $X_b$ & Outputs : $\emptyset$\\
-% 					\end{tabular}
-% 
-% 					\begin{itemize}
-% 						\setlength{\itemsep}{0.5pt}
-% 						\setlength{\parskip}{0pt}
-% 						\setlength{\parsep}{0pt}
-% 
-% 						\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
-% 						\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
-% 						\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
-% 						\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
-% 					\end{itemize}
-% 
-% 					\caption{The abstracted Even-Goldreich-Lempel protocol. \label{fig:EvenGoldreichLempel}}
-% 				\end{figure}
-% 
-% 				This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key.\\
-% 
-% 				So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
+
+			\subsubsection{Even-Goldreich-Lempel SH Protocol}
+				Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.
+
+				\begin{figure}[!htb]
+					\begin{tabular}[!htb]{p{6cm} p{6cm}}
+						\textbf{Receiver} & \textbf{Sender}\\
+						Inputs : $b \in \{0, 1\}$ & Inputs : $X_1$, $X_2$\\
+						Outputs : $X_b$ & Outputs : $\emptyset$\\
+					\end{tabular}
+
+					\begin{itemize}
+						\setlength{\itemsep}{0.5pt}
+						\setlength{\parskip}{0pt}
+						\setlength{\parsep}{0pt}
+
+						\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
+						\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
+						\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
+						\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
+					\end{itemize}
+
+					\caption{The abstracted Even-Goldreich-Lempel protocol. \label{fig:EvenGoldreichLempel}}
+				\end{figure}
+
+				This protocol assumes that it is possible to generate randomly in the \emph{form} the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key.\\
+
+				So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
  
 % 		\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
 % 			The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
@@ -232,6 +235,22 @@
 % 
 % 			It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
 
+
+	\section{Protocols} \label{sec:Protocols}
+		\subsection{Lindell and Pinkas 2011}
+			The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. This protocol originally gave a cheating detection rate of $\epsilon = 1 - 2^{-0.311s}$, though improvements put forward in \cite{ShelatAndShen} give an better cheating detection rate of $\epsilon = 1 - 2^{-0.32s}$. \\
+
+			The main new idea in this protocol is a modification of the Peikert-Vaikuntanathan-Waters Oblivious Transfer \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
+
+			This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal both values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
+
+			When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit.\\
+
+			Clearly this requries that 
+
+		\subsection{Lindell 2013}
+			
+
 	\section{Implementation Details} \label{sec:ImplementationDetails}
 		\subsection{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use, instead it is for the purposes of comparing the performance of the protocols under consideration. For example we have not established a secure connection between the two parties.\\
@@ -241,9 +260,17 @@
 		\subsection{}
 
 
-	\section{Results} \label{sec:Results}
-		\subsection{Experiments}
-			We shall be running 
+	\section{Experiments} \label{sec:Results}
+		We shall be using the circuits provided in \cite{NigelCircuits} for our experiments with varying randomised inputs, in particular we shall consider
+		
+		\begin{itemize}
+			\item AES (expanded and non-expanded),
+			\item 32-bit Addition,
+			\item 32-bit Multiplication,
+			\item SHA-256 hashing.
+		\end{itemize}
+
+
 		\subsection{Measurement metrics}
 			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent.\\
 
@@ -253,9 +280,14 @@
 			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz each with 8GB of RAM. Compilation was performed with g++ ver. 4.4.7. 
 
 		\subsection{Benchmarks}
-			Here I give some benchmarks of key components in my implemenation such as communication, ECC encryption and circuit evaluation. 
-		
+			Here I give some benchmarks of key components in my implemenation such as communication, ECC encryption and circuit evaluation. I include thee measurements so that 
+
 		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
+
+	
+
+	\section{Conclusions}
+
 
 	\begin{thebibliography}{5}
 		\bibitem{Lindell_CnC_2013}
@@ -287,29 +319,28 @@
 			T. Frederiksen, T. Jakobsen, J. Nielsen, et al. \emph{MiniLEGO: Efficient Secure Two-Party Computation from General Assumptions}, In Advances in Cryptology - EUROCRYPT 2013, Springer (LNCS 7881), pages 537 - 556, 2013.
 
 		\bibitem{Rabin81}
-			How to Exchange Secrets with Oblivious Transfer,\\
-			M. Rabin (1981)
+		M. Rabin. \emph{How to exchange secrets with oblivious transfer}. Technical Report, TR-81, Aiken Computation Lab, Harvard University, 1981.
 
 		\bibitem{PinkasSlides2014}
-			Secure Computation Lecture Series,\\
-			Lecture 5 - Oblivious Transfer,\\
-			B. Pinkas (2014)
+			B. Pinkas. \emph{Secure Computation Lecture Series}, Lecture 5 - Oblivious Transfer, 2014.
 
 		\bibitem{EvenEtAl85}
-			A randomized protocol for signing contracts,\\
-			Even, Goldreich and Lempel (1985)
+			Even, Goldreich and Lempel. \emph{A randomized protocol for signing contracts}, In Communications of the ACM, Vol. 28 Iss. 6, pages 637 - 647 (1985)
 
 		\bibitem{PVW_OT_2008}
  			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008, Springer (LNCS 5157), pages 554–571. (2008)
-
-		\bibitem{LindellAndPinkas2011}
-			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
-			
+ 
 		\bibitem{LindellAndPinkas2007}
 			Y. Lindell and B. Pinkas. \emph{An Efficient Protocol for Secure Two-Party Computation in the Presence of Malicious Adversaries}. To appear in the Journal of Cryptology. (Extended abstract appeared in EUROCRYPT 2007, Springer (LNCS 4515), pages 52–78, 2007.)
 
+		\bibitem{LindellAndPinkas2011}
+			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
+
+		\bibitem{ShelatAndShen}
+			A. Shelat, C.H. Shen. Two-Output Secure Computation with Malicious Adversaries. In EUROCRYPT 2011, Springer (LNCS 6632), pages 386–405, 2011.
+
 		\bibitem{YaoOriginal}
-			A. Yao. How to Generate and Exchange Secrets. In 27th FOCS, pages 162–167, 1986.
+			A. Yao. \emph{How to Generate and Exchange Secrets.} In 27th FOCS, pages 162–167, 1986.
 
 		\bibitem{NigelCircuits}
 			Bristol Cryptography Group. Circuits of Basic Functions Suitable For MPC and FHE. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 

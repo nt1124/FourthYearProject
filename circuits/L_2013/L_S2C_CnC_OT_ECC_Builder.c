@@ -1,3 +1,61 @@
+struct Circuit **buildAllCircuitsConsistentOutput(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
+												gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
+												unsigned char **b0List, unsigned char **b1List,
+												struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs,
+												struct public_builderPRS_Keys *public_inputs)
+{
+	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
+
+	struct idAndValue *start;
+
+	unsigned char *R = generateRandBytes(16, 17);
+	int j;
+
+
+	for(j = 0; j < stat_SecParam; j++)
+	{
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j],
+																			b0List, b1List, public_inputs, j, params);
+	}
+
+
+	for(j = 0; j < stat_SecParam; j++)
+	{
+		start = startOfInputChain;
+		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
+	}
+
+	
+	free(R);
+
+	return circuitsArray;
+}
+
+
+unsigned char ***generateConsistentOutputs(unsigned char *delta, int numInputs)
+{
+	unsigned char ***output = (unsigned char ***) calloc(2, sizeof(unsigned char **));
+	int i, j;
+
+	output[0] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+	output[1] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		output[0][i] = generateRandBytes(16, 16);
+		output[1][i] = (unsigned char *) calloc(16, sizeof(unsigned char));
+
+		for(j = 0; j < 16; j ++)
+		{
+			output[1][i][j] = output[0][i][j] ^ delta[j];
+		}
+	}
+
+	return output;
+}
+
+
+
 void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, unsigned char **Xj_checkValues,
 								gmp_randstate_t *state, int stat_SecParam, int comp_SecParam)
 {

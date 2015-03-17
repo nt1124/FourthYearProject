@@ -342,9 +342,7 @@ void ZKPoK_Prover_ECC_1Of2(int writeSocket, int readSocket,
 	witnessSet = proverSetupWitnesses_1(alphas_List);
 
 
-
 	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params, *state);
-
 
 
 	bufferOffset = 0;

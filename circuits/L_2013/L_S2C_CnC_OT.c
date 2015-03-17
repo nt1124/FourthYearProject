@@ -10,7 +10,6 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	struct Circuit **circuitsArray;
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct idAndValue *startOfInputChain, *start;
-	unsigned char **Xj_checkValues;
 	unsigned int *seedList;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
 
@@ -25,17 +24,19 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	struct eccParams *params;
 
 	struct eccPoint **builderInputs;
-	unsigned char *commBuffer, *J_set;
+	unsigned char *commBuffer, *J_set, ***bLists, *delta;
+	unsigned char **Xj_checkValues;
 
 
 	initRandGen();
 	state = seedRandGen();
 	Xj_checkValues = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
-	// group = getSchnorrGroup(1024, *state);
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
+	delta = generateRandBytes(16, 16);
+	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
 
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
@@ -59,7 +60,8 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 
 	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
+	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, bLists[0], bLists[1], params, secret_inputs, public_inputs);
+	// circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
 
 	srand(seedList[stat_SecParam]);
 
