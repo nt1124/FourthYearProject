@@ -51,15 +51,16 @@
 	% NOTATION SECTION
 	
 	\section{Introduction}
-		\subsection{Problem definition} \label{InformalProbDef}
-			Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to be known to the other parties. We shall be focusing on the case where there are only two parties(S2C), but most two party approaches can be generalised to the multi-party case.\\
+		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. We shall be focusing on the case where there are only two parties(S2C).\\
 
-			A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the highest input and no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
+		A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the greatest input. Additionally, at the end of the computation no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
 
-			Throughout we will assume that we can establish a secure and authenticated channel of communication to all other parties in the computation. That is we assume communications between two parties cannot be eavesdropped upon or altered, and that we can detect attempts to impersonate another party.\\
+		For many years Yao's protocol \cite{YaoOriginal} has been the most attractive avenue of theoretical research, mainly due to its conceptual simplicity and constant round nature. In particular recent work has endeavoured to produce variants of Yao's protocol that can provide security in the presence of malicious adversaries (\cite{LindellAndPinkas2007}, \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013}, \cite{Katz_Symm_CnC_2013}, \cite{OnCommittedInputs}, \cite{LEGO_Paper}, \cite{MiniLEGO}) and to improve the efficiency of the original protocol itself (\cite{SMC_Is_Practical}, \cite{FreeXOR}).\\
 
-			Some time should be taken at this point to note also that we are pursuing a generalised solution to this problem. Many SMC protocols exist that are designed for a specific problem, whilst these will tend to be more efficient than any general solution applied to the same problem they are limited to one problem. We will be focusing on general protocols that can be applied to any computation.
 
+		% Perhaps mention here the Lindell talk where he lists off the time taken to compute certain functions and how it's improved.
+
+		In this paper we shall be producing implementations of several recently proposed protocols based on Yao's protocol and, several of which are as yet unimplemented, producing a practical comparison of them. The purpose being to explore which protocol suggests the most potential, allowing future research to be directed in the most promising direction.
 
 		\subsection{The ideal model}
 			There are three main properties that we wish to achieve with any SMC protocol,
@@ -90,17 +91,17 @@
 				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
 
-		\subsection{Applications} \label{Applications}
-			At first it might appear that SMC lacks applications beyond those like the trivial example provided in \ref{InformalProbDef}. In fact as this is often the first example given many dismiss SMC as of limited real world application. Here we shall provide a number of other applications either already in use or in development.
-
+		\subsection{Applications of SMC} \label{Applications}
+			Here we take time to motivate the study of SMC by giving several actual or proposed applications.
 
 			\subsubsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
 				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
 
-				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been run multiple times \\
+				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times \\
 
 				As far as team behind this auction are aware this was the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
+			% SHOULD REALLY PROVIDE CITATION TO THEIR WEBSITE. AND TO RSA
 			\subsubsection{Distributed secrets} \label{DistributedSecretApplication}
 				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
@@ -236,22 +237,27 @@
 		\subsection{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use, instead it is for the purposes of comparing the performance of the protocols under consideration. For example we have not established a secure connection between the two parties.\\
 
-			Where possible I have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
+			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
+
 
 	\section{Results} \label{sec:Results}
 		\subsection{Experiments}
-		
+			We shall be running 
 		\subsection{Measurement metrics}
+			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent.\\
+
+			
+
 
 		\subsection{Testing Environment}
-			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz
+			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz.
+			
+		\subsection{Benchmarks}
+			Here I give some benchmarks of key parts of my implementation such as communication, ECC encryption and circuit evaluation.
 		
 		% Somewhere around here we need to comment that these Timings could be vastly improved on. But our goal here is not to produce a real-world-worthy implementation, but a test bed.
 
 	\begin{thebibliography}{5}
-		\bibitem{LindellPinkas2010}
-			Y. Lindell, B. Pinkas. \emph{Secure two-party computation via cut-and-choose oblivious transfer} Journal of Cryptology 25(4), 680–722 (2012).
-
 		\bibitem{Lindell_CnC_2013}
 			Y. Lindell,
 			\emph{Fast cut-and-choose based protocols for malicious and covert adversaries}, R. Canetti, J.A. Garay, (eds.) CRYPTO 2013, Part II. LNCS, vol. 8043, pp. 1–17. Springer, Heidelberg (2013).
@@ -261,13 +267,26 @@
 			2013.
 
 		\bibitem{SugarBeets}
-			P. Bogetoft, D. Christensen, I. Damgård et al,\\
-			\emph{Secure Multiparty Computation Goes Live},
-			(2008)
+			P. Bogetoft, D. Christensen, I. Damgård et al, \emph{Secure Multiparty Computation Goes Live}, In Financial Cryptography and Data Security 2009, Springer LNCS 5628, pages 325-343, 2009.
 
 		\bibitem{ProofOfYaoSecurity}
-			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), 161–188 (2009)
+			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), pages 161 - 188 (2009).
     
+		\bibitem{SMC_Is_Practical}
+			Benny Pinkas, Thomas Schneider, Nigel P. Smart and Stephen C. Williams. \emph{Secure Two-Party Computation is Practical}, ASIACRYPT 2009, December 6-10, 2009.
+
+		\bibitem{FreeXOR}
+			V. Kolesnikov and T. Schneider. \emph{Improved garbled circuit: Free XOR gates and applications}. In Automata, Languages and Programming – ICALP 2008, Springer-Verlag (LNCS 5126), pages 486 - 498, 2008.
+
+		\bibitem{OnCommittedInputs}
+			S. Jarecki and V. Shmatikov. \emph{Efficient Two-Party Secure Computation on Committed Inputs.} In EUROCRYPT 2007, Springer (LNCS 4515), pages 97 - 114, 2007.
+
+		\bibitem{LEGO_Paper}
+			J.B. Nielsen and C. Orlandi. \emph{LEGO for Two-Party Secure Computation}. In TCC 2009, Springer (LNCS 5444), pages 368 - 386, 2009.
+
+		\bibitem{MiniLEGO}
+			T. Frederiksen, T. Jakobsen, J. Nielsen, et al. \emph{MiniLEGO: Efficient Secure Two-Party Computation from General Assumptions}, In Advances in Cryptology - EUROCRYPT 2013, Springer (LNCS 7881), pages 537 - 556, 2013.
+
 		\bibitem{Rabin81}
 			How to Exchange Secrets with Oblivious Transfer,\\
 			M. Rabin (1981)
@@ -282,14 +301,13 @@
 			Even, Goldreich and Lempel (1985)
 
 		\bibitem{PVW_OT_2008}
- 			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008. LNCS, vol. 5157, pp. 554–571. Springer, Heidelberg (2008)
+ 			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008, Springer (LNCS 5157), pages 554–571. (2008)
 
 		\bibitem{LindellAndPinkas2011}
 			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
 			
 		\bibitem{LindellAndPinkas2007}
-			An Efficient Protocol for Secure Two-Party Compuation in the Presence of Malicious Adversaries,
-			Y. Lindell and B. Pinkas (2007).
+			Y. Lindell and B. Pinkas. \emph{An Efficient Protocol for Secure Two-Party Computation in the Presence of Malicious Adversaries}. To appear in the Journal of Cryptology. (Extended abstract appeared in EUROCRYPT 2007, Springer (LNCS 4515), pages 52–78, 2007.)
 
 		\bibitem{YaoOriginal}
 			A. Yao. How to Generate and Exchange Secrets. In 27th FOCS, pages 162–167, 1986.

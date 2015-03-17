@@ -216,7 +216,7 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	unsigned char temp;
 
-	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) )
+	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) || 0x02 == curGate -> outputWire -> wireMask )
 	{
 		decryptGate(curGate, inputCircuit);
 	}
