@@ -255,3 +255,36 @@ void freeTempGarbleCircuit(struct Circuit *tempGarbleCircuit)
 
 	free(tempGarbleCircuit);
 }
+
+
+// Function that gets the OT inputs as an array from the circuits.
+unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits)
+{
+	unsigned char ***allKeys = (unsigned char ***) calloc(2, sizeof(unsigned char **));
+	struct wire *tempWire;
+	int i, j, k, numKeysToStore;
+	int numInputsBuilder, numInputsExecutor;
+
+
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
+	numKeysToStore = circuitsArray[0] -> numInputsExecutor * numCircuits;
+
+	allKeys[0] = (unsigned char **) calloc(numKeysToStore, sizeof(unsigned char *));
+	allKeys[1] = (unsigned char **) calloc(numKeysToStore, sizeof(unsigned char *));
+
+	for(i = numInputsBuilder; i < numInputsBuilder + numInputsExecutor; i ++)
+	{
+		for(j = 0; j < numCircuits; j ++)
+		{
+			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+			allKeys[0][k] = tempWire -> outputGarbleKeys -> key0;
+			allKeys[1][k] = tempWire -> outputGarbleKeys -> key1;
+
+			k ++;
+		}
+
+	}
+
+	return allKeys;
+}

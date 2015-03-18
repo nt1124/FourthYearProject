@@ -9,6 +9,7 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 
 	struct Circuit **circuitsArray;
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 	struct idAndValue *startOfInputChain, *start;
 	unsigned int *seedList;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
@@ -25,7 +26,7 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 
 	struct eccPoint **builderInputs;
 	unsigned char *commBuffer, *J_set, ***bLists, *delta;
-	unsigned char **Xj_checkValues;
+	unsigned char **Xj_checkValues, ***OT_Inputs;
 
 
 	initRandGen();
@@ -83,8 +84,8 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char *
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
-	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray, Xj_checkValues, state, stat_SecParam, 1024);
+	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
+	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
@@ -136,7 +137,7 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i;
 
-	struct RawCircuit *rawInputCircuit;
+	struct RawCircuit *rawInputCircuit, *rawCheckCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 
 	struct revealedCheckSecrets *secretsRevealed;
@@ -165,6 +166,7 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	printf("Connected to builder.\n");
 
 	rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 

@@ -317,7 +317,6 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(struct RawCircuit *r
 		else
 		{
 			tempGateOrWire = processGateOrWire_FromRaw_ConsistentOutput(rawInputCircuit -> gates[gateIndex], gatesList, b0List[k], b1List[k], outputCircuit -> numInputsBuilder);
-			// tempGateOrWire = processGateLine_FromRaw(rawInputCircuit -> gates[gateIndex], gatesList, R, 0, outputCircuit -> numInputsBuilder);
 			k ++;
 		}
 
@@ -326,13 +325,6 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(struct RawCircuit *r
 			*(gatesList + gateIndex) = tempGateOrWire;
 		}
 	}
-
-	printf(">>>>>>>\n");
-	fflush(stdout);
-
-
-	// gatesList[gateIndex] = processGateOrWire_FromRaw_ConsistentOutput(rawInputCircuit -> gates[gateIndex], gatesList, b0List[i], b1List[i], outputCircuit -> numInputsBuilder);
-
 
 	for(i = 0; i < outputCircuit -> numOutputs; i ++)
 	{

@@ -56,7 +56,8 @@ unsigned char ***generateConsistentOutputs(unsigned char *delta, int numInputs)
 
 
 
-void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, unsigned char **Xj_checkValues,
+void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+								unsigned char ***OT_Inputs, unsigned char **Xj_checkValues,
 								gmp_randstate_t *state, int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_S;
@@ -71,7 +72,7 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	struct wire *tempWire;
 
 	unsigned char *commBuffer;
-	int i, j, iOffset = 0, numInputsBuilder;
+	int i, j, k = 0, iOffset = 0, numInputsBuilder;
 	int commBufferLen, verified = 0, bufferOffset;
 
 
@@ -98,14 +99,17 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 		receivedTildeList = fullTildeCRS -> lists[iOffset];
 
 		commBufferLen = 0;
-		#pragma omp parallel for private(j, tempWire) schedule(auto)
+		#pragma omp parallel for private(j, k, tempWire) schedule(auto)
 		for(j = 0; j < stat_SecParam; j ++)
 		{
+			k = (i - numInputsBuilder) * stat_SecParam + j;
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-			CTs[j] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16,
-												receivedTildeList,
-												tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1,
+
+
+			CTs[j] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, receivedTildeList,
+												OT_Inputs[0][k], OT_Inputs[1][k],
 												*state, j);
+
 		}
 		commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
 		sendBoth(writeSocket, commBuffer, commBufferLen);

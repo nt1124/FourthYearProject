@@ -1,1 +1,1 @@
-g++ circuitEvaluator.c -O2 -lgmp -maes -o a.out
+g++ circuitEvaluator.c -fopenmp -O3 -lgmp -maes -o a.out
