@@ -20,7 +20,7 @@ int getIntFromString(char *inputStr, int& strIndex)
 }
 
 
-// RTL means the function deals with the Smart/Tillich style input.
+// Function to .
 struct RawGate *processGate_Raw(int idNum, int numInputWires, int *inputIDs, char gateType)
 {
 	struct RawGate *toReturn = (struct RawGate*) calloc(1, sizeof(struct RawGate));
@@ -35,13 +35,12 @@ struct RawGate *processGate_Raw(int idNum, int numInputWires, int *inputIDs, cha
 	{
 		toReturn -> inputIDs[i] = inputIDs[i];
 	}
-	// toReturn -> inputIDs[0] = inputIDs[0];
-	// toReturn -> inputIDs[1] = inputIDs[1];
 
 	for(i = 0; i < toReturn -> numInputs; i ++)
 		outputTableSize *= 2;
 
 	toReturn -> outputTableSize = outputTableSize;
+	toReturn -> gateType = gateType;
 	if('I' == gateType)
 	{
 		toReturn -> rawOutputTable = (int*) calloc(2, sizeof(int));
@@ -58,6 +57,11 @@ struct RawGate *processGate_Raw(int idNum, int numInputWires, int *inputIDs, cha
 		{
 			toReturn -> rawOutputTable[1] = 1;
 			toReturn -> rawOutputTable[2] = 1;
+		}
+		else if('N' == gateType) // Inverted XOR
+		{
+			toReturn -> rawOutputTable[0] = 1;
+			toReturn -> rawOutputTable[3] = 1;
 		}
 	}
 

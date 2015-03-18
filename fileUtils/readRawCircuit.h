@@ -12,7 +12,7 @@ typedef struct RawGate
 	int *inputIDs;					// ID of the input wires to gate.
 
 	unsigned char wireMask;
-	unsigned char gateType;			// XOR, AND, INV, INP.
+	unsigned char gateType;			// XOR, AND, INV, NXOR or MegaAND.
 	unsigned short outputTableSize;	// 2 ^ numInputs.
 	int *rawOutputTable;			// Raw output table for gate, unencrypted/unpermutated.
 
