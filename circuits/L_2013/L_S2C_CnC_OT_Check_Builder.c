@@ -1,12 +1,3 @@
-unsigned char getBitFromCharArray(unsigned char *input, int indexToGet)
-{
-	int i = indexToGet / 8;
-	int j = indexToGet % 8;
-
-	return (input[i] & (0x01 << j)) >> j;
-}
-
-
 unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsigned char *delta,
 										int checkStatSecParam, int lengthDelta)
 {
@@ -22,8 +13,6 @@ unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsign
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
-		printf("Checkpoint Beta  %d\n", i);
-		fflush(stdout);
 		// Change this, we want to COPY the relevant k_1 in into the final OT_Inputs for the round
 		// Then we just need to XOR this with each of the other good keys. 
 		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
@@ -82,17 +71,13 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-	printf("Checkpoint Beta\n");
-	fflush(stdout);
 
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
 
-	printf("Checkpoint Charlie\n");
-	fflush(stdout);
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
-		freeCircuitStruct(circuitsArray[i], 0);
+		// freeCircuitStruct(circuitsArray[i], 0);
 	}
 
 	return output;

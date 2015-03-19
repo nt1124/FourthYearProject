@@ -305,7 +305,6 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 			}
 		}
 
-
 		verified |= ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
 											params -> g, params -> g,
 											public_inputs -> public_keyPairs[i][0],

@@ -106,10 +106,10 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputsBuilder, 3 * stat_SecParam,
 												secret_inputs, params, *state);
 
+
 	SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
 							startOfInputChain, delta, 128,
 							checkSecretInputs, 3 * stat_SecParam, state);
-
 
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
@@ -228,10 +228,12 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 		}
 	}
 
-	deltaPrime = generateRandBytes(128, 128);
 
+	// deltaPrime = generateRandBytes(128, 128);
+
+	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
-							deltaPrime, 128, 3 * stat_SecParam, state );
+	 						deltaPrime, 128, 3 * stat_SecParam, state );
 
 
 	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,

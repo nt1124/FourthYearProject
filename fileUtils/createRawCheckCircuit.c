@@ -28,7 +28,6 @@ struct RawCircuit *createRawCheckCircuit(int inputB_Size)
 	for(i = 0; i < inputB_Size; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
-		printf("+++ %d  /  %d\n", execIndex, outputCircuit -> numGates);
 
 		if( NULL != tempGateOrWire )
 		{

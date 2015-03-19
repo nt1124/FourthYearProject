@@ -38,7 +38,10 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 	unsigned char *commBuffer, value;
 	int bufferLength = 0, i, j, iOffset = 0, numInputsBuilder;
-	int bufferOffset = 0, commBufferLen;
+	int bufferOffset = 0, commBufferLen, CT_Index;
+
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
 
 
 	params_R = setup_CnC_OT_Mod_Full_Receiver(writeSocket, readSocket, stat_SecParam, comp_SecParam, *state);
@@ -64,56 +67,62 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
 	ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
 								tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
 
-	iOffset = 0;
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nParallel ZKPoK");
+
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
+	free(commBuffer);
+
+
+	#pragma omp parallel for private(i, j, tempWire, iOffset, value, CT_Index) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
+		iOffset = i - numInputsBuilder;
+
 		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
 
-		mpz_set(r_i, fullTildeCRS -> r_List[iOffset]);
-		testTildeList = fullTildeCRS -> lists[iOffset ++];
-
-
-		bufferOffset = 0;
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
-		free(commBuffer);
-
-
-		// This pragma as usual doesn't make a big difference, but as stat_secParam increases it will.
-		#pragma omp parallel for private(j, tempWire) schedule(auto)
 		for(j = 0; j < stat_SecParam; j ++)
 		{
+			CT_Index = iOffset * stat_SecParam + j;
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 			if(0x00 == value)
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, r_i, CTs[j], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, r_i, CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
 			}
 		}
-
-		for(j = 0; j < stat_SecParam; j ++)
-		{
-			clearECC_Point(CTs[j] -> u_0);
-			clearECC_Point(CTs[j] -> u_1);
-			free(CTs[j] -> w_0);
-			free(CTs[j] -> w_1);
-		}
 	}
 
+	/*
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		clearECC_Point(CTs[j] -> u_0);
+		clearECC_Point(CTs[j] -> u_1);
+		free(CTs[j] -> w_0);
+		free(CTs[j] -> w_1);
+	}
+	*/
 
 	commBufferLen = 0;
 	checkTildes = transfer_CheckValues_CnC_OT_Mod_Receiver(params_R, *state);

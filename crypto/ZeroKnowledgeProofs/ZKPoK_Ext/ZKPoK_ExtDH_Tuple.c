@@ -260,6 +260,8 @@ struct twoDH_Tuples **getAllTuplesProver(int writeSocket, int readSocket, struct
 										gmp_randstate_t *state)
 {
 	struct twoDH_Tuples **tuples;
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
 	mpz_t *lambda;
 
 	unsigned char *commBuffer;
@@ -275,18 +277,25 @@ struct twoDH_Tuples **getAllTuplesProver(int writeSocket, int readSocket, struct
 	free(commBuffer);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
+	#pragma omp parallel for private(i, j) schedule(auto)
 	for(i = 0; i < numInputs; i ++)
 	{
+
+		j = i * stat_SecParam;
 		tuples[i] = getDH_Tuples_2U(params_P -> params -> g, params_P -> crs -> g_1,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									params_P -> crs -> h_0_List, params_P -> crs -> h_1_List,
 									receivedTildeCRS -> lists[i] -> h_tildeList, stat_SecParam,
 									params_P -> params, lambda, j);
-
-		j += stat_SecParam;
 	}
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nSetup Tuples");
 
 
 	for(i = 0; i < numLambdas; i ++)
@@ -304,6 +313,9 @@ struct twoDH_Tuples **getAllTuplesVerifier(int writeSocket, int readSocket, stru
 										gmp_randstate_t *state)
 {
 	struct twoDH_Tuples **tuples;
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
 	mpz_t *lambda;
 
 	unsigned char *commBuffer;
@@ -321,21 +333,31 @@ struct twoDH_Tuples **getAllTuplesVerifier(int writeSocket, int readSocket, stru
 		mpz_urandomm(lambda[i], *state, params_P -> params -> n);
 	}
 
-	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	#pragma omp parallel for private(i, j) schedule(auto)
 	for(i = 0; i < numInputs; i ++)
 	{
+		j = i * stat_SecParam;
+
 		tuples[i] = getDH_Tuples_2U(params_P -> params -> g, params_P -> crs -> g_1,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									receivedTildeCRS -> lists[i] -> g_tilde,
 									params_P -> crs -> h_0_List, params_P -> crs -> h_1_List,
 									receivedTildeCRS -> lists[i] -> h_tildeList, stat_SecParam,
 									params_P -> params, lambda, j);
-
-		j += stat_SecParam;
 	}
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nSetup Tuples");
+
+	commBuffer = serialiseMPZ_Array(lambda, numLambdas, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
 
 
 	for(i = 0; i < numLambdas; i ++)

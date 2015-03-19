@@ -245,6 +245,7 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 
 
+
 	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{
 		inputBit = curValue -> value;

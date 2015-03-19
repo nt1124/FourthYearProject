@@ -1,3 +1,13 @@
+unsigned char getBitFromCharArray(unsigned char *input, int indexToGet)
+{
+	int i = indexToGet / 8;
+	int j = indexToGet % 8;
+
+	return (input[i] & (0x01 << j)) >> j;
+}
+
+
+
 unsigned char *encryptMultipleKeys(unsigned char **keyList, int numKeys, unsigned char *toEncrypt, int blockCount)
 {
 	unsigned int *RK;
