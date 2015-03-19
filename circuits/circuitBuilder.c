@@ -182,9 +182,9 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	int i, bufferLength, bufferOffset;
 	int circuitLength = 0; 
 
-	struct timespec timestamp_0 = timestamp(), timestamp_1;
-	clock_t c_0, c_1;
-	c_0 = clock();
+	// struct timespec timestamp_0 = timestamp(), timestamp_1;
+	// clock_t c_0, c_1;
+	// c_0 = clock();
 
 
 	// Serialise the circuit.
@@ -215,10 +215,10 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	sendInt(writeSocket, bufferLength);
 	send(writeSocket, bufferToSend, bufferLength);
 
-	c_1 = clock();
-	timestamp_1 = timestamp();
+	// c_1 = clock();
+	// timestamp_1 = timestamp();
 
-	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
+	// printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
 
 	free(bufferToSend);
 	free(circuitBuffer);

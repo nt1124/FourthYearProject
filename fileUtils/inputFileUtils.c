@@ -138,7 +138,7 @@ struct idAndValue *convertArrayToChain(unsigned char *array, int lengthOfArray, 
 
 	for(i = 0; i < lengthOfArray; i ++)
 	{
-		currentLink -> next = new_idAndValue(i + idOffset, array[i]);
+		currentLink -> next = new_idAndValue(i + idOffset, 0x01 & array[i]);
 		currentLink = currentLink -> next;
 	}
 

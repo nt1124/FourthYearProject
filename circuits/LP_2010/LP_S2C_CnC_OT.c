@@ -51,8 +51,6 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	seedList = generateRandUintList(stat_SecParam + 1);
 
-	// startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
-
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
 
 	srand(seedList[stat_SecParam]);

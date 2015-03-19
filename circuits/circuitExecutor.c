@@ -324,20 +324,8 @@ struct gateOrWire **receiveGatesOfCircuit(unsigned char *inputBuffer, int numGat
 {
 	int i, j;
 	struct gateOrWire **inputCircuit;
-	struct timespec timestamp_0 = timestamp(), timestamp_1;
-	clock_t c_0, c_1;
-	c_0 = clock();
-
-
-	printf("Circuit has %d gates!\n\n", numGates);
-
 
 	inputCircuit = deserialiseCircuit(inputBuffer, numGates);
-
-
-	c_1 = clock();
-	timestamp_1 = timestamp();
-	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Gates of Circuit");
 
 	return inputCircuit;
 }
@@ -348,6 +336,11 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 	struct Circuit *inputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	unsigned char *receivedBuffer;
 	int bufferLength, bufferOffset = 6 * sizeof(int);
+
+	// struct timespec timestamp_0 = timestamp(), timestamp_1;
+	// clock_t c_0, c_1;
+	// c_0 = clock();
+
 
 	bufferLength = receiveInt(readSocket);
 	receivedBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
@@ -368,6 +361,11 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 	bufferOffset += (inputCircuit -> numGates * sizeof(int));
 
 	inputCircuit -> gates = receiveGatesOfCircuit(receivedBuffer + bufferOffset, inputCircuit -> numGates);
+
+
+	// c_1 = clock();
+	// timestamp_1 = timestamp();
+	// printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Receiving Gates of Circuit");
 
 
 	free(receivedBuffer);

@@ -20,7 +20,7 @@ struct RawCircuit *createRawCheckCircuit(int inputB_Size)
 	execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
 	gatesList = initialiseAllInputs_Raw( outputCircuit -> numGates, outputCircuit -> numInputsBuilder,
 										outputCircuit -> numInputsExecutor, &execOrder);
-	gateIndex = execIndex = inputB_Size + 1;
+	execIndex = inputB_Size + 1;
 
 	inputIDs = (int*) calloc(2, sizeof(int));
 	inputIDs[0] = 0;
@@ -28,6 +28,7 @@ struct RawCircuit *createRawCheckCircuit(int inputB_Size)
 	for(i = 0; i < inputB_Size; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
+		printf("+++ %d  /  %d\n", execIndex, outputCircuit -> numGates);
 
 		if( NULL != tempGateOrWire )
 		{

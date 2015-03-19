@@ -20,7 +20,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	gmp_randstate_t *state;
 	struct public_builderPRS_Keys *public_inputs;
-	struct secret_builderPRS_Keys *secret_inputs;
+	struct secret_builderPRS_Keys *secret_inputs, *checkSecretInputs;
 	struct eccParams *params;
 
 	struct eccPoint **builderInputs;
@@ -103,6 +103,14 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	free(commBuffer);
 
 
+	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputsBuilder, 3 * stat_SecParam,
+												secret_inputs, params, *state);
+
+	SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
+							startOfInputChain, delta, 128,
+							checkSecretInputs, 3 * stat_SecParam, state);
+
+
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
 											params, state);
@@ -140,7 +148,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	unsigned char *J_set;
+	unsigned char *J_set, *deltaPrime;
 
 	gmp_randstate_t *state;
 
@@ -210,38 +218,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
-
-	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-										builderInputs, pubInputGroup -> public_inputs,
-										pubInputGroup -> params, state);
-
-
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)
-	{
-		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][0]);
-		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][1]);
-
-		free(pubInputGroup -> public_inputs -> public_keyPairs[i]);
-	}
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < pubInputGroup -> public_inputs -> stat_SecParam; i ++)
-	{
-		clearECC_Point(pubInputGroup -> public_inputs -> public_circuitKeys[i]);
-	}
-	free(pubInputGroup -> public_inputs -> public_circuitKeys);
-	freeECC_Params(pubInputGroup -> params);
-
-
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < arrayLen; i ++)
-	{
-		clearECC_Point(builderInputs[i]);
-	}
-	free(builderInputs);
-
-
-
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])
@@ -251,6 +227,27 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 			runCircuitExec( circuitsArray[i], writeSocket, readSocket );
 		}
 	}
+
+	deltaPrime = generateRandBytes(128, 128);
+
+	SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
+							deltaPrime, 128, 3 * stat_SecParam, state );
+
+
+	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
+										builderInputs, pubInputGroup -> public_inputs,
+										pubInputGroup -> params, state);
+
+
+	clearPublicInputsWithGroup(pubInputGroup);
+
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < arrayLen; i ++)
+	{
+		clearECC_Point(builderInputs[i]);
+	}
+	free(builderInputs);
+
 	freeRawCircuit(rawInputCircuit);
 
 	ext_c_1 = clock();

@@ -1,14 +1,13 @@
 
 
-unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket,
-										struct RawCircuit *rawInputCircuit,
-										struct idAndValue *startOfInputChain,
-										int checkStatSecParam,
-										gmp_randstate_t *state )
+unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+										unsigned char *deltaPrime, int lengthDelta,
+										int checkStatSecParam, gmp_randstate_t *state )
 {
-	struct Circuit **circuitsArray;
+	struct Circuit **circuitsArray = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 	struct publicInputsWithGroup *pubInputGroup;
 	struct eccParams *params;
+	// struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
 
 	unsigned char *commBuffer, *J_set, ***OT_Inputs, *output;
 	unsigned int *seedList;
@@ -18,14 +17,14 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket,
 	params = initBrainpool_256_Curve();
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
 
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}

@@ -1,3 +1,26 @@
+void clearPublicInputsWithGroup(struct publicInputsWithGroup *pubInputGroup)
+{
+	int i;
+
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)
+	{
+		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][0]);
+		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][1]);
+
+		free(pubInputGroup -> public_inputs -> public_keyPairs[i]);
+	}
+	#pragma omp parallel for private(i) schedule(auto)
+	for(i = 0; i < pubInputGroup -> public_inputs -> stat_SecParam; i ++)
+	{
+		clearECC_Point(pubInputGroup -> public_inputs -> public_circuitKeys[i]);
+	}
+	free(pubInputGroup -> public_inputs -> public_circuitKeys);
+	freeECC_Params(pubInputGroup -> params);
+}
+
+
+
 unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
 						struct idAndValue *startOfInputChain, int stat_SecParam, int comp_SecParam)
 {
