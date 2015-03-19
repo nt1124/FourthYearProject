@@ -30,7 +30,8 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 
 
 
-void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
+void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, 
+						unsigned char ***OT_Input, gmp_randstate_t *state,
 						int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_S;
@@ -70,20 +71,18 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		// #pragma omp ordered
-		// {
 			iOffset = stat_SecParam * (i - numInputsBuilder);
 			u_v_index = 2 * iOffset;
 
 			for(j = 0; j < stat_SecParam; j ++)
 			{
+				k = iOffset + j;
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 
-				CnC_OT_Transfer_One_Sender_ECC(tempWire -> outputGarbleKeys -> key0, tempWire -> outputGarbleKeys -> key1, 16,
+				CnC_OT_Transfer_One_Sender_ECC(OT_Input[0][k], OT_Input[1][k], 16,
 											params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
 				u_v_index += 2;
 			}
-		// }
 	}
 
 	bufferLength = 0;

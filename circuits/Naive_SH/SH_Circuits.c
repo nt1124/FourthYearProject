@@ -1,7 +1,7 @@
 #ifndef SH_CIRCUIT
 #define SH_CIRCUIT
 
-void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
+void runBuilder_SH(char *circuitFilepath, struct idAndValue *startOfInputChain, char *portNumStr)
 {
     struct sockaddr_in destWrite, destRead;
     int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -11,7 +11,6 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     clock_t c_0, c_1, ext_c_0, ext_c_1;
 
     struct Circuit *inputCircuit;
-    struct idAndValue *startOfInputChain;
     int i;
 
     set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
@@ -33,7 +32,7 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
     printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "\nBuilding all Circuits");
 
 
-    startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+    // startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
     setCircuitsInputs_Hardcode(startOfInputChain, inputCircuit, 0xFF);
     free_idAndValueChain(startOfInputChain);
 
@@ -56,7 +55,7 @@ void runBuilder_SH(char *circuitFilepath, char *inputFilepath, char *portNumStr)
 
 
 
-void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
+void runExecutor_SH(struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
 {
     struct sockaddr_in serv_addr_write, serv_addr_read;
     int writeSocket, readSocket;
@@ -67,7 +66,6 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     clock_t c_0, c_1, ext_c_0, ext_c_1;
 
     struct Circuit *inputCircuit;
-    struct idAndValue *startOfInputChain;
     gmp_randstate_t *state;
     struct decParams_ECC *params;
 
@@ -84,7 +82,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     t_0 = timestamp();
     c_0 = clock();
 
-    startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+    // startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
     setCircuitsInputs_Values(startOfInputChain, inputCircuit, 0x00);
     free_idAndValueChain(startOfInputChain);
 
@@ -99,7 +97,7 @@ void runExecutor_SH(char *inputFilepath, char *ipAddress, char *portNumStr)
     printTiming(&t_0, &t_1, c_0, c_1, "OT - Receiver");
 
 
-    runCircuitExec( inputCircuit, writeSocket, readSocket, inputFilepath );
+    runCircuitExec( inputCircuit, writeSocket, readSocket );
 
     ext_t_1 = timestamp();
     ext_c_1 = clock();

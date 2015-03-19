@@ -26,6 +26,34 @@ struct secret_builderPRS_Keys *init_secret_input_keys(int numInputs, int stat_Se
 }
 
 
+struct secret_builderPRS_Keys *init_check_comp_secrets(int numInputs, int stat_SecParam, struct secret_builderPRS_Keys *mainSecrets)
+{
+	struct secret_builderPRS_Keys *toReturn = (struct secret_builderPRS_Keys*) calloc(1, sizeof(struct secret_builderPRS_Keys));
+	int i;
+
+	toReturn -> numKeyPairs = numInputs;
+	toReturn -> secret_keyPairs = (mpz_t **) calloc(numInputs, sizeof(mpz_t*));
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		toReturn -> secret_keyPairs[i] = (mpz_t *) calloc(2, sizeof(mpz_t));
+
+		mpz_init_set(toReturn -> secret_keyPairs[i][0], mainSecrets -> secret_keyPairs[i][0]);
+		mpz_init_set(toReturn -> secret_keyPairs[i][1], mainSecrets -> secret_keyPairs[i][1]);
+	}
+
+	toReturn -> stat_SecParam = stat_SecParam;
+	toReturn -> secret_circuitKeys = (mpz_t *) calloc(stat_SecParam, sizeof(mpz_t));
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		mpz_init(toReturn -> secret_circuitKeys[i]);
+	}
+
+	return toReturn;
+}
+
+
 struct public_builderPRS_Keys *init_public_input_keys(int numInputs, int stat_SecParam)
 {
 	struct public_builderPRS_Keys *toReturn = (struct public_builderPRS_Keys*) calloc(1, sizeof(struct public_builderPRS_Keys));
@@ -92,6 +120,26 @@ struct secret_builderPRS_Keys *generateSecrets(int numInputs, int stat_SecParam,
 		mpz_urandomm(secret_inputs -> secret_keyPairs[i][0], state, params -> n);
 		mpz_urandomm(secret_inputs -> secret_keyPairs[i][1], state, params -> n);
 	}
+
+	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
+	{
+		mpz_urandomm(secret_inputs -> secret_circuitKeys[i], state, params -> n);
+	}
+
+
+	return secret_inputs;
+}
+
+
+// Generate secrets 
+struct secret_builderPRS_Keys *generateSecretsCheckComp(int numInputs, int check_stat_SecParam, struct secret_builderPRS_Keys *mainSecrets,
+														struct eccParams *params, gmp_randstate_t state)
+{
+	struct secret_builderPRS_Keys *secret_inputs;
+	int i;
+	
+
+	secret_inputs = init_check_comp_secrets(numInputs, check_stat_SecParam, mainSecrets);
 
 	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
 	{

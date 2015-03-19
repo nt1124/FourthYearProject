@@ -113,3 +113,34 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 }
 
 
+unsigned char *convertChainIntoArray(struct idAndValue *startOfInputChain, int lengthOfChain)
+{
+	struct idAndValue *currentItem = startOfInputChain -> next;
+	unsigned char *output = (unsigned char *) calloc(lengthOfChain, sizeof(unsigned char));
+	int i = 0;
+
+	while(NULL != currentItem)
+	{
+		output[i ++] = currentItem -> value;
+		currentItem = currentItem -> next;
+	}
+
+	return output;
+}
+
+
+struct idAndValue *convertArrayToChain(unsigned char *array, int lengthOfArray, int idOffset)
+{
+	struct idAndValue *start = (struct idAndValue*) calloc(1, sizeof(struct idAndValue));
+	struct idAndValue *currentLink = start;
+	int i;
+
+
+	for(i = 0; i < lengthOfArray; i ++)
+	{
+		currentLink -> next = new_idAndValue(i + idOffset, array[i]);
+		currentLink = currentLink -> next;
+	}
+
+	return start;
+}

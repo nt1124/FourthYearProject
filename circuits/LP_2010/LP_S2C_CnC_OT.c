@@ -1,7 +1,7 @@
 // const int stat_SecParam = 4;
 
 
-void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char *portNumStr)
+void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, struct idAndValue *startOfInputChain, char *portNumStr)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -9,7 +9,6 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	struct Circuit **circuitsArray;
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
-	struct idAndValue *startOfInputChain, *start;
 	unsigned int *seedList;
 	int i, J_setSize = 0;
 
@@ -26,7 +25,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	struct eccPoint **builderInputs;
 	int arrayLen;
-	unsigned char *commBuffer, *J_set;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs;
 	int commBufferLen = 0;
 
 
@@ -53,7 +52,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 	seedList = generateRandUintList(stat_SecParam + 1);
 
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+	// startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
 
@@ -78,7 +77,8 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 	int_c_0 = clock();
 
 
-	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
+	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray, OT_Inputs, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
@@ -122,7 +122,7 @@ void runBuilder_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char 
 
 
 
-void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char *ipAddress, char *portNumStr)
+void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
@@ -134,8 +134,7 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
 	unsigned char *J_set;
-	
-	struct idAndValue *startOfInputChain;
+
 	gmp_randstate_t *state;
 
 	struct eccPoint **builderInputs;
@@ -162,7 +161,7 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
-	startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
+	// startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
@@ -230,7 +229,7 @@ void runExecutor_LP_2010_CnC_OT(char *circuitFilepath, char *inputFilepath, char
 		{
 			printf("Evaluating Circuit %d\n", i);
 			fflush(stdout);
-			runCircuitExec( circuitsArray[i], writeSocket, readSocket, inputFilepath);
+			runCircuitExec( circuitsArray[i], writeSocket, readSocket );
 		}
 	}
 	freeRawCircuit(rawInputCircuit);

@@ -247,7 +247,7 @@ void readInputDetailsFileExec(int writeSocket, int readSocket, char *filepath, s
 
 
 // Run the circuit, executor style.
-void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSocket, char *filepath )
+void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSocket )
 {
 	int i, gateID;
 	struct timespec timestamp_0, timestamp_1;

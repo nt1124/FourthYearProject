@@ -30,13 +30,14 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	struct timespec timestamp_0 = timestamp(), timestamp_1;
 	clock_t c_0, c_1;
 	c_0 = clock();
+	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
-		// runExecutor_SH(inputFilename, ipAddress, portNumStr);
-		runExecutor_L_2013_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
-		// runExecutor_LP_2010_CnC_OT(circuitFilepath, inputFilename, ipAddress, portNumStr);
+		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr);
+		runExecutor_L_2013_CnC_OT(circuitFilepath, startOfInputChain, ipAddress, portNumStr);
+		// runExecutor_LP_2010_CnC_OT(circuitFilepath, startOfInputChain, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 		// test_CnC_OT_Mod_Receiver(ipAddress);
@@ -44,9 +45,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	else
 	{
 		printf("Running Builder.\n");
-		// runBuilder_SH(circuitFilepath, inputFilename, portNumStr);
-		runBuilder_L_2013_CnC_OT(circuitFilepath, inputFilename, portNumStr);
-		// runBuilder_LP_2010_CnC_OT(circuitFilepath, inputFilename, portNumStr);
+		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr);
+		runBuilder_L_2013_CnC_OT(circuitFilepath, startOfInputChain, portNumStr);
+		// runBuilder_LP_2010_CnC_OT(circuitFilepath, startOfInputChain, portNumStr);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
