@@ -111,3 +111,4 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 	return params_R -> crs -> J_set;
 }
+

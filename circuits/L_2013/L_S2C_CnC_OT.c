@@ -1,14 +1,14 @@
 // const int stat_SecParam = 4;
 
 
-void runBuilder_L_2013_CnC_OT(char *circuitFilepath, struct idAndValue *startOfInputChain, char *portNumStr)
+void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
 
 	struct Circuit **circuitsArray;
-	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	// struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 	unsigned int *seedList;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
@@ -128,14 +128,14 @@ void runBuilder_L_2013_CnC_OT(char *circuitFilepath, struct idAndValue *startOfI
 
 
 
-void runExecutor_L_2013_CnC_OT(char *circuitFilepath, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
+void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i;
 
-	struct RawCircuit *rawInputCircuit, *rawCheckCircuit;
+	struct RawCircuit *rawCheckCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 
 	struct revealedCheckSecrets *secretsRevealed;
@@ -162,7 +162,7 @@ void runExecutor_L_2013_CnC_OT(char *circuitFilepath, struct idAndValue *startOf
 
 	printf("Connected to builder.\n");
 
-	rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	// rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);

@@ -7,6 +7,9 @@
 #include "L_S2C_CnC_OT_ECC_Builder.c"
 #include "L_S2C_CnC_OT_ECC_Executor.c"
 
+#include "L_S2C_CnC_OT_Check_Builder.c"
+#include "L_S2C_CnC_OT_Check_Executor.c"
+
 
 #include "L_S2C_CnC_OT.c"
 
