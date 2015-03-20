@@ -1,3 +1,5 @@
+// void printfSecrets
+
 struct secret_builderPRS_Keys *init_secret_input_keys(int numInputs, int stat_SecParam)
 {
 	struct secret_builderPRS_Keys *toReturn = (struct secret_builderPRS_Keys*) calloc(1, sizeof(struct secret_builderPRS_Keys));
@@ -188,7 +190,7 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
-	memcpy(halfHash, rawBytes, 16);
+	memcpy(halfHash, hashedBytes, 16);
 
 
 	clearECC_Point(pointRep);
@@ -212,12 +214,12 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 	rawBytes = convertMPZToBytes(pointRep -> x, &outputLength);
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
-	// memcpy(halfHash, hashedBytes, 16);
-	memcpy(halfHash, rawBytes, 16);
+	memcpy(halfHash, hashedBytes, 16);
+	//memcpy(halfHash, rawBytes, 16);
 
 
 	clearECC_Point(pointRep);
-	// free(hashedBytes);
+	free(hashedBytes);
 	free(rawBytes);
 
 	return halfHash;
@@ -308,6 +310,8 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 	int totalLength = 0, outputOffset = 0;
 	int j = 0;
 
+	unsigned int temp = 0;
+
 
 	for(j = 0; j < secret_inputs -> stat_SecParam; j ++)
 	{
@@ -326,7 +330,8 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 		if(0x01 == J_set[j])
 		{
 			serialiseMPZ(secret_inputs -> secret_circuitKeys[j], outputBuffer, &outputOffset);
-			memcpy(outputBuffer + outputOffset, seedList + sizeof(unsigned int) * j, sizeof(unsigned int));
+			memcpy(outputBuffer + outputOffset, seedList + j, sizeof(unsigned int));
+
 			outputOffset += sizeof(unsigned int);
 		}
 	}
@@ -372,7 +377,7 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 				fflush(stdout);
 				return NULL;
 			}
-			memcpy(revealedSeeds + j * sizeof(unsigned int), inputBuffer + inputOffset, sizeof(unsigned int));
+			memcpy(revealedSeeds + j, inputBuffer + inputOffset, sizeof(unsigned int));
 			inputOffset += sizeof(unsigned int);
 
 			// free(tempMPZ);

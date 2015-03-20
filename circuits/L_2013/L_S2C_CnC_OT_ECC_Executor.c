@@ -71,13 +71,13 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	// tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
-	// ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
-	// 							tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
+	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
+								tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nParallel ZKPoK");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -114,15 +114,15 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 		}
 	}
 
-	/*
-	for(j = 0; j < stat_SecParam; j ++)
+
+	for(j = 0; j < circuitsArray[0] -> numInputsExecutor * stat_SecParam; j ++)
 	{
 		clearECC_Point(CTs[j] -> u_0);
 		clearECC_Point(CTs[j] -> u_1);
 		free(CTs[j] -> w_0);
 		free(CTs[j] -> w_1);
 	}
-	*/
+
 
 	commBufferLen = 0;
 	checkTildes = transfer_CheckValues_CnC_OT_Mod_Receiver(params_R, *state);

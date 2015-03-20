@@ -245,14 +245,14 @@ void freeTempGarbleCircuit(struct Circuit *tempGarbleCircuit)
 
 		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys -> key0);
 		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys -> key1);
-		// free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys);
-		// free(tempGarbleCircuit -> gates[i] -> outputWire -> wireOutputKey);
-		// free(tempGarbleCircuit -> gates[i] -> outputWire);
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> outputGarbleKeys);
+		free(tempGarbleCircuit -> gates[i] -> outputWire -> wireOutputKey);
+		free(tempGarbleCircuit -> gates[i] -> outputWire);
 
-		// free(tempGarbleCircuit -> gates[i]);
+		free(tempGarbleCircuit -> gates[i]);
 	}
 
-	// free(tempGarbleCircuit -> gates);
+	free(tempGarbleCircuit -> gates);
 
 	free(tempGarbleCircuit);
 }

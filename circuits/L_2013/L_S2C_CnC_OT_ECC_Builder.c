@@ -76,6 +76,55 @@ unsigned char ***generateConsistentOutputsHashTables(unsigned char ***outputs, i
 
 
 
+unsigned char *serialiseOutputHashTables(unsigned char ***toSerialise, int numInputs, int *outputLength)
+{
+	unsigned char *outputBuffer = (unsigned char *) calloc(numInputs * 2 * 16, sizeof(unsigned char));
+	int i, outputOffset = 0;
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		memcpy(outputBuffer + outputOffset, toSerialise[0][i], 16);
+		outputOffset += 16;
+
+		memcpy(outputBuffer + outputOffset, toSerialise[1][i], 16);
+		outputOffset += 16;
+	}
+
+
+	*outputLength = outputOffset;
+
+	return outputBuffer;
+}
+
+
+unsigned char ***deserialiseOutputHashTables(unsigned char *commBuffer, int numInputs, int *inputOffset)
+{
+	unsigned char ***output = (unsigned char ***) calloc(2, sizeof(unsigned char **));
+	int i, offset = *inputOffset;
+
+
+	output[0] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+	output[1] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		output[0][i] = (unsigned char *) calloc(16, sizeof(unsigned char));
+		memcpy(output[0][i], commBuffer + offset, 16);
+		offset += 16;
+
+		output[1][i] = (unsigned char *) calloc(16, sizeof(unsigned char));
+		memcpy(output[1][i], commBuffer + offset, 16);
+		offset += 16;
+	}
+
+
+	*inputOffset = offset;
+
+	return output;
+}
+
+
+
 void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 								unsigned char ***OT_Inputs, unsigned char **Xj_checkValues,
 								gmp_randstate_t *state, int stat_SecParam, int comp_SecParam)
@@ -115,12 +164,12 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	// tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
-	// verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
+	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nParallel ZKPoK");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
 	#pragma omp parallel for private(i, iOffset, j, k, tempWire) schedule(auto)
 	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)

@@ -794,6 +794,7 @@ void ZKPoK_Prover_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPair
 	arrayOfLengths = (int*) calloc(numPairs, sizeof(int));
 
 
+	#pragma omp parallel for private(i) schedule(auto)
 	for(i = 0; i < numPairs; i ++)
 	{
 		witnessSet[i] = proverSetupWitnesses_1(alphas_List + i);
@@ -985,6 +986,7 @@ int ZKPoK_Verifier_ECC_1Of2_Parallel(int writeSocket, int readSocket, int numPai
 	free(commBuffer);
 
 
+	#pragma omp parallel for private(i) schedule(auto)
 	for(i = 0; i < numPairs; i ++)
 	{
 		verified |= verifierChecks_ECC_1Of2(params,

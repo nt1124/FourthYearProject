@@ -124,7 +124,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
-	int i, commBufferLen = 0, arrayLen, J_setSize  = 0;
+	int i, commBufferLen = 0, arrayLen, J_setSize  = 0 ,circuitsChecked = 0;
 
 	// struct RawCircuit *rawInputCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
@@ -138,7 +138,9 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	unsigned char *commBuffer;
 
 	struct timespec ext_t_0, ext_t_1;
+	struct timespec int_t_0, int_t_1;
 	clock_t ext_c_0, ext_c_1;
+	clock_t int_c_0, int_c_1;
 
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
@@ -149,7 +151,10 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	printf("Connected to builder.\n");
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
+	fflush(stdout);
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < stat_SecParam; i ++)
@@ -157,12 +162,15 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
-	// startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
 	free_idAndValueChain(startOfInputChain);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nReceived Circuits");
 
 
 	state = seedRandGen();
@@ -174,9 +182,9 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
 
 
-	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
-								J_set, J_setSize, stat_SecParam);
+	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
+												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
+												J_set, J_setSize, stat_SecParam);
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
