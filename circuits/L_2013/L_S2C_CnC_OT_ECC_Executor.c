@@ -71,9 +71,9 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
-	ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
-								tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
+	// tuplesList = getAllTuplesProver(writeSocket, readSocket, params_R, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	// ZKPoK_Prover_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_R -> params,
+	// 							tuplesList, fullTildeCRS -> r_List, startOfInputChain, state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -144,3 +144,43 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	return params_R -> crs -> J_set;
 }
 
+
+
+
+int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
+								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set, unsigned int *seedList,
+								unsigned char **b0List, unsigned char **b1List, struct eccParams *params,
+								unsigned char *J_set, int J_setSize, int stat_SecParam)
+{
+	struct Circuit *tempGarbleCircuit;
+	struct wire *tempWire;
+	int i, j, temp = 0;
+
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		if(0x01 == J_set[j])
+		{
+			// printf("Checkpoint Beta 1 => %d\n", j);
+			fflush(stdout);
+
+			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+			{
+				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+
+				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x00);
+				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
+			}
+
+			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
+			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+
+			// printf("Checkpoint Beta 3 => %d\n", j);
+			fflush(stdout);
+			freeTempGarbleCircuit(tempGarbleCircuit);
+		}
+	}
+
+	return 1;
+}

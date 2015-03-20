@@ -55,6 +55,26 @@ unsigned char ***generateConsistentOutputs(unsigned char *delta, int numInputs)
 }
 
 
+unsigned char ***generateConsistentOutputsHashTables(unsigned char ***outputs, int numInputs)
+{
+	unsigned char ***hashedValues = (unsigned char ***) calloc(2, sizeof(unsigned char **));
+	int i, j;
+
+	hashedValues[0] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+	hashedValues[1] = (unsigned char **) calloc(numInputs, sizeof(unsigned char *));
+
+	// For each output value we hash it and store, this is then forwarded to the Executor
+	// Who can then use it to determine the true value of an output gate.
+	for(i = 0; i < numInputs; i ++)
+	{
+		hashedValues[0][i] = sha256_full(outputs[0][i], 16);
+		hashedValues[1][i] = sha256_full(outputs[1][i], 16);
+	}
+
+	return hashedValues;
+}
+
+
 
 void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 								unsigned char ***OT_Inputs, unsigned char **Xj_checkValues,
@@ -95,8 +115,8 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
-	verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
+	// tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	// verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

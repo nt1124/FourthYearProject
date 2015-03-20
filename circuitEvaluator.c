@@ -38,8 +38,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr);
-		runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
-		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
+		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
+		runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 		// test_CnC_OT_Mod_Receiver(ipAddress);
@@ -48,8 +48,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr);
-		runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
-		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
+		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
+		runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
@@ -69,13 +69,8 @@ int main(int argc, char *argv[])
 	srand( time(NULL) );
 
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	// test_ZKPoK();
-	// test_ZKPoK_ECC();
-	// test_ZKPoK_ECC_1Of2();
-	// testECC_Utils();
-	// testOT_PWV_DDH_Local_ECC();
-	// test_local_CnC_OT();
-	// test_local_CnC_OT_ECC();
+
+	// testCircuitComp(argv[1]);
 
 	return 0;
 }
@@ -87,4 +82,10 @@ int main(int argc, char *argv[])
 // runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 // testRunZeroedInput(circuitFilepath);
 // testRawCircuits(argv[1], argv[2], argv[3]);
-// testCircuitComp(argv[1]);
+// test_ZKPoK();
+// test_ZKPoK_ECC();
+// test_ZKPoK_ECC_1Of2();
+// testECC_Utils();
+// testOT_PWV_DDH_Local_ECC();
+// test_local_CnC_OT();
+// test_local_CnC_OT_ECC();

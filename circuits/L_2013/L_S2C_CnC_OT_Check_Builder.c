@@ -75,10 +75,13 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
 
 
+	// So yeah, this freeing causes crashes later, for some reason.
+	/*
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
-		// freeCircuitStruct(circuitsArray[i], 0);
+		freeCircuitStruct(circuitsArray[i], 0);
 	}
+	*/
 
 	return output;
 }

@@ -212,11 +212,12 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 	rawBytes = convertMPZToBytes(pointRep -> x, &outputLength);
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
-	memcpy(halfHash, hashedBytes, 16);
+	// memcpy(halfHash, hashedBytes, 16);
+	memcpy(halfHash, rawBytes, 16);
 
 
 	clearECC_Point(pointRep);
-	free(hashedBytes);
+	// free(hashedBytes);
 	free(rawBytes);
 
 	return halfHash;

@@ -271,12 +271,25 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	unsigned int seedLong = 0;
 	int i, temp = 0, tempTemp;
 
+	gmp_randstate_t *state;
+	struct public_builderPRS_Keys *public_inputs;
+	struct secret_builderPRS_Keys *secret_inputs;
+	struct eccParams *params;
+
+	state = seedRandGen();
+
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, 1, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
+
 	memcpy(&seedLong, seedBytes, sizeof(unsigned int));
 
 
-	garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
-	garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
+	// garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
+	// garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 
+	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
 
 	/*
 	struct idAndValue *startOfInputChain, *start;

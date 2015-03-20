@@ -199,6 +199,9 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	{
 		if(0x01 == J_set[j])
 		{
+			printf("Checkpoint Beta 1 => %d\n", j);
+			fflush(stdout);
+
 			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 			{
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
@@ -207,14 +210,19 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x00);
 				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
 			}
+			printf("Checkpoint Beta 2 => %d\n", j);
+			fflush(stdout);
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
-			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
-		
-			//freeCircuitStruct(tempGarbleCircuit, 0);
-			freeTempGarbleCircuit(tempGarbleCircuit);
+			temp += compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+
+			// printf("Checkpoint Beta 3 => %d\n", j);
+			// fflush(stdout);
+			// freeTempGarbleCircuit(tempGarbleCircuit);
 		}
 	}
+
+	printf("\nTEMP  =  %d\n\n", temp);
 
 	return 1;
 }

@@ -85,8 +85,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
 	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
 
-	// At this point receive from the Executor the proof of the J-set.
-	// Then provide the relevant r_j's.
+	// At this point receive from the Executor the proof of the J-set. Then provide the relevant r_j's.
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList);
 
 	int_c_1 = clock();
@@ -170,17 +169,20 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	printf("Connected to builder.\n");
 
-	// rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits");
 
-	// startOfInputChain = readInputDetailsFile_Alt(inputFilepath);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
@@ -202,11 +204,15 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
 
+	printf("Checkpoint Alpha\n");
+	fflush(stdout);
 
 	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 								J_set, J_setSize, stat_SecParam);
 
+	printf("Checkpoint Charlie\n");
+	fflush(stdout);
 
 	commBufferLen = 0;
 	bufferOffset = 0;
