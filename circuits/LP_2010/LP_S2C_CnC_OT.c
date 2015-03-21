@@ -130,7 +130,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	unsigned char *J_set;
+	unsigned char *J_set, **output;
 
 	gmp_randstate_t *state;
 
@@ -174,8 +174,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	state = seedRandGen();
-	J_set = full_CnC_OT_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, stat_SecParam, 1024);
-
+	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray, state, &output, stat_SecParam, 1024);
+	setInputsFromCharArray(circuitsArray, output, stat_SecParam);
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,

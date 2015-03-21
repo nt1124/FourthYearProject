@@ -38,8 +38,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr);
-		runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
-		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
+		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
+		runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 		// test_CnC_OT_Mod_Receiver(ipAddress);
@@ -48,8 +48,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr);
-		runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
-		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
+		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
+		runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();

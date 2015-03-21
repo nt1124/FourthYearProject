@@ -76,18 +76,18 @@ unsigned char ***generateConsistentOutputsHashTables(unsigned char ***outputs, i
 
 
 
-unsigned char *serialiseOutputHashTables(unsigned char ***toSerialise, int numInputs, int *outputLength)
+unsigned char *serialise3D_UChar_Array(unsigned char ***toSerialise, int numInputs, int hashOutputLengths, int *outputLength)
 {
-	unsigned char *outputBuffer = (unsigned char *) calloc(numInputs * 2 * 16, sizeof(unsigned char));
+	unsigned char *outputBuffer = (unsigned char *) calloc(2 * numInputs * hashOutputLengths, sizeof(unsigned char));
 	int i, outputOffset = 0;
 
 	for(i = 0; i < numInputs; i ++)
 	{
-		memcpy(outputBuffer + outputOffset, toSerialise[0][i], 16);
-		outputOffset += 16;
+		memcpy(outputBuffer + outputOffset, toSerialise[0][i], hashOutputLengths);
+		outputOffset += hashOutputLengths;
 
-		memcpy(outputBuffer + outputOffset, toSerialise[1][i], 16);
-		outputOffset += 16;
+		memcpy(outputBuffer + outputOffset, toSerialise[1][i], hashOutputLengths);
+		outputOffset += hashOutputLengths;
 	}
 
 
@@ -97,7 +97,7 @@ unsigned char *serialiseOutputHashTables(unsigned char ***toSerialise, int numIn
 }
 
 
-unsigned char ***deserialiseOutputHashTables(unsigned char *commBuffer, int numInputs, int *inputOffset)
+unsigned char ***deserialise3D_UChar_Array(unsigned char *commBuffer, int numInputs, int hashOutputLengths, int *inputOffset)
 {
 	unsigned char ***output = (unsigned char ***) calloc(2, sizeof(unsigned char **));
 	int i, offset = *inputOffset;
@@ -108,13 +108,13 @@ unsigned char ***deserialiseOutputHashTables(unsigned char *commBuffer, int numI
 
 	for(i = 0; i < numInputs; i ++)
 	{
-		output[0][i] = (unsigned char *) calloc(16, sizeof(unsigned char));
-		memcpy(output[0][i], commBuffer + offset, 16);
-		offset += 16;
+		output[0][i] = (unsigned char *) calloc(hashOutputLengths, sizeof(unsigned char));
+		memcpy(output[0][i], commBuffer + offset, hashOutputLengths);
+		offset += hashOutputLengths;
 
-		output[1][i] = (unsigned char *) calloc(16, sizeof(unsigned char));
-		memcpy(output[1][i], commBuffer + offset, 16);
-		offset += 16;
+		output[1][i] = (unsigned char *) calloc(hashOutputLengths, sizeof(unsigned char));
+		memcpy(output[1][i], commBuffer + offset, hashOutputLengths);
+		offset += hashOutputLengths;
 	}
 
 
@@ -182,14 +182,11 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 			k = (i - numInputsBuilder) * stat_SecParam + j;
 			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 
-
 			CTs[k] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, fullTildeCRS -> lists[iOffset],
 												OT_Inputs[0][k], OT_Inputs[1][k],
 												*state, j);
 
 		}
-
-
 	}
 
 	commBuffer = serialise_Mod_CTs(CTs, circuitsArray[0] -> numInputsExecutor * stat_SecParam, &commBufferLen, 16);

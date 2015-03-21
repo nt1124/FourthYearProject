@@ -109,6 +109,157 @@ unsigned char *full_CnC_OT_Receiver_ECC(int writeSocket, int readSocket, struct 
 }
 
 
+
+unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
+											unsigned char ***output, int stat_SecParam, int comp_SecParam)
+{
+	struct params_CnC_ECC *params_R;
+	struct otKeyPair_ECC **keyPairs_R;
+	struct u_v_Pair_ECC **c_i_Array_R;
+
+	struct wire *tempWire;
+
+	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1;
+	int bufferLength = 0, i, j, iOffset = 0, numInputsBuilder, numInputsExecutor;
+	int totalOTs = circuitsArray[0] -> numInputsExecutor * stat_SecParam;
+	int u_v_index = 0;
+	int k;
+
+
+	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
+	*output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
+
+	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, comp_SecParam, *state);
+	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
+	sendBoth(writeSocket, commBuffer, bufferLength);
+	free(commBuffer);
+
+	// Prove that we did indeed select s/2 many to open.
+	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,
+					params_R -> params -> g, params_R -> crs -> g_1,
+					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
+					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
+
+
+	keyPairs_R = (struct otKeyPair_ECC **) calloc(totalOTs, sizeof(struct otKeyPair_ECC*));
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+
+
+	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
+	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+
+		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			keyPairs_R[iOffset + j] = CnC_OT_Transfer_One_Receiver_ECC(value, j, params_R, state);
+		}
+	}
+
+	bufferLength = 0;
+	commBuffer = serialise_PKs_otKeyPair_ECC_Array(keyPairs_R, totalOTs, &bufferLength);
+	sendBoth(writeSocket, commBuffer, bufferLength);
+	free(commBuffer);
+
+
+	bufferLength = 0;
+	commBuffer = receiveBoth(readSocket, bufferLength);
+	c_i_Array_R = deserialise_U_V_Pair_Array_ECC(commBuffer, totalOTs * 2);
+	free(commBuffer);
+
+
+	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
+	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	{
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+		u_v_index = 2 * iOffset;
+
+		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+
+			(*output)[u_v_index + 0] = CnC_OT_Output_One_Receiver_0_ECC(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
+			(*output)[u_v_index + 1] = CnC_OT_Output_One_Receiver_1_ECC(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
+
+			u_v_index += 2;
+		}
+	}
+
+
+	for(i = 0; i < totalOTs; i ++)
+	{
+		freeOT_Pair(keyPairs_R[i]);
+		clearECC_Point(c_i_Array_R[i] -> u);
+		clearECC_Point(c_i_Array_R[i] -> v);
+		free(c_i_Array_R[i]);
+	}
+	free(keyPairs_R);
+
+	for(; i < 2 * totalOTs; i ++)
+	{
+		clearECC_Point(c_i_Array_R[i] -> u);
+		clearECC_Point(c_i_Array_R[i] -> v);
+		free(c_i_Array_R[i]);
+	}
+
+	return params_R -> crs -> J_set;
+}
+
+
+
+void setInputsFromCharArray(struct Circuit **circuitsArray, unsigned char **output, int stat_SecParam)
+{
+	int i, j, iOffset, u_v_index, numInputsBuilder, numInputsExecutor;
+	struct wire *tempWire;
+	unsigned char value;
+
+
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
+
+
+	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	{
+		printf("::: %d  ->  %02X\n", i, output[0][0]);
+		fflush(stdout);
+
+		iOffset = stat_SecParam * (i - numInputsBuilder);
+		u_v_index = 2 * iOffset;
+
+		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+
+			tempWire -> outputGarbleKeys -> key0 = output[u_v_index + 0];
+			tempWire -> outputGarbleKeys -> key1 = output[u_v_index + 1];
+
+			if(0x00 == value)
+			{
+				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
+			}
+			else
+			{
+				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
+			}
+
+			u_v_index += 2;
+		}
+	}
+}
+
+
 struct publicInputsWithGroup *receivePublicCommitments(int writeSocket, int readSocket)
 {
 	struct publicInputsWithGroup *toReturn = (struct publicInputsWithGroup *) calloc(1, sizeof(struct publicInputsWithGroup));
@@ -209,7 +360,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 			}
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
-			temp += compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 
 			// printf("Checkpoint Beta 3 => %d\n", j);
 			// fflush(stdout);

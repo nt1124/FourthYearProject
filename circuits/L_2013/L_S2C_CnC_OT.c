@@ -78,7 +78,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	}
 
 	commBufferLen = 0;
-	commBuffer = serialiseOutputHashTables(hashedB_Lists, rawInputCircuit -> numOutputs, &commBufferLen);
+	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
@@ -113,6 +113,11 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
 							startOfInputChain, delta, 128,
 							checkSecretInputs, 3 * stat_SecParam, state);
+
+	commBufferLen = 0;
+	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
 
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs, secret_inputs,
@@ -156,8 +161,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	gmp_randstate_t *state;
 
 	struct eccPoint **builderInputs;
-	int arrayLen, commBufferLen = 0, bufferOffset, J_setSize = 0;
-	unsigned char *commBuffer, ***outputHashTable;
+	int arrayLen, commBufferLen = 0, bufferOffset, J_setSize = 0, circuitsChecked = 0;
+	unsigned char *commBuffer, ***bLists, ***outputHashTable;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -187,7 +192,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	commBufferLen = 0;
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	outputHashTable = deserialiseOutputHashTables(commBuffer, rawInputCircuit -> numOutputs, &bufferOffset);
+	outputHashTable = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
 	free(commBuffer);
 
 	int_c_1 = clock();
@@ -215,16 +220,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
-
-	secretInputsToCheckCircuits(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
-								J_set, J_setSize, stat_SecParam);
-
-	// secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-	// 							secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, ,
-	// 							b0List, b1List, pubInputGroup -> params,
-	// 							J_set, J_setSize, stat_SecParam)
-
 
 
 	commBufferLen = 0;
@@ -262,6 +257,20 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
 	 						deltaPrime, 128, 3 * stat_SecParam, state );
 
+
+	commBufferLen = 0;
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	bLists = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
+	free(commBuffer);
+
+
+	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
+								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
+	 							bLists[0], bLists[1], pubInputGroup -> params,
+	 							J_set, J_setSize, stat_SecParam);
+
+	printf("Circuits Correct = %d\n", circuitsChecked);
 
 	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
 										builderInputs, pubInputGroup -> public_inputs,

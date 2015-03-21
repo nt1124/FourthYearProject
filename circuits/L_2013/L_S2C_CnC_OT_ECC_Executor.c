@@ -174,7 +174,7 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 			}
 
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
-			temp = compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
+			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 
 			// printf("Checkpoint Beta 3 => %d\n", j);
 			fflush(stdout);
@@ -182,5 +182,5 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 		}
 	}
 
-	return 1;
+	return temp;
 }
