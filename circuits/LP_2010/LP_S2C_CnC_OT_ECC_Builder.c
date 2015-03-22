@@ -29,8 +29,7 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 }
 
 
-
-void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, 
+void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, int numInputsExecutor,
 						unsigned char ***OT_Input, gmp_randstate_t *state,
 						int stat_SecParam, int comp_SecParam)
 {
@@ -38,10 +37,8 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	struct otKeyPair_ECC **keyPairs_S;
 	struct u_v_Pair_ECC **c_i_Array_S;
 
-	struct wire *tempWire;
-
 	unsigned char *commBuffer;
-	int i, j, bufferLength = 0, iOffset = 0, numInputsBuilder;
+	int i, j, bufferLength = 0, iOffset = 0;
 	int totalOTs, u_v_index;
 
 	int k, tupleVerified = 0;
@@ -51,8 +48,7 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 	params_S = setup_CnC_OT_Sender_ECC(commBuffer);
 	free(commBuffer);
 
-	totalOTs = params_S -> crs -> stat_SecParam * circuitsArray[0] -> numInputsExecutor;
-	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	totalOTs = params_S -> crs -> stat_SecParam * numInputsExecutor;
 
 
 	// When doing this properly the ZKPOK goes here.
@@ -68,17 +64,15 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, struct Circuit **ci
 
 	c_i_Array_S = (struct u_v_Pair_ECC **) calloc(2*totalOTs, sizeof(struct u_v_Pair_ECC*));
 
-	#pragma omp parallel for private(i, j, iOffset, u_v_index, tempWire) schedule(auto)
-	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	#pragma omp parallel for private(i, j, iOffset, u_v_index) schedule(auto)
+	for(i = 0; i < numInputsExecutor; i ++)
 	{
-			iOffset = stat_SecParam * (i - numInputsBuilder);
+			iOffset = stat_SecParam * i;
 			u_v_index = 2 * iOffset;
 
 			for(j = 0; j < stat_SecParam; j ++)
 			{
 				k = iOffset + j;
-				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-
 				CnC_OT_Transfer_One_Sender_ECC(OT_Input[0][k], OT_Input[1][k], 16,
 											params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
 				u_v_index += 2;

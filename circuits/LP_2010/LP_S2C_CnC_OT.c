@@ -75,7 +75,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
-	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray, OT_Inputs, state, stat_SecParam, 1024);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
@@ -130,7 +130,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	unsigned char *J_set, **output;
+	unsigned char *J_set, **output, *permedInputs;
 
 	gmp_randstate_t *state;
 
@@ -174,7 +174,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	state = seedRandGen();
-	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray, state, &output, stat_SecParam, 1024);
+	permedInputs = getPermedInputValuesExecutor(circuitsArray);
+	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, output, stat_SecParam);
 
 	// Here we do the decommit...

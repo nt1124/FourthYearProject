@@ -125,7 +125,7 @@ unsigned char ***deserialise3D_UChar_Array(unsigned char *commBuffer, int numInp
 
 
 
-void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsExecutor,
 								unsigned char ***OT_Inputs, unsigned char **Xj_checkValues,
 								gmp_randstate_t *state, int stat_SecParam, int comp_SecParam)
 {
@@ -138,10 +138,9 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	struct tildeList *receivedTildeList;
 	struct twoDH_Tuples **tuplesList;
 	struct jSetCheckTildes *checkTildes;
-	struct wire *tempWire;
 
 	unsigned char *commBuffer;
-	int i, j, k = 0, iOffset = 0, numInputsBuilder;
+	int i, j, k = 0;
 	int commBufferLen, verified = 0, bufferOffset;
 
 	struct timespec int_t_0, int_t_1;
@@ -151,49 +150,45 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, struct Circuit 
 	params_S = setup_CnC_OT_Mod_Full_Sender(writeSocket, readSocket, *state);
 	free(commBuffer);
 
-	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 
-	CTs = (struct CnC_OT_Mod_CTs **) calloc(circuitsArray[0] -> numInputsExecutor * stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
+	CTs = (struct CnC_OT_Mod_CTs **) calloc(numInputsExecutor * stat_SecParam, sizeof(struct CnC_OT_Mod_CTs *));
 
 
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	fullTildeCRS = deserialiseTildeCRS(commBuffer, circuitsArray[0] -> numInputsExecutor, stat_SecParam, &bufferOffset);
+	fullTildeCRS = deserialiseTildeCRS(commBuffer, numInputsExecutor, stat_SecParam, &bufferOffset);
 	free(commBuffer);
 	
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, circuitsArray[0] -> numInputsExecutor, stat_SecParam, fullTildeCRS, state);
-	verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, params_S -> params, tuplesList, state);
+	tuplesList = getAllTuplesVerifier(writeSocket, readSocket, params_S, numInputsExecutor, stat_SecParam, fullTildeCRS, state);
+	verified = ZKPoK_Verifier_ECC_1Of2_Parallel(writeSocket, readSocket, numInputsExecutor, params_S -> params, tuplesList, state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
-	#pragma omp parallel for private(i, iOffset, j, k, tempWire) schedule(auto)
-	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	#pragma omp parallel for private(i, j, k) schedule(auto)
+	for(i = 0; i < numInputsExecutor; i ++)
 	{
-		iOffset = i - numInputsBuilder;
-
 		commBufferLen = 0;
 		for(j = 0; j < stat_SecParam; j ++)
 		{
-			k = (i - numInputsBuilder) * stat_SecParam + j;
-			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+			k = i * stat_SecParam + j;
 
-			CTs[k] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, fullTildeCRS -> lists[iOffset],
+			CTs[k] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, fullTildeCRS -> lists[i],
 												OT_Inputs[0][k], OT_Inputs[1][k],
 												*state, j);
 
 		}
 	}
 
-	commBuffer = serialise_Mod_CTs(CTs, circuitsArray[0] -> numInputsExecutor * stat_SecParam, &commBufferLen, 16);
+	commBuffer = serialise_Mod_CTs(CTs, numInputsExecutor * stat_SecParam, &commBufferLen, 16);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
-	for(j = 0; j < circuitsArray[0] -> numInputsExecutor * stat_SecParam; j ++)
+	for(j = 0; j < numInputsExecutor * stat_SecParam; j ++)
 	{
 		clearECC_Point(CTs[j] -> u_0);
 		clearECC_Point(CTs[j] -> u_1);

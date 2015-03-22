@@ -56,6 +56,27 @@ unsigned char *expandDeltaPrim(struct Circuit **circuitsArray, unsigned char *J_
 }
 
 
+void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs,
+								int numInputsBuilder, int numInputsExecutor, int checkStatSecParam)
+{
+	int i, j, OT_index, u_v_index;
+
+
+	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
+	{
+		u_v_index = 2 * i;
+
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+
+			u_v_index += 2;
+		}
+	}
+
+}
+
+
 unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
 										unsigned char *deltaPrime, int lengthDelta,
 										int checkStatSecParam, gmp_randstate_t *state )

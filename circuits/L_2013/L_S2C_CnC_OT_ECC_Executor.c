@@ -21,8 +21,9 @@ void clearPublicInputsWithGroup(struct publicInputsWithGroup *pubInputGroup)
 
 
 
-unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray, gmp_randstate_t *state,
-						struct idAndValue *startOfInputChain, int stat_SecParam, int comp_SecParam)
+unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, struct Circuit **circuitsArray,
+											gmp_randstate_t *state, struct idAndValue *startOfInputChain, unsigned char *permedInputs,
+											int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_R;
 
@@ -53,13 +54,11 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 	fullTildeCRS = initTildeCRS(circuitsArray[0] -> numInputsExecutor, params_R -> params, *state);
 	iOffset = 0;
-	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
-		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+		value = permedInputs[i];
 
-		fullTildeCRS -> lists[iOffset] = initTildeList(stat_SecParam, fullTildeCRS -> r_List[iOffset], params_R -> crs, params_R -> params, value);
-		iOffset ++;
+		fullTildeCRS -> lists[i] = initTildeList(stat_SecParam, fullTildeCRS -> r_List[i], params_R -> crs, params_R -> params, value);
 	}
 
 	commBufferLen = 0;
@@ -86,28 +85,29 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 
 	#pragma omp parallel for private(i, j, tempWire, iOffset, value, CT_Index) schedule(auto)
-	for(i = numInputsBuilder; i < numInputsBuilder + circuitsArray[0] -> numInputsExecutor; i ++)
+	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-		iOffset = i - numInputsBuilder;
 
-		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
-		value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+		// value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		// value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+
+		value = permedInputs[i];
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
-			CT_Index = iOffset * stat_SecParam + j;
-			tempWire = circuitsArray[j] -> gates[i] -> outputWire;
+			CT_Index = i * stat_SecParam + j;
+			tempWire = circuitsArray[j] -> gates[i + numInputsBuilder] -> outputWire;
 			if(0x00 == value)
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[iOffset], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
 			}

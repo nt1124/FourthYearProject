@@ -289,3 +289,24 @@ unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits
 
 	return allKeys;
 }
+
+
+unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
+{
+	int i, outputIndex = 0, numInputsBuilder, numInputsExecutor;
+	unsigned char *output, value;
+
+
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
+	output = (unsigned char *) calloc(numInputsExecutor, sizeof(unsigned char));
+
+	for(i = numInputsBuilder; i < numInputsBuilder + numInputsExecutor; i ++)
+	{
+		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
+		output[outputIndex++] = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+	}
+
+
+	return output;
+}
