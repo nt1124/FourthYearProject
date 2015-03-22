@@ -3,7 +3,7 @@ unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsign
 {
 	struct wire *tempWire;
 	unsigned char ***OT_Inputs = (unsigned char ***) calloc(2, sizeof(unsigned char**));
-	unsigned char goodBit, *XOR_Sum = (unsigned char *) calloc(lengthDelta, sizeof(unsigned char));
+	unsigned char goodBit, **XOR_Sum = (unsigned char **) calloc(checkStatSecParam, sizeof(unsigned char *));
 	int i, j, k, OT_Index = 0, numInputsB;
 
 
@@ -13,32 +13,46 @@ unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsign
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
-		// Change this, we want to COPY the relevant k_1 in into the final OT_Inputs for the round
-		// Then we just need to XOR this with each of the other good keys. 
+		XOR_Sum[i] = (unsigned char *) calloc(16, sizeof(unsigned char));
 		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
-		memcpy(XOR_Sum, tempWire -> outputGarbleKeys -> key1, 16);
-		for(j = 0; j < lengthDelta - 1; j ++)
-		{
-			goodBit = getBitFromCharArray(delta, j);
+		memcpy(XOR_Sum[i], tempWire -> outputGarbleKeys -> key1, 16);
 
+		printf("\n%03d --  ", i);
+		for(k = 0; k < 16; k ++)
+		{
+			printf("%02X", circuitsArray[i] -> gates[numInputsB] -> outputWire -> outputGarbleKeys -> key1[k]);
+		}
+	}
+	printf("\n");
+
+	for(i = 0; i < lengthDelta - 1; i ++)
+	{
+		goodBit = getBitFromCharArray(delta, i);
+
+		for(j = 0; j < checkStatSecParam; j ++)
+		{
 			OT_Inputs[0][OT_Index] = generateRandBytes(16, 16);
 			OT_Inputs[1][OT_Index] = generateRandBytes(16, 16);
 
 			for(k = 0; k < 16; k ++)
 			{
-				XOR_Sum[k] ^= OT_Inputs[goodBit][OT_Index][k];
+				XOR_Sum[j][k] ^= OT_Inputs[goodBit][OT_Index][k];
 			}
 
 			OT_Index ++;
 		}
+	}
 
-		goodBit = getBitFromCharArray(delta, lengthDelta - 1);
+	goodBit = getBitFromCharArray(delta, lengthDelta - 1);
+	for(j = 0; j < checkStatSecParam; j ++)
+	{
 		OT_Inputs[goodBit][OT_Index] = (unsigned char *) calloc(16, sizeof(unsigned char));
-		memcpy(OT_Inputs[goodBit][OT_Index], XOR_Sum, 16);
+		memcpy(OT_Inputs[goodBit][OT_Index], XOR_Sum[j], 16);
 
 		OT_Inputs[1 - goodBit][OT_Index] = generateRandBytes(16, 16);
 		OT_Index ++;
 	}
+	printf("\n");
 
 	return OT_Inputs;
 }
@@ -71,9 +85,11 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-
+	delta = (unsigned char *) calloc(lengthDelta, sizeof(unsigned char));
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
-
+	printf("BUILDER IS SENDING THE OTs\n");
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
+						OT_Inputs, state, checkStatSecParam, 1024);
 
 	// So yeah, this freeing causes crashes later, for some reason.
 	/*

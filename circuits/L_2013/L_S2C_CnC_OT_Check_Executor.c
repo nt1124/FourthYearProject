@@ -56,24 +56,50 @@ unsigned char *expandDeltaPrim(struct Circuit **circuitsArray, unsigned char *J_
 }
 
 
-void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs,
-								int numInputsBuilder, int numInputsExecutor, int checkStatSecParam)
+void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char *delta,
+								int lengthDelta, int checkStatSecParam)
 {
-	int i, j, OT_index, u_v_index;
+	int i, j, k, iOffset, OT_index, u_v_index;
+	unsigned char **XORedInputs = (unsigned char **) calloc(checkStatSecParam, sizeof(unsigned char *));
 
 
-	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
+	for(j = 0; j < checkStatSecParam; j ++)
 	{
-		u_v_index = 2 * i;
+		XORedInputs[j] = (unsigned char *) calloc(16, sizeof(unsigned char));
+	}
 
+	for(i = 0; i < lengthDelta; i ++)
+	{
+		iOffset = checkStatSecParam * i;
+		u_v_index = 2 * iOffset;
 
-		for(j = 0; j < stat_SecParam; j ++)
+		for(j = 0; j < checkStatSecParam; j ++)
 		{
+			if(NULL != OT_Outputs[u_v_index + delta[i]])
+			{
+				for(k = 0; k < 16; k ++)
+				{
+					XORedInputs[j][k] ^= OT_Outputs[u_v_index + delta[i]][k];
+				}
+			}
+			else
+			{
+				printf(">>>>>>>>>>>>>>>>>>>>>\n");
+			}
 
 			u_v_index += 2;
 		}
 	}
 
+	for(j = 0; j < checkStatSecParam; j ++)
+	{
+		printf("\n%03d --  ", j);
+		for(k = 0; k < 16; k ++)
+		{
+			printf("%02X", XORedInputs[j][k]);
+		}
+	}
+	printf("\n");
 }
 
 
@@ -86,7 +112,7 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	struct eccParams *params;
 	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
 
-	unsigned char *commBuffer, *J_set, ***OT_Inputs, *output;
+	unsigned char *commBuffer, *J_set, **OT_Outputs, *output;
 	unsigned int *seedList;
 	int commBufferLen = 0, i;
 
@@ -100,6 +126,12 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	}
 
 
+	// OT_Inputs
+	printf("EXECUTOR IS RECEIVING THE OTs\n");
+	deltaPrime = (unsigned char *) calloc(lengthDelta, sizeof(unsigned char));
+	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
+										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
+	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, deltaPrime, lengthDelta, checkStatSecParam);
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{

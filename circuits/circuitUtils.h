@@ -2,7 +2,7 @@
 #define	CIRCUIT_UTILS
 
 
-const int stat_SecParam = 16;
+const int stat_SecParam = 8;
 
 typedef struct idAndValue
 {

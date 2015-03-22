@@ -87,10 +87,6 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	#pragma omp parallel for private(i, j, tempWire, iOffset, value, CT_Index) schedule(auto)
 	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
 	{
-
-		// value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
-		// value = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
-
 		value = permedInputs[i];
 
 		for(j = 0; j < stat_SecParam; j ++)
@@ -146,6 +142,27 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 
 
+int verifyB_Lists(unsigned char ***hashedB_List, unsigned char ***b_List, int numInputsExecutor)
+{
+	unsigned char *hashedB0, *hashedB1;
+	int i, verifiedAll = 0;
+
+	for(i = 0; i < numInputsExecutor; i ++)
+	{
+		hashedB0 = sha256_full(b_List[0][i], 16);
+		hashedB1 = sha256_full(b_List[1][i], 16);
+	
+		verifiedAll |= memcmp(hashedB_List[0][i], hashedB0, 16);
+		verifiedAll |= memcmp(hashedB_List[1][i], hashedB1, 16);
+	
+		free(hashedB0);
+		free(hashedB1);
+	}
+
+	return verifiedAll;
+}
+
+
 
 int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set, unsigned int *seedList,
@@ -161,8 +178,6 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 	{
 		if(0x01 == J_set[j])
 		{
-			// printf("Checkpoint Beta 1 => %d\n", j);
-			fflush(stdout);
 
 			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
 			{
@@ -176,8 +191,6 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
 			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 
-			// printf("Checkpoint Beta 3 => %d\n", j);
-			fflush(stdout);
 			freeTempGarbleCircuit(tempGarbleCircuit);
 		}
 	}

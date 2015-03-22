@@ -67,16 +67,16 @@ void full_CnC_OT_Sender_ECC(int writeSocket, int readSocket, int numInputsExecut
 	#pragma omp parallel for private(i, j, iOffset, u_v_index) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
-			iOffset = stat_SecParam * i;
-			u_v_index = 2 * iOffset;
+		iOffset = stat_SecParam * i;
+		u_v_index = 2 * iOffset;
 
-			for(j = 0; j < stat_SecParam; j ++)
-			{
-				k = iOffset + j;
-				CnC_OT_Transfer_One_Sender_ECC(OT_Input[0][k], OT_Input[1][k], 16,
-											params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
-				u_v_index += 2;
-			}
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			k = iOffset + j;
+			CnC_OT_Transfer_One_Sender_ECC(OT_Input[0][k], OT_Input[1][k], 16,
+										params_S, state, keyPairs_S[iOffset + j], c_i_Array_S, u_v_index, j);
+			u_v_index += 2;
+		}
 	}
 
 	bufferLength = 0;

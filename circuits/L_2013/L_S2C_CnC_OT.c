@@ -11,6 +11,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 	unsigned int *seedList;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
+	const int lengthDelta = 40;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -111,7 +112,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 
 	SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
-							startOfInputChain, delta, 128,
+							startOfInputChain, delta, lengthDelta,
 							checkSecretInputs, 3 * stat_SecParam, state);
 
 	commBufferLen = 0;
@@ -149,6 +150,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
+	const int lengthDelta = 40;
 	int i;
 
 	struct RawCircuit *rawCheckCircuit;
@@ -256,7 +258,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
-	 						deltaPrime, 128, 3 * stat_SecParam, state );
+	 						deltaPrime, lengthDelta, 3 * stat_SecParam, state );
 
 
 	commBufferLen = 0;
@@ -264,7 +266,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	bLists = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
 	free(commBuffer);
-
+	printf("Verifier B_Lists = %d\n", verifyB_Lists(outputHashTable, bLists, circuitsArray[0] -> numInputsExecutor));
 
 	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
