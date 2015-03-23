@@ -295,7 +295,7 @@ struct twoDH_Tuples **getAllTuplesProver(int writeSocket, int readSocket, struct
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nSetup Tuples");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Setup Tuples");
 
 
 	for(i = 0; i < numLambdas; i ++)

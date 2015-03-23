@@ -228,16 +228,18 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 
+	printf("Evaluating Circuits ");
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		if(0x00 == J_set[i])
 		{
-			printf("Evaluating Circuit %d\n", i);
+			printf("%d, ", i);
 			fflush(stdout);
 			runCircuitExec( circuitsArray[i], writeSocket, readSocket );
 		}
 	}
 	freeRawCircuit(rawInputCircuit);
+	printf("\n");
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();

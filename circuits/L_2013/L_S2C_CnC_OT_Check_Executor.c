@@ -81,7 +81,7 @@ unsigned char *deserialiseK0sAndDelta(unsigned char *commBuffer, struct Circuit 
 }
 
 
-void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs,
+void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char inputBit,
 								unsigned char *delta, unsigned char *deltaPrime, unsigned char *J_set,
 								int numInputsB, int lengthDelta, int checkStatSecParam)
 {
@@ -122,16 +122,24 @@ void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char *
 
 	for(j = 0; j < checkStatSecParam; j ++)
 	{
-		printf(">> %d  (0)\n", j);
-		fflush(stdout);
 		tempWire = circuitsArray[j] -> gates[numInputsB] -> outputWire;
-		printf(">> %d  (1)\n", j);
-		fflush(stdout);
 		memcpy(tempWire -> outputGarbleKeys -> key1, XORedInputs[j], 16);
-		printf(">> %d  (2)\n", j);
-		fflush(stdout);
+
+		tempWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
+
+		if(0x00 == inputBit)
+		{
+			memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
+			tempWire -> wirePermedValue = (0x01 & tempWire -> wirePerm);
+		}
+		else
+		{
+			memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
+			tempWire -> wirePermedValue = 0x01 ^ (0x01 & tempWire -> wirePerm);
+		}
 	}
 }
+
 
 
 unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
@@ -142,10 +150,12 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	struct publicInputsWithGroup *pubInputGroup;
 	struct eccParams *params;
 	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
+	struct revealedCheckSecrets *secretsRevealed;
+	struct eccPoint **builderInputs;
 
-	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta;
+	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta, inputBit = 0x00;
 	unsigned int *seedList;
-	int commBufferLen = 0, i;
+	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -165,19 +175,58 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
 										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputsBuilder, checkStatSecParam);
+	
+	if(0 == memcmp(delta, deltaPrime, 128))
+	{
+		inputBit = 0x01;
+	}
 
 
-	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, delta, deltaPrime, J_set,
+	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, inputBit, delta, deltaPrime, J_set,
 								rawInputCircuit -> numInputsBuilder, lengthDelta, checkStatSecParam);
-
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
+
+	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
+							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
+
+	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
+												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
+												J_set, J_setSize, checkStatSecParam);
+
+	printf("Sub-circuits Correct = %d\n", circuitsChecked);
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	commBufferLen = 0;
+	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
+	free(commBuffer);
+
+	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
+					pubInputGroup -> public_inputs, pubInputGroup -> params);
+
+
+	printf("Evaluating Circuits ");
+	for(i = 0; i < checkStatSecParam; i ++)
+	{
+		if(0x00 == J_set[i])
+		{
+			printf("%d, ", i);
+			fflush(stdout);
+			runCircuitExec( circuitsArray[i], writeSocket, readSocket );
+		}
+	}
+	printf("\n");
+
+	output = getMajorityOutput(circuitsArray, checkStatSecParam, J_set);
+	if(inputBit == 0)
+		output = NULL;
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{

@@ -173,6 +173,25 @@ void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam,
 }
 
 
+unsigned char *getMajorityOutput(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
+{
+	unsigned char *hexOutput;
+	int outputLength;
+
+	if(1 < securityParam)
+	{
+		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
+	}
+	else
+	{
+		unsigned char *binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
+		hexOutput = getOutputAsHex(binaryOutput, circuitsArray[0] -> numOutputs, &outputLength);
+	}
+
+	return hexOutput;
+}
+
+
 // Run the circuit assuming we have the values for all input wires.
 void runCircuitLocal( struct Circuit *inputCircuit)
 {

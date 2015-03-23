@@ -64,8 +64,12 @@ unsigned char *getK0_AndDelta(struct Circuit **circuitsArray, unsigned char *del
 		bufferOffset += 16;
 	}
 
-	memcpy(commBuffer + bufferOffset, delta, 128);
-	bufferOffset += 128;
+	for(i = 0; i < 128; i ++)
+	{
+		commBuffer[bufferOffset] = getBitFromCharArray(delta, i);
+		bufferOffset ++;
+	}
+
 
 	*commBufferLen = bufferOffset;
 
@@ -82,10 +86,11 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 	struct Circuit **circuitsArray;
 	struct public_builderPRS_Keys *public_inputs;
 	struct eccParams *params;
+	struct eccPoint **builderInputs;
 
-	unsigned char *commBuffer, *J_set, ***OT_Inputs, *output;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs, *output, *deltaExpanded;
 	unsigned int *seedList;
-	int commBufferLen = 0, i;
+	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -103,6 +108,7 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
+	delta = (unsigned char *) calloc(16, sizeof(unsigned char));
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
 
 
@@ -120,20 +126,20 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
 
-	// So yeah, this freeing causes crashes later, for some reason.
-	// Sucks :P
-	/*
-	for(i = 0; i < checkStatSecParam; i ++)
-	{
-		freeCircuitStruct(circuitsArray[i], 0);
-	}
-	*/
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, checkStatSecParam, &J_setSize, seedList);
+
+
+	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
+										J_set, J_setSize, startOfInputChain, 
+										params, &arrayLen);
+
+	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
 
 	return output;
 }
-
-
-
-
 
 
