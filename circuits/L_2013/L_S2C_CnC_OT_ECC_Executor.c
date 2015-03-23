@@ -145,16 +145,33 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 int verifyB_Lists(unsigned char ***hashedB_List, unsigned char ***b_List, int numInputsExecutor)
 {
 	unsigned char *hashedB0, *hashedB1;
-	int i, verifiedAll = 0;
+	unsigned char *delta_0 = (unsigned char *) calloc(16, sizeof(unsigned char));
+	unsigned char *delta_I = (unsigned char *) calloc(16, sizeof(unsigned char));
+	int i, k, verifiedAll = 0;
+
+	// Get the first XOR, we're checking to see that all the XORs are the same so
+	// we just grab the first one and check all equal to this one.
+	for(k = 0; k < 16; k ++)
+	{
+		delta_0[k] = b_List[0][i][k] ^ b_List[1][i][k];
+	}
 
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
+		// Check the bLists are consistent with the Hashes we were sent earlier
 		hashedB0 = sha256_full(b_List[0][i], 16);
 		hashedB1 = sha256_full(b_List[1][i], 16);
-	
+
 		verifiedAll |= memcmp(hashedB_List[0][i], hashedB0, 16);
 		verifiedAll |= memcmp(hashedB_List[1][i], hashedB1, 16);
-	
+
+		// Check that 
+		for(k = 0; k < 16; k ++)
+		{
+			delta_I[k] = b_List[0][i][k] ^ b_List[1][i][k];
+		}
+		verifiedAll |= memcmp(delta_0, delta_I, 16);
+
 		free(hashedB0);
 		free(hashedB1);
 	}

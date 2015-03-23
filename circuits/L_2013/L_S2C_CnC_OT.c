@@ -1,6 +1,3 @@
-// const int stat_SecParam = 4;
-
-
 void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr)
 {
 	struct sockaddr_in destWrite, destRead;

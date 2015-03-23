@@ -16,14 +16,7 @@ unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsign
 		XOR_Sum[i] = (unsigned char *) calloc(16, sizeof(unsigned char));
 		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
 		memcpy(XOR_Sum[i], tempWire -> outputGarbleKeys -> key1, 16);
-
-		printf("\n%03d --  ", i);
-		for(k = 0; k < 16; k ++)
-		{
-			printf("%02X", circuitsArray[i] -> gates[numInputsB] -> outputWire -> outputGarbleKeys -> key1[k]);
-		}
 	}
-	printf("\n");
 
 	for(i = 0; i < lengthDelta - 1; i ++)
 	{
@@ -52,9 +45,31 @@ unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsign
 		OT_Inputs[1 - goodBit][OT_Index] = generateRandBytes(16, 16);
 		OT_Index ++;
 	}
-	printf("\n");
 
 	return OT_Inputs;
+}
+
+
+unsigned char *getK0_AndDelta(struct Circuit **circuitsArray, unsigned char *delta, int numInputsB,
+							int checkStatSecParam, int *commBufferLen)
+{
+	struct wire *tempWire;
+	unsigned char *commBuffer = (unsigned char *) calloc(16 * (checkStatSecParam) + 128, sizeof(unsigned char));
+	int bufferOffset = 0, i;
+
+	for(i = 0; i < checkStatSecParam; i ++)
+	{
+		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
+		memcpy(commBuffer + bufferOffset, tempWire -> outputGarbleKeys -> key0, 16);
+		bufferOffset += 16;
+	}
+
+	memcpy(commBuffer + bufferOffset, delta, 128);
+	bufferOffset += 128;
+
+	*commBufferLen = bufferOffset;
+
+	return commBuffer;
 }
 
 
@@ -72,6 +87,9 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 	unsigned int *seedList;
 	int commBufferLen = 0, i;
 
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
 
 	params = initBrainpool_256_Curve();
 	public_inputs = computePublicInputs(secret_inputs, params);
@@ -85,13 +103,25 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-	delta = (unsigned char *) calloc(lengthDelta, sizeof(unsigned char));
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	printf("BUILDER IS SENDING THE OTs\n");
 	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
 						OT_Inputs, state, checkStatSecParam, 1024);
 
+	commBuffer = getK0_AndDelta(circuitsArray, delta, rawInputCircuit -> numInputsBuilder, checkStatSecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
+
 	// So yeah, this freeing causes crashes later, for some reason.
+	// Sucks :P
 	/*
 	for(i = 0; i < checkStatSecParam; i ++)
 	{

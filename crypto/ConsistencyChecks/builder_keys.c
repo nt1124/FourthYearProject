@@ -303,12 +303,10 @@ struct public_builderPRS_Keys *deserialisePublicInputs(unsigned char *inputBuffe
 
 
 unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs,
-												unsigned int *seedList,
-												unsigned char *J_set, int *outputLength)
+												unsigned int *seedList, unsigned char *J_set, int *outputLength)
 {
 	unsigned char *outputBuffer;
-	int totalLength = 0, outputOffset = 0;
-	int j = 0;
+	int totalLength = 0, outputOffset = 0, j = 0;
 
 	unsigned int temp = 0;
 

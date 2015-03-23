@@ -56,9 +56,36 @@ unsigned char *expandDeltaPrim(struct Circuit **circuitsArray, unsigned char *J_
 }
 
 
-void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char *delta,
-								int lengthDelta, int checkStatSecParam)
+unsigned char *deserialiseK0sAndDelta(unsigned char *commBuffer, struct Circuit **circuitsArray, int numInputsB, int checkStatSecParam)
 {
+	struct wire *tempWire;
+	unsigned char *delta = (unsigned char *) calloc(128, sizeof(unsigned char));
+	int i, bufferOffset = 0;
+	
+	for(i = 0; i < checkStatSecParam; i ++)
+	{
+		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
+
+		tempWire -> outputGarbleKeys = (struct bitsGarbleKeys *) calloc(1, sizeof(struct bitsGarbleKeys));
+		tempWire -> outputGarbleKeys -> key0 = (unsigned char *) calloc(16, sizeof(unsigned char));
+		tempWire -> outputGarbleKeys -> key1 = (unsigned char *) calloc(16, sizeof(unsigned char));
+
+		memcpy(tempWire -> outputGarbleKeys -> key0, commBuffer + bufferOffset, 16);
+		bufferOffset += 16;
+	}
+
+	memcpy(delta, commBuffer + bufferOffset, 128);
+	bufferOffset += 128;
+
+	return delta;
+}
+
+
+void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs,
+								unsigned char *delta, unsigned char *deltaPrime, unsigned char *J_set,
+								int numInputsB, int lengthDelta, int checkStatSecParam)
+{
+	struct wire *tempWire;
 	int i, j, k, iOffset, OT_index, u_v_index;
 	unsigned char **XORedInputs = (unsigned char **) calloc(checkStatSecParam, sizeof(unsigned char *));
 
@@ -75,31 +102,35 @@ void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char *
 
 		for(j = 0; j < checkStatSecParam; j ++)
 		{
-			if(NULL != OT_Outputs[u_v_index + delta[i]])
+			if(0x00 == J_set[j] && NULL != OT_Outputs[u_v_index + deltaPrime[i]])
+			{
+				for(k = 0; k < 16; k ++)
+				{
+					XORedInputs[j][k] ^= OT_Outputs[u_v_index + deltaPrime[i]][k];
+				}
+			}
+			else if(NULL != OT_Outputs[u_v_index + delta[i]])
 			{
 				for(k = 0; k < 16; k ++)
 				{
 					XORedInputs[j][k] ^= OT_Outputs[u_v_index + delta[i]][k];
 				}
 			}
-			else
-			{
-				printf(">>>>>>>>>>>>>>>>>>>>>\n");
-			}
-
 			u_v_index += 2;
 		}
 	}
 
 	for(j = 0; j < checkStatSecParam; j ++)
 	{
-		printf("\n%03d --  ", j);
-		for(k = 0; k < 16; k ++)
-		{
-			printf("%02X", XORedInputs[j][k]);
-		}
+		printf(">> %d  (0)\n", j);
+		fflush(stdout);
+		tempWire = circuitsArray[j] -> gates[numInputsB] -> outputWire;
+		printf(">> %d  (1)\n", j);
+		fflush(stdout);
+		memcpy(tempWire -> outputGarbleKeys -> key1, XORedInputs[j], 16);
+		printf(">> %d  (2)\n", j);
+		fflush(stdout);
 	}
-	printf("\n");
 }
 
 
@@ -112,9 +143,12 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	struct eccParams *params;
 	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
 
-	unsigned char *commBuffer, *J_set, **OT_Outputs, *output;
+	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta;
 	unsigned int *seedList;
 	int commBufferLen = 0, i;
+
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
 
 
 	params = initBrainpool_256_Curve();
@@ -128,10 +162,22 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 
 	// OT_Inputs
 	printf("EXECUTOR IS RECEIVING THE OTs\n");
-	deltaPrime = (unsigned char *) calloc(lengthDelta, sizeof(unsigned char));
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
 										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
-	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, deltaPrime, lengthDelta, checkStatSecParam);
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputsBuilder, checkStatSecParam);
+
+
+	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, delta, deltaPrime, J_set,
+								rawInputCircuit -> numInputsBuilder, lengthDelta, checkStatSecParam);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
