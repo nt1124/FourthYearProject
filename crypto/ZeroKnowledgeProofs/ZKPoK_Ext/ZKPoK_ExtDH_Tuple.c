@@ -397,18 +397,12 @@ void ZKPoK_Ext_DH_TupleProver(int writeSocket, int readSocket, int stat_SecParam
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
 
-	/*
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	local_Lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
-	free(commBuffer);
-	*/
 
 	J_set[inputBit] = 0x01;
 
 
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
-
 
 	ZKPoK_Prover_ECC_1Of2(writeSocket, readSocket, params,
 						tuples -> g_0_List, tuples -> g_1_List,
@@ -438,15 +432,14 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 	int i, verified = 0, commBufferLen = 0, bufferOffset = 0;
 
 
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		mpz_init_set(local_Lambda[i], lambda[lambdaIndex + i]);
 	}
 
-
 	tuples = getDH_Tuples(g_0, g_1, h_0, h_1, u_array, v_array,
 						stat_SecParam, params, local_Lambda);
-
 
 	verified = ZKPoK_Verifier_ECC_1Of2(writeSocket, readSocket, params,
 									tuples -> g_0_List, tuples -> g_1_List,
@@ -458,6 +451,8 @@ int ZKPoK_Ext_DH_TupleVerifier(int writeSocket, int readSocket, int stat_SecPara
 	}
 	free(local_Lambda);
 	freeTwoDH_Tuples(tuples);
+
+	return verified;
 }
 
 
@@ -535,8 +530,6 @@ int ZKPoK_Ext_DH_TupleVerifier_2U(int writeSocket, int readSocket, int stat_SecP
 
 	return verified;
 }
-
-
 
 
 
@@ -666,7 +659,7 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 	{
 		mpz_init(witness[inputBit]);
 		mpz_urandomm(witness[inputBit], *state, params_P -> params -> n);
-		mpz_init_set(witness[1 - inputBit], witness[inputBit]);
+		mpz_init_set_ui(witness[1 - inputBit], 0);//witness[inputBit]);
 
 		testTildeList = initTildeList(stat_SecParam, *witness, params_P -> crs, params_P -> params, inputBit);
 

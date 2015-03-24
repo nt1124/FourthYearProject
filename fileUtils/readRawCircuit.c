@@ -294,12 +294,21 @@ void printOutputHexString_Raw(struct RawCircuit *inputCircuit)
 void setRawCircuitsInputs_Hardcode(struct idAndValue *start, struct RawGate **gates)
 {	
 	struct idAndValue *current = start -> next;
-	struct wire *outputWire;
 
 	while(NULL != current)
 	{
 		gates[current -> id] -> outputValue = current -> value;
 		current = current -> next;
+	}
+}
+
+void setRawCircuitsInputs_Hardcode(unsigned char *inputs, int idOffset, int numInputs, struct RawGate **gates)
+{	
+	int i;
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		gates[i  + idOffset] -> outputValue = getBitFromCharArray(inputs, i);
 	}
 }
 

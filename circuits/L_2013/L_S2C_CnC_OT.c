@@ -118,14 +118,11 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
-	/*
-	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
-											builderInputs, public_inputs, secret_inputs,
-											params, state);
-											*/
+
 	proveConsistencyEvaluationKeys_Builder_L_2013(writeSocket, readSocket, J_set, J_setSize,
 											startOfInputChain, builderInputs,
 											public_inputs, secret_inputs, params, SC_ReturnStruct, state);
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -154,7 +151,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	const int lengthDelta = 40;
-	int i;
+	int i, consistency;
 
 	struct RawCircuit *rawCheckCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
@@ -217,7 +214,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
-	free_idAndValueChain(startOfInputChain);
+
 
 
 	// Here we do the decommit...
@@ -280,15 +277,12 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	printf("Circuits Correct = %d\n", circuitsChecked);
 
 
-	/*
-	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-										builderInputs, pubInputGroup -> public_inputs,
-										pubInputGroup -> params, state);
-										*/
+
 	proveConsistencyEvaluationKeys_Exec_L_2013(writeSocket, readSocket, J_set, J_setSize,
 											builderInputs, pubInputGroup -> public_inputs,
 											pubInputGroup -> params,
 											SC_ReturnStruct, state);
+
 
 	clearPublicInputsWithGroup(pubInputGroup);
 
@@ -299,7 +293,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	}
 	free(builderInputs);
 
-	freeRawCircuit(rawInputCircuit);
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -309,13 +302,24 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
+	if(NULL == SC_ReturnStruct -> output)
+	{
+		printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
+	}
+	else
+	{
+		setRawCircuitsInputs_Hardcode(startOfInputChain, rawInputCircuit -> gates);
+		setRawCircuitsInputs_Hardcode(SC_ReturnStruct -> output, 0, rawInputCircuit -> numInputsBuilder, rawInputCircuit -> gates);
+		evaluateRawCircuit(rawInputCircuit);
+		printOutputHexString_Raw(rawInputCircuit);
+	}
 
 	testAES_FromRandom();
-
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
+	freeRawCircuit(rawInputCircuit);
+	free_idAndValueChain(startOfInputChain);
 }

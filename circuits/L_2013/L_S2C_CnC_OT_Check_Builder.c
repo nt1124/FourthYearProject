@@ -125,7 +125,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-	delta = (unsigned char *) calloc(16, sizeof(unsigned char));
+	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
+	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
 
 
@@ -153,14 +154,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
-
-	/*
-	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
-										builderInputs, public_inputs -> public_keyPairs,
-										public_inputs -> public_circuitKeys,
-										public_inputs ->  numKeyPairs, public_inputs -> stat_SecParam, secret_inputs,
-										params, state);
-	*/
 
 
 	returnStruct = getSecCompReturnStruct_L_2013_B(public_inputs, builderInputs, J_set, J_setSize);

@@ -201,10 +201,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-										builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
-										pubInputGroup -> public_inputs -> public_circuitKeys,
-										pubInputGroup -> public_inputs ->  numKeyPairs, pubInputGroup -> public_inputs -> stat_SecParam,
-										pubInputGroup -> params, state);
+													builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
+													pubInputGroup -> public_inputs -> public_circuitKeys,
+													pubInputGroup -> public_inputs ->  numKeyPairs,
+													pubInputGroup -> public_inputs -> stat_SecParam,
+													pubInputGroup -> params, state);
 
 	printf("Consistency Check = %d\n", consistency);
 

@@ -321,8 +321,6 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 	for(i = 0; i < numInputKeys; i ++)
 	{
-		printf(">>>>> %d\n", i);
-		fflush(stdout);
 		k = 0;
 		for(j = 0; j < numCircuitKeys; j ++)
 		{

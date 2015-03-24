@@ -223,7 +223,7 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 
 	struct idAndValue *curValue = startOfInputChain -> next;
 	unsigned char *commBuffer, inputBit;
-	mpz_t *lambda;
+	mpz_t *lambda, *temp = (mpz_t*) calloc(1, sizeof(mpz_t));
 	int commBufferLen = 0, bufferOffset = 0, lambda_Index = 0;
 
 
@@ -236,8 +236,6 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 
 	for(i = 0; i < numInputKeys; i ++)
 	{
-		printf(">>>>> %d  A\n", i);
-		fflush(stdout);
 		inputBit = curValue -> value;
 
 		k = 0;
@@ -245,6 +243,9 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 		{
 			if(0x00 == J_set[j])
 			{
+				// gmp_printf("%d  ->  %Zd\n", l, builderInputs[l]);
+				// fflush(stdout);
+
 				// Could Blue Peter the tempU.
 				tempU[k] = public_circuitKeys[j];
 				tempV[k] = builderInputs[l];
@@ -253,11 +254,11 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 				l ++;
 			}
 		}
-		printf(">>>>> %d  B\n", i);
-		fflush(stdout);
+
+		mpz_init_set(*temp, secret_inputs -> secret_keyPairs[i][inputBit]);
 
 		ZKPoK_Ext_DH_TupleProver(writeSocket, readSocket, k,
-								secret_inputs -> secret_keyPairs[i], inputBit,
+								temp, inputBit,
 								params -> g, params -> g,
 								public_keyPairs[i][0], public_keyPairs[i][1],
 								tempU, tempV, params, state,

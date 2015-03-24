@@ -194,7 +194,8 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
+	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
+	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
 										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
 
@@ -243,17 +244,12 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	}
 	printf("\n");
 
-	/*
-	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-										builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
-										pubInputGroup -> public_inputs -> public_circuitKeys,
-										pubInputGroup -> public_inputs ->  numKeyPairs, pubInputGroup -> public_inputs -> stat_SecParam,
-										pubInputGroup -> params, state);
-	*/
 
 	output = getMajorityOutput(circuitsArray, checkStatSecParam, J_set);
 	if(inputBit == 0)
+	{
 		output = NULL;
+	}
 
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
