@@ -1,3 +1,19 @@
+struct secCompBuilderOutput *getSecCompReturnStruct_L_2013_B(struct public_builderPRS_Keys *public_inputs, 
+															struct eccPoint **builderInputs, unsigned char *J_set,
+															int J_setSize)
+{
+	struct secCompBuilderOutput *returnStruct = (struct secCompBuilderOutput *) calloc(1, sizeof(struct secCompBuilderOutput));
+
+	returnStruct -> public_inputs = public_inputs;
+	returnStruct -> builderInputs = builderInputs;
+
+	returnStruct -> J_set = J_set;
+	returnStruct -> J_setSize = J_setSize;
+
+	return returnStruct;
+}
+
+
 unsigned char ***getCheckCircuitOT_Inputs(struct Circuit **circuitsArray, unsigned char *delta,
 										int checkStatSecParam, int lengthDelta)
 {
@@ -78,17 +94,18 @@ unsigned char *getK0_AndDelta(struct Circuit **circuitsArray, unsigned char *del
 
 
 
-unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
-										struct idAndValue *startOfInputChain, unsigned char *delta, int lengthDelta,
-										struct secret_builderPRS_Keys *secret_inputs,
-										int checkStatSecParam, gmp_randstate_t *state)
+struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+													struct idAndValue *startOfInputChain, unsigned char *delta, int lengthDelta,
+													struct secret_builderPRS_Keys *secret_inputs,
+													int checkStatSecParam, gmp_randstate_t *state)
 {
 	struct Circuit **circuitsArray;
 	struct public_builderPRS_Keys *public_inputs;
 	struct eccParams *params;
 	struct eccPoint **builderInputs;
+	struct secCompBuilderOutput *returnStruct;
 
-	unsigned char *commBuffer, *J_set, ***OT_Inputs, *output, *deltaExpanded;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs, *deltaExpanded;
 	unsigned int *seedList;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0;
 
@@ -137,9 +154,18 @@ unsigned char *SC_DetectCheatingBuilder(int writeSocket, int readSocket, struct 
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	/*
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
+										builderInputs, public_inputs -> public_keyPairs,
+										public_inputs -> public_circuitKeys,
+										public_inputs ->  numKeyPairs, public_inputs -> stat_SecParam, secret_inputs,
+										params, state);
+	*/
 
 
-	return output;
+	returnStruct = getSecCompReturnStruct_L_2013_B(public_inputs, builderInputs, J_set, J_setSize);
+
+	return returnStruct;
 }
 
 

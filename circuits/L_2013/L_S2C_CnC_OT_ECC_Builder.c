@@ -217,3 +217,73 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 }
 
 
+
+void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSocket, unsigned char *J_set, int J_setSize,
+												struct idAndValue *startOfInputChain, struct eccPoint **builderInputs,
+												struct public_builderPRS_Keys *public_inputs, struct secret_builderPRS_Keys *secret_inputs,
+												struct eccParams *params, struct secCompBuilderOutput *secComp, gmp_randstate_t *state)
+
+{
+	struct eccPoint **concatBuildersInputs, **concatPublicCircuitKeys;
+	unsigned char *concat_J_set;
+	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
+	int i, j, consistency = 0;
+
+
+	totalNumInputs = public_inputs -> numKeyPairs;// + secComp -> public_inputs -> numKeyPairs;
+	totalNumCircuitKeys = public_inputs -> stat_SecParam + secComp -> public_inputs -> stat_SecParam;
+	totalBuildersInputs = totalNumCircuitKeys * totalNumInputs;
+	totalJ_setSize = J_setSize + secComp -> J_setSize;
+
+	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
+	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
+	concat_J_set = (unsigned char *) calloc(totalJ_setSize, sizeof(unsigned char));
+
+
+	j = 0;
+	for(i = 0; i < public_inputs -> numKeyPairs * public_inputs -> stat_SecParam; i ++)
+	{
+		concatBuildersInputs[i] = builderInputs[i];
+	}
+	for(; i < totalBuildersInputs; i ++)
+	{
+		concatBuildersInputs[i] = secComp -> builderInputs[j ++];
+	}
+
+	j = 0;
+	for(i = 0; i < public_inputs -> stat_SecParam; i ++)
+	{
+		concatPublicCircuitKeys[i] = public_inputs -> public_circuitKeys[i];
+	}
+	for(; i < totalNumCircuitKeys; i ++)
+	{
+		concatPublicCircuitKeys[i] = secComp -> public_inputs -> public_circuitKeys[j ++];
+	}
+
+	memcpy(concat_J_set, J_set, J_setSize);
+	memcpy(concat_J_set + J_setSize, secComp -> J_set, secComp -> J_setSize);
+
+
+	/*
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
+										startOfInputChain, secComp -> builderInputs,
+										secComp -> public_inputs -> public_keyPairs, secComp -> public_inputs -> public_circuitKeys,
+										secComp -> public_inputs -> numKeyPairs, secComp -> public_inputs -> stat_SecParam,
+										secret_inputs, params, state);
+	*/
+
+	/*
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize,
+										startOfInputChain, concatBuildersInputs, public_inputs -> public_keyPairs,
+										concatPublicCircuitKeys, public_inputs -> numKeyPairs,
+										public_inputs -> stat_SecParam, secret_inputs, params, state);
+	*/
+	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, concat_J_set, totalJ_setSize,
+										startOfInputChain, concatBuildersInputs, public_inputs -> public_keyPairs,
+										concatPublicCircuitKeys,
+										public_inputs -> numKeyPairs, totalNumCircuitKeys,
+										secret_inputs, params, state);
+
+
+
+}

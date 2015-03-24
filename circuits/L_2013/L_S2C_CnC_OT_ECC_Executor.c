@@ -214,3 +214,74 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 
 	return temp;
 }
+
+
+int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
+											unsigned char *J_set, int J_setSize,
+											struct eccPoint **builderInputs,
+											struct public_builderPRS_Keys *public_inputs,
+											struct eccParams *params,
+											struct secCompExecutorOutput *secComp, gmp_randstate_t *state)
+{
+	struct eccPoint **concatBuildersInputs, **concatPublicCircuitKeys;
+	unsigned char *concat_J_set;
+	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
+	int i, j, consistency = 0;
+
+
+	totalNumInputs = public_inputs -> numKeyPairs;// + secComp -> pubInputGroup -> public_inputs -> numKeyPairs;
+	totalNumCircuitKeys = public_inputs -> stat_SecParam + secComp -> pubInputGroup -> public_inputs -> stat_SecParam;
+	totalBuildersInputs = totalNumCircuitKeys * totalNumInputs;
+	totalJ_setSize = J_setSize + secComp -> J_setSize;
+
+	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
+	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
+	concat_J_set = (unsigned char *) calloc(totalJ_setSize, sizeof(unsigned char));
+
+
+	j = 0;
+	for(i = 0; i < public_inputs -> numKeyPairs * public_inputs -> stat_SecParam; i ++)
+	{
+		concatBuildersInputs[i] = builderInputs[i];
+	}
+	for(; i < totalBuildersInputs; i ++)
+	{
+		concatBuildersInputs[i] = secComp -> builderInputs[j ++];
+	}
+
+	j = 0;
+	for(i = 0; i < public_inputs -> stat_SecParam; i ++)
+	{
+		concatPublicCircuitKeys[i] = public_inputs -> public_circuitKeys[i];
+	}
+	for(; i < totalNumCircuitKeys; i ++)
+	{
+		concatPublicCircuitKeys[i] = secComp -> pubInputGroup -> public_inputs -> public_circuitKeys[j ++];
+	}
+
+
+	memcpy(concat_J_set, J_set, J_setSize);
+	memcpy(concat_J_set + J_setSize, secComp -> J_set, secComp -> J_setSize);
+
+
+	/*
+	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, concat_J_set, totalJ_setSize,
+									builderInputs, public_inputs -> public_keyPairs, public_inputs -> public_circuitKeys,
+									public_inputs -> numKeyPairs, public_inputs -> stat_SecParam, params, state);
+	*/
+
+	/*
+	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
+									concatBuildersInputs, public_inputs -> public_keyPairs, public_inputs -> public_circuitKeys,
+									public_inputs -> numKeyPairs, public_inputs -> stat_SecParam, params, state);
+	*/
+
+	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, concat_J_set, totalJ_setSize,
+									concatBuildersInputs, public_inputs -> public_keyPairs, concatPublicCircuitKeys,
+									public_inputs -> numKeyPairs, totalNumCircuitKeys, params, state);
+
+
+	printf("Consistency check = %d\n", consistency);
+
+	return consistency;
+}

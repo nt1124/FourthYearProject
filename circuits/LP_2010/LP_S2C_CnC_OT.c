@@ -96,7 +96,9 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
-											builderInputs, public_inputs, secret_inputs,
+											builderInputs, public_inputs -> public_keyPairs,
+											public_inputs -> public_circuitKeys,
+											public_inputs ->  numKeyPairs, public_inputs -> stat_SecParam, secret_inputs,
 											params, state);
 
 	ext_c_1 = clock();
@@ -119,12 +121,13 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 
+
 void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
-	int i, commBufferLen = 0, arrayLen, J_setSize  = 0 ,circuitsChecked = 0;
+	int i, commBufferLen = 0, arrayLen, J_setSize  = 0, circuitsChecked = 0, consistency;
 
 	// struct RawCircuit *rawInputCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
@@ -197,10 +200,13 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 
-	proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-										builderInputs, pubInputGroup -> public_inputs,
+	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
+										builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
+										pubInputGroup -> public_inputs -> public_circuitKeys,
+										pubInputGroup -> public_inputs ->  numKeyPairs, pubInputGroup -> public_inputs -> stat_SecParam,
 										pubInputGroup -> params, state);
 
+	printf("Consistency Check = %d\n", consistency);
 
 	#pragma omp parallel for private(i) schedule(auto)
 	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)

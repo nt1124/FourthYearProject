@@ -211,58 +211,55 @@ struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inp
 
 
 
-void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket,
-											unsigned char *J_set, int J_setSize,
-											struct idAndValue *startOfInputChain,
-											struct eccPoint **builderInputs,
-											struct public_builderPRS_Keys *public_inputs,
+void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, unsigned char *J_set, int J_setSize,
+											struct idAndValue *startOfInputChain, struct eccPoint **builderInputs,
+											struct eccPoint ***public_keyPairs, struct eccPoint **public_circuitKeys,
+											int numInputKeys, int numCircuitKeys,
 											struct secret_builderPRS_Keys *secret_inputs,
 											struct eccParams *params, gmp_randstate_t *state)
 {
 	struct eccPoint **tempU, **tempV;
 	int i, j, k, l = 0;
-	const int stat_SecParam = public_inputs -> stat_SecParam;
 
 	struct idAndValue *curValue = startOfInputChain -> next;
-	unsigned char inputBit;
+	unsigned char *commBuffer, inputBit;
 	mpz_t *lambda;
-	unsigned char *commBuffer;
-	int commBufferLen = 0, bufferOffset = 0;
-	int lambda_Index = 0;
+	int commBufferLen = 0, bufferOffset = 0, lambda_Index = 0;
 
 
-	tempU = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
-	tempV = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
-
+	tempU = (struct eccPoint**) calloc(numCircuitKeys - J_setSize, sizeof(struct eccPoint*));
+	tempV = (struct eccPoint**) calloc(numCircuitKeys - J_setSize, sizeof(struct eccPoint*));
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	lambda = deserialiseMPZ_Array(commBuffer, &bufferOffset);
 
 
-
-	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
+	for(i = 0; i < numInputKeys; i ++)
 	{
+		printf(">>>>> %d  A\n", i);
+		fflush(stdout);
 		inputBit = curValue -> value;
 
 		k = 0;
-		for(j = 0; j < stat_SecParam; j ++)
+		for(j = 0; j < numCircuitKeys; j ++)
 		{
 			if(0x00 == J_set[j])
 			{
 				// Could Blue Peter the tempU.
-				tempU[k] = public_inputs -> public_circuitKeys[j];
+				tempU[k] = public_circuitKeys[j];
 				tempV[k] = builderInputs[l];
 
 				k ++;
 				l ++;
 			}
 		}
+		printf(">>>>> %d  B\n", i);
+		fflush(stdout);
 
 		ZKPoK_Ext_DH_TupleProver(writeSocket, readSocket, k,
 								secret_inputs -> secret_keyPairs[i], inputBit,
 								params -> g, params -> g,
-								public_inputs -> public_keyPairs[i][0],
-								public_inputs -> public_keyPairs[i][1],
+								public_keyPairs[i][0], public_keyPairs[i][1],
 								tempU, tempV, params, state,
 								lambda, lambda_Index);
 

@@ -1,5 +1,3 @@
-// void printfSecrets
-
 struct secret_builderPRS_Keys *init_secret_input_keys(int numInputs, int stat_SecParam)
 {
 	struct secret_builderPRS_Keys *toReturn = (struct secret_builderPRS_Keys*) calloc(1, sizeof(struct secret_builderPRS_Keys));
@@ -187,7 +185,6 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(struct secret_builderPRS_Keys *se
 	pointRep = windowedScalarPoint(secret_inputs -> secret_circuitKeys[j], public_inputs -> public_keyPairs[i][inputBit], params);
 
 	rawBytes = convertMPZToBytes(pointRep -> x, &outputLength);
-
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
 	memcpy(halfHash, hashedBytes, 16);
@@ -210,12 +207,10 @@ unsigned char *compute_Key_b_Input_i_Circuit_j(mpz_t secret_input, struct public
 
 	pointRep = windowedScalarPoint(secret_input, public_inputs -> public_keyPairs[i][inputBit], params);
 
-
 	rawBytes = convertMPZToBytes(pointRep -> x, &outputLength);
 	hashedBytes = sha256_full(rawBytes, outputLength);
 
 	memcpy(halfHash, hashedBytes, 16);
-	//memcpy(halfHash, rawBytes, 16);
 
 
 	clearECC_Point(pointRep);

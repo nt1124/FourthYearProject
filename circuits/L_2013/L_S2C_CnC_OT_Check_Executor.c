@@ -1,3 +1,21 @@
+struct secCompExecutorOutput *getSecCompReturnStruct_L_2013_E(struct publicInputsWithGroup *pubInputGroup, 
+															struct eccPoint **builderInputs, unsigned char *J_set,
+															int J_setSize, unsigned char *output)
+{
+	struct secCompExecutorOutput *returnStruct = (struct secCompExecutorOutput *) calloc(1, sizeof(struct secCompExecutorOutput));
+
+	returnStruct -> pubInputGroup = pubInputGroup;
+	returnStruct -> builderInputs = builderInputs;
+
+	returnStruct -> J_set = J_set;
+	returnStruct -> J_setSize = J_setSize;
+
+	returnStruct -> output = output;
+
+	return returnStruct;
+}
+
+
 unsigned char *getDeltaPrimeCompressed(struct Circuit **circuitsArray, unsigned char *J_set, int stat_SecParams)
 {
 	unsigned char *deltaPrime;
@@ -142,9 +160,9 @@ void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char *
 
 
 
-unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
-										unsigned char *deltaPrime, int lengthDelta,
-										int checkStatSecParam, gmp_randstate_t *state )
+struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+														unsigned char *deltaPrime, int lengthDelta,
+														int checkStatSecParam, gmp_randstate_t *state )
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 	struct publicInputsWithGroup *pubInputGroup;
@@ -152,6 +170,7 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
 	struct revealedCheckSecrets *secretsRevealed;
 	struct eccPoint **builderInputs;
+	struct secCompExecutorOutput *returnStruct;
 
 	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta, inputBit = 0x00;
 	unsigned int *seedList;
@@ -224,6 +243,14 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 	}
 	printf("\n");
 
+	/*
+	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
+										builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
+										pubInputGroup -> public_inputs -> public_circuitKeys,
+										pubInputGroup -> public_inputs ->  numKeyPairs, pubInputGroup -> public_inputs -> stat_SecParam,
+										pubInputGroup -> params, state);
+	*/
+
 	output = getMajorityOutput(circuitsArray, checkStatSecParam, J_set);
 	if(inputBit == 0)
 		output = NULL;
@@ -233,6 +260,8 @@ unsigned char *SC_DetectCheatingExecutor(int writeSocket, int readSocket, struct
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
 
-	return output;
+	returnStruct = getSecCompReturnStruct_L_2013_E(pubInputGroup, builderInputs, J_set, J_setSize, output);
+
+	return returnStruct;
 }
 

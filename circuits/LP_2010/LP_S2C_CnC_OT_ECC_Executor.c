@@ -288,11 +288,11 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, int
 
 
 
-
 int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 										unsigned char *J_set, int J_setSize,
 										struct eccPoint **builderInputs,
-										struct public_builderPRS_Keys *public_inputs,
+										struct eccPoint ***public_keyPairs, struct eccPoint **public_circuitKeys,
+										int numInputKeys, int numCircuitKeys,
 										struct eccParams *params, gmp_randstate_t *state)
 {
 	struct eccPoint **tempU, **tempV;
@@ -301,15 +301,13 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 	int i, j, k, l = 0, numLambdas, commBufferLen = 0, lambda_Index = 0;
 	int verified = 0;
-	const int stat_SecParam = public_inputs -> stat_SecParam;
 
 
 
-	tempU = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
-	tempV = (struct eccPoint**) calloc(stat_SecParam - J_setSize, sizeof(struct eccPoint*));
+	tempU = (struct eccPoint**) calloc(numCircuitKeys - J_setSize, sizeof(struct eccPoint*));
+	tempV = (struct eccPoint**) calloc(numCircuitKeys - J_setSize, sizeof(struct eccPoint*));
 
-
-	numLambdas = public_inputs -> numKeyPairs * (stat_SecParam - J_setSize);
+	numLambdas = numInputKeys * (numCircuitKeys - J_setSize);
 	lambda = (mpz_t *) calloc(numLambdas, sizeof(mpz_t));
 
 	for(i = 0; i < numLambdas; i ++)
@@ -321,14 +319,16 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 
 
-	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
+	for(i = 0; i < numInputKeys; i ++)
 	{
+		printf(">>>>> %d\n", i);
+		fflush(stdout);
 		k = 0;
-		for(j = 0; j < stat_SecParam; j ++)
+		for(j = 0; j < numCircuitKeys; j ++)
 		{
 			if(0x00 == J_set[j])
 			{
-				tempU[k] = public_inputs -> public_circuitKeys[j];
+				tempU[k] = public_circuitKeys[j];
 				tempV[k] = builderInputs[l];
 
 				k ++;
@@ -338,8 +338,7 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 		verified |= ZKPoK_Ext_DH_TupleVerifier(writeSocket, readSocket, k,
 											params -> g, params -> g,
-											public_inputs -> public_keyPairs[i][0],
-											public_inputs -> public_keyPairs[i][1],
+											public_keyPairs[i][0], public_keyPairs[i][1],
 											tempU, tempV, params, state,
 											lambda, lambda_Index);
 
