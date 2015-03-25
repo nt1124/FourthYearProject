@@ -1,0 +1,37 @@
+\contentsline {chapter}{\numberline {1}Introduction}{3}{chapter.1}
+\contentsline {chapter}{\numberline {2}Background to Secure Multiparty Computation}{5}{chapter.2}
+\contentsline {section}{\numberline {2.1}Security Properties}{5}{section.2.1}
+\contentsline {section}{\numberline {2.2}Security levels}{5}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Semi-honest Adversary}{5}{subsection.2.2.1}
+\contentsline {subsubsection}{Example}{5}{section*.8}
+\contentsline {subsection}{\numberline {2.2.2}Malicious Adversary}{5}{subsection.2.2.2}
+\contentsline {subsubsection}{Example}{6}{section*.9}
+\contentsline {subsection}{\numberline {2.2.3}Covert Adversary}{6}{subsection.2.2.3}
+\contentsline {subsubsection}{Example}{6}{section*.10}
+\contentsline {section}{\numberline {2.3}Applications of SMC}{6}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Secret Auctions - Danish Beets}{6}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Distributed secrets}{6}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{7}{subsection.2.3.3}
+\contentsline {section}{\numberline {2.4}Yao's Protocol}{7}{section.2.4}
+\contentsline {subsection}{\numberline {2.4.1}Overview}{7}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Yao Garbled Circuits}{7}{subsection.2.4.2}
+\contentsline {subsection}{\numberline {2.4.3}Security of Yao Garbled Circuits}{8}{subsection.2.4.3}
+\contentsline {subsection}{\numberline {2.4.4}Security against Malicious and Covert Adversaries}{8}{subsection.2.4.4}
+\contentsline {chapter}{\numberline {3}Oblivious Transfer}{9}{chapter.3}
+\contentsline {section}{\numberline {3.1}Oblivious Transfer using dual-mode cryptosystem}{9}{section.3.1}
+\contentsline {chapter}{\numberline {4}Protocols}{11}{chapter.4}
+\contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{11}{section.4.1}
+\contentsline {section}{\numberline {4.2}Lindell 2013}{11}{section.4.2}
+\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{11}{section.4.3}
+\contentsline {chapter}{\numberline {5}Implementation Details}{13}{chapter.5}
+\contentsline {section}{\numberline {5.1}Purpose of Implementation}{13}{section.5.1}
+\contentsline {subsubsection}{Yao Garbled Circuits implementation}{13}{section*.11}
+\contentsline {subsubsection}{Elliptic Curve implementation}{13}{section*.12}
+\contentsline {subsubsection}{Secret Sharing and Multi-precision Polynomials}{13}{section*.13}
+\contentsline {subsubsection}{Peikert, Vaikuntanathan and Waters OT}{13}{section*.14}
+\contentsline {subsubsection}{Other - AES, SHA-2}{13}{section*.15}
+\contentsline {chapter}{\numberline {6}Experiments}{15}{chapter.6}
+\contentsline {section}{\numberline {6.1}Measurement metrics}{15}{section.6.1}
+\contentsline {section}{\numberline {6.2}Testing Environment}{15}{section.6.2}
+\contentsline {section}{\numberline {6.3}Benchmarks}{15}{section.6.3}
+\contentsline {chapter}{\numberline {7}Conclusions}{17}{chapter.7}

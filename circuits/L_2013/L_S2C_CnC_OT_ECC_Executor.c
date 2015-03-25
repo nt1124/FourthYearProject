@@ -272,7 +272,7 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 													params, state);
 	printf("Consistency check = %d\n", consistency);
 
-	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
+	consistency |= proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
 									secComp -> builderInputs,
 									secComp -> pubInputGroup -> public_inputs -> public_keyPairs,
 									secComp -> pubInputGroup -> public_inputs -> public_circuitKeys,
@@ -281,11 +281,13 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	printf("Consistency check = %d\n", consistency);
 
 
+	/*
 	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, concat_J_set, totalJ_setSize,
 									concatBuildersInputs, public_inputs -> public_keyPairs, concatPublicCircuitKeys,
 									public_inputs -> numKeyPairs, totalNumCircuitKeys, params, state);
 
 	printf("Consistency check = %d\n", consistency);
+	*/
 
 	return consistency;
 }

@@ -264,7 +264,6 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 	memcpy(concat_J_set, J_set, public_inputs -> stat_SecParam);
 	memcpy(concat_J_set + public_inputs -> stat_SecParam, secComp -> J_set, secComp -> public_inputs -> stat_SecParam);
 
-
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize,
 										startOfInputChain, builderInputs,
 										public_inputs -> public_keyPairs,
@@ -280,11 +279,10 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 										secComp -> public_inputs -> stat_SecParam,
 										secret_inputs, params, state);
 
-
-
+	/*
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, concat_J_set, totalJ_setSize,
 										startOfInputChain, concatBuildersInputs, public_inputs -> public_keyPairs,
 										concatPublicCircuitKeys, public_inputs -> numKeyPairs, totalNumCircuitKeys,
 										secret_inputs, params, state);
-
+	*/
 }

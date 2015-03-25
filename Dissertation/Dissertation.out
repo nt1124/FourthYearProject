@@ -1,0 +1,19 @@
+\BOOKMARK [0][-]{chapter.1}{Introduction}{}% 1
+\BOOKMARK [0][-]{chapter.2}{Background to Secure Multiparty Computation}{}% 2
+\BOOKMARK [1][-]{section.2.1}{Security Properties}{chapter.2}% 3
+\BOOKMARK [1][-]{section.2.2}{Security levels}{chapter.2}% 4
+\BOOKMARK [1][-]{section.2.3}{Applications of SMC}{chapter.2}% 5
+\BOOKMARK [1][-]{section.2.4}{Yao's Protocol}{chapter.2}% 6
+\BOOKMARK [0][-]{chapter.3}{Oblivious Transfer}{}% 7
+\BOOKMARK [1][-]{section.3.1}{Oblivious Transfer using dual-mode cryptosystem}{chapter.3}% 8
+\BOOKMARK [0][-]{chapter.4}{Protocols}{}% 9
+\BOOKMARK [1][-]{section.4.1}{Lindell and Pinkas 2011}{chapter.4}% 10
+\BOOKMARK [1][-]{section.4.2}{Lindell 2013}{chapter.4}% 11
+\BOOKMARK [1][-]{section.4.3}{Huang, Katz and Evans 2013}{chapter.4}% 12
+\BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 13
+\BOOKMARK [1][-]{section.5.1}{Purpose of Implementation}{chapter.5}% 14
+\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 15
+\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 16
+\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 17
+\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 18
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 19

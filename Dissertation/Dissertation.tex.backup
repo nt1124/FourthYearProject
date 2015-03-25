@@ -1,18 +1,18 @@
-\documentclass[a4paper,11pt]{article}
-% \documentclass[ % the name of the author
-%                     author={Nicholas Tutte},
-%                 % the name of the supervisor
-%                 supervisor={Prof. Nigel Smart},
-%                 % the degree programme
-%                     degree={MEng},
-%                 % the dissertation    title (which cannot be blank)
-%                      title={Secure Two Party Computation},
-%                 % the dissertation subtitle (which can    be blank)
-%                   subtitle={A practical comparison of recent protocols},
-%                 % the dissertation     type
-%                       type={Research - GG1K},
-%                 % the year of submission
-%                       year={2015} ]{dissertation}
+% \documentclass[a4paper,11pt]{article}
+\documentclass[ % the name of the author
+                    author={Nicholas Tutte},
+                % the name of the supervisor
+                supervisor={Prof. Nigel Smart},
+                % the degree programme
+                    degree={MEng},
+                % the dissertation    title (which cannot be blank)
+                     title={Secure Two Party Computation},
+                % the dissertation subtitle (which can    be blank)
+                  subtitle={A practical comparison of recent protocols},
+                % the dissertation     type
+                      type={Research - GG1K},
+                % the year of submission
+                      year={2015} ]{dissertation}
 
 \usepackage[utf8]{inputenc}
 \usepackage{color}
@@ -21,52 +21,48 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 
-\usepackage[margin=1in]{geometry}
-\setcounter{tocdepth}{2}
-
-
-\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 
 \begin{document}
+	\thispagestyle{empty}
 
-	\begin{titlepage}
-		\begin{center}
-
-			\textsc{\LARGE University of Bristol}
-			\vspace{2cm}
-    
-			\includegraphics[width=0.15\textwidth]{./bristolunilogo}~\\[1cm]
-    
-			\vspace{3cm}
-			\HRule \\[0.4cm]
-			\textsc{ \huge Secure Two Party Computation}\\
-			\textsc{ \large A practical comparison of recent protocols}\\
-			\HRule \\[0.4cm]
-			\vspace{2cm}
-    
-			\begin{abstract}
-				We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
-				
-				In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.
-			\end{abstract}
-    
-			\vspace{2.6cm}
-			\noindent\rule{12cm}{0.2pt}\\[0.2cm]
-			\textsc{\Large Author: Nicholas Tutte}\\[0.2cm]
-			\textsc{\Large Supervisor: Prof. Nigel Smart}
-    
-		\end{center}
-	\end{titlepage}
+	\maketitle
+	\frontmatter
+	\makedecl
 
 
+	\chapter*{Prelude}
+		\section*{Executive Summary}
+			\subsubsection*{Abstract}
+			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
+
+			  In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.\\
+
+			\subsubsection*{Summary of Achievements}
+				\begin{itemize}
+					\item I implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of my knowledge these are the first implementations of these protocols.
+					\item I experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
+					\item I have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
+				\end{itemize}
+
+		\section*{Supporting Technologies}
+			\begin{itemize}
+					\item Unless otherwise stated all tests have been run upon the Bristol Cryptography Group's Diffie and Hellman machines. These machines are identical and have dedicated network cards for communications between each other.
+					\item All code is in either C or C++, using the OpenMP library for parallelism in the shared memory paradigm. Furthermore AES-NI support is enabled.
+					\item Extensive use has been made of the GNU Multi Precision Arithmetic Library.
+					\item The net code was provided by my supervisor Prof. Nigel Smart.
+					\item The AES implementation I use was mostly provided by my supervisor Prof. Nigel Smart (coded by Dr. Dan Page). Though I have extended this as it did not provide non-AES-NI decryption.
+					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
+			\end{itemize}
+
+	\mainmatter
 	% CONTENTS.
-	% \tableofcontents
-	% \clearpage
+	\tableofcontents
+
 
 	% NOTATION SECTION
 	
-	\section{Introduction}
+	\chapter{Introduction}
 		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. Using SMC we can perform the desired computation without any party ever knowing the other's inputs.
 
 		A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the greatest input. Additionally, at the end of the computation no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
@@ -88,11 +84,11 @@
 
 
 
-		% \subsection{Paper Structure} Section \ref{sec:BG_toSMC} provides a more detailed overview of the problem of Secure Multiparty Computation and consider some of its applications for the purposes of motivation. Section \ref{sec:Yao_Circuits} introduces the basic ideas underlying Yao's protocol that are the cornerstone of the protocols we are comparing. Section \ref{sec:Protocols} delves into the specifics of each of the protocols we have implemented, touching on the main ideas and challenges of each. Section \ref{sec:ImplementationDetails} 
+		% \section{Paper Structure} Section \ref{sec:BG_toSMC} provides a more detailed overview of the problem of Secure Multiparty Computation and consider some of its applications for the purposes of motivation. Section \ref{sec:Yao_Circuits} introduces the basic ideas underlying Yao's protocol that are the cornerstone of the protocols we are comparing. Section \ref{sec:Protocols} delves into the specifics of each of the protocols we have implemented, touching on the main ideas and challenges of each. Section \ref{sec:ImplementationDetails} 
 
 
-	\section{Background to Secure Multiparty Computation} \label{sec:BG_toSMC}
-		\subsection{Security Properties} \label{sub:SecurityProperties}
+	\chapter{Background to Secure Multiparty Computation} \label{sec:BG_toSMC}
+		\section{Security Properties} \label{sub:SecurityProperties}
 			There are three main properties that we wish to achieve with any SMC protocol,
 			\begin{itemize}
 				\item Privacy, the only knowledge parties gain from participating is the output.
@@ -106,38 +102,38 @@
 
 			% Alice-Bob-Trevor could go here.
 
-		\subsection{Security levels}\label{sub:SecurityLevels}
+		\section{Security levels}\label{sub:SecurityLevels}
 			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the capability of the adversary.
 
-			\subsubsection{Semi-honest Adversary}
+			\subsection{Semi-honest Adversary}
 				The Semi-honest adversary is the weakest adversary, with very limited capabilities. The Semi-honest adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol (i.e. they are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
 				
-				\paragraph{Example}
+				\subsubsection{Example}
 
 				\textcolor{red}{
 					The Semi-Honest model seems at first to be somewhat pointless, after all we are only assured of security if the adversary follows the rules of the protocol. }
 
-			\subsubsection{Malicious Adversary}
+			\subsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
-				\paragraph{Example} 
+				\subsubsection{Example} 
 
 					
 
-			\subsubsection{Covert Adversary}
+			\subsection{Covert Adversary}
 				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain probability of detection, this probability represents the point at which the expected payoff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught, effectively a game theory problem \cite{WhenGameTheoryMetSMC}.\\
 
 				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
-				\paragraph{Example} 
+				\subsubsection{Example} 
 
 				\textcolor{red}{
 					This model is usually appropriate when there are tangible consequences to a party being caught cheating. For example consider the case where a group of companies are required to report on certain business dealing }
 
-		\subsection{Applications of SMC} \label{sub:Applications}
+		\section{Applications of SMC} \label{sub:Applications}
 			Here we take time to motivate the study of SMC by giving several actual or proposed applications.
 
-			\subsubsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
+			\subsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
 				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
 
 				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times \\
@@ -145,12 +141,12 @@
 				As far as team behind this auction are aware this was the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
 			% SHOULD REALLY PROVIDE CITATION TO THEIR WEBSITE. AND TO RSA
-			\subsubsection{Distributed secrets} \label{sub2:DistributedSecretApplication}
+			\subsection{Distributed secrets} \label{sub2:DistributedSecretApplication}
 				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
 				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
-			\subsubsection{PROCEED - Computation on encrypted data} \label{sub2:PROCEED_DARPA}
+			\subsection{PROCEED - Computation on encrypted data} \label{sub2:PROCEED_DARPA}
 				Recently US Defence Advanced Research Projects Agency (DARPA) ended a programme called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.
 
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME
@@ -205,7 +201,7 @@
 			In \cite{LindellAndPinkas2007} the example is given of computing the inner product of two binary strings, in this situation the Executing party could give many different inputs each with a single bit set to $1$. The output of the circuit would then give the Executor the value of the Builder's input bit corresponding to the high bit in the Executor's input.\\
 
 
-	\section{Oblivious Transfer} \label{sec:OT_Intro}
+	\chapter{Oblivious Transfer} \label{sec:OT_Intro}
 		Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
 
 		Oblivious Transfers (OTs) were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
@@ -262,22 +258,29 @@
 
 			% 	So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
 
-	\subsection{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
-		  The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
+	% THIS NEED TIDYING UP
+	\section{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
+		\textcolor{red}{
+		The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
 
-		  The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.\\
+		\textcolor{red}{
+		The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.}\\
 
-		  The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.\\
+		\textcolor{red}{
+		The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 
-		  The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.\\
+		\textcolor{red}{
+		The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
 
-		  Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.\\
+		\textcolor{red}{
+		Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
 
-		  It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.
+		\textcolor{red}{
+		It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.}
 
 
-	\section{Protocols} \label{sec:Protocols}
-		\subsection{Lindell and Pinkas 2011}
+	\chapter{Protocols} \label{sec:Protocols}
+		\section{Lindell and Pinkas 2011}
 			The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. Firstly his protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entails in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.\\
 
 			The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
@@ -286,15 +289,17 @@
 
 			When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit. Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}.
 
-		\subsection{Lindell 2013}
+		\section{Lindell 2013}
 			In \cite{Lindell_CnC_2013} Lindell proposed an further improvement on his work with Pinkas in \cite{LindellAndPinkas2011}. The primary breakthroughs of this paper are the removal of the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. A further breakthrough [detail the secure computation to detect cheating here]...
 
-		\subsection{Huang, Katz and Evans 2013}
+		\section{Huang, Katz and Evans 2013}
 			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.
 
-	\section{Implementation Details} \label{sec:ImplementationDetails}
-		\subsection{Purpose of Implementation}
-			It should be made abundantly clear that the implementation provided is not intended for real world use with actual confidentiality on the line, instead it is for the purposes of comparing the performance of the protocols under consideration. Whilst the protocols have been implemented faithfully some of the lower level details not relevant to a comparison of the protocols are ignored, for example we do not established a secure connection between the two parties.\\
+	\chapter{Implementation Details} \label{sec:ImplementationDetails}
+		\section{Purpose of Implementation}
+			It should be made abundantly clear that the implementation provided is not intended for real world use with actual confidentiality on the line, instead it is for the purposes of comparing the performance of the protocols under consideration.\\
+
+			Whilst the protocols have been implemented faithfully some of the lower level details not relevant to a comparison of the protocols are ignored, for example we do not established a secure connection between the two parties.\\
 
 			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
 
@@ -304,11 +309,13 @@
 
 		\subsubsection{Elliptic Curve implementation}
 
-			.
+			\textcolor{red}{Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve specified in }
 
 		\subsubsection{Secret Sharing and Multi-precision Polynomials}
 
-			.
+			For the Zero Knowledge Proof of Knowledge specified in Appendix B \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. I have implemented Shamir's Secret Scheme. This scheme is based on how many points are needed to uniquely define a polynomial curve.\\
+
+			Consider a polynomial $K = a_n \cdot ^{n}$Any polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
 
 		\subsubsection{Peikert, Vaikuntanathan and Waters OT}
 
@@ -319,7 +326,7 @@
 			.
 
 
-	\section{Experiments} \label{sec:Results}
+	\chapter{Experiments} \label{sec:Results}
 		We shall be using the circuits provided in \cite{NigelCircuits} for our experiments with varying randomised inputs, in particular we shall consider
 		
 		\begin{itemize}
@@ -330,23 +337,23 @@
 		\end{itemize}
 
 
-		\subsection{Measurement metrics}
+		\section{Measurement metrics}
 			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent.\\
+
+			We shall break these metrics down further by part of the protocol.
+
+		\section{Testing Environment}
+			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz with 8096 KB of cache and 32 GB of RAM. These machines possess dedicated network card for communications with the other member of the pair. Compilation was performed with g$++$ version 4.4.7. 
+
+		\section{Benchmarks}
+			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
 
 			
 
-		\subsection{Testing Environment}
-			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz with 8096 KB of cache and 32 GB of RAM. It should also be noted that . Compilation was performed with g++ ver. 4.4.7. 
 
-		\subsection{Benchmarks}
-			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can calculate a quick 
+	\chapter{Conclusions}
 
-
-	
-
-	\section{Conclusions}
 		
-
 
 	\begin{thebibliography}{5}
 	
@@ -360,14 +367,14 @@
 			A. Shelat, C.H. Shen. Two-Output Secure Computation with Malicious Adversaries. In EUROCRYPT 2011, Springer (LNCS 6632), pages 386–405, 2011.
 
 		\bibitem{Lindell_CnC_2013}
-			Y. Lindell,
+			Y. Lindell.
 			\emph{Fast cut-and-choose based protocols for malicious and covert adversaries}, R. Canetti, J.A. Garay, (eds.) CRYPTO 2013, Part II. LNCS, vol. 8043, pp. 1–17. Springer, Heidelberg (2013).
 
 		\bibitem{Katz_Symm_CnC_2013}
 			Y. Huang, J. Katz, D. Evans. \emph{Efficient Secure Two-Party Computation Using Symmetric Cut-and-Choose}, In 33rd International Cryptology Conference (CRYPTO 2013), 2013.
 
 		\bibitem{SugarBeets}
-			P. Bogetoft, D. Christensen, I. Damgård et al, \emph{Secure Multiparty Computation Goes Live}, In Financial Cryptography and Data Security 2009, Springer LNCS 5628, pages 325-343, 2009.
+			P. Bogetoft, D. Christensen, I. Damgård et al. \emph{Secure Multiparty Computation Goes Live}, In Financial Cryptography and Data Security 2009, Springer LNCS 5628, pages 325-343, 2009.
 
 		\bibitem{SMC_Is_Practical}
 			Benny Pinkas, Thomas Schneider, Nigel P. Smart and Stephen C. Williams. \emph{Secure Two-Party Computation is Practical}, ASIACRYPT 2009, December 6-10, 2009.
@@ -379,7 +386,7 @@
 			S. Jarecki and V. Shmatikov. \emph{Efficient Two-Party Secure Computation on Committed Inputs.} In EUROCRYPT 2007, Springer (LNCS 4515), pages 97 - 114, 2007.
 
 		\bibitem{LEGO_Paper}
-			J.B. Nielsen and C. Orlandi. \emph{LEGO for Two-Party Secure Computation}. In TCC 2009, Springer (LNCS 5444), pages 368 - 386, 2009.
+			J. Nielsen and C. Orlandi. \emph{LEGO for Two-Party Secure Computation}. In TCC 2009, Springer (LNCS 5444), pages 368 - 386, 2009.
 
 		\bibitem{MiniLEGO}
 			T. Frederiksen, T. Jakobsen, J. Nielsen, et al. \emph{MiniLEGO: Efficient Secure Two-Party Computation from General Assumptions}, In Advances in Cryptology - EUROCRYPT 2013, Springer (LNCS 7881), pages 537 - 556, 2013.
@@ -391,7 +398,7 @@
 			Y. Lindell, B. Pinkas. \emph{A proof of security of Yao’s protocol for two-party computation}. Journal of Cryptology 22(2), pages 161 - 188 (2009).
 
 		\bibitem{WhenGameTheoryMetSMC}
-			Ittai Abraham, Danny Dolev, Rica Gonen and Joe Halpern. Distributed Computing Meets Game Theory: Robust Mechanisms for Rational Secret Sharing and Multiparty Computation,Proceedings of the Twenty-Fifth Annual ACM Symposium on Principles of Distributed Computing,  pages 53 - 62, 2006.
+			I. Abraham, D. Dolev, R. Gonen and J. Halpern. \emph{Distributed Computing Meets Game Theory: Robust Mechanisms for Rational Secret Sharing and Multiparty Computation}, Proceedings of the Twenty-Fifth Annual ACM Symposium on Principles of Distributed Computing,  pages 53 - 62, 2006.
 
 		\bibitem{Rabin81}
 			M. Rabin. \emph{How to exchange secrets with oblivious transfer}. Technical Report, TR-81, Aiken Computation Lab, Harvard University, 1981.
@@ -400,16 +407,19 @@
 			B. Pinkas. \emph{Secure Computation Lecture Series}, Lecture 5 - Oblivious Transfer, 2014.
 
 		\bibitem{EvenEtAl85}
-			Even, Goldreich and Lempel. \emph{A randomized protocol for signing contracts}, In Communications of the ACM, Vol. 28 Iss. 6, pages 637 - 647 (1985)
+			S. Even, O. Goldreich and A. Lempel. \emph{A randomized protocol for signing contracts}, In Communications of the ACM, Vol. 28 Iss. 6, pages 637 - 647 (1985)
 
 		\bibitem{PVW_OT_2008}
-			C. Peikert, V. Vaikuntanathan, B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008, Springer (LNCS 5157), pages 554–571. (2008)
+			C. Peikert, V. Vaikuntanathan and B. Waters. \emph{A framework for efficient and composable oblivious transfer}. In: Wagner, D. (ed.) CRYPTO 2008, Springer (LNCS 5157), pages 554–571, 2008.
 
 		\bibitem{NaorPinkasOT2001}
-			Naor and B. Pinkas, Efficient Oblivious Transfer Protocols, Proceedings of SODA 2001 (SIAM Symposium on Discrete Algorithms), 2001
+			Naor and B. Pinkas, \emph{Efficient Oblivious Transfer Protocols}, Proceedings of SODA 2001 (SIAM Symposium on Discrete Algorithms), 2001.
 
 		\bibitem{NigelCircuits}
-			Bristol Cryptography Group. Circuits of Basic Functions Suitable For MPC and FHE. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 
+			Bristol Cryptography Group. \emph{Circuits of Basic Functions Suitable For MPC and FHE}. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 
+
+		\bibitem{ECC_RFC_6090}
+			D. McGrew, K. Igoe and M. Salter,\emph{ Fundamental Elliptic Curve Cryptography Algorithms}, RFC 6090, February 2011.
 
 	\end{thebibliography}
 

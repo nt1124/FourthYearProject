@@ -68,7 +68,7 @@
 \renewcommand{\lstlistlistingname}{List of Listings}
 
 % configure hyperref
-\hypersetup{colorlinks=true,bookmarks=false,urlcolor=red}
+\hypersetup{colorlinks=false,bookmarks=false,urlcolor=red, linktocpage=true}
 
 % configure style of table of contents
 \setcounter{tocdepth}{1}
