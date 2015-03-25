@@ -236,7 +236,7 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 
 	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
 	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
-	concat_J_set = (unsigned char *) calloc(totalJ_setSize, sizeof(unsigned char));
+	concat_J_set = (unsigned char *) calloc(totalNumCircuitKeys, sizeof(unsigned char));
 
 
 	j = 0;
@@ -259,6 +259,7 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 		concatPublicCircuitKeys[i] = secComp -> pubInputGroup -> public_inputs -> public_circuitKeys[j ++];
 	}
 
+
 	memcpy(concat_J_set, J_set, public_inputs -> stat_SecParam);
 	memcpy(concat_J_set + public_inputs -> stat_SecParam, secComp -> J_set, secComp -> pubInputGroup -> public_inputs -> stat_SecParam);
 
@@ -279,6 +280,7 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 									secComp -> pubInputGroup -> public_inputs -> numKeyPairs,
 									secComp -> pubInputGroup -> public_inputs -> stat_SecParam, params, state);
 	printf("Consistency check = %d\n", consistency);
+
 
 
 	/*

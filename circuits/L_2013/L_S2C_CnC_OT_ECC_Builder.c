@@ -238,7 +238,7 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 
 	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
 	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
-	concat_J_set = (unsigned char *) calloc(totalJ_setSize, sizeof(unsigned char));
+	concat_J_set = (unsigned char *) calloc(totalNumCircuitKeys, sizeof(unsigned char));
 
 
 	j = 0;

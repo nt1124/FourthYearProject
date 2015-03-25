@@ -243,9 +243,6 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 		{
 			if(0x00 == J_set[j])
 			{
-				// gmp_printf("%d  ->  %Zd\n", l, builderInputs[l]);
-				// fflush(stdout);
-
 				// Could Blue Peter the tempU.
 				tempU[k] = public_circuitKeys[j];
 				tempV[k] = builderInputs[l];
