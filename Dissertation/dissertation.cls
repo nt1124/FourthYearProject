@@ -24,7 +24,7 @@
 }
 
 \ProcessPgfOptions{/dissertation}
-\LoadClass[10pt,a4paper,twoside]{book}
+\LoadClass[10pt, a4paper, twoside]{report}
 
 % see http://www.ctan.org/tex-archive/macros/latex/required/graphics
 \RequirePackage{graphicx}
@@ -71,13 +71,13 @@
 \hypersetup{colorlinks=false,bookmarks=false,urlcolor=red, linktocpage=true}
 
 % configure style of table of contents
-\setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
 
 % configure style of bibliography
 \bibliographystyle{plain}
 
 % configure style of pages
-\geometry{a4paper,lmargin=2.5cm,rmargin=2.5cm,tmargin=2.5cm,bmargin=2.5cm}
+\geometry{a4paper,inner=4cm,outer=2cm,top=1.5cm,bottom=1.5cm}
 
 \fancypagestyle{plain}{
   \fancyhf{}
@@ -170,21 +170,21 @@
 }
 
 % define macros to mark front, main and back matter
-
-\renewcommand{\frontmatter}{
-  \cleardoublepage
-  \pagestyle{plain}
-  \pagenumbering{roman}
-}
-\renewcommand{\mainmatter}{
-  \cleardoublepage
-  \pagestyle{marked}
-  \pagenumbering{arabic}
-}
-\renewcommand{\backmatter}{
-  \cleardoublepage
-  \pagestyle{marked}
-}
+% 
+% \renewcommand{\frontmatter}{
+%   \cleardoublepage
+%   \pagestyle{plain}
+%   \pagenumbering{roman}
+% }
+% \renewcommand{\mainmatter}{
+%   \cleardoublepage
+%   \pagestyle{marked}
+%   \pagenumbering{arabic}
+% }
+% \renewcommand{\backmatter}{
+%   \cleardoublepage
+%   \pagestyle{marked}
+% }
 
 % define macros to consistently generate dissertation type field
 

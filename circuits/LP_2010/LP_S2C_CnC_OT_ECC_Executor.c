@@ -14,6 +14,9 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 	int u_v_index = 0;
 	int k;
 
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
 
 	numInputsExecutor = numInputsExecutor;
 	*output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
@@ -22,6 +25,7 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
+
 
 	// Prove that we did indeed select s/2 many to open.
 	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,

@@ -1,4 +1,3 @@
-
 struct u_v_Pair_ECC *randomiseDDH_ECC(struct ECC_PK *pk, struct eccParams *params, gmp_randstate_t state)
 {
 	struct u_v_Pair_ECC *toReturn = (struct u_v_Pair_ECC*) calloc(1, sizeof(struct u_v_Pair_ECC));
@@ -140,37 +139,51 @@ struct eccPoint *ECC_Dec_Alt(mpz_t sk, mpz_t y, struct u_v_Pair_ECC *CT, struct 
 void testECC_Utils()
 {
 	mpz_t plaintext_x, plaintext_y, SK;
-	struct eccPoint *plaintext, *plaintextDot, *PK;
+	struct eccPoint *plaintext, *plaintextDot, *PK, **preComputes;
 	struct ecc_Ciphertext *ciphertext;
 	struct eccParams *params;
 	gmp_randstate_t *state = seedRandGen();
+	int i;
+
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
+
 
 	mpz_init(SK);
 	mpz_init_set_ui(plaintext_x, 19);
 	mpz_init_set_ui(plaintext_y, 72);
 
-	plaintext = initAndSetECC_Point(plaintext_x, plaintext_y, 0);
 	params = initBrainpool_256_Curve();
+	plaintext = initAndSetECC_Point(plaintext_x, plaintext_y, 0);
+	plaintextDot = initAndSetECC_Point(plaintext_x, plaintext_y, 0);
 
-	mpz_urandomm(plaintext_y, *state, params -> n);
-	plaintextDot = windowedScalarPoint(plaintext_y, plaintext, params);
+	mpz_urandomm(SK, *state, params -> n);
 
-	PK = groupOp(plaintext, plaintextDot, params);
-	groupOp_PlusEqual(plaintext, plaintextDot, params);
+
+	timestamp_0 = timestamp();
+	c_0 = clock();
+	preComputes = preComputePoints(params -> g, 512, params);
+	for(i = 0; i < 2000; i ++)
+	{
+		PK = windowedScalarFixedPoint(SK, params -> g, preComputes, 9, params);
+	}
+	c_1 = clock();
+	timestamp_1 = timestamp();
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Fixed Test 10");
+	printPoint(PK);
+
+
+	timestamp_0 = timestamp();
+	c_0 = clock();
+	for(i = 0; i < 2000; i ++)
+	{
+		PK = windowedScalarPoint(SK, params -> g, params);
+	}
+	c_1 = clock();
+	timestamp_1 = timestamp();
+	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Not fixed Test");
 
 	printPoint(PK);
-	printPoint(plaintext);
-
-	/*
-
-	PK = generate_ECC_KeyPair(params, SK, *state);
-	ciphertext = ECC_Enc(PK, plaintext, params, *state);
-	plaintextDot = ECC_Dec(SK, ciphertext, params);
-
-	printPoint(plaintext);
-	printPoint(plaintextDot);
-
-	*/
 
 }
 

@@ -307,7 +307,7 @@ struct eccPoint *invertPoint(struct eccPoint *P, struct eccParams *params)
 struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccParams *params)
 {
 	struct eccPoint *Q = init_Identity_ECC_Point();
-	struct eccPoint *tempP = copyECC_Point(P);//, *temp;
+	struct eccPoint *tempP = copyECC_Point(P);
 	int numBitsInK = mpz_sizeinbase(k, 2), i;
 
 	for(i = 0; i < numBitsInK; i ++)
@@ -410,10 +410,10 @@ struct eccParams *initBrainpool_256_Curve()
 
 
 // Precomputes the power for Windowed scalar multi
-struct eccPoint **preComputePoints(struct eccPoint *base, struct eccParams *params)
+struct eccPoint **preComputePoints(struct eccPoint *base, int windowSize, struct eccParams *params)
 {
 	struct eccPoint **output;
-	int i, windowSize = 16;
+	int i;
 
 
 	output = (struct eccPoint **) calloc(windowSize, sizeof(struct eccPoint*));
@@ -443,7 +443,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 
 
 	//Precompute the values for base to power of all possible windows. 
-	preComputes = preComputePoints(P, params);
+	preComputes = preComputePoints(P, twoPowerK, params);
 
 	while (i >= 0)
 	{
@@ -471,4 +471,62 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 	free(preComputes);
 
 	return Q;
+}
+
+
+
+
+// Window Exponentation. Raise base to the power of exponent all modulo modularZ,
+// store result in result.
+struct eccPoint *windowedScalarFixedPoint(mpz_t exponent, struct eccPoint *P,
+										struct eccPoint **preComputes, int k,
+										struct eccParams *params)
+{
+	//Get size of exponent in base 2.
+	int i = mpz_sizeinbase(exponent, 2) - 1, u, j;
+	struct eccPoint *Q = init_Identity_ECC_Point();
+
+	while (i >= 0)
+	{
+		//If the i-th bit (of exponent) is a zero, we just square the current result, move to next bit.
+		u = 0;
+		for(j = 0; j < k && i >= 0; j ++)
+		{
+			doublePointInPlace(Q, params);
+
+			u = (u << 1) + mpz_tstbit(exponent, i);
+			i --;
+		}
+
+		if(u)
+		{			
+			groupOp_PlusEqual(Q, preComputes[u], params);
+		}
+	}
+
+	return Q;
+}
+
+
+struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize, struct eccParams *params)
+{
+	struct eccPoint **output, *temp;
+	int i;
+
+
+	output = (struct eccPoint **) calloc(windowSize, sizeof(struct eccPoint*));
+	temp = copyECC_Point(base);
+	for(i = 1; i < windowSize / 2; i ++)
+	{
+		doublePointInPlace(temp, params);
+	}
+
+	output[windowSize / 2] = temp;
+	for(i = windowSize / 2 + 1; i < windowSize; i ++)
+	{
+		output[i] = groupOp(output[i-1], base, params);
+	}
+
+
+	return output;
 }

@@ -1,4 +1,4 @@
-% \documentclass[a4paper,11pt]{article}
+% \documentclass[a4paper,11pt]{report}
 \documentclass[ % the name of the author
                     author={Nicholas Tutte},
                 % the name of the supervisor
@@ -17,18 +17,60 @@
 \usepackage[utf8]{inputenc}
 \usepackage{color}
 \usepackage{graphicx}
-
+\usepackage{graphicx}
 \usepackage{amsmath}
 \usepackage{amsfonts}
+\usepackage{geometry}
 
 
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 \begin{document}
-	\thispagestyle{empty}
-
+% 	\begin{titlepage}
+% 		\begin{center}
+% 
+% 			\textsc{\LARGE University of Bristol}
+% 			\vspace{2cm}
+%     
+% 			\includegraphics[width=0.15\textwidth]{./bristolunilogo}~\\[1cm]
+%     
+% 			\vspace{3cm}
+% 			\HRule \\[0.4cm]
+% 			\textsc{ \huge Secure Two Party Computation}\\
+% 			\textsc{ \large A practical comparison of recent protocols}\\
+% 			\HRule \\[0.4cm]
+% 			\vspace{2cm}
+    
+% 			\begin{abstract}
+% 				We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
+% 				
+% 				In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.
+% 			\end{abstract}
+    
+% 			\vspace{2.6cm}
+% 			\noindent\rule{12cm}{0.2pt}\\[0.2cm]
+% 			\textsc{\Large Author: Nicholas Tutte}\\[0.2cm]
+% 			\textsc{\Large Supervisor: Prof. Nigel Smart}
+%     
+% 		\end{center}
+% 	\end{titlepage}
+	% \thispagestyle{empty}
 	\maketitle
-	\frontmatter
-	\makedecl
+	% \frontmatter
+	
+	%\newpage
+	\chapter*{Declaration}
+
+		This dissertation is submitted to the University of Bristol in accordance 
+		with the requirements of the degree of \textbf{GG1K} in the Faculty 
+		of Engineering.  It has not been submitted for any other degree or diploma 
+		of any examining body.  Except where specifically acknowledged, it is all 
+		the work of the Author. 
+
+		\vspace{6cm}
+
+		\noindent{Nicholas Tutte}, \today
 
 
 	\chapter*{Prelude}
@@ -55,7 +97,7 @@
 					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
 			\end{itemize}
 
-	\mainmatter
+	% \mainmatter
 	% CONTENTS.
 	\tableofcontents
 
@@ -63,7 +105,7 @@
 	% NOTATION SECTION
 	
 	\chapter{Introduction}
-		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. Using SMC we can perform the desired computation without any party ever knowing the other's inputs.
+		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. Using SMC we can perform the desired computation without any party ever knowing the other's inputs.\\
 
 		A commonly used example is the Millionaires problem. A group of rich persons wish to find out who among them is the richest, but do not wish to tell each other how much they are worth. Here the parties are the rich individuals, each party's inputs is their net worth and the function will return the identifier of the individual with the greatest input. Additionally, at the end of the computation no party should be able to divine anything about another party's inputs, apart from what can be inferred from their own input and the output.\\
 
@@ -315,7 +357,7 @@
 
 			For the Zero Knowledge Proof of Knowledge specified in Appendix B \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. I have implemented Shamir's Secret Scheme. This scheme is based on how many points are needed to uniquely define a polynomial curve.\\
 
-			Consider a polynomial $K = a_n \cdot ^{n}$Any polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
+			Consider a polynomial K of degree n. Then we can denote this polynomial as $K = \sum{i=0}{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
 
 		\subsubsection{Peikert, Vaikuntanathan and Waters OT}
 

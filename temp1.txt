@@ -1,0 +1,43 @@
+Running Builder.
+Executor has connected to us.
+
+Building/Inputting all Circuits
+CPU time  : 2.745258
+Wall time : 2.750683
+
+Verified CnC_OT_Mod setup = 0
+
+Setup Tuples
+CPU time  : 5.440393
+Wall time : 2.752593
+
+Parallel ZKPoK
+CPU time  : 10.014890
+Wall time : 10.924867
+
+>>>>> 0
+OT - Sender
+CPU time  : 24.532747
+Wall time : 21.454315
+
+subOT - Sender
+CPU time  : 53.290437
+Wall time : 35.095773
+
+First consistency proof
+CPU time  : 5.869783
+Wall time : 16.478428
+
+Second consistency proof
+CPU time  : 8.387988
+Wall time : 11.605394
+
+
+Total time without connection setup
+CPU time  : 107.122669
+Wall time : 105.572496
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     108.276760
+Wall time :     106.842080
