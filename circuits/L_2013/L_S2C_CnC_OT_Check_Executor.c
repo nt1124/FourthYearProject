@@ -190,7 +190,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 
 
 	// OT_Inputs
-	printf("EXECUTOR IS RECEIVING THE OTs\n");
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
@@ -221,7 +220,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 												J_set, J_setSize, checkStatSecParam);
 
-	printf("Sub-circuits Correct = %d\n", circuitsChecked);
+	printf("\nSub-circuits Correct = %d\n", circuitsChecked);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commBufferLen = 0;
@@ -232,7 +231,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 
-	printf("Evaluating Circuits ");
+	printf("\nEvaluating Circuits ");
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		if(0x00 == J_set[i])

@@ -230,11 +230,15 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
 	int i, j, consistency = 0;
 
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
 
 	totalNumInputs = public_inputs -> numKeyPairs;
 	totalNumCircuitKeys = public_inputs -> stat_SecParam + secComp -> public_inputs -> stat_SecParam;
 	totalJ_setSize = J_setSize + secComp -> J_setSize;
-	totalBuildersInputs = (totalNumCircuitKeys - totalJ_setSize) * totalNumInputs;
+	totalBuildersInputs = public_inputs -> numKeyPairs * (public_inputs -> stat_SecParam - J_setSize)
+						+ secComp -> public_inputs -> numKeyPairs * (secComp -> public_inputs -> stat_SecParam - secComp -> J_setSize);
 
 	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
 	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
@@ -264,12 +268,24 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 	memcpy(concat_J_set, J_set, public_inputs -> stat_SecParam);
 	memcpy(concat_J_set + public_inputs -> stat_SecParam, secComp -> J_set, secComp -> public_inputs -> stat_SecParam);
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize,
 										startOfInputChain, builderInputs,
 										public_inputs -> public_keyPairs,
 										public_inputs -> public_circuitKeys,
 										public_inputs -> numKeyPairs,
 										public_inputs -> stat_SecParam, secret_inputs, params, state);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "First consistency proof");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
 										startOfInputChain, secComp -> builderInputs,
@@ -278,6 +294,10 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 										secComp -> public_inputs -> numKeyPairs,
 										secComp -> public_inputs -> stat_SecParam,
 										secret_inputs, params, state);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Second consistency proof");
 
 	/*
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, concat_J_set, totalJ_setSize,

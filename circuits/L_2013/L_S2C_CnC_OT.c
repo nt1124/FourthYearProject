@@ -216,7 +216,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 
 
-
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
@@ -239,7 +238,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	printf("Evaluating Circuits ");
+	printf("\nEvaluating Circuits ");
 	fflush(stdout);
 
 	for(i = 0; i < stat_SecParam; i ++)
@@ -262,12 +261,24 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 												deltaPrime, lengthDelta, 3 * stat_SecParam, state );
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	commBufferLen = 0;
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	bLists = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
 	free(commBuffer);
-	printf("Verified B_Lists = %d\n", verifyB_Lists(outputHashTable, bLists, circuitsArray[0] -> numInputsExecutor));
+
+	printf("\nVerified B_Lists = %d\n", verifyB_Lists(outputHashTable, bLists, circuitsArray[0] -> numInputsExecutor));
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nVerifying B Lists");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
 								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
@@ -276,13 +287,22 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	printf("Circuits Correct = %d\n", circuitsChecked);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nChecking Circuits Correct");
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	proveConsistencyEvaluationKeys_Exec_L_2013(writeSocket, readSocket, J_set, J_setSize,
 											builderInputs, pubInputGroup -> public_inputs,
 											pubInputGroup -> params,
 											SC_ReturnStruct, state);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilder Inputs consistency checked");
 
 	clearPublicInputsWithGroup(pubInputGroup);
 

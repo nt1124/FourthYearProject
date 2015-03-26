@@ -228,6 +228,10 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
 	int i, j, consistency = 0;
 
+	struct timespec int_t_0, int_t_1;
+	clock_t int_c_0, int_c_1;
+
+
 
 	totalNumInputs = public_inputs -> numKeyPairs;
 	totalNumCircuitKeys = public_inputs -> stat_SecParam + secComp -> pubInputGroup -> public_inputs -> stat_SecParam;
@@ -264,6 +268,9 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	memcpy(concat_J_set + public_inputs -> stat_SecParam, secComp -> J_set, secComp -> pubInputGroup -> public_inputs -> stat_SecParam);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
 													builderInputs,
 													public_inputs -> public_keyPairs,
@@ -271,7 +278,14 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 													public_inputs -> numKeyPairs,
 													public_inputs -> stat_SecParam,
 													params, state);
-	printf("Consistency check = %d\n", consistency);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "First consistency proof");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	consistency |= proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
 									secComp -> builderInputs,
@@ -279,7 +293,12 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 									secComp -> pubInputGroup -> public_inputs -> public_circuitKeys,
 									secComp -> pubInputGroup -> public_inputs -> numKeyPairs,
 									secComp -> pubInputGroup -> public_inputs -> stat_SecParam, params, state);
-	printf("Consistency check = %d\n", consistency);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Second consistency proof");
+
+	printf("\nConsistency check = %d\n", consistency);
 
 
 

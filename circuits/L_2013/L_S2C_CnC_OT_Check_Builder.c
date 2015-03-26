@@ -133,7 +133,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	printf("BUILDER IS SENDING THE OTs\n");
 	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
 						OT_Inputs, state, checkStatSecParam, 1024);
 
