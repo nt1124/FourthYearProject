@@ -77,7 +77,7 @@
 \bibliographystyle{plain}
 
 % configure style of pages
-\geometry{a4paper,inner=4cm,outer=2cm,top=1.5cm,bottom=1.5cm}
+\geometry{a4paper,inner=4cm,outer=2.5cm,top=1.5cm,bottom=1.5cm}
 
 \fancypagestyle{plain}{
   \fancyhf{}
@@ -117,12 +117,14 @@
 
   \vspace*{\fill}
   \begin{center}
-          \includegraphics[scale=0.3]{logo/logo_uob_color}           \\
-                       \vspace{1cm}
-                DEPARTMENT OF COMPUTER SCIENCE                       \\
+          \includegraphics[scale=0.2]{bristolunilogo}\\
+			\vspace{1cm}
+			{\Large UNIVERSITY OF BRISTOL}\\
+			\vspace{0.5cm}
+			DEPARTMENT OF COMPUTER SCIENCE\\
 
                        \vspace{3cm}
-                 {\LARGE \dissertation@title}                        \\
+                \textbf{\LARGE \dissertation@title}                        \\
   \ifcsempty{dissertation@subtitle}{}{{\Large \dissertation@subtitle \\}}
                        \vspace{1cm}
                  {\Large \dissertation@author}                       \\

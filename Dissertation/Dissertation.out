@@ -9,21 +9,27 @@
 \BOOKMARK [2][-]{subsection.2.3.1}{Secret Auctions - Danish Beets}{section.2.3}% 9
 \BOOKMARK [2][-]{subsection.2.3.2}{Distributed secrets}{section.2.3}% 10
 \BOOKMARK [2][-]{subsection.2.3.3}{PROCEED - Computation on encrypted data}{section.2.3}% 11
-\BOOKMARK [1][-]{section.2.4}{Yao's Protocol}{chapter.2}% 12
-\BOOKMARK [2][-]{subsection.2.4.1}{Overview}{section.2.4}% 13
-\BOOKMARK [2][-]{subsection.2.4.2}{Yao Garbled Circuits}{section.2.4}% 14
-\BOOKMARK [2][-]{subsection.2.4.3}{Security of Yao Garbled Circuits}{section.2.4}% 15
-\BOOKMARK [2][-]{subsection.2.4.4}{Security against Malicious and Covert Adversaries}{section.2.4}% 16
-\BOOKMARK [0][-]{chapter.3}{Oblivious Transfer}{}% 17
-\BOOKMARK [1][-]{section.3.1}{Oblivious Transfer using dual-mode cryptosystem}{chapter.3}% 18
-\BOOKMARK [0][-]{chapter.4}{Protocols}{}% 19
-\BOOKMARK [1][-]{section.4.1}{Lindell and Pinkas 2011}{chapter.4}% 20
-\BOOKMARK [1][-]{section.4.2}{Lindell 2013}{chapter.4}% 21
-\BOOKMARK [1][-]{section.4.3}{Huang, Katz and Evans 2013}{chapter.4}% 22
-\BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 23
-\BOOKMARK [1][-]{section.5.1}{Purpose of Implementation}{chapter.5}% 24
-\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 25
-\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 26
-\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 27
-\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 28
-\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 29
+\BOOKMARK [0][-]{chapter.3}{Technical Background}{}% 12
+\BOOKMARK [1][-]{section.3.1}{Oblivious Transfer}{chapter.3}% 13
+\BOOKMARK [2][-]{subsection.3.1.1}{Naor-Pinkas Oblivious Transfer}{section.3.1}% 14
+\BOOKMARK [2][-]{subsection.3.1.2}{Peikert - Vaikuntanathan - Waters Oblivious Transfer}{section.3.1}% 15
+\BOOKMARK [1][-]{section.3.2}{Yao's Protocol}{chapter.3}% 16
+\BOOKMARK [2][-]{subsection.3.2.1}{Overview}{section.3.2}% 17
+\BOOKMARK [2][-]{subsection.3.2.2}{Yao Garbled Circuits}{section.3.2}% 18
+\BOOKMARK [2][-]{subsection.3.2.3}{Security of Yao Garbled Circuits}{section.3.2}% 19
+\BOOKMARK [2][-]{subsection.3.2.4}{Cut and Choose - Security against Malicious and Covert Adversaries}{section.3.2}% 20
+\BOOKMARK [0][-]{chapter.4}{Protocols}{}% 21
+\BOOKMARK [1][-]{section.4.1}{Lindell and Pinkas 2011}{chapter.4}% 22
+\BOOKMARK [1][-]{section.4.2}{Lindell 2013}{chapter.4}% 23
+\BOOKMARK [1][-]{section.4.3}{Huang, Katz and Evans 2013}{chapter.4}% 24
+\BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 25
+\BOOKMARK [1][-]{section.5.1}{Yao Garbled Circuits implementation}{chapter.5}% 26
+\BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 27
+\BOOKMARK [1][-]{section.5.3}{Secret Sharing and Multi-precision Polynomials}{chapter.5}% 28
+\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 29
+\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 30
+\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 31
+\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 32
+\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 33
+\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 34
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 35

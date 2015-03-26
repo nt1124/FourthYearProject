@@ -144,6 +144,8 @@
 
 			Informally we say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve than the ideal model. More formally a protocol is secure if it 
 
+			It is worth noting that 
+
 			% Alice-Bob-Trevor could go here.
 
 		\section{Security levels}\label{sub:SecurityLevels}
@@ -151,11 +153,12 @@
 
 			\subsection{Semi-honest Adversary}
 				The Semi-honest adversary is the weakest adversary, with very limited capabilities. The Semi-honest adversary has also been referred to as ``honest but curious'', because in this case the adversary is not allowed to deviate from the established protocol (i.e. they are honest), but at the same time they will do their best to compromise one of the aforementioned security properties by examining the data they have legitimate access to. This is in some ways analogous to the classic ``passive'' adversary.
-				
+
 				\subsubsection{Example}
 
-				\textcolor{red}{
-					The Semi-Honest model seems at first to be somewhat pointless, after all we are only assured of security if the adversary follows the rules of the protocol. }
+				\textcolor{red}{At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.}\\
+
+				\textcolor{red}{So if two companies wish to decide whether they should cooperate on a projet but first need}
 
 			\subsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
@@ -195,6 +198,62 @@
 
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME
 
+	
+	\chapter{Technical Background}
+		\section{Oblivious Transfer} \label{sec:OT_Intro}
+			Oblivious Transfers are vitally important for SMC and in particular Yao's Protocol that we shall be looking at later. Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+
+			Oblivious Transfers were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
+
+			\begin{figure}[!htb]
+				\centering
+				\begin{minipage}{0.45\textwidth}
+					\centering
+					\textbf{Receiver}\\
+					Inputs : $b \in \{0, 1\}$\\
+					Outputs : $X_b$\\
+				\end{minipage}
+				\begin{minipage}{0.45\textwidth}
+					\centering
+					\textbf{Sender}\\
+					Inputs : $X_1$, $X_2$\\
+					Outputs : $\emptyset$\\
+				\end{minipage}
+
+				\caption{ Formal definition of the functionality of a one-out-of-two OT protocol.\label{fig:OTformalDef}}
+			\end{figure}
+
+			The security of Oblivious Transfers is defined in a similar way to that of SMC, the focus is on Semi-honest(passive) and Malicious(active) adversaries. Security against these adversaries is usually either computational or statistical.\\
+
+			A protocol is considered secure with regards to Semi-honest adversaries if neither a Semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a Semi-honest adversary in the role of the Receiver learn anything about values other than the one it requested. The protocol being secure against Malicious adversaries is defined by the obvious extension of the Semi-honest case.\\
+
+			We primarily use OTs based on the Peikert-Vaikuntanathan-Waters OT (PVW-OT) from \cite{PVW_OT_2008} or more precisely the modifications of the PVW-OT suggested in \cite{LindellAndPinkas2011} and expanded on in \cite{Lindell_CnC_2013}. However, we also use the Naor-Pinkas (NP-OT) from \cite{NaorPinkasOT2001} for the protocol in \cite{Katz_Symm_CnC_2013}.
+
+
+			\subsection{Naor-Pinkas Oblivious Transfer} \label{sub:NaorPinkasOT}
+
+				
+
+			% THIS NEED TIDYING UP
+			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
+				\textcolor{red}{
+				The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
+
+				\textcolor{red}{
+				The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.}\\
+
+				\textcolor{red}{
+				The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
+
+				\textcolor{red}{
+				The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+
+				\textcolor{red}{
+				Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+
+				\textcolor{red}{
+				It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.}
+
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
 
 		\subsection{Overview} \label{sub:Yao_Overview}
@@ -228,99 +287,40 @@
 		\subsection{Security of Yao Garbled Circuits} \label{sub:YaoSecurity}
 			A naive implementation of a protocol using Yao Garbled Circuits provides only Semi-honest security. For a formal proof of Semi-honest security see \cite{ProofOfYaoSecurity}, we shall briefly give an intuitive explanation of why naive Yao Garbled Circuits are not secure in the presence of Malicious or Covert adversaries.\\
 
-			Consider the case where $P_1$ is Malicious, at no point does a naive $P_2$ verify that the garbled circuit provided by the Builder actually computes the function the builder claims it does. This clearly breaks the Correctness requirement, but also opens up an attack on the Privacy and Independence of inputs.\\
+			Consider the case where $P_1$ is Malicious, at no point does a naive $P_2$ verify that the garbled circuit provided by the Builder actually computes the function the builder claims it does. Whilst the Executor can check that the garbled circuit has the correct ``shape'' (number of gates, wires between gates etc.) the Executor cannot verified that each gate has the correct output. \textcolor{red}{This clearly breaks the Correctness requirement and depending on the function being computed and the structure of the circuit corresponding to it, the Builder can craft a garbled circuit to undermine the Privacy or Independence of Input properties.}\\
 
-			There is nothing to stop the Builder providing a circuit that outputs the input of the Executor in a way that the Builder can recover, as such the Privacy of the Executor's inputs fails in the presence of a Malicious Builder. Alternatively, the Builder could provide a circuit where its input is a function of the Executor's input, thus defeating the Independence of inputs requirement.
-
-
-		\subsection{Security against Malicious and Covert Adversaries} \label{sub:YaoMalicious}
-			Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an approach dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability).\\
-
-			This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. A subset of these circuits are chosen to be opened for the purpose of checking if they are correct.\\
-
-			If all check-circuits pass then the Executor evaluates the remaining circuits as usual and in the classic protocol returns the most common output. If one or more circuits produces an incorrect result this indicates cheating, furthermore if any check circuits fail during evaluation this is also taken to indicate cheating. This means $s$ acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example cheating in the protocol proposed in \cite{Lindell_CnC_2013} goes undetected with probability $2^{-s}$.\\
-
-			This Cut and Choose seems very simple conceptually, but creates several subtle new problems to be solved. For example whilst evaluating the many circuits we must now also ensure that both parties' inputs are consistent (same inputs to each circuit) else they might be able learn many outputs, each revealing something they should not have been able to discover.\\
-
-			In \cite{LindellAndPinkas2007} the example is given of computing the inner product of two binary strings, in this situation the Executing party could give many different inputs each with a single bit set to $1$. The output of the circuit would then give the Executor the value of the Builder's input bit corresponding to the high bit in the Executor's input.\\
+			\textcolor{red}{Additionally, the Executor has no way to check that the key it received from the OTs actually corresponds to the request key in the circuit, the Builder could use the same key for both $X_0$ and $X_1$ and thus alter the key used by the Executor for a given input wire.}
 
 
-	\chapter{Oblivious Transfer} \label{sec:OT_Intro}
-		Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+		\subsection{Cut and Choose - Security against Malicious and Covert Adversaries} \label{sub:YaoMalicious}
+			\subsubsection{Concept}
+				Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an approach dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability).\\
 
-		Oblivious Transfers (OTs) were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
+				This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. A subset of these circuits are chosen to be opened for the purpose of checking if they are correct. The remaining circuits are then referred to as Evaluation circuits.\\
 
-		\begin{figure}[!htb]
-			\centering
-			\begin{minipage}{0.45\textwidth}
-				\centering
-				\textbf{Receiver}\\
-				Inputs : $b \in \{0, 1\}$\\
-				Outputs : $X_b$\\
-			\end{minipage}
-			\begin{minipage}{0.45\textwidth}
-				\centering
-				\textbf{Sender}\\
-				Inputs : $X_1$, $X_2$\\
-				Outputs : $\emptyset$\\
-			\end{minipage}
+				If all check-circuits pass then the Executor evaluates the remaining circuits as usual. If the Executor receives differing outputs from the Evaluation Circuits this indicates cheating, furthermore if any check circuits fail during correctness testing this is also taken to indicate cheating.\\
 
-			\caption{ Formal definition of the functionality of a one-out-of-two OT protocol.\label{fig:OTformalDef}}
-		\end{figure}
+				The number of garbled circuits built ($s$) acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example cheating in the protocol proposed in \cite{Lindell_CnC_2013} goes undetected with probability $2^{-s}$.\\
 
-		The security of Oblivious Transfers is defined in a similar way to that of SMC, the focus is on Semi-honest(passive) and Malicious(active) adversaries. Security against these adversaries is usually either computational or statistical.\\
+			\subsubsection{Issues}
+				This Cut and Choose seems very simple conceptually, but creates several subtle new problems to be solved.\\
 
-		A protocol is considered secure with regards to Semi-honest adversaries if neither a Semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a Semi-honest adversary in the role of the Receiver learn anything about values other than the one it requested. The protocol being secure against Malicious adversaries is defined by the obvious extension of the Semi-honest case.\\
+				\textcolor{red}{Firstly whilst evaluating the many circuits we must now also ensure that both parties' inputs are consistent (same inputs to each circuit) else they might be able learn many outputs, each revealing something they should not have been able to discover.}\\
 
-		We primarily use OTs based on the Peikert-Vaikuntanathan-Waters OT (PVW-OT) from \cite{PVW_OT_2008} or more precisely the modifications of the PVW-OT suggested in \cite{LindellAndPinkas2011} and expanded on in \cite{Lindell_CnC_2013}. However, we also use the Naor-Pinkas (NP-OT) from \cite{NaorPinkasOT2001} for the protocol in \cite{Katz_Symm_CnC_2013}.
+				In \cite{LindellAndPinkas2007} the example is given of computing the inner product of two binary strings, in this situation the Executing party could give many different inputs each with a single bit set to $1$. The output of the circuit would then give the Executor the value of the Builder's input bit corresponding to the high bit in the Executor's input.\\
 
-			% \subsubsection{Even-Goldreich-Lempel SH Protocol}
-			% 	Here we look at a Semi-honest protocol for 1-out-of-2 case based on asymmetric encryption, taken from \cite{PinkasSlides2014} which is itself based on the work done in \cite{EvenEtAl85}. See Figure \ref{fig:EvenGoldreichLempel} for the abstracted protocol.
+				\textcolor{red}{Secondly, in order to open the check circuits the Executor needs obtain both keys for each of its input wires for the check circuits without revealing which circuits have been chosen.}\\
 
-			% 	\begin{figure}[!htb]
-			% 		\begin{tabular}[!htb]{p{6cm} p{6cm}}
-			% 			\textbf{Receiver} & \textbf{Sender}\\
-			% 			Inputs : $b \in \{0, 1\}$ & Inputs : $X_1$, $X_2$\\
-			% 			Outputs : $X_b$ & Outputs : $\emptyset$\\
-			% 		\end{tabular}
+				\textcolor{red}{Having obtained its input keys the Executor then prove to the Builder what subset of the circuits it opened as check circuits so that the Builder can provide both keys for each of its input wires allowing for the opening of the whole circuit.}\\
 
-			% 		\begin{itemize}
-			% 			\setlength{\itemsep}{0.5pt}
-			% 			\setlength{\parskip}{0pt}
-			% 			\setlength{\parsep}{0pt}
+				\textcolor{red}{Thirdly, given all keys for the inputs wires how do we check the correctness of a circuit? The obvious method would be to fully decrypt each gate, checking to make sure it is the correct gate type(e.g. AND gate).}\\
 
-			% 			\item \textbf{Receiver:} Generates a public/private key pair $(E, D)$, where E is the public key.\\
-			% 			\item \textbf{Receiver:} Sets $PK_b = E$, choose $PK_{1-b}$ at random from the same distribution as the public keys. Send $PK_0$ and $PK_1$ to the Sender.\\
-			% 			\item \textbf{Sender:} Encrypt $X_0$ using $PK_0$ as $C_0$ and encrypt $X_1$ using $PK_1$ as $C_1$. Send $C_0$ and $C_1$ to the Receiver.\\
-			% 			\item \textbf{Receiver:} Receives $C_0$ and $C_1$, then decrypt $C_b$ using $D$. Output this decrypted value.
-			% 		\end{itemize}
+				\textcolor{red}{A simpler alternative though would be for the Builder to seed the random generator differently for each circuit and then sending the seed for each circuit identified as a check circuit. The Executor can then re-build each Check Circuit using this seed and check that the resulting circuit is equal to the Check circuit.}\\
 
-			% 		\caption{The abstracted Even-Goldreich-Lempel protocol. \label{fig:EvenGoldreichLempel}}
-			% 	\end{figure}
+				\textcolor{red}{Fourthly, how should the Executor react to differing outputs from the evaluation circuits. Whilst it is tempting to simply abort immediately this opens the Executor up to a \emph{selective failure} attack. This is an attack where the Builder crafts one of the circuits to fail in some way if the Executors input fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information.}\\
 
-			% 	This protocol assumes that it is possible to generate randomly in the \emph{form} of the public key without revealing information about the private key. Given this assumption this protocol is clearly only Semi-honest as the Sender must trust the Receiver that $PK_{1-b}$ was indeed generated randomly and that the Receiver did not generate a decryption key.\\
+				In the classic protocol the Executor returns the majority output on each output wire. Suppose that we have $s$ many circuits, $t$ of which are selected as check circuits. Then clearly the output will only be corrupted if half of the Evaluation circuits are corrupted. This means that the Builder needs to submit at least $\frac{s - t}{2}$ many corrupted circuits else the bad circuits will certainly be outvoted when it comes to decided the majority output. However, the Builder also requires that none of the corrupted circuits are selected as Check circuits, else their cheating will be detected.
 
-			% 	So long as a both parties are following the protocol, neither party can garner more information than they are supposed to be allowed to. Whilst this on its own is of limited real world application (we require a certain level of trust in someone we explicitly don't trust) some work has focused on taking Semi-honest protocols and extending them to be secure in the presence of Malicious adversaries via techniques like coin-flipping and zero knowledge proofs.
-
-	% THIS NEED TIDYING UP
-	\section{Oblivious Transfer using dual-mode cryptosystem} \label{dualModeCryptoOT}
-		\textcolor{red}{
-		The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
-
-		\textcolor{red}{
-		The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.}\\
-
-		\textcolor{red}{
-		The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
-
-		\textcolor{red}{
-		The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
-
-		\textcolor{red}{
-		Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
-
-		\textcolor{red}{
-		It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.}
 
 
 	\chapter{Protocols} \label{sec:Protocols}
@@ -340,32 +340,32 @@
 			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
-		\section{Purpose of Implementation}
+		\section*{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use with actual confidentiality on the line, instead it is for the purposes of comparing the performance of the protocols under consideration.\\
 
 			Whilst the protocols have been implemented faithfully some of the lower level details not relevant to a comparison of the protocols are ignored, for example we do not established a secure connection between the two parties.\\
 
 			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
 
-		\subsubsection{Yao Garbled Circuits implementation}
+		\section{Yao Garbled Circuits implementation}
 
 			% Stuff goes here
 
-		\subsubsection{Elliptic Curve implementation}
+		\section{Elliptic Curve implementation}
 
-			\textcolor{red}{Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve specified in }
+			\textcolor{red}{Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve \emph{brainpoolP256r1} specified in \cite{BrainpoolSpecifications}. This is a $256$-bit curve and as such provides $128$-bits of security.}
 
-		\subsubsection{Secret Sharing and Multi-precision Polynomials}
+		\section{Secret Sharing and Multi-precision Polynomials}
 
-			For the Zero Knowledge Proof of Knowledge specified in Appendix B \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. I have implemented Shamir's Secret Scheme. This scheme is based on how many points are needed to uniquely define a polynomial curve.\\
+			For the Zero Knowledge Proof of Knowledge specified in \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. I have implemented Shamir's Secret Scheme, this scheme is based on how many points are needed to uniquely define a polynomial curve.\\
 
-			Consider a polynomial K of degree n. Then we can denote this polynomial as $K = \sum{i=0}{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
+			Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{G}$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
 
-		\subsubsection{Peikert, Vaikuntanathan and Waters OT}
+		\section{Peikert, Vaikuntanathan and Waters OT}
 
 			.
 
-		\subsubsection{Other - AES, SHA-2}
+		\subsection{Other - AES, SHA-2}
 
 			.
 
@@ -384,10 +384,10 @@
 		\section{Measurement metrics}
 			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent.\\
 
-			We shall break these metrics down further by part of the protocol.
+			We shall break these metrics down further so that we can see measure the performance of each part of the protocol for the purpose of identifying the bottlenecks for each protocol.
 
 		\section{Testing Environment}
-			All tests were carried out between two test machines each with an i7-3770S CPU clocked at 3.10 GHz with 8096 KB of cache and 32 GB of RAM. These machines possess dedicated network card for communications with the other member of the pair. Compilation was performed with g$++$ version 4.4.7. 
+			All tests were carried out between two test machines each with an i7-3770S CPU clocked at $3.10$ GHz with $8096$ KB of cache and $32$ GB of RAM. These machines both possess dedicated network cards for communications with the other member of the pair. Compilation was performed with g$++$ version 4.4.7. 
 
 		\section{Benchmarks}
 			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
@@ -464,6 +464,11 @@
 
 		\bibitem{ECC_RFC_6090}
 			D. McGrew, K. Igoe and M. Salter,\emph{ Fundamental Elliptic Curve Cryptography Algorithms}, RFC 6090, February 2011.
+
+		\bibitem{BrainpoolSpecifications}
+			ECC Brainpool, "ECC Brainpool Standard Curves and Curve
+			Generation", October 2005, \url{http://www.ecc-brainpool.org/
+			download/Domain-parameters.pdf}.
 
 	\end{thebibliography}
 
