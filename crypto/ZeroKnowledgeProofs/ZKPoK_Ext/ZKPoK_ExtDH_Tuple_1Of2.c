@@ -239,7 +239,6 @@ unsigned char *proverMessageTwo_ECC_1Of2(struct eccParams *params, unsigned char
 		return NULL;
 	}
 
-
 	cShares = (mpz_t *) calloc(2, sizeof(mpz_t));
 	tempIndex = msgArray -> notI_Struct -> not_in_I_index[0] - 1;
 	mpz_init(cShares[1 - tempIndex]);
@@ -311,8 +310,6 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 		clearECC_Point(A_check);
 		clearECC_Point(B_check);
 	}
-
-
 
 	finalDecision |= AB_check;
 	finalDecision |= alphaCheck;

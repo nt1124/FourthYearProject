@@ -304,8 +304,7 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 	mpz_t *lambda;
 
 	int i, j, k, l = 0, numLambdas, commBufferLen = 0, lambda_Index = 0;
-	int verified = 0;
-
+	int verified = 0, verifiedPrime = 0;
 
 
 	tempU = (struct eccPoint**) calloc(numCircuitKeys - J_setSize, sizeof(struct eccPoint*));

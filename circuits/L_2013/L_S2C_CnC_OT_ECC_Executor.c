@@ -226,7 +226,7 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	struct eccPoint **concatBuildersInputs, **concatPublicCircuitKeys;
 	unsigned char *concat_J_set;
 	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
-	int i, j, consistency = 0;
+	int i, j, k, k1, k2, consistency = 0;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -238,19 +238,25 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	totalJ_setSize = J_setSize + secComp -> J_setSize;
 	totalBuildersInputs = (totalNumCircuitKeys - totalJ_setSize) * totalNumInputs;
 
+
 	concatBuildersInputs = (struct eccPoint **) calloc(totalBuildersInputs, sizeof(struct eccPoint *));
 	concatPublicCircuitKeys = (struct eccPoint **) calloc(totalNumCircuitKeys, sizeof(struct eccPoint *));
 	concat_J_set = (unsigned char *) calloc(totalNumCircuitKeys, sizeof(unsigned char));
 
 
-	j = 0;
-	for(i = 0; i < public_inputs -> numKeyPairs * (public_inputs -> stat_SecParam - J_setSize); i ++)
+	k = 0;
+	k1 = 0;
+	k2 = 0;
+	for(i = 0; i < public_inputs -> numKeyPairs; i ++)
 	{
-		concatBuildersInputs[i] = builderInputs[i];
-	}
-	for(; i < totalBuildersInputs; i ++)
-	{
-		concatBuildersInputs[i] = secComp -> builderInputs[j ++];
+		for(j = 0; j < public_inputs -> stat_SecParam - J_setSize; j ++)
+		{
+			concatBuildersInputs[k ++] = builderInputs[k1 ++];
+		}
+		for(j = 0; j < secComp -> pubInputGroup -> public_inputs -> stat_SecParam - secComp -> J_setSize; j ++)
+		{
+			concatBuildersInputs[k ++] = secComp -> builderInputs[k2 ++];
+		}
 	}
 
 	j = 0;
@@ -271,44 +277,15 @@ int proveConsistencyEvaluationKeys_Exec_L_2013(int writeSocket, int readSocket,
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
-													builderInputs,
-													public_inputs -> public_keyPairs,
-													public_inputs -> public_circuitKeys,
-													public_inputs -> numKeyPairs,
-													public_inputs -> stat_SecParam,
-													params, state);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "First consistency proof");
-
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	consistency |= proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, secComp -> J_set, secComp -> J_setSize,
-									secComp -> builderInputs,
-									secComp -> pubInputGroup -> public_inputs -> public_keyPairs,
-									secComp -> pubInputGroup -> public_inputs -> public_circuitKeys,
-									secComp -> pubInputGroup -> public_inputs -> numKeyPairs,
-									secComp -> pubInputGroup -> public_inputs -> stat_SecParam, params, state);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Second consistency proof");
-
-	printf("\nConsistency check = %d\n", consistency);
-
-
-
-	/*
 	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, concat_J_set, totalJ_setSize,
 									concatBuildersInputs, public_inputs -> public_keyPairs, concatPublicCircuitKeys,
 									public_inputs -> numKeyPairs, totalNumCircuitKeys, params, state);
 
-	printf("Consistency check = %d\n", consistency);
-	*/
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Third consistency proof");
+
+	printf("\nConsistency check = %d\n", consistency);
 
 	return consistency;
 }
