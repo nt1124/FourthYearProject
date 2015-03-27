@@ -255,7 +255,7 @@ int compareCircuit(struct RawCircuit *baseCircuit, struct Circuit *circuitA, str
 
 	for(i = 0; i < baseCircuit -> numGates; i ++)
 	{
-		temp += compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
+		temp |= compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
 	}
 
 	return temp;

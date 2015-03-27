@@ -223,9 +223,10 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 								mpz_t *secret_J_set, unsigned int *seedList, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
-	struct Circuit *tempGarbleCircuit;
+	// struct Circuit *tempGarbleCircuit;
+	struct Circuit **tempGarbleCircuit = (struct Circuit **) calloc(J_setSize, sizeof(struct Circuit*));
 	struct wire *tempWire;
-	int i, j, temp = 0;
+	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 
 
 	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
@@ -242,14 +243,20 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
 			}
 
-			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
-			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
-
-			// printf("Checkpoint Beta 3 => %d\n", j);
-			// fflush(stdout);
-			freeTempGarbleCircuit(tempGarbleCircuit);
+			idList[k] = j;
+			tempGarbleCircuit[k] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
+			k ++;
 		}
 	}
+
+	#pragma omp parallel for default(shared) private(j) reduction(|:temp) 
+	for(j = 0; j < J_setSize; j ++)
+	{
+		temp |= compareCircuit(rawInputCircuit, circuitsArray[idList[j]], tempGarbleCircuit[j]);
+
+		freeTempGarbleCircuit(tempGarbleCircuit[j]);
+	}
+	free(tempGarbleCircuit);
 
 	return temp;
 }

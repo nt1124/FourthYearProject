@@ -228,10 +228,7 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 	struct eccPoint **concatBuildersInputs, **concatPublicCircuitKeys;
 	unsigned char *concat_J_set;
 	int totalNumInputs, totalBuildersInputs, totalNumCircuitKeys, totalJ_setSize;
-	int i, j, k, k1, k2, consistency = 0;
-
-	struct timespec int_t_0, int_t_1;
-	clock_t int_c_0, int_c_1;
+	int i, j, k, k1, k2;
 
 
 	totalNumInputs = public_inputs -> numKeyPairs;
@@ -274,16 +271,8 @@ void proveConsistencyEvaluationKeys_Builder_L_2013(int writeSocket, int readSock
 	memcpy(concat_J_set + public_inputs -> stat_SecParam, secComp -> J_set, secComp -> public_inputs -> stat_SecParam);
 
 
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	printf("Consistency check = %d\n", consistency);
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, concat_J_set, totalJ_setSize,
 										startOfInputChain, concatBuildersInputs, public_inputs -> public_keyPairs,
 										concatPublicCircuitKeys, public_inputs -> numKeyPairs, totalNumCircuitKeys,
 										secret_inputs, params, state);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Third consistency proof");
 }

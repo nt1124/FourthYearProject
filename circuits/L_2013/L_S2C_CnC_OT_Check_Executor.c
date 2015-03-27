@@ -213,12 +213,18 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
 												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
 												J_set, J_setSize, checkStatSecParam);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sub-circuit correctness and decommit to J-Set");
 
 	printf("\nSub-circuits Correct = %d\n", circuitsChecked);
 

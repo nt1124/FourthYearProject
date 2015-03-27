@@ -183,10 +183,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
 
-	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
-
 	int_t_0 = timestamp();
 	int_c_0 = clock();
+	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
