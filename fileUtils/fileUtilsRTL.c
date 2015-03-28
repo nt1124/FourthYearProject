@@ -22,7 +22,7 @@ void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
 
 
 // RTL means the function deals with the Smart/Tillich style input.
-struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
+struct gate *processGateRTL(randctx globalIsaacContext, int numInputWires, int *inputIDs, char gateType)
 {
 	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
 	int i, outputTableSize = 1;
@@ -64,7 +64,7 @@ struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWires,
+struct gateOrWire *processGateOrWireRTL(randctx globalIsaacContext, int idNum, int *inputIDs, int numInputWires,
 										char gateType, struct gateOrWire **circuit,
 										unsigned char *R, int numInputs1)
 {
@@ -76,7 +76,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
+	toReturn -> gatePayload = processGateRTL(globalIsaacContext, numInputWires, inputIDs, gateType);
 
 	if('X' == gateType)
 	{
@@ -95,10 +95,10 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 	}
 	else
 	{
-		toReturn -> outputWire -> wirePerm = getPermutation();
+		toReturn -> outputWire -> wirePerm = getIsaacPermutation(globalIsaacContext);
 	}
 
-	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(toReturn, R, circuit);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(globalIsaacContext, toReturn, R, circuit);
 
 	encWholeOutTable(toReturn, circuit);
 
@@ -107,8 +107,7 @@ struct gateOrWire *processGateOrWireRTL(int idNum, int *inputIDs, int numInputWi
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, unsigned char *R,
-										int idOffset, int numInputs1)
+struct gateOrWire *processGateLineRTL(randctx globalIsaacContext, char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
@@ -135,23 +134,22 @@ struct gateOrWire *processGateLineRTL(char *line, struct gateOrWire **circuit, u
 
 	idNum = getIntFromString(line, strIndex) + idOffset;
 
-	return processGateOrWireRTL(idNum, inputIDs, numInputWires, line[strIndex], circuit, R, numInputs1);
+	return processGateOrWireRTL(globalIsaacContext, idNum, inputIDs, numInputWires, line[strIndex], circuit, R, numInputs1);
 }
 
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
-struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned char *R)
+struct gateOrWire *initialiseInputWire(randctx ctx, int idNum, unsigned char owner, unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
+	toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	// toReturn -> outputWire -> outputGarbleKeys = generateGarbleKeyPair(toReturn -> outputWire -> wirePerm);
-	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(ctx, toReturn -> outputWire -> wirePerm, R);
 
 	toReturn -> gatePayload = NULL;
 	toReturn -> outputWire -> wireMask = 0x01;
@@ -162,20 +160,20 @@ struct gateOrWire *initialiseInputWire(int idNum, unsigned char owner, unsigned 
 
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
+struct gateOrWire **initialiseAllInputs(randctx ctx, int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 	int i;
 
 	for(i = 0; i < numInputs1; i ++)
 	{
-		circuit[i] = initialiseInputWire(i, 0xFF, R);
+		circuit[i] = initialiseInputWire(ctx, i, 0xFF, R);
 		(*execOrder)[i] = i;
 	}
 
 	for(i = numInputs2; i < numInputs1 + numInputs2; i ++)
 	{
-		circuit[i] = initialiseInputWire(i, 0x00, R);
+		circuit[i] = initialiseInputWire(ctx, i, 0x00, R);
 		(*execOrder)[i] = i;
 	}
 
@@ -185,7 +183,7 @@ struct gateOrWire **initialiseAllInputs(int numGates, int numInputs1, int numInp
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuitRTL(char* filepath)
+struct Circuit *readInCircuitRTL(char *filepath, randctx globalIsaacContext)
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
@@ -194,7 +192,7 @@ struct Circuit *readInCircuitRTL(char* filepath)
 	struct gateOrWire **gatesList;
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, execIndex, *execOrder;
-	unsigned char *R = generateRandBytes(16, 17);
+	unsigned char *R = generateIsaacRandBytes(&globalIsaacContext, 16, 17);
 
 
 	if ( file != NULL )
@@ -218,12 +216,12 @@ struct Circuit *readInCircuitRTL(char* filepath)
 		outputCircuit -> securityParam = 1;
 
 		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
-		gatesList = initialiseAllInputs( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
+		gatesList = initialiseAllInputs( globalIsaacContext, outputCircuit -> numGates, numInputs1, numInputs2, &execOrder, R );
 		execIndex = numInputs1 + numInputs2;
 
 		while ( fgets(line, sizeof(line), file) != NULL ) // Read a line
 		{
-			tempGateOrWire = processGateLineRTL(line, gatesList, R, 0, numInputs1);
+			tempGateOrWire = processGateLineRTL(globalIsaacContext, line, gatesList, R, 0, numInputs1);
 			if( NULL != tempGateOrWire )
 			{
 				gateIndex = tempGateOrWire -> G_ID;
@@ -249,3 +247,4 @@ struct Circuit *readInCircuitRTL(char* filepath)
 
 	return outputCircuit;
 }
+

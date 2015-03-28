@@ -2,28 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
-// #include <thread>
+
 
 #include "circuits/circuitUtils.h"
 
+randctx globalIsaacContext;
 
 
-
-void testRTL_Read(char *circuitFilepath, char *inputFile)
-{
-	int *execOrder;
-	int numGates, i;
-	struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
-
-	readInputDetailsFileBuilder( inputFile, inputCircuit -> gates );
-
-	printf("--++  %d  ++--\n", inputCircuit -> numGates);
-	for(i = 0; i < inputCircuit -> numGates; i ++)
-	{
-		printGateOrWire(inputCircuit -> gates[i]);
-		printf("\n");
-	}
-}
 
 
 void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
@@ -37,9 +22,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
-		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr);
-		runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
-		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr);
+		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 		// test_CnC_OT_Mod_Receiver(ipAddress);
@@ -47,9 +32,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	else
 	{
 		printf("Running Builder.\n");
-		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr);
-		runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
-		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr);
+		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
+		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
@@ -66,7 +51,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 // Useage. Circuit, IP, Port, Input file, builder flag
 int main(int argc, char *argv[])
 {
-	srand( time(NULL) );
+	srand(time(NULL));
+
+	getIsaacContext(&globalIsaacContext);
 
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();

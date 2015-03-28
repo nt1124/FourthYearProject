@@ -266,8 +266,69 @@ struct bitsGarbleKeys *genFreeXORPairInput(unsigned char perm, unsigned char *R)
 }
 
 
+// Generate one random garble keys, create the other using this first one and a global random called R.
+// This is the essence of the Free-XOR optimisation.
+struct bitsGarbleKeys *genFreeXORPairInput(randctx ctx, unsigned char perm, unsigned char *R)
+{
+	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+	int i;
+
+	toReturn -> key0 = generateIsaacRandBytes(&ctx, 17, 17);
+	toReturn -> key0[16] = 0x00 ^ (0x01 & perm);
+	
+	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));
+
+	for(i = 0; i < 17; i ++)
+	{
+		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
+	}
+	toReturn -> key1[16] = 0x01 ^ (0x01 & perm);
+
+
+	return toReturn;
+}
+
+
 // Slightly different from the case of the Input wire as we need to use the XORing of all input wires key0.
 struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char *R, struct gateOrWire **circuit)
+{
+	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+	int i, j, tempIndex;
+
+	toReturn -> key0 = (unsigned char*) calloc(17, sizeof(unsigned char));
+
+
+	// Get key0, using the key0 of all input wires to this gate XORed.
+	for(i = 0; i < curGate -> gatePayload -> numInputs; i ++)
+	{
+		// Get the i^th input wire.
+		tempIndex = curGate -> gatePayload -> inputIDs[i];
+
+		// XOR the 16 bytes.
+		for(j = 0; j < 16; j ++)
+		{
+			toReturn -> key0[j] ^= circuit[tempIndex] -> outputWire -> outputGarbleKeys -> key0[j];
+		}
+	}
+	
+	// Permutation added onto the 
+	toReturn -> key0[16] = 0x00 ^ (0x01 & curGate -> outputWire -> wirePerm);
+
+	// XOR the key with R
+	toReturn -> key1 = (unsigned char*) calloc(17, sizeof(unsigned char));
+	for(i = 0; i < 16; i ++)
+	{
+		toReturn -> key1[i] = toReturn -> key0[i] ^ R[i];
+	}
+	toReturn -> key1[16] = 0x01 ^ (0x01 & curGate -> outputWire -> wirePerm);
+
+
+	return toReturn;
+}
+
+
+// Slightly different from the case of the Input wire as we need to use the XORing of all input wires key0.
+struct bitsGarbleKeys *genFreeXORPair(randctx ctx, struct gateOrWire *curGate, unsigned char *R, struct gateOrWire **circuit)
 {
 	struct bitsGarbleKeys *toReturn = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 	int i, j, tempIndex;
@@ -308,6 +369,17 @@ struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char 
 unsigned char getPermutation()
 {
 	unsigned char *toOutputPointer = generateRandBytes(1, 1);
+	unsigned char toReturn = *toOutputPointer;
+	free(toOutputPointer);
+
+	return toReturn;
+}
+
+
+// Get a random permutation. Well really we get 8 of them but hey ho only use 1.
+unsigned char getIsaacPermutation(randctx ctx)
+{
+	unsigned char *toOutputPointer = generateIsaacRandBytes(&ctx, 1, 1);
 	unsigned char toReturn = *toOutputPointer;
 	free(toOutputPointer);
 

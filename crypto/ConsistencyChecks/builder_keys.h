@@ -34,6 +34,7 @@ typedef struct revealedCheckSecrets
 {
 	mpz_t *revealedSecrets;
 	unsigned int *revealedSeeds;
+	ub4 **revealedCircuitSeeds;
 } revealedCheckSecrets;
 
 

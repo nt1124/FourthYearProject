@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ISAAC/rand.c"
+
 
 void initRandGen()
 {
@@ -20,6 +22,20 @@ unsigned char *generateRandBytes(int randBytes, int outLen)
 	for(i = 0; i < randBytes; i ++)
 	{
 		outputBytes[i] = (unsigned char) (rand() & 0xFF);
+	}
+
+	return outputBytes;
+}
+
+
+unsigned char *generateIsaacRandBytes(randctx *ctx, int randBytes, int outLen)
+{
+	unsigned char *outputBytes = (unsigned char*) calloc(outLen, sizeof(unsigned char));
+	int i;
+
+	for(i = 0; i < randBytes; i ++)
+	{
+		outputBytes[i] = (unsigned char) (isacc_rand(ctx) & 0xFF);
 	}
 
 	return outputBytes;

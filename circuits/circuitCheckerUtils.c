@@ -276,6 +276,11 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	struct secret_builderPRS_Keys *secret_inputs;
 	struct eccParams *params;
 
+	randctx ctx1, ctx2;
+
+
+	getIsaacContext(&ctx1);
+	getIsaacContext(&ctx2);
 	state = seedRandGen();
 
 	params = initBrainpool_256_Curve();
@@ -288,8 +293,9 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	// garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 	// garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 
-	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
-	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(ctx1, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(ctx2, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+
 
 	/*
 	struct idAndValue *startOfInputChain, *start;

@@ -220,13 +220,14 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 
 int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs,
-								mpz_t *secret_J_set, unsigned int *seedList, struct eccParams *params,
+								mpz_t *secret_J_set, unsigned int *seedList, ub4 **circuitSeeds, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
 	// struct Circuit *tempGarbleCircuit;
 	struct Circuit **tempGarbleCircuit = (struct Circuit **) calloc(J_setSize, sizeof(struct Circuit*));
 	struct wire *tempWire;
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
+	randctx tempCTX;
 
 
 	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
@@ -244,7 +245,12 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 			}
 
 			idList[k] = j;
-			tempGarbleCircuit[k] = readInCircuit_FromRaw_Seeded_ConsistentInput(rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
+			setIsaacContextFromSeed(&tempCTX, circuitSeeds[j]);
+
+			//printf(":::  %d\n", j);
+			//fflush(stdout);
+
+			tempGarbleCircuit[k] = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX, rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			k ++;
 		}
 	}

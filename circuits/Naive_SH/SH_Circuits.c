@@ -1,7 +1,7 @@
 #ifndef SH_CIRCUIT
 #define SH_CIRCUIT
 
-void runBuilder_SH(char *circuitFilepath, struct idAndValue *startOfInputChain, char *portNumStr)
+void runBuilder_SH(char *circuitFilepath, struct idAndValue *startOfInputChain, char *portNumStr, randctx globalIsaacContext)
 {
     struct sockaddr_in destWrite, destRead;
     int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -24,7 +24,7 @@ void runBuilder_SH(char *circuitFilepath, struct idAndValue *startOfInputChain, 
     timestamp_0 = timestamp();
     c_0 = clock();
 
-    inputCircuit = readInCircuitRTL(circuitFilepath);
+    inputCircuit = readInCircuitRTL(circuitFilepath, globalIsaacContext);
 
     c_1 = clock();
     timestamp_1 = timestamp();
@@ -55,7 +55,7 @@ void runBuilder_SH(char *circuitFilepath, struct idAndValue *startOfInputChain, 
 
 
 
-void runExecutor_SH(struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
+void runExecutor_SH(struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx globalIsaacContext)
 {
     struct sockaddr_in serv_addr_write, serv_addr_read;
     int writeSocket, readSocket;
@@ -114,9 +114,9 @@ void runExecutor_SH(struct idAndValue *startOfInputChain, char *ipAddress, char 
 }
 
 
-void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
+void runLocally(char *circuitFilepath, char *builderInput, char *execInput, randctx globalIsaacContext)
 {
-    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath, globalIsaacContext);
     int i;
 
 
@@ -135,9 +135,9 @@ void runLocally(char *circuitFilepath, char *builderInput, char *execInput)
 }
 
 
-void testRunZeroedInput(char *circuitFilepath)
+void testRunZeroedInput(char *circuitFilepath, randctx globalIsaacContext)
 {    
-    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath);
+    struct Circuit *inputCircuit = readInCircuitRTL(circuitFilepath, globalIsaacContext);
     int i;
 
 

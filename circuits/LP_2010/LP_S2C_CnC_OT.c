@@ -1,7 +1,7 @@
 // const int stat_SecParam = 4;
 
 
-void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr)
+void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx ctx)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -9,6 +9,8 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	struct Circuit **circuitsArray;
 	unsigned int *seedList;
+	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
+	randctx *circuitCTXs = (randctx *) calloc(stat_SecParam, sizeof(randctx));
 	int i, J_setSize = 0;
 
 
@@ -31,11 +33,15 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	initRandGen();
 	state = seedRandGen();
 
-	// group = getSchnorrGroup(1024, *state);
+
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		circuitSeeds[i] = getIsaacContext(circuitCTXs + i);
+	}
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -51,7 +57,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	seedList = generateRandUintList(stat_SecParam + 1);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs);
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 	srand(seedList[stat_SecParam]);
 
@@ -79,7 +85,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -122,7 +128,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 
-void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
+void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx ctx)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
@@ -176,10 +182,19 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nReceived Circuits");
 
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, output, stat_SecParam);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
@@ -187,7 +202,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
-												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
+												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
+												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
 												J_set, J_setSize, stat_SecParam);
 
 

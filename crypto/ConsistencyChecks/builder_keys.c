@@ -297,12 +297,12 @@ struct public_builderPRS_Keys *deserialisePublicInputs(unsigned char *inputBuffe
 }
 
 
-unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs,
-												unsigned int *seedList, unsigned char *J_set, int *outputLength)
+unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys *secret_inputs, unsigned int *seedList,
+												ub4 **circuitSeeds, unsigned char *J_set, int *outputLength)
 {
 	unsigned char *outputBuffer;
-	int totalLength = 0, outputOffset = 0, j = 0;
-
+	int totalLength = 0, outputOffset = 0, j = 0, k;
+	ub4 tempUB4;
 	unsigned int temp = 0;
 
 
@@ -313,6 +313,7 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 			totalLength += ( sizeof(mp_limb_t) * mpz_size(secret_inputs -> secret_circuitKeys[j]) );
 			totalLength += sizeof(int);
 			totalLength += sizeof(unsigned int);
+			totalLength += 256 * sizeof(ub4);
 		}
 	}
 
@@ -324,8 +325,15 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 		{
 			serialiseMPZ(secret_inputs -> secret_circuitKeys[j], outputBuffer, &outputOffset);
 			memcpy(outputBuffer + outputOffset, seedList + j, sizeof(unsigned int));
-
 			outputOffset += sizeof(unsigned int);
+
+			for(k = 0; k < 256; k ++)
+			{
+				tempUB4 = circuitSeeds[j][k];
+				memcpy(outputBuffer + outputOffset, &tempUB4 + j, sizeof(ub4));
+				//outputOffset +=  256 * sizeof(ub4);
+				outputOffset +=  sizeof(ub4);
+			}
 		}
 	}
 
@@ -340,13 +348,15 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 											struct public_builderPRS_Keys *public_input,
 											struct eccParams *params)
 {
-	int inputOffset = 0, j = 0;
+	int inputOffset = 0, j = 0, k;
 
 	struct revealedCheckSecrets *outputStruct = (struct revealedCheckSecrets *) calloc(1, sizeof(struct revealedCheckSecrets));
 	outputStruct -> revealedSecrets = (mpz_t*) calloc(stat_SecParam, sizeof(mpz_t));
 	unsigned int *revealedSeeds = (unsigned int*) calloc(stat_SecParam, sizeof(unsigned int));
+	ub4 **revealedCircuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4 *));
 	mpz_t *tempMPZ, scratchMPZ;
 	struct eccPoint *scratchPoint;
+	ub4 tempUB4;
 
 	mpz_init(scratchMPZ);
 
@@ -373,11 +383,19 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 			memcpy(revealedSeeds + j, inputBuffer + inputOffset, sizeof(unsigned int));
 			inputOffset += sizeof(unsigned int);
 
+			revealedCircuitSeeds[j] = (ub4 *) calloc(256, sizeof(ub4));
+			for(k = 0; k < 256; k ++)
+			{
+				memcpy(&tempUB4, inputBuffer + inputOffset, sizeof(ub4));
+				revealedCircuitSeeds[j][k] = tempUB4;
+				inputOffset += sizeof(ub4);
+			}
 			// free(tempMPZ);
 		}
 	}
 
 	outputStruct -> revealedSeeds = revealedSeeds;
+	outputStruct -> revealedCircuitSeeds = revealedCircuitSeeds;
 
 	return outputStruct;
 }
