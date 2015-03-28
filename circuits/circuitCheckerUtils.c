@@ -293,8 +293,8 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	// garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 	// garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 
-	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(ctx1, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
-	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(ctx2, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx1, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx2, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
 
 
 	/*

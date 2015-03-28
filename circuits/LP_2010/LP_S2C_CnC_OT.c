@@ -1,7 +1,7 @@
 // const int stat_SecParam = 4;
 
 
-void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx ctx)
+void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -10,7 +10,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct Circuit **circuitsArray;
 	unsigned int *seedList;
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
-	randctx *circuitCTXs = (randctx *) calloc(stat_SecParam, sizeof(randctx)), tempCTX1;
+	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
 	int i, J_setSize = 0;
 
 
@@ -38,16 +38,10 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
-
-	getIsaacContext(&tempCTX1);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		circuitSeeds[i] = getIsaacContext(circuitCTXs + i);
-		tempByte = getIsaacPermutation(circuitCTXs[i]);
-		printf("%d  ->  %02X", i, tempByte);
-
-		tempByte = getIsaacPermutation(tempCTX1);
-		printf("  ->  %02X  ->  %lu\n", tempByte, circuitSeeds[i][0]);
+		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
+		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
 	}
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
@@ -135,7 +129,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 
-void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx ctx)
+void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
@@ -212,6 +206,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
 												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
 												J_set, J_setSize, stat_SecParam);
+
+	printf("Circuits Check = %d\n", circuitsChecked);
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);

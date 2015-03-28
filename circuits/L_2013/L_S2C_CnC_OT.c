@@ -1,4 +1,4 @@
-void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr)
+void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -25,11 +25,20 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	unsigned char *commBuffer, *J_set, ***bLists, ***hashedB_Lists, *delta;
 	unsigned char **Xj_checkValues, ***OT_Inputs;
 
+	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
+	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
+
 
 	initRandGen();
 	state = seedRandGen();
 	Xj_checkValues = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
+		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
+	}
 
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
@@ -58,7 +67,8 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
 	}
 
-	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, bLists[0], bLists[1], params, secret_inputs, public_inputs);
+	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, bLists[0], bLists[1],
+													params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 	srand(seedList[stat_SecParam]);
 
 	int_c_1 = clock();
@@ -89,7 +99,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
 
 	// At this point receive from the Executor the proof of the J-set. Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -109,9 +119,9 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 												secret_inputs, params, *state);
 
 
-	SC_ReturnStruct = SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
-											startOfInputChain, delta, lengthDelta,
-											checkSecretInputs, 3 * stat_SecParam, state);
+	// SC_ReturnStruct = SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
+	// 										startOfInputChain, delta, lengthDelta,
+	// 										checkSecretInputs, 3 * stat_SecParam, state);
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -145,7 +155,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 
 
-void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr)
+void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
@@ -257,8 +267,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	SC_ReturnStruct = SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
-												deltaPrime, lengthDelta, 3 * stat_SecParam, state );
+	// SC_ReturnStruct = SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
+	// 											deltaPrime, lengthDelta, 3 * stat_SecParam, state );
 
 
 	int_t_0 = timestamp();
@@ -281,7 +291,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_0 = clock();
 
 	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
+								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, secretsRevealed -> revealedCircuitSeeds,
 	 							bLists[0], bLists[1], pubInputGroup -> params,
 	 							J_set, J_setSize, stat_SecParam);
 
@@ -322,7 +332,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	if(NULL == SC_ReturnStruct -> output)
+	if(1 || NULL == SC_ReturnStruct -> output)
 	{
 		printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
 	}

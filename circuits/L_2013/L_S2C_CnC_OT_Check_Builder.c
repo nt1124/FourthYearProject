@@ -112,11 +112,20 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
 
+	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
+	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
+
+
+	for(i = 0; i < stat_SecParam; i ++)
+	{
+		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
+		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
+	}
 
 	params = initBrainpool_256_Curve();
 	public_inputs = computePublicInputs(secret_inputs, params);
 	seedList = generateRandUintList(checkStatSecParam + 1);
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, checkStatSecParam, seedList, params, secret_inputs, public_inputs);
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
@@ -144,7 +153,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
 
 
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, checkStatSecParam, &J_setSize, seedList);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, checkStatSecParam, &J_setSize, seedList, circuitSeeds);
 
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 										J_set, J_setSize, startOfInputChain, 

@@ -182,13 +182,15 @@ int verifyB_Lists(unsigned char ***hashedB_List, unsigned char ***b_List, int nu
 
 
 int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
-								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set, unsigned int *seedList,
+								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set,
+								unsigned int *seedList, ub4 **circuitSeeds,
 								unsigned char **b0List, unsigned char **b1List, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
 	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
 	int i, j, temp = 0;
+	randctx *tempCTX = (randctx*) calloc(1, sizeof(randctx));
 
 
 	for(j = 0; j < stat_SecParam; j ++)
@@ -205,7 +207,8 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
 			}
 
-			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
+			setIsaacContextFromSeed(tempCTX, circuitSeeds[j]);
+			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX, rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
 			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 
 			freeTempGarbleCircuit(tempGarbleCircuit);

@@ -6,7 +6,7 @@
 
 #include "circuits/circuitUtils.h"
 
-randctx globalIsaacContext;
+randctx *globalIsaacContext;
 
 
 
@@ -19,12 +19,15 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
 
+	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
+	getIsaacContext(globalIsaacContext);
+
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		// testReceive_OT_PVW_ECC(ipAddress);
 		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
 		// test_CnC_OT_Mod_Receiver(ipAddress);
@@ -33,8 +36,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
-		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		// testSender_OT_PVW_ECC();
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
@@ -52,8 +55,6 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
-
-	getIsaacContext(&globalIsaacContext);
 
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();

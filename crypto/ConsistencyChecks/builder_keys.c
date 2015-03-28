@@ -330,9 +330,9 @@ unsigned char *serialise_Requested_CircuitSecrets(struct secret_builderPRS_Keys 
 			for(k = 0; k < 256; k ++)
 			{
 				tempUB4 = circuitSeeds[j][k];
-				memcpy(outputBuffer + outputOffset, &tempUB4 + j, sizeof(ub4));
+				memcpy(outputBuffer + outputOffset, &tempUB4, sizeof(ub4));
 				//outputOffset +=  256 * sizeof(ub4);
-				outputOffset +=  sizeof(ub4);
+				outputOffset += sizeof(ub4);
 			}
 		}
 	}

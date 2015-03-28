@@ -1,14 +1,10 @@
 struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
 								gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
 								struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
-								randctx *circuitCTXs, ub4 **circuitSeeds)
+								randctx **circuitCTXs, ub4 **circuitSeeds)
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
-
 	struct idAndValue *start;
-
-	unsigned char *R = generateRandBytes(16, 17);
-	// unsigned char *R = generateIsaacRandBytes(circuitCTXs[0], 16, 17);
 	int j;
 
 
@@ -24,8 +20,6 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
 	}
 
-	
-	free(R);
 
 	return circuitsArray;
 }

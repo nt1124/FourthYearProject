@@ -38,7 +38,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 
 #include "Naive_SH/SH_Circuits.c"
 #include "LP_2010/LP_S2C_CnC_OT.h"
-// #include "L_2013/L_S2C_CnC_OT.h"
+#include "L_2013/L_S2C_CnC_OT.h"
 
 
 

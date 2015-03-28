@@ -227,7 +227,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	struct Circuit **tempGarbleCircuit = (struct Circuit **) calloc(J_setSize, sizeof(struct Circuit*));
 	struct wire *tempWire;
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
-	randctx tempCTX;
+	randctx *tempCTX = (randctx*) calloc(1, sizeof(randctx));
 
 
 	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
@@ -245,10 +245,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 			}
 
 			idList[k] = j;
-			setIsaacContextFromSeed(&tempCTX, circuitSeeds[j]);
-
-			//printf(":::  %d\n", j);
-			//fflush(stdout);
+			setIsaacContextFromSeed(tempCTX, circuitSeeds[j]);
 
 			tempGarbleCircuit[k] = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX, rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			k ++;

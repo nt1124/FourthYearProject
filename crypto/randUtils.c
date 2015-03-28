@@ -33,6 +33,8 @@ unsigned char *generateIsaacRandBytes(randctx *ctx, int randBytes, int outLen)
 	unsigned char *outputBytes = (unsigned char*) calloc(outLen, sizeof(unsigned char));
 	int i;
 
+	isaac(ctx);
+
 	for(i = 0; i < randBytes; i ++)
 	{
 		outputBytes[i] = (unsigned char) (isacc_rand(ctx) & 0xFF);

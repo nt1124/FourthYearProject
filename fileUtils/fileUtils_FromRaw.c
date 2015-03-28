@@ -22,7 +22,7 @@ struct gate *processGate_FromRaw(int numInputWires, int *inputIDs, int *rawOutpu
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWire_FromRaw(randctx ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
+struct gateOrWire *processGateOrWire_FromRaw(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
 										unsigned char *R, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
@@ -52,7 +52,7 @@ struct gateOrWire *processGateOrWire_FromRaw(randctx ctx, struct RawGate *rawGat
 	}
 	else
 	{
-		toReturn -> outputWire -> wirePerm = getPermutation();
+		toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	}
 
 	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(toReturn, R, circuit);
@@ -64,7 +64,7 @@ struct gateOrWire *processGateOrWire_FromRaw(randctx ctx, struct RawGate *rawGat
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWire_FromRaw_ConsistentOutput(randctx ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
+struct gateOrWire *processGateOrWire_FromRaw_ConsistentOutput(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
 															unsigned char *b0, unsigned char *b1, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
@@ -94,7 +94,7 @@ struct gateOrWire *processGateOrWire_FromRaw_ConsistentOutput(randctx ctx, struc
 	}
 	else
 	{
-		toReturn -> outputWire -> wirePerm = getPermutation();
+		toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	}
 
 
@@ -116,7 +116,7 @@ struct gateOrWire *processGateOrWire_FromRaw_ConsistentOutput(randctx ctx, struc
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLine_FromRaw(randctx ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
+struct gateOrWire *processGateLine_FromRaw(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
 											unsigned char *R, int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
@@ -129,16 +129,16 @@ struct gateOrWire *processGateLine_FromRaw(randctx ctx, struct RawGate *rawGate,
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
-struct gateOrWire *initInputWire_FromRaw(randctx ctx, int idNum, unsigned char owner, unsigned char *R)
+struct gateOrWire *initInputWire_FromRaw(randctx *ctx, int idNum, unsigned char owner, unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
+	toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(ctx, toReturn -> outputWire -> wirePerm, R);
 
 	toReturn -> gatePayload = NULL;
 	toReturn -> outputWire -> wireMask = 0x01;
@@ -151,7 +151,7 @@ struct gateOrWire *initInputWire_FromRaw(randctx ctx, int idNum, unsigned char o
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
-struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx ctx, int idNum, unsigned char owner, unsigned char *R,
+struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx *ctx, int idNum, unsigned char owner, unsigned char *R,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
 													int j, struct eccParams *params)
@@ -161,7 +161,7 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx ctx, int idNum,
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
-	toReturn -> outputWire -> wirePerm = getPermutation();
+	toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
 	// toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
@@ -183,7 +183,7 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx ctx, int idNum,
 
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx ctx, struct RawCircuit *rawInputCircuit, unsigned char *R,
+struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned char *R,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
 													int j, struct eccParams *params)
@@ -207,7 +207,7 @@ struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx ctx, struct Ra
 
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initAllInputs_FromRaw(randctx ctx, struct RawCircuit *rawInputCircuit, unsigned char *R)
+struct gateOrWire **initAllInputs_FromRaw(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned char *R)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
 	int i, numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
@@ -228,7 +228,7 @@ struct gateOrWire **initAllInputs_FromRaw(randctx ctx, struct RawCircuit *rawInp
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx ctx, struct RawCircuit *rawInputCircuit,
+struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit,
 													mpz_t secret_input,
 													struct public_builderPRS_Keys *public_inputs,
 													int j, struct eccParams *params)
@@ -239,7 +239,8 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx ctx, struct RawCir
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, gateIndex = 0;
 
-	unsigned char *R = generateRandBytes(16, 17);
+	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
+	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -281,7 +282,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx ctx, struct RawCir
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx ctx, struct RawCircuit *rawInputCircuit,
+struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit,
 													mpz_t secret_input, unsigned char **b0List, unsigned char **b1List,
 													struct public_builderPRS_Keys *public_inputs,
 													int j, struct eccParams *params)
@@ -292,7 +293,8 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx ctx, struct 
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, k = 0, gateIndex = 0;
 
-	unsigned char *R = generateRandBytes(16, 17);
+	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
+	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -341,7 +343,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx ctx, struct 
 }
 
 
-struct Circuit *readInCircuit_FromRaw(randctx ctx, struct RawCircuit *rawInputCircuit)
+struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputCircuit)
 {
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;
@@ -349,7 +351,8 @@ struct Circuit *readInCircuit_FromRaw(randctx ctx, struct RawCircuit *rawInputCi
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, gateIndex = 0;
 
-	unsigned char *R = generateRandBytes(16, 17);
+	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
+	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -390,7 +393,7 @@ struct Circuit *readInCircuit_FromRaw(randctx ctx, struct RawCircuit *rawInputCi
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded(randctx ctx, struct RawCircuit *rawInputCircuit, unsigned int seed)
+struct Circuit *readInCircuit_FromRaw_Seeded(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed)
 {
 	struct Circuit *toReturn;
 	srand(seed);
@@ -402,12 +405,13 @@ struct Circuit *readInCircuit_FromRaw_Seeded(randctx ctx, struct RawCircuit *raw
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
+struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
 															mpz_t secret_input,
 															struct public_builderPRS_Keys *public_inputs,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
+	srand(seed);
 
 	toReturn = readInCircuit_FromRaw_ConsistentInput(ctx, rawInputCircuit, secret_input, public_inputs, j, params);
 	toReturn -> seed = seed;
@@ -416,12 +420,13 @@ struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx ctx, struct
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInputOutput(randctx ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
+struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
 															mpz_t secret_input, unsigned char **b0List, unsigned char **b1List,
 															struct public_builderPRS_Keys *public_inputs,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
+	srand(seed);
 
 	toReturn = readInCircuit_FromRaw_ConsistentInputOutput(ctx, rawInputCircuit, secret_input, b0List, b1List, public_inputs, j, params);
 	toReturn -> seed = seed;

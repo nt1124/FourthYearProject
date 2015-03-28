@@ -219,7 +219,8 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
-												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds, pubInputGroup -> params,
+												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
+												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
 												J_set, J_setSize, checkStatSecParam);
 
 	int_c_1 = clock();

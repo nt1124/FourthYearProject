@@ -130,6 +130,7 @@ ub4 *getIsaacContext(randctx *ctx)
 	{
 		(*ctx).randrsl[i]=(ub4)seed[i];
 	}
+	isaac_randinit(ctx, TRUE);
 
 	return seed;
 }
@@ -146,6 +147,8 @@ void setIsaacContextFromSeed(randctx *ctx, ub4 *seed)
 	{
 		(*ctx).randrsl[i]=(ub4)seed[i];
 	}
+
+	isaac_randinit(ctx, TRUE);
 }
 
 

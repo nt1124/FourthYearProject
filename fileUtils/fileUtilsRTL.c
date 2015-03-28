@@ -22,7 +22,7 @@ void zeroAllInputs(struct gateOrWire **inputCircuit, int numGates)
 
 
 // RTL means the function deals with the Smart/Tillich style input.
-struct gate *processGateRTL(randctx globalIsaacContext, int numInputWires, int *inputIDs, char gateType)
+struct gate *processGateRTL(int numInputWires, int *inputIDs, char gateType)
 {
 	struct gate *toReturn = (struct gate*) calloc(1, sizeof(struct gate));
 	int i, outputTableSize = 1;
@@ -64,7 +64,7 @@ struct gate *processGateRTL(randctx globalIsaacContext, int numInputWires, int *
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWireRTL(randctx globalIsaacContext, int idNum, int *inputIDs, int numInputWires,
+struct gateOrWire *processGateOrWireRTL(randctx *globalIsaacContext, int idNum, int *inputIDs, int numInputWires,
 										char gateType, struct gateOrWire **circuit,
 										unsigned char *R, int numInputs1)
 {
@@ -76,7 +76,7 @@ struct gateOrWire *processGateOrWireRTL(randctx globalIsaacContext, int idNum, i
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	toReturn -> gatePayload = processGateRTL(globalIsaacContext, numInputWires, inputIDs, gateType);
+	toReturn -> gatePayload = processGateRTL(numInputWires, inputIDs, gateType);
 
 	if('X' == gateType)
 	{
@@ -98,7 +98,7 @@ struct gateOrWire *processGateOrWireRTL(randctx globalIsaacContext, int idNum, i
 		toReturn -> outputWire -> wirePerm = getIsaacPermutation(globalIsaacContext);
 	}
 
-	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(globalIsaacContext, toReturn, R, circuit);
+	toReturn -> outputWire -> outputGarbleKeys = genFreeXORPair(toReturn, R, circuit);
 
 	encWholeOutTable(toReturn, circuit);
 
@@ -107,7 +107,7 @@ struct gateOrWire *processGateOrWireRTL(randctx globalIsaacContext, int idNum, i
 
 
 // Take a line of the input file and make a gateOrWire struct from it.
-struct gateOrWire *processGateLineRTL(randctx globalIsaacContext, char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
+struct gateOrWire *processGateLineRTL(randctx *globalIsaacContext, char *line, struct gateOrWire **circuit, unsigned char *R, int idOffset, int numInputs1)
 {
 	int strIndex = 0, idNum, i;
 	int numInputWires, purposelessNumber;
@@ -140,7 +140,7 @@ struct gateOrWire *processGateLineRTL(randctx globalIsaacContext, char *line, st
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
-struct gateOrWire *initialiseInputWire(randctx ctx, int idNum, unsigned char owner, unsigned char *R)
+struct gateOrWire *initialiseInputWire(randctx *ctx, int idNum, unsigned char owner, unsigned char *R)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 
@@ -160,7 +160,7 @@ struct gateOrWire *initialiseInputWire(randctx ctx, int idNum, unsigned char own
 
 
 // We assume party 1 is building the circuit.
-struct gateOrWire **initialiseAllInputs(randctx ctx, int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
+struct gateOrWire **initialiseAllInputs(randctx *ctx, int numGates, int numInputs1, int numInputs2, int **execOrder, unsigned char *R)
 {
 	struct gateOrWire **circuit = (struct gateOrWire**) calloc(numGates, sizeof(struct gateOrWire*));
 	int i;
@@ -183,7 +183,7 @@ struct gateOrWire **initialiseAllInputs(randctx ctx, int numGates, int numInputs
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuitRTL(char *filepath, randctx globalIsaacContext)
+struct Circuit *readInCircuitRTL(char *filepath, randctx *globalIsaacContext)
 {
 	FILE *file = fopen ( filepath, "r" );
 	char line [ 512 ]; // Or other suitable maximum line size
@@ -192,7 +192,7 @@ struct Circuit *readInCircuitRTL(char *filepath, randctx globalIsaacContext)
 	struct gateOrWire **gatesList;
 	struct Circuit *outputCircuit = (struct Circuit*) calloc(1, sizeof(struct Circuit));
 	int i, execIndex, *execOrder;
-	unsigned char *R = generateIsaacRandBytes(&globalIsaacContext, 16, 17);
+	unsigned char *R = generateIsaacRandBytes(globalIsaacContext, 16, 17);
 
 
 	if ( file != NULL )
