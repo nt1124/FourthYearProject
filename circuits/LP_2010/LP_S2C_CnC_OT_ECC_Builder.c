@@ -8,6 +8,7 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 	struct idAndValue *start;
 
 	unsigned char *R = generateRandBytes(16, 17);
+	// unsigned char *R = generateIsaacRandBytes(circuitCTXs[0], 16, 17);
 	int j;
 
 

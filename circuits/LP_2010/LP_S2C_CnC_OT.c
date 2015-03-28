@@ -10,7 +10,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct Circuit **circuitsArray;
 	unsigned int *seedList;
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
-	randctx *circuitCTXs = (randctx *) calloc(stat_SecParam, sizeof(randctx));
+	randctx *circuitCTXs = (randctx *) calloc(stat_SecParam, sizeof(randctx)), tempCTX1;
 	int i, J_setSize = 0;
 
 
@@ -26,7 +26,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	struct eccPoint **builderInputs;
 	int arrayLen;
-	unsigned char *commBuffer, *J_set, ***OT_Inputs;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs, tempByte;
 	int commBufferLen = 0;
 
 
@@ -38,9 +38,16 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
+
+	getIsaacContext(&tempCTX1);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitSeeds[i] = getIsaacContext(circuitCTXs + i);
+		tempByte = getIsaacPermutation(circuitCTXs[i]);
+		printf("%d  ->  %02X", i, tempByte);
+
+		tempByte = getIsaacPermutation(tempCTX1);
+		printf("  ->  %02X  ->  %lu\n", tempByte, circuitSeeds[i][0]);
 	}
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);

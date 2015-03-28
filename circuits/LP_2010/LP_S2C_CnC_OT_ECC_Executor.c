@@ -1,4 +1,4 @@
-unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int numInputsExecutor,// struct Circuit **circuitsArray,
+unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int numInputsExecutor,
 											gmp_randstate_t *state, unsigned char *permedInputs,
 											unsigned char ***output, int stat_SecParam, int comp_SecParam)
 {
