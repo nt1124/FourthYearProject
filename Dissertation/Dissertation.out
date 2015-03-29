@@ -24,12 +24,14 @@
 \BOOKMARK [1][-]{section.4.3}{Huang, Katz and Evans 2013}{chapter.4}% 24
 \BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 25
 \BOOKMARK [1][-]{section.5.1}{Yao Garbled Circuits implementation}{chapter.5}% 26
-\BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 27
-\BOOKMARK [1][-]{section.5.3}{Secret Sharing and Multi-precision Polynomials}{chapter.5}% 28
-\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 29
-\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 30
-\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 31
-\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 32
-\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 33
-\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 34
-\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 35
+\BOOKMARK [2][-]{subsection.5.1.1}{Tillich-Smart Circuit Files}{section.5.1}% 27
+\BOOKMARK [2][-]{subsection.5.1.2}{Creating binary circuits}{section.5.1}% 28
+\BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 29
+\BOOKMARK [1][-]{section.5.3}{Secret Sharing and Multi-precision Polynomials}{chapter.5}% 30
+\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 31
+\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 32
+\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 33
+\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 34
+\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 35
+\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 36
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 37

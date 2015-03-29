@@ -68,7 +68,7 @@
 \renewcommand{\lstlistlistingname}{List of Listings}
 
 % configure hyperref
-\hypersetup{colorlinks=false,bookmarks=false,urlcolor=red, linktocpage=true}
+\hypersetup{colorlinks=false,urlcolor=red, linktocpage=true}
 
 % configure style of table of contents
 \setcounter{tocdepth}{2}
@@ -106,6 +106,22 @@
 % -----------------------------------------------------------------------------
 
 % define macro to generate UoB title page
+
+\newcommand{\commRightArrow}[1]
+{
+	$\begin{array}{c}
+		#1\\[-5pt]
+		\xrightarrow{\hspace{2.2cm}}
+	\end{array}$
+}
+
+\newcommand{\commLeftArrow}[1]
+{
+	$\begin{array}{c}
+		#1\\[-5pt]
+		\xleftarrow{\hspace{2.2cm}}
+	\end{array}$
+}
 
 \renewcommand{\maketitle}{
   \newpage

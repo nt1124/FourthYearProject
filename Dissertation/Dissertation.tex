@@ -21,7 +21,7 @@
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{geometry}
-
+\usepackage{mdframed}
 
 
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
@@ -211,12 +211,12 @@
 					\centering
 					\textbf{Receiver}\\
 					Inputs : $b \in \{0, 1\}$\\
-					Outputs : $X_b$\\
+					Outputs : $x_b$\\
 				\end{minipage}
 				\begin{minipage}{0.45\textwidth}
 					\centering
 					\textbf{Sender}\\
-					Inputs : $X_1$, $X_2$\\
+					Inputs : $x_0, x_1 \in \{0, 1\}^l$\\
 					Outputs : $\emptyset$\\
 				\end{minipage}
 
@@ -232,7 +232,71 @@
 
 			\subsection{Naor-Pinkas Oblivious Transfer} \label{sub:NaorPinkasOT}
 
-				
+				Here we describe the Naor-Pinkas Oblivious Transfer that is used in the Huang, Katz and Evans protocol later implemented, for a full description including proofs of security see \cite{NaorPinkasOT2001}.\\
+
+				We assume that we have the usual OT inputs and parties. That is a Sender $S$ who holds two input bit strings denoted $x_0, x_1 \in \{0, 1\}^*$ and a Receiver who has a $b \in \{0, 1\}$ representing the  input that the Receiver wishes to uncover.\\
+
+				On top of these inputs the parties share a group $\mathbb{G}$ as an auxiliary input. We denote the group by $(\mathbb{G}, g, q)$ where $<g> = \mathbb{G}$ and $q$ is the order of the group.\\ %($g$ generates $\mathbb{G}$)
+
+				See Figure \ref{fig:NPOT_Functionality} for the functionality of the Naor-Pinkas OT.\\
+
+
+				\begin{figure}[!htb]
+					\centering
+					
+					\textbf{Shared Auxiliary Input}\\
+					$\mathbb{G}$ a group for which the CDH assumption is believed to hold.\\
+					\vspace{0.3cm}
+					\begin{minipage}{0.45\textwidth}
+						\centering
+						\textbf{Receiver}\\
+						Inputs : $b \in \{0, 1\}$\\
+						Outputs : $x_b$\\
+					\end{minipage}
+					\begin{minipage}{0.45\textwidth}
+						\centering
+						\textbf{Sender}\\
+						Inputs : $x_0, x_1 \in \{0, 1\}^l$\\
+						Outputs : $\emptyset$\\
+					\end{minipage}
+
+					\caption{ Formal definition of the functionality of The Naor-Pinkas Oblivious Transfer.\label{fig:NPOT_Functionality}}
+				\end{figure}
+
+				The Naor-Pinkas OT is known to be simulatable against a malicious Sender assuming the CDH holds in the group $\mathbb{G}$. However, it is only known to provide \emph{privacy} against a malicious Receiver, the question of whether it is simulatable against such an adversary is as yet unanswered.
+
+				\begin{figure}[!htb]
+					\begin{mdframed}
+						\centering
+						\begin{tabular}{l c l}
+							\textbf{Sender} & Group $(\mathbb{G}, g, q)$ & \textbf{Receiver}\\
+							$x_0, x_1 \in \{0, 1\}^l$ & & $b \in \{0, 1\}$\\[0.6cm]
+
+							$C \xleftarrow{\$} \mathbb{G}$ & &\\
+
+							& \commRightArrow{C} & \\
+
+							& & $k \xleftarrow{\$} \mathbb{Z}_q$ \\
+							& & $h_0 \leftarrow g^k$\\
+							& & $h_1 \leftarrow C / g^k $\\
+
+							& \commLeftArrow{h=h_b} & \\
+
+							$r \xleftarrow{\$} \mathbb{Z}_q$ & &\\
+							$a \leftarrow g ^ r$ & &\\
+							$c_0 \leftarrow H(h^r) \oplus x_0$ & &\\
+							$c_1 \leftarrow H( (C / h^r)) \oplus x_1$ & &\\
+
+							& \commRightArrow{a, c_0, c_1} & \\
+
+							& & $y \leftarrow a ^ k (= g^{r \cdot k})$ \\
+							& & $x_b \leftarrow H( y ) \oplus c_b$ \\
+							& & Output $x_b$\\
+						\end{tabular}
+					\end{mdframed}
+				\end{figure}
+
+
 
 			% THIS NEED TIDYING UP
 			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
@@ -345,11 +409,27 @@
 
 			Whilst the protocols have been implemented faithfully some of the lower level details not relevant to a comparison of the protocols are ignored, for example we do not established a secure connection between the two parties.\\
 
-			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.\\
+			Where possible we have implemented everything myself and reused the same code across protocols, rather than using available libraries. This maintains a consistent quality of implementation, using libraries where appropriate would improve the quality of the implementation it would do so in an uneven manner as many areas cannot be done using a library. This could potentially give one protocol an unfair advantage over another leading to skewed results.
 
 		\section{Yao Garbled Circuits implementation}
 
 			% Stuff goes here
+			Clearly we need to implement Yao garbled circuits, but before even that we have an ordinary binary circuit implementation and we need to understand the format of the circuit definition files given by \cite{NigelCircuits}.
+
+			\subsection{Tillich-Smart Circuit Files}
+
+				We are using the circuits provided by \cite{NigelCircuits}, these circuits have been crafted with Yao Garbled Circuits in mind, applying some of the optimisations suggested in \cite{SMC_Is_Practical} and trying to minimise the number of AND gates in order to take maximal advantage of the Free-XOR optimisation.\\
+
+				Throughout we shall refer to the format of the files as RTL. The first line of each RTL file saying how many gates and how many wires are in the circuit, the second line tells us how many inputs party 1 and party 2 give to the circuit and how many outputs there are. Note that without modification we can only provide output to either only the Executor or both parties.\\
+
+				From then on each line refers to a single gate of the binary circuit. The first number (call this number $m$) of a gate definition says how many inputs wires go into the gate, the second number (call this $n$) how many outputs. Then the next $m$ numbers are the input wire IDs, then the last $n$ number are the IDs of the output wires. Finally the gate type is indicated, either AND, XOR, or INV.\\
+
+			\subsection{Creating binary circuits}
+				By creating a binary circuit from the RTL files and then using this binary circuit as a template for the creation of Yao Circuits we gain three advantages over reading from the RTL file to create a Yao Garbled Circuit directly.\\
+
+				Firstly this reducing the amount of file I/O, we only need read the file once. Secondly this means makes it easier for us to perform further optimisations on the circuits, for example wire switching the inversion gates to reduce the size of the circuits. Thirdly we need to be able to execute the normal binary circuit in the course of the Lindell 2013 protocol.
+
+				The actual creation of 
 
 		\section{Elliptic Curve implementation}
 
@@ -391,8 +471,6 @@
 
 		\section{Benchmarks}
 			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
-
-			
 
 
 	\chapter{Conclusions}
@@ -460,7 +538,7 @@
 			Naor and B. Pinkas, \emph{Efficient Oblivious Transfer Protocols}, Proceedings of SODA 2001 (SIAM Symposium on Discrete Algorithms), 2001.
 
 		\bibitem{NigelCircuits}
-			Bristol Cryptography Group. \emph{Circuits of Basic Functions Suitable For MPC and FHE}. http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/. 
+			Bristol Cryptography Group. \emph{Circuits of Basic Functions Suitable For MPC and FHE}.  \url{http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/}. 
 
 		\bibitem{ECC_RFC_6090}
 			D. McGrew, K. Igoe and M. Salter,\emph{ Fundamental Elliptic Curve Cryptography Algorithms}, RFC 6090, February 2011.
