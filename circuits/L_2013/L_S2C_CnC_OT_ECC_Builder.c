@@ -166,31 +166,32 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
-	#pragma omp parallel for private(i, j, k) schedule(auto)
+	// #pragma omp parallel for private(i, j, k) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		commBufferLen = 0;
+		#pragma omp parallel for private(j, k) schedule(auto)
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			k = i * stat_SecParam + j;
 
-			CTs[k] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, fullTildeCRS -> lists[i],
+			CTs[j] = transfer_CnC_OT_Mod_Enc_i_j(params_S, 16, fullTildeCRS -> lists[i],
 												OT_Inputs[0][k], OT_Inputs[1][k],
 												*state, j);
 
 		}
-	}
 
-	commBuffer = serialise_Mod_CTs(CTs, numInputsExecutor * stat_SecParam, &commBufferLen, 16);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+		commBuffer = serialise_Mod_CTs(CTs, stat_SecParam, &commBufferLen, 16);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
 
-	for(j = 0; j < numInputsExecutor * stat_SecParam; j ++)
-	{
-		clearECC_Point(CTs[j] -> u_0);
-		clearECC_Point(CTs[j] -> u_1);
-		free(CTs[j] -> w_0);
-		free(CTs[j] -> w_1);
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			clearECC_Point(CTs[j] -> u_0);
+			clearECC_Point(CTs[j] -> u_1);
+			free(CTs[j] -> w_0);
+			free(CTs[j] -> w_1);
+		}
 	}
 
 

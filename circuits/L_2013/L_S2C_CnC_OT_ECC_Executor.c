@@ -39,7 +39,7 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 	unsigned char *commBuffer, value;
 	int bufferLength = 0, i, j, iOffset = 0, numInputsBuilder;
-	int bufferOffset = 0, commBufferLen, CT_Index;
+	int bufferOffset = 0, commBufferLen;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -78,46 +78,48 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
-	free(commBuffer);
 
 
-	#pragma omp parallel for private(i, j, tempWire, iOffset, value, CT_Index) schedule(auto)
 	for(i = 0; i < circuitsArray[0] -> numInputsExecutor; i ++)
 	{
 		value = permedInputs[i];
 
+		bufferOffset = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		CTs = deserialise_Mod_CTs(commBuffer, &bufferOffset, 16);
+		free(commBuffer);
+
+
+		#pragma omp parallel for private(j, tempWire) schedule(auto)
 		for(j = 0; j < stat_SecParam; j ++)
 		{
-			CT_Index = i * stat_SecParam + j;
 			tempWire = circuitsArray[j] -> gates[i + numInputsBuilder] -> outputWire;
+
 			if(0x00 == value)
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[j], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
 			}
 			else
 			{
-				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
-				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[CT_Index], 16, value, j);
+				tempWire -> outputGarbleKeys -> key0 = output_CnC_OT_Mod_Dec_i_j_Alt(params_R, fullTildeCRS -> r_List[i], CTs[j], 16, value, j);
+				tempWire -> outputGarbleKeys -> key1 = output_CnC_OT_Mod_Dec_i_j(params_R, fullTildeCRS -> r_List[i], CTs[j], 16, value, j);
 
 				memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
 			}
 		}
+
+		for(j = 0; j < stat_SecParam; j ++)
+		{
+			clearECC_Point(CTs[j] -> u_0);
+			clearECC_Point(CTs[j] -> u_1);
+			free(CTs[j] -> w_0);
+			free(CTs[j] -> w_1);
+		}
 	}
 
-
-	for(j = 0; j < circuitsArray[0] -> numInputsExecutor * stat_SecParam; j ++)
-	{
-		clearECC_Point(CTs[j] -> u_0);
-		clearECC_Point(CTs[j] -> u_1);
-		free(CTs[j] -> w_0);
-		free(CTs[j] -> w_1);
-	}
 
 
 	commBufferLen = 0;
@@ -192,29 +194,6 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 
-	/*
-	for(j = 0; j < stat_SecParam; j ++)
-	{
-		if(0x01 == J_set[j])
-		{
-
-			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
-			{
-				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-
-				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x00);
-				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
-			}
-
-			setIsaacContextFromSeed(tempCTX, circuitSeeds[j]);
-			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX, rawInputCircuit, secret_J_set[j], b0List, b1List, public_inputs, j, params);
-			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
-
-			freeTempGarbleCircuit(tempGarbleCircuit);
-		}
-	}
-	*/
 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
