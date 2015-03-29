@@ -240,7 +240,6 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCi
 	int i, gateIndex = 0;
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
-	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -294,7 +293,6 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct
 	int i, k = 0, gateIndex = 0;
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
-	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -352,7 +350,6 @@ struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputC
 	int i, gateIndex = 0;
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
-	// unsigned char *R = generateRandBytes(16, 17);
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -393,43 +390,37 @@ struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputC
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed)
+struct Circuit *readInCircuit_FromRaw_Seeded(randctx *ctx, struct RawCircuit *rawInputCircuit)
 {
 	struct Circuit *toReturn;
-	srand(seed);
 
 	toReturn = readInCircuit_FromRaw(ctx, rawInputCircuit);
-	toReturn -> seed = seed;
 
 	return toReturn;
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
+struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit,
 															mpz_t secret_input,
 															struct public_builderPRS_Keys *public_inputs,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
-	srand(seed);
 
 	toReturn = readInCircuit_FromRaw_ConsistentInput(ctx, rawInputCircuit, secret_input, public_inputs, j, params);
-	toReturn -> seed = seed;
 
 	return toReturn;
 }
 
 
-struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned int seed,
+struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit,
 															mpz_t secret_input, unsigned char **b0List, unsigned char **b1List,
 															struct public_builderPRS_Keys *public_inputs,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
-	srand(seed);
 
 	toReturn = readInCircuit_FromRaw_ConsistentInputOutput(ctx, rawInputCircuit, secret_input, b0List, b1List, public_inputs, j, params);
-	toReturn -> seed = seed;
 
 	return toReturn;
 }

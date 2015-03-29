@@ -1,5 +1,5 @@
 struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
-								gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
+								gmp_randstate_t state, int stat_SecParam,
 								struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
 								randctx **circuitCTXs, ub4 **circuitSeeds)
 {
@@ -10,7 +10,7 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
 	}
 
  
@@ -114,7 +114,7 @@ void sendPublicCommitments(int writeSocket, int readSocket, struct public_builde
 
 unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct Circuit **circuitsArray,
 							struct secret_builderPRS_Keys *secret_Inputs, int stat_SecParam, int *J_setSize,
-							unsigned int *seedList, ub4 **circuitSeeds)
+							ub4 **circuitSeeds)
 {
 	struct wire *tempWire;
 	unsigned char *commBuffer, *J_Set;
@@ -150,7 +150,7 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 	if(0x00 != finalOutput)
 	{
 		commBufferLen = 0;
-		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, seedList, circuitSeeds, J_Set, &commBufferLen);
+		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, circuitSeeds, J_Set, &commBufferLen);
 
 		sendBoth(writeSocket, commBuffer, commBufferLen);
 	}

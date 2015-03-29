@@ -173,7 +173,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	struct secCompExecutorOutput *returnStruct;
 
 	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta, inputBit = 0x00;
-	unsigned int *seedList;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0;
 
 	struct timespec int_t_0, int_t_1;
@@ -219,7 +218,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
-												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
+												secretsRevealed -> revealedSecrets,
 												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
 												J_set, J_setSize, checkStatSecParam);
 

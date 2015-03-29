@@ -220,46 +220,47 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 
 int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs,
-								mpz_t *secret_J_set, unsigned int *seedList, ub4 **circuitSeeds, struct eccParams *params,
+								mpz_t *secret_J_set, ub4 **circuitSeeds, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
-	// struct Circuit *tempGarbleCircuit;
-	struct Circuit **tempGarbleCircuit = (struct Circuit **) calloc(J_setSize, sizeof(struct Circuit*));
+	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
-	randctx *tempCTX = (randctx*) calloc(1, sizeof(randctx));
+	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 
-
-	// #pragma omp parallel for default(shared) private(i, j, tempWire, tempGarbleCircuit) reduction(+:temp) 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
 		if(0x01 == J_set[j])
 		{
-			for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
-			{
-				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
-				tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-
-				tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x00);
-				tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[j], public_inputs, params, i, 0x01);
-			}
-
+			tempCTX[k] = (randctx*) calloc(1, sizeof(randctx));
+			setIsaacContextFromSeed(tempCTX[k], circuitSeeds[j]);
 			idList[k] = j;
-			setIsaacContextFromSeed(tempCTX, circuitSeeds[j]);
-
-			tempGarbleCircuit[k] = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX, rawInputCircuit, seedList[j], secret_J_set[j], public_inputs, j, params);
 			k ++;
 		}
 	}
 
-	#pragma omp parallel for default(shared) private(j) reduction(|:temp) 
+
+	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
-		temp |= compareCircuit(rawInputCircuit, circuitsArray[idList[j]], tempGarbleCircuit[j]);
 
-		freeTempGarbleCircuit(tempGarbleCircuit[j]);
+		k = idList[j];
+		for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+		{
+			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
+			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+
+			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
+			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
+		}
+
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+
+		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
-	free(tempGarbleCircuit);
+
 
 	return temp;
 }

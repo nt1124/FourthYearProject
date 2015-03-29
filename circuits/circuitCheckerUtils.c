@@ -267,8 +267,7 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 {
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct Circuit *garbledCircuit1, *garbledCircuit2;
-	unsigned char *seedBytes = generateRandBytes(sizeof(unsigned int), sizeof(unsigned int));
-	unsigned int seedLong = 0;
+
 	int i, temp = 0, tempTemp;
 
 	gmp_randstate_t *state;
@@ -287,14 +286,12 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, 1, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
-	memcpy(&seedLong, seedBytes, sizeof(unsigned int));
-
 
 	// garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 	// garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 
-	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx1, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
-	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx2, rawInputCircuit, seedLong, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx1, rawInputCircuit, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx2, rawInputCircuit, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
 
 
 	/*

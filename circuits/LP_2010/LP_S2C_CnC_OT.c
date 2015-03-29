@@ -8,7 +8,6 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
 
 	struct Circuit **circuitsArray;
-	unsigned int *seedList;
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
 	int i, J_setSize = 0;
@@ -56,11 +55,8 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	seedList = generateRandUintList(stat_SecParam + 1);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, seedList, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
-
-	srand(seedList[stat_SecParam]);
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -86,7 +82,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, seedList, circuitSeeds);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -203,9 +199,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
-												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedSeeds,
-												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
-												J_set, J_setSize, stat_SecParam);
+												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedCircuitSeeds,
+												pubInputGroup -> params, J_set, J_setSize, stat_SecParam);
 
 	printf("Circuits Check = %d\n", circuitsChecked);
 

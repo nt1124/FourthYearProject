@@ -183,16 +183,16 @@ int verifyB_Lists(unsigned char ***hashedB_List, unsigned char ***b_List, int nu
 
 int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
 								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set,
-								unsigned int *seedList, ub4 **circuitSeeds,
+								ub4 **circuitSeeds,
 								unsigned char **b0List, unsigned char **b1List, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
 	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
-	int i, j, temp = 0;
-	randctx *tempCTX = (randctx*) calloc(1, sizeof(randctx));
+	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
+	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 
-
+	/*
 	for(j = 0; j < stat_SecParam; j ++)
 	{
 		if(0x01 == J_set[j])
@@ -208,11 +208,45 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 			}
 
 			setIsaacContextFromSeed(tempCTX, circuitSeeds[j]);
-			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX, rawInputCircuit, seedList[j], secret_J_set[j], b0List, b1List, public_inputs, j, params);
+			tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX, rawInputCircuit, secret_J_set[j], b0List, b1List, public_inputs, j, params);
 			temp |= compareCircuit(rawInputCircuit, circuitsArray[j], tempGarbleCircuit);
 
 			freeTempGarbleCircuit(tempGarbleCircuit);
 		}
+	}
+	*/
+
+	for(j = 0; j < stat_SecParam; j ++)
+	{
+		if(0x01 == J_set[j])
+		{
+			tempCTX[k] = (randctx*) calloc(1, sizeof(randctx));
+			setIsaacContextFromSeed(tempCTX[k], circuitSeeds[j]);
+			idList[k] = j;
+			k ++;
+		}
+	}
+
+
+	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
+	for(j = 0; j < J_setSize; j ++)
+	{
+		k = idList[j];
+		for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+		{
+			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
+			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+
+			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
+			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
+		}
+
+		// tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, secret_J_set[k], b0List, b1List, public_inputs, k, params);
+			
+		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;

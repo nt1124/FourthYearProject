@@ -1,5 +1,5 @@
 struct Circuit **buildAllCircuitsConsistentOutput(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
-												gmp_randstate_t state, int stat_SecParam, unsigned int *seedList,
+												gmp_randstate_t state, int stat_SecParam,
 												unsigned char **b0List, unsigned char **b1List,
 												struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs,
 												struct public_builderPRS_Keys *public_inputs,
@@ -10,9 +10,10 @@ struct Circuit **buildAllCircuitsConsistentOutput(struct RawCircuit *rawInputCir
 	int j;
 
 
+	#pragma omp parallel for private(j) schedule(auto)
 	for(j = 0; j < stat_SecParam; j++)
 	{
-		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(circuitCTXs[j], rawInputCircuit, seedList[j], secret_inputs -> secret_circuitKeys[j],
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j],
 																			b0List, b1List, public_inputs, j, params);
 	}
 
