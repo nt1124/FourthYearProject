@@ -27,35 +27,7 @@
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 
 \begin{document}
-% 	\begin{titlepage}
-% 		\begin{center}
-% 
-% 			\textsc{\LARGE University of Bristol}
-% 			\vspace{2cm}
-%     
-% 			\includegraphics[width=0.15\textwidth]{./bristolunilogo}~\\[1cm]
-%     
-% 			\vspace{3cm}
-% 			\HRule \\[0.4cm]
-% 			\textsc{ \huge Secure Two Party Computation}\\
-% 			\textsc{ \large A practical comparison of recent protocols}\\
-% 			\HRule \\[0.4cm]
-% 			\vspace{2cm}
-    
-% 			\begin{abstract}
-% 				We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
-% 				
-% 				In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.
-% 			\end{abstract}
-    
-% 			\vspace{2.6cm}
-% 			\noindent\rule{12cm}{0.2pt}\\[0.2cm]
-% 			\textsc{\Large Author: Nicholas Tutte}\\[0.2cm]
-% 			\textsc{\Large Supervisor: Prof. Nigel Smart}
-%     
-% 		\end{center}
-% 	\end{titlepage}
-	% \thispagestyle{empty}
+
 	\maketitle
 	% \frontmatter
 	
@@ -124,8 +96,6 @@
 
 		% In this paper we shall be producing implementations of several recently proposed protocols based on Yao's protocol and, several of which are as yet unimplemented, producing a practical comparison of them. The purpose being to explore which protocol suggests the most potential, allowing future research to be directed in the most promising direction.
 
-
-
 		% \section{Paper Structure} Section \ref{sec:BG_toSMC} provides a more detailed overview of the problem of Secure Multiparty Computation and consider some of its applications for the purposes of motivation. Section \ref{sec:Yao_Circuits} introduces the basic ideas underlying Yao's protocol that are the cornerstone of the protocols we are comparing. Section \ref{sec:Protocols} delves into the specifics of each of the protocols we have implemented, touching on the main ideas and challenges of each. Section \ref{sec:ImplementationDetails} 
 
 
@@ -158,24 +128,29 @@
 
 				\textcolor{red}{At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.}\\
 
-				\textcolor{red}{So if two companies wish to decide whether they should cooperate on a projet but first need}
+				\textcolor{red}{So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.}\\
+				
+				\textcolor{red}{In this case undetected cheating could lead to the parties committing to a project they do not have the expertises to complete, this is clearly not in the interests of the parties so it is likely that both parties will act honestly.}\\
+				
+				
 
 			\subsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
-				\subsubsection{Example} 
+				\subsubsection{Example}
+					\textcolor{red}{Security in the presence of malicious adversaries is much sought after, and is useful in many more scenarios. Suppose a pair of persons wish to compute the intersection of sets they each hold but only wish to reveal those elements in both sets, keeping the rest secret.}\\
 
-					
+					\textcolor{red}{A malicious adversary might wish to reveal all of the elements in the other party's set. If the adversary can rig the condition in the computation checking whether an element is in both sets they can get all elements returned. Clearly in this case the adversary has something to gain and so we cannot count on it .}\\
+
 
 			\subsection{Covert Adversary}
-				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain probability of detection, this probability represents the point at which the expected payoff/benefit of cheating without detection outweighs the expected cost/punishment for getting caught, effectively a game theory problem \cite{WhenGameTheoryMetSMC}.\\
+				The Covert adversary model is very similar to the Malicious model, again bounded by polynomial time with freedom to ignore the protocol. However, in this case the adversary is adverse to being caught cheating and is therefore slightly weaker than the Malicious adversary. A Covert adversary will accept a certain probability of detection, this probability represents the point at which the expected benefit of cheating successfully outweighs the expected punishment for getting caught, effectively a game theory problem \cite{WhenGameTheoryMetSMC}.\\
 
 				We call the probability that a Covert adversary will be caught the ``deterrent probability'', usually denoted using $\epsilon$. Often protocols providing security against Covert adversaries take a Security parameter which varies the probability of detecting cheating.
 
 				\subsubsection{Example} 
 
-				\textcolor{red}{
-					This model is usually appropriate when there are tangible consequences to a party being caught cheating. For example consider the case where a group of companies are required to report on certain business dealing }
+				\textcolor{red}{ This model can be thought of as a compromise between practicality and malicious security and is usually appropriate when there are tangible consequences to a party being caught cheating. For example consider the case where a group of companies are required to report on certain business dealing }
 
 		\section{Applications of SMC} \label{sub:Applications}
 			Here we take time to motivate the study of SMC by giving several actual or proposed applications.
@@ -232,7 +207,7 @@
 
 			\subsection{Naor-Pinkas Oblivious Transfer} \label{sub:NaorPinkasOT}
 
-				Here we describe the Naor-Pinkas Oblivious Transfer that is used in the Huang, Katz and Evans protocol later implemented, for a full description including proofs of security see \cite{NaorPinkasOT2001}.\\
+				Here we describe the Naor-Pinkas Oblivious Transfer as put forward in \cite{Katz_Symm_CnC_2013} that is used in the Huang, Katz and Evans protocol later implemented, for a full description including proofs of security see \cite{NaorPinkasOT2001}.\\
 
 				We assume that we have the usual OT inputs and parties. That is a Sender $S$ who holds two input bit strings denoted $x_0, x_1 \in \{0, 1\}^*$ and a Receiver who has a $b \in \{0, 1\}$ representing the  input that the Receiver wishes to uncover.\\
 
@@ -285,7 +260,7 @@
 							$r \xleftarrow{\$} \mathbb{Z}_q$ & &\\
 							$a \leftarrow g ^ r$ & &\\
 							$c_0 \leftarrow H(h^r) \oplus x_0$ & &\\
-							$c_1 \leftarrow H( (C / h^r)) \oplus x_1$ & &\\
+							$c_1 \leftarrow H( (C / h)^r) \oplus x_1$ & &\\
 
 							& \commRightArrow{a, c_0, c_1} & \\
 
@@ -422,12 +397,14 @@
 
 				Throughout we shall refer to the format of the files as RTL. The first line of each RTL file saying how many gates and how many wires are in the circuit, the second line tells us how many inputs party 1 and party 2 give to the circuit and how many outputs there are. Note that without modification we can only provide output to either only the Executor or both parties.\\
 
-				From then on each line refers to a single gate of the binary circuit. The first number (call this number $m$) of a gate definition says how many inputs wires go into the gate, the second number (call this $n$) how many outputs. Then the next $m$ numbers are the input wire IDs, then the last $n$ are the IDs of the output wires.\\
+				From then on each line refers to a single gate of the binary circuit. The first number (call this number $m$) of a gate definition says how many inputs wires go into the gate, the second number (call this $n$) how many outputs. Then the next $m$ numbers are the input wire IDs, then the last $n$ number are the IDs of the output wires. Finally the gate type is indicated, either AND, XOR, or INV.\\
 
 			\subsection{Creating binary circuits}
 				By creating a binary circuit from the RTL files and then using this binary circuit as a template for the creation of Yao Circuits we gain three advantages over reading from the RTL file to create a Yao Garbled Circuit directly.\\
 
-				Firstly this reducing the amount of file I/O, we only need read the file once.
+				Firstly this reducing the amount of file I/O, we only need read the file once. Secondly this means makes it easier for us to perform further optimisations on the circuits, for example wire switching the inversion gates to reduce the size of the circuits. Thirdly we need to be able to execute the normal binary circuit in the course of the Lindell 2013 protocol.
+
+				The actual creation of 
 
 		\section{Elliptic Curve implementation}
 

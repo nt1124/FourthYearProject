@@ -63,10 +63,11 @@ struct eccPoint **deserialiseQueries(unsigned char *inputBuffer, int numQueries)
 }
 
 
-unsigned char *serialiseTransfer(struct OT_NP_Sender_Transfer **transferStructs, int numTransfers, int msgLength, int *outputLength)
+unsigned char *serialiseTransferStructs(struct OT_NP_Sender_Transfer **transferStructs, int numTransfers, int msgLength, int *outputLength)
 {
 	unsigned char *outputBuffer;
 	int i, localLength = 0, localOffset = 0;
+
 
 	for(i = 0; i < numTransfers; i ++)
 	{
@@ -87,31 +88,34 @@ unsigned char *serialiseTransfer(struct OT_NP_Sender_Transfer **transferStructs,
 		localOffset += msgLength;
 	}
 
+
 	*outputLength = localOffset;
 
 	return outputBuffer;
 }
 
 
-struct OT_NP_Sender_Transfer **transferStructsdeserialiseTransfer(unsigned char *, int numTransfers, int msgLength)
+struct OT_NP_Sender_Transfer **deserialiseTransferStructs(unsigned char *inputBuffer, int numTransfers, int msgLength)
 {
 	struct OT_NP_Sender_Transfer **outputStructs;
 	int i, localOffset = 0;
+
 
 	outputStructs = (struct OT_NP_Sender_Transfer **) calloc(numTransfers, sizeof(struct OT_NP_Sender_Transfer *));
 
 	for(i = 0; i < numTransfers; i ++)
 	{
-		serialise_ECC_Point(transferStructs[i] -> a, outputBuffer, &localOffset);
+		outputStructs[i] -> a = deserialise_ECC_Point(inputBuffer, &localOffset);
 
-		memcpy(outputBuffer + localOffset, transferStructs[i] -> c_0, msgLength);
+		outputStructs[i] -> c_0 = (unsigned char *) calloc(msgLength, sizeof(unsigned char));
+		memcpy(outputStructs[i] -> c_0, inputBuffer + localOffset, msgLength);
 		localOffset += msgLength;
 
-		memcpy(outputBuffer + localOffset, transferStructs[i] -> c_1, msgLength);
+		outputStructs[i] -> c_1 = (unsigned char *) calloc(msgLength, sizeof(unsigned char));
+		memcpy(outputStructs[i] -> c_1, inputBuffer + localOffset, msgLength);
 		localOffset += msgLength;
 	}
 
-	*outputLength = localOffset;
 
-	return outputBuffer;
+	return outputStructs;
 }
