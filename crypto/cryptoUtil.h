@@ -22,6 +22,7 @@
 #include "OT/otPVW_ECC/otPVW_ECC.h"
 #include "OT/otLP_CnC/ot_LP_CnC.h"
 #include "OT/otLP_ECC_CnC/ot_LP_ECC_CnC.h"
+#include "OT/otNaorPinkas/otNaorPinkas.h"
 
 #include "ZeroKnowledgeProofs/ZKPoK_DiscreteLog.c"
 
