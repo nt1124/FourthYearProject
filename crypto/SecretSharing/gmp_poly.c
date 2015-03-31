@@ -74,7 +74,6 @@ struct Fq_poly *initPolyWithDegree(int degree)
 }
 
 
-
 void freeFqPoly(struct Fq_poly *toFree)
 {
 	free(toFree -> coeffs);
