@@ -140,7 +140,7 @@
 				\subsubsection{Example}
 					\textcolor{red}{Security in the presence of malicious adversaries is much sought after, and is useful in many more scenarios. Suppose a pair of persons wish to compute the intersection of sets they each hold but only wish to reveal those elements in both sets, keeping the rest secret.}\\
 
-					\textcolor{red}{A malicious adversary might wish to reveal all of the elements in the other party's set. If the adversary can rig the condition in the computation checking whether an element is in both sets they can get all elements returned. Clearly in this case the adversary has something to gain and so we cannot count on it .}\\
+					\textcolor{red}{A malicious adversary might wish to reveal all of the elements in the other party's set. If the adversary can rig the condition in the computation checking whether an element is in both sets they can get all elements returned. Clearly in this case the adversary has something to gain and so we cannot count on the adversary being honest.}\\
 
 
 			\subsection{Covert Adversary}
@@ -352,9 +352,9 @@
 
 				\textcolor{red}{Having obtained its input keys the Executor then prove to the Builder what subset of the circuits it opened as check circuits so that the Builder can provide both keys for each of its input wires allowing for the opening of the whole circuit.}\\
 
-				\textcolor{red}{Thirdly, given all keys for the inputs wires how do we check the correctness of a circuit? The obvious method would be to fully decrypt each gate, checking to make sure it is the correct gate type(e.g. AND gate).}\\
+				\textcolor{red}{Thirdly, given all keys for the inputs wires how do we check the correctness of a circuit? The obvious method would be to fully decrypt each gate, checking to make sure it is the correct gate type(e.g. AND gate)}\\
 
-				\textcolor{red}{A simpler alternative though would be for the Builder to seed the random generator differently for each circuit and then sending the seed for each circuit identified as a check circuit. The Executor can then re-build each Check Circuit using this seed and check that the resulting circuit is equal to the Check circuit.}\\
+				\textcolor{red}{A simpler alternative though would be for the Builder to seed the random generator differently for each circuit and then sending the seed for each circuit identified as a check circuit. The Executor can then re-build each Check Circuit using this seed and the full inputs sets and check that the resulting circuit is equal to the Check circuit.}\\
 
 				\textcolor{red}{Fourthly, how should the Executor react to differing outputs from the evaluation circuits. Whilst it is tempting to simply abort immediately this opens the Executor up to a \emph{selective failure} attack. This is an attack where the Builder crafts one of the circuits to fail in some way if the Executors input fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information.}\\
 
@@ -376,7 +376,11 @@
 			In \cite{Lindell_CnC_2013} Lindell proposed an further improvement on his work with Pinkas in \cite{LindellAndPinkas2011}. The primary breakthroughs of this paper are the removal of the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. A further breakthrough [detail the secure computation to detect cheating here]...
 
 		\section{Huang, Katz and Evans 2013}
-			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.
+			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.\\
+
+			They then both open half of each others circuits to check for correctness before evaluating the unopened circuits.\\
+
+			The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuits, however these 
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}

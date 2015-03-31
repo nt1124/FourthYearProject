@@ -24,6 +24,7 @@
 #include "OT/otNaorPinkas/otNaorPinkas.h"
 
 #include "ZeroKnowledgeProofs/ZKPoK_DiscreteLog.c"
+#include "CommitmentSchemes/commit_elgamal.h"
 
 
 #include "SecretSharing/lagrangeInterpolation.h"

@@ -35,7 +35,7 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
 	int i, index = 0;
-	int execPartyStartID = 0, execPartyEndID = 0, buildingPartyStartID, buildingPartyEndID;
+	int execPartyStartID = 0, execPartyEndID, buildingPartyStartID = 0, buildingPartyEndID;
 
 
 	if(1 == partyID)
@@ -50,11 +50,14 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputsExecutor;
 	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputsBuilder;
 
+	printf("%d => %d - %d  :  %d - %d\n", partyID, execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
+
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
 		gates[i] = initInputWire_FromRaw_HKE_2013(ctx, i, 0xFF, R, NaorPinkasInputs[index], NaorPinkasInputs[index + 1], params);
 		index += 2;
 	}
+
 
 	for(i = execPartyStartID; i < execPartyEndID; i ++)
 	{
@@ -97,11 +100,11 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 		if(gateIndex < outputCircuit -> numGates - outputCircuit -> numOutputs)
 		{
-			tempGateOrWire = processGateLine_FromRaw(ctx, rawInputCircuit -> gates[gateIndex], gatesList, R, 0, outputCircuit -> numInputsBuilder);
+			tempGateOrWire = processGateLine_FromRaw(ctx, rawInputCircuit -> gates[gateIndex], gatesList, R, 0, outputCircuit -> numInputs);
 		}
 		else
 		{
-			tempGateOrWire = processGateOrWire_FromRaw(ctx, rawInputCircuit -> gates[gateIndex], gatesList, R, outputCircuit -> numInputsBuilder);
+			tempGateOrWire = processGateOrWire_FromRaw(ctx, rawInputCircuit -> gates[gateIndex], gatesList, R, outputCircuit -> numInputs);
 			k ++;
 		}
 
@@ -135,26 +138,23 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 
 	for(i = 0; i < numCircuits; i ++)
 	{
-		printf("::: %d\n", i);
-		fflush(stdout);
-
 		output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
 		index = 0;
 
 		for(j = 0; j < numInputs; j ++)
 		{
-			printf("::: ::: %d\n", j);
-			fflush(stdout);
-
 			output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
 
-			invG_a1 = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+			invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+
 			output[i][index + 1] = groupOp(C, invG_a1, params);
 			clearECC_Point(invG_a1);
 
 			index += 2;
 		}
 	}
+
+	return output;
 }
 
 
@@ -181,4 +181,6 @@ mpz_t **getNaorPinkasInputs(int numInputs, int numCircuits, gmp_randstate_t stat
 			index += 2;
 		}
 	}
+
+	return output;
 }
