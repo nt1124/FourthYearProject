@@ -13,15 +13,33 @@ randctx *globalIsaacContext;
 
 void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
 {
-	struct timespec timestamp_0 = timestamp(), timestamp_1;
+	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
-	c_0 = clock();
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
+	struct eccParams *params = initBrainpool_256_Curve();
 
+	struct eccPoint ***NaorPinkasInputs, *C;
+	mpz_t **aList;
+	gmp_randstate_t *state;
+
+	state = seedRandGen();
 	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(globalIsaacContext);
 
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+	C = setup_OT_NP_Sender(params, *state);
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, 1, *state, params);
+	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, 1, params);
+
+	printf("@@@@@@@\n");
+	fflush(stdout);
+
+	readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], params, builder);
+	
+	/*
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
@@ -42,6 +60,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
 	}
+	*/
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
@@ -56,8 +75,7 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	test_local_OT_NP();
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();
 	// testCircuitComp(argv[1]);
 

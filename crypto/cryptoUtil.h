@@ -9,10 +9,9 @@
 #include "gmpUtils.c"
 #include "rsa.c"
 #include "DDH_Primitive.h"
-#include "EllipticCurves/ecc.h"
-
-
 #include "Hashing/sha256_good.c"
+
+#include "EllipticCurves/ecc.h"
 
 
 #include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple_1OutOf1.c"

@@ -129,7 +129,6 @@ unsigned char *OT_NP_Output_Xb(struct eccPoint *C, struct eccPoint *a, mpz_t k,
 	a_k_xBytes = convertMPZToBytes(a_k -> x, &tempLength);
 	hashedBytes = sha256_full(a_k_xBytes, tempLength);
 
-	printPoint(a_k);
 
 	if(0x00 == inputBit)
 	{
@@ -150,8 +149,10 @@ void test_local_OT_NP()
 {
 	struct eccParams *params;
 	struct eccPoint *C, *a;
-	struct OT_NP_Receiver_Query **queries;
-	struct OT_NP_Sender_Transfer **transfers;
+	struct OT_NP_Receiver_Query **queries_R;
+	struct OT_NP_Sender_Transfer **transfers_R;
+	struct eccPoint **queries_S;
+	struct OT_NP_Sender_Transfer **transfers_S;
 
 
 	int i, j, k, numInputs = 8, numTests = 4, comp_SecParam = 1024;
@@ -161,7 +162,7 @@ void test_local_OT_NP()
 	unsigned char *inputBytes[numTests][2];
 	unsigned char *outputBytes[numTests];
 	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x00;
+	unsigned char sigmaBit = 0x01;
 
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
@@ -169,8 +170,6 @@ void test_local_OT_NP()
 
 
 	params = initBrainpool_256_Curve();
-	queries = (struct OT_NP_Receiver_Query **) calloc(numTests, sizeof(struct OT_NP_Receiver_Query *));
-	transfers = (struct OT_NP_Sender_Transfer **) calloc(numTests, sizeof(struct OT_NP_Sender_Transfer *));
 
 
 	for(i = 0; i < numTests; i ++)
@@ -183,22 +182,30 @@ void test_local_OT_NP()
 	C = setup_OT_NP_Sender(params, *state);
 
 
+	queries_R = (struct OT_NP_Receiver_Query **) calloc(numTests, sizeof(struct OT_NP_Receiver_Query *));
 	for(i = 0; i < numTests; i ++)
 	{
-		queries[i] = OT_NP_query(C, sigmaBit, params, *state);
+		queries_R[i] = OT_NP_query(C, sigmaBit, params, *state);
 	}
 
+	commBuffer = serialiseQueries(queries_R, numTests, &bufferOffset);
+	queries_S = deserialiseQueries(commBuffer, numTests);
+	free(commBuffer);
 
+	transfers_S = (struct OT_NP_Sender_Transfer **) calloc(numTests, sizeof(struct OT_NP_Sender_Transfer *));
 	for(i = 0; i < numTests; i ++)
 	{
-		transfers[i] = OT_NP_Transfer(C, queries[i] -> h, inputBytes[i][0], inputBytes[i][1], 16, *state, params);
+		transfers_S[i] = OT_NP_Transfer(C, queries_S[i], inputBytes[i][0], inputBytes[i][1], 16, *state, params);
 	}
 
+	bufferOffset = 0;
+	commBuffer = serialiseTransferStructs(transfers_S, numTests, 16, &bufferOffset);
+	transfers_R = deserialiseTransferStructs(commBuffer, numTests, 16);
 
 	for(i = 0; i < numTests; i ++)
 	{
 		bufferOffset = 0;
-		outputBytes[i] = OT_NP_Output_Xb(C, transfers[i] -> a, queries[i] -> k, transfers[i] -> c_0, transfers[i] -> c_1, sigmaBit, 16, params);
+		outputBytes[i] = OT_NP_Output_Xb(C, transfers_R[i] -> a, queries_R[i] -> k, transfers_R[i] -> c_0, transfers_R[i] -> c_1, sigmaBit, 16, params);
 	}
 
 

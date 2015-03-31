@@ -393,3 +393,17 @@ void freeECC_Params(struct eccParams *params)
 
 
 
+unsigned char *hashECC_Point(struct eccPoint *inputPoint, int outputLength)
+{
+	unsigned char *xBytes, *hashedBytes, *outputBytes;
+	int tempLength = 0;
+
+
+	xBytes = convertMPZToBytes(inputPoint -> x, &tempLength);
+	hashedBytes = sha256_full(xBytes, tempLength);
+
+	outputBytes = (unsigned char *) calloc(outputLength, sizeof(unsigned char));
+	memcpy(outputBytes, hashedBytes, outputLength);
+
+	return outputBytes;
+}

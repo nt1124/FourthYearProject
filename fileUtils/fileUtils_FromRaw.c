@@ -22,8 +22,7 @@ struct gate *processGate_FromRaw(int numInputWires, int *inputIDs, int *rawOutpu
 
 
 // Process a gateOrWire struct given the data.
-struct gateOrWire *processGateOrWire_FromRaw(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
-										unsigned char *R, int numInputs1)
+struct gateOrWire *processGateOrWire_FromRaw(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit, unsigned char *R, int numInputs1)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	unsigned char permC = 0x00, usingBuilderInput = 0xF0;
