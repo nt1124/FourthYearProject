@@ -12,6 +12,14 @@ typedef struct pubVSS_Box
 } pubVSS_Box;
 
 
+typedef struct sharingSchemePublic
+{
+	struct pubVSS_Box *pub;
+
+	mpz_t *shares;
+} sharingSchemePublic;
+
+
 typedef struct sharingScheme
 {
 	struct pubVSS_Box *pub;
@@ -20,7 +28,6 @@ typedef struct sharingScheme
 	mpz_t *shares;
 	struct Fq_poly *poly;
 } sharingScheme;
-
 
 
 

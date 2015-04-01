@@ -54,9 +54,10 @@
 
 			\subsubsection*{Summary of Achievements}
 				\begin{itemize}
-					\item I implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of my knowledge these are the first implementations of these protocols.
-					\item I experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
-					\item I have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
+					\item We implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of my knowledge these are the first implementations of these protocols.
+					\item We implemented the protocol described in \cite{Katz_Symm_CnC_2013}. Huang et al. have produced an implementation in Java this cannot be fairly compared to my C implementations of the other protocols. 
+					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
+					\item We have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
 				\end{itemize}
 
 		\section*{Supporting Technologies}
@@ -67,6 +68,7 @@
 					\item The net code was provided by my supervisor Prof. Nigel Smart.
 					\item The AES implementation I use was mostly provided by my supervisor Prof. Nigel Smart (coded by Dr. Dan Page). Though I have extended this as it did not provide non-AES-NI decryption.
 					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
+					\item The 
 			\end{itemize}
 
 	% \mainmatter
@@ -275,23 +277,25 @@
 
 			% THIS NEED TIDYING UP
 			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
-				\textcolor{red}{
-				The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
+				\textcolor{red}{The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
 
-				\textcolor{red}{
-				The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.}\\
+				\subsubsection{High level concepts}
+					\textcolor{red}{The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.}\\
 
-				\textcolor{red}{
-				The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
+					\textcolor{red}{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}\\
 
-				\textcolor{red}{
-				The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+				\subsubsection{Dual-Mode cryptosystem}
+					\textcolor{red}{The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate a ``base'' public key and private key.}\\
 
-				\textcolor{red}{
-				Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+					\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 
-				\textcolor{red}{
-				It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.}
+					\textcolor{red}{The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+
+					\textcolor{red}{Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+
+					\textcolor{red}{It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption that can be satistfied with a shared randomness pool (they give the example of sunspots).}\\
+					
+					\textcolor{red}{In at least the DDH-based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors in only one round.}
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
 
@@ -373,14 +377,18 @@
 			When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit. Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}.
 
 		\section{Lindell 2013}
-			In \cite{Lindell_CnC_2013} Lindell proposed an further improvement on his work with Pinkas in \cite{LindellAndPinkas2011}. The primary breakthroughs of this paper are the removal of the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. A further breakthrough [detail the secure computation to detect cheating here]...
+			In \cite{Lindell_CnC_2013} Lindell proposed an further improvement on his work with Pinkas in \cite{LindellAndPinkas2011}. The primary breakthroughs of this paper are the removal of the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$.\\
+
+			Lindell also proposes using a Secure Computation to 
 
 		\section{Huang, Katz and Evans 2013}
 			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.\\
 
 			They then both open half of each others circuits to check for correctness before evaluating the unopened circuits.\\
 
-			The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuits, however these 
+			The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
+			
+			Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}

@@ -19,40 +19,13 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
 	struct eccParams *params = initBrainpool_256_Curve();
 
-	struct eccPoint ***NaorPinkasInputs, *C;
-	mpz_t **aList;
-	gmp_randstate_t *state;
-	int numCircuits = 1;
 
-
-	struct idAndValue *startOfInputChainExec = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.executor.input" );
-	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
-
-	state = seedRandGen();
 	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(globalIsaacContext);
 
 	c_0 = clock();
 	timestamp_0 = timestamp();
 
-	C = setup_OT_NP_Sender(params, *state);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, numCircuits, params);
-
-	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], params, builder);
-
-
-	printf(">>>>>>>>>\n");
-	fflush(stdout);
-	setCircuitsInputs_Hardcode(startOfInputChainExec, inputCircuit, 0xFF);
-	setCircuitsInputs_Hardcode(startOfInputChainBuilder, inputCircuit, 0xFF);
-
-	printf(">>>>>>>>>\n");
-	fflush(stdout);
-
-	runCircuitExec( inputCircuit, 0, 0 );
-	printOutputHexString(inputCircuit);
-	/*
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
@@ -73,7 +46,6 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
 	}
-	*/
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
@@ -88,7 +60,7 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	elgamal_commit_main();
+	testVSS();
 	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();
 	// testCircuitComp(argv[1]);

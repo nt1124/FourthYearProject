@@ -54,9 +54,10 @@
 
 			\subsubsection*{Summary of Achievements}
 				\begin{itemize}
-					\item I implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of my knowledge these are the first implementations of these protocols.
-					\item I experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
-					\item I have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
+					\item We implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of my knowledge these are the first implementations of these protocols.
+					\item We implemented the protocol described in \cite{Katz_Symm_CnC_2013}. Huang et al. have produced an implementation in Java this cannot be fairly compared to my C implementations of the other protocols. 
+					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
+					\item We have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
 				\end{itemize}
 
 		\section*{Supporting Technologies}
@@ -67,6 +68,7 @@
 					\item The net code was provided by my supervisor Prof. Nigel Smart.
 					\item The AES implementation I use was mostly provided by my supervisor Prof. Nigel Smart (coded by Dr. Dan Page). Though I have extended this as it did not provide non-AES-NI decryption.
 					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
+					\item For much of the random number generation we have used the implementation of ISAAC provided by [ISAAC IMPLEMENTATION CITATION HERE].
 			\end{itemize}
 
 	% \mainmatter
@@ -275,23 +277,25 @@
 
 			% THIS NEED TIDYING UP
 			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
-				\textcolor{red}{
-				The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
+				\textcolor{red}{The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
 
-				\textcolor{red}{
-				The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate  a ``base'' public key and private key.}\\
+				\subsubsection{High level concepts}
+					\textcolor{red}{The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.}\\
 
-				\textcolor{red}{
-				The public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
+					\textcolor{red}{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}\\
 
-				\textcolor{red}{
-				The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+				\subsubsection{Dual-Mode cryptosystem}
+					\textcolor{red}{The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate a ``base'' public key and private key.}\\
 
-				\textcolor{red}{
-				Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+					\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 
-				\textcolor{red}{
-				It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption and in at least the DDH based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors.}
+					\textcolor{red}{The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+
+					\textcolor{red}{Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+
+					\textcolor{red}{It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption that can be satistfied with a shared randomness pool (they give the example of sunspots).}\\
+					
+					\textcolor{red}{In at least the DDH-based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors in only one round.}
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
 
@@ -364,23 +368,40 @@
 
 	\chapter{Protocols} \label{sec:Protocols}
 		\section{Lindell and Pinkas 2011}
-			The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. Firstly his protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entails in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.\\
+			\subsection*{Overview}
+				The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. Firstly his protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entails in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.\\
 
-			The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
+				The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
 
-			This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal both values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
+				This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal both values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
 
-			When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit. Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}.
+				When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit. Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}.
 
 		\section{Lindell 2013}
-			In \cite{Lindell_CnC_2013} Lindell proposed an further improvement on his work with Pinkas in \cite{LindellAndPinkas2011}. The primary breakthroughs of this paper are the removal of the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. A further breakthrough [detail the secure computation to detect cheating here]...
+			\subsection*{Overview}
+
+				In \cite{Lindell_CnC_2013} Lindell proposed further improvements on his work with Pinkas in \cite{LindellAndPinkas2011}. There are two
+
+				Lindell proposes using a Secure Computation to determine the output that will produce the correct output if only one of the evaluation circuits produces the correct output. Lindell suggest this Secure Computation be carried out using the protocol he authored with Pinkas in \cite{LindellAndPinkas2011} using a small circuit he provides. The hope is that, especially for large circuits, this small secure computation will be relatively cheap.\\
+
+				This means that to successfully cheat a malicious builder will need guess \emph{exactly} which circuits will be selected as check circuits and will have to fully commit to this guess by corrupting every circuit it does not think will be selected as a check circuit. If this malicious builders guess is wrong by even one circuit the cheating will either be detected (if it corrupts a check circuit) or mitigated (if it fails to corrupt every evaluation circuit).\\
+
+				In order to take full advantage of this improved output determination Lindell modifies the Cut and Choose Oblivious Transfer in \cite{LindellAndPinkas2011}. This modification removes the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. This is modification of the OT requires a series of Zero knowledge proofs. However, as we shall see it also allows a significant reduction in the number of circuits needed and so the number of OTs needed.\\
+
+				As each circuit is chosen to be a check-circuit with probability $\frac{1}{2}$ this is effectively requiring a malicious adversary to guess at a random element in the set $\{0, 1\}^s$ in order to cheat successfully. Therefore such a builder can only successfully cheat with probability $2^{-s}$.\\
+
+				\subsubsection{}
 
 		\section{Huang, Katz and Evans 2013}
-			Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.\\
+			\subsection*{Overview}
 
-			They then both open half of each others circuits to check for correctness before evaluating the unopened circuits.\\
+				Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits.\\
 
-			The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuits, however the protocol is symmetrical, both parties need to do the same amount of work. Huang et al. claim that due to the symmetrical nature of the protocol.
+				They then both open half of each others circuits to check for correctness before evaluating the unopened circuits.\\
+
+				The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
+				
+				Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}
