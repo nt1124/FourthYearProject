@@ -282,20 +282,48 @@
 				\subsubsection{High level concepts}
 					\textcolor{red}{The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.}\\
 
-					\textcolor{red}{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}\\
+					\textcolor{red}{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}
 
-				\subsubsection{Dual-Mode cryptosystem}
-					\textcolor{red}{The Dual-mode cryptosystem has two modes (\emph{messy} and \emph{decryption}), selected during the setup, a Common Reference String(CRS) is also generated at setup. The Receiver uses their input bit and the CRS to generate a ``base'' public key and private key.}\\
+				\subsubsection{Dual-Mode Encryption}
+					\textcolor{red}{Peikert-Vaikuntanathan and Water's describe a new abstraction, a Dual-mode cryptosystem. This system requires a setup phase in which the parties produce a public \emph{Common Reference String} and potentially a trapdoor. Peikert et al. state that this trapdoor information is only needed for the security proof as such we will mostly ignore these details.}\\
 
-					\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
-
-					\textcolor{red}{The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
-
-					\textcolor{red}{Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
-
-					\textcolor{red}{It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption that can be satistfied with a shared randomness pool (they give the example of sunspots).}\\
+					\textcolor{red}{The setup also chooses one of two modes (\emph{messy} and \emph{decryption}).. Once this setup is complete this cryptosystem is very similar to a normal Public Key system, with one major difference, Peikert et al. introduce the concept of encryption branches.}\\
 					
-					\textcolor{red}{In at least the DDH-based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors in only one round.}
+					\textcolor{red}{The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.}\\
+
+					\textcolor{red}{Plaintexts can be decrypted if encrypted with $b = \sigma$, but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted. Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.}\\
+
+					\textcolor{red}{Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.}\\
+
+					\textcolor{red}{We now more formally define the abstract system and in particular what functions are required.}\\
+
+					\begin{mdframed}
+						\centering
+						\begin{itemize}
+							\item \textbf{Setup}($S$, $\mu$) - This function takes a security parameter $S$ and a bit $\mu \in \{0, 1\}$ which defines which mode (messy or decryptable). The function should output the CRS and trapdoor information (crs, t).\\
+
+							All other functions take this crs as an implicit parameter.
+
+							\item \textbf{KeyGen}($\sigma$) - This function takes a single input of a bit $\sigma \in \{0, 1\}$ and outputs ($pk$, $sk$) where $pk$ is a public key for encryption and $sk$ is a secret key that allows decryption of plaintexts encrypted using $pk$ on the branch $\sigma$.
+
+							\item \textbf{Enc}($m$, $pk$, $b$) - This function takes a message $m \in \{0, 1\}^l$, a public key $pk$ and a bit $b \in \{0, 1\}$. It returns the encryption of $m$ under $pk$ on branch $b$.
+
+							\item \textbf{Dec}($c$, $sk$) - This function takes a ciphertext $c$ and a secret key $sk$. It outputs a message $m' \in \{0, 1\}^l$.
+						\end{itemize}
+					\end{mdframed}
+
+				\subsubsection{Dual-mode encryption using DDH}
+
+
+					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
+
+					%\textcolor{red}{The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
+
+					% \textcolor{red}{Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
+
+					% \textcolor{red}{It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption that can be satistfied with a shared randomness pool (they give the example of sunspots).}\\
+
+					%\textcolor{red}{In at least the DDH-based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors in only one round.}
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
 

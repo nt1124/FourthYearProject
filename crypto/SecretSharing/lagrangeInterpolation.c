@@ -97,6 +97,7 @@ struct Fq_poly **generateAllLagrangePolys(int length, int *delta_i, mpz_t q)
 }
 
 
+// Length = t?
 struct Fq_poly *getPolyFromCodewords(mpz_t *codewords, int *delta_i, int length, mpz_t q)
 {
 	struct Fq_poly **lagrangePolys, *output;
@@ -114,7 +115,6 @@ struct Fq_poly *getPolyFromCodewords(mpz_t *codewords, int *delta_i, int length,
 
 		// gmp_printf("%Zd\n", codewords[i-1]);
 	}
-	// printf("\n\n\n");
 
 
 	return output;

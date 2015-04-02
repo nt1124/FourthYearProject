@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  1 APR 2015 20:56
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  2 APR 2015 23:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1288,11 +1288,6 @@ Underfull \hbox (badness 10000) in paragraph at lines 283--284
  []
 
 [10]
-Underfull \hbox (badness 10000) in paragraph at lines 285--286
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 288--289
 
  []
@@ -1318,91 +1313,45 @@ Underfull \hbox (badness 10000) in paragraph at lines 296--297
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 303--304
+Underfull \hbox (badness 10000) in paragraph at lines 298--299
 
  []
 
-[11]
-Underfull \hbox (badness 10000) in paragraph at lines 309--310
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 311--312
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 322--323
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 324--325
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 326--327
-
- []
-
+Package mdframed Info: mdframed works in twoside mode on input line 301.
 
 Underfull \hbox (badness 10000) in paragraph at lines 331--332
 
  []
 
+
+Underfull \vbox (badness 3724) has occurred while \output is active []
+
+ [11]
+Underfull \hbox (badness 10000) in paragraph at lines 337--338
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 339--340
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 350--351
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 352--353
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 354--355
+
+ []
+
 [12]
-Underfull \hbox (badness 10000) in paragraph at lines 333--334
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 340--341
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 342--343
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 344--345
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 346--347
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 349--350
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 351--352
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 353--354
-
- []
-
-[13]
-Underfull \hbox (badness 10000) in paragraph at lines 355--356
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 357--358
-
- []
-
-
 Underfull \hbox (badness 10000) in paragraph at lines 359--360
 
  []
@@ -1413,12 +1362,15 @@ Underfull \hbox (badness 10000) in paragraph at lines 361--362
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 363--364
+Underfull \hbox (badness 10000) in paragraph at lines 368--369
 
  []
 
-[14]
-Chapter 4.
+
+Underfull \hbox (badness 10000) in paragraph at lines 370--371
+
+ []
+
 
 Underfull \hbox (badness 10000) in paragraph at lines 372--373
 
@@ -1429,8 +1381,23 @@ Underfull \hbox (badness 10000) in paragraph at lines 374--375
 
  []
 
+[13]
+Underfull \hbox (badness 10000) in paragraph at lines 377--378
 
-Underfull \hbox (badness 10000) in paragraph at lines 376--377
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 379--380
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 381--382
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 383--384
 
  []
 
@@ -1444,9 +1411,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 387--388
 
  []
 
-[15
 
-]
 Underfull \hbox (badness 10000) in paragraph at lines 389--390
 
  []
@@ -1456,11 +1421,8 @@ Underfull \hbox (badness 10000) in paragraph at lines 391--392
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 398--399
-
- []
-
+[14]
+Chapter 4.
 
 Underfull \hbox (badness 10000) in paragraph at lines 400--401
 
@@ -1476,30 +1438,30 @@ Underfull \hbox (badness 10000) in paragraph at lines 404--405
 
  []
 
-[16]
-Chapter 5.
 
-Underfull \hbox (badness 10000) in paragraph at lines 408--409
+Underfull \hbox (badness 10000) in paragraph at lines 413--414
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 410--411
+Underfull \hbox (badness 10000) in paragraph at lines 415--416
+
+ []
+
+[15
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 417--418
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 421--422
+Underfull \hbox (badness 10000) in paragraph at lines 419--420
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 423--424
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 425--426
+Underfull \hbox (badness 10000) in paragraph at lines 426--427
 
  []
 
@@ -1508,17 +1470,59 @@ Underfull \hbox (badness 10000) in paragraph at lines 428--429
 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 430--431
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 432--433
+
+ []
+
+[16]
+Chapter 5.
+
+Underfull \hbox (badness 10000) in paragraph at lines 436--437
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 438--439
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 449--450
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 451--452
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 453--454
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 456--457
+
+ []
+
 [17
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 440--441
+Underfull \hbox (badness 10000) in paragraph at lines 468--469
 
  []
 
 [18]
 Chapter 6.
 
-Underfull \hbox (badness 10000) in paragraph at lines 465--466
+Underfull \hbox (badness 10000) in paragraph at lines 493--494
 
  []
 
@@ -1531,20 +1535,20 @@ Chapter 7.
 ] [21
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 554.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 582.
  [22]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 554.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 582.
  (./Dissertation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 554.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 554.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 582.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 582.
 Package rerunfilecheck Info: File `Dissertation.out' has not changed.
 (rerunfilecheck)             Checksum: 410BD6E52F77F338D76A4782829FE234;2648.
  ) 
 Here is how much of TeX's memory you used:
- 18165 strings out of 495028
- 303062 string characters out of 6181497
- 517857 words of memory out of 5000000
- 20957 multiletter control sequences out of 15000+600000
+ 18167 strings out of 495028
+ 303092 string characters out of 6181497
+ 517882 words of memory out of 5000000
+ 20958 multiletter control sequences out of 15000+600000
  11839 words of font info for 44 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  45i,26n,51p,10426b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1563,10 +1567,10 @@ amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Dissertation.pdf (22 pages, 355134 bytes).
+Output written on Dissertation.pdf (22 pages, 357087 bytes).
 PDF statistics:
- 489 PDF objects out of 1000 (max. 8388607)
- 442 compressed objects within 5 object streams
- 104 named destinations out of 1000 (max. 500000)
+ 490 PDF objects out of 1000 (max. 8388607)
+ 443 compressed objects within 5 object streams
+ 105 named destinations out of 1000 (max. 500000)
  302 words of extra memory for PDF output out of 10000 (max. 10000000)
 

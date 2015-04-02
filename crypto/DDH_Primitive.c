@@ -115,6 +115,32 @@ struct DDH_Group *getSchnorrGroup(int securityParam, gmp_randstate_t state)
 }
 
 
+// SecurityParam is the number of bits for p.
+struct DDH_Group *get_128_Bit_Group(gmp_randstate_t state)
+{
+	const char *pStr = "1cf2649bd19176df80f61bd40cd6c994f";
+	const char *qStr = "e79324de8c8bb6fc07b0dea066b64ca7";
+
+	struct DDH_Group *group = initGroupStruct();
+	mpz_t candiateG;
+
+	mpz_init(candiateG);
+
+	// getSafePrimeGMP(group -> p, group -> q, state, securityParam);
+	gmp_sscanf (pStr, "%Zx", group -> p);
+	gmp_sscanf (qStr, "%Zx", group -> q);
+
+	do
+	{
+		mpz_urandomm(candiateG, state, group -> p);
+		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
+	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
+
+
+	return group;
+}
+
+
 // Generate the keys given a group.
 struct DDH_KeyPair *generateKeys(struct DDH_Group *group, gmp_randstate_t state)
 {

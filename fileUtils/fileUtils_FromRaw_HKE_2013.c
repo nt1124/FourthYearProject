@@ -1,3 +1,76 @@
+// Function to take the secret sharing scheme structures. 
+mpz_t *getOutputKeys(struct HKE_Output_Struct_Builder *outputStructs, int numInputs, int j)
+{
+	mpz_t *outputKeys = (mpz_t *) calloc(2 * numInputs, sizeof(mpz_t));
+	int i, index = 0;
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		mpz_init_set(outputKeys[index + 0], outputStructs -> scheme0Array[i] -> shares[j]);
+		mpz_init_set(outputKeys[index + 1], outputStructs -> scheme1Array[i] -> shares[j]);
+		index += 2;
+	}
+
+	return outputKeys;
+}
+
+
+// Process a gateOrWire struct given the data.
+struct gateOrWire *processGateOrWire_FromRaw_VSS_Output(randctx *ctx, struct RawGate *rawGate, struct gateOrWire **circuit,
+														mpz_t key0, mpz_t key1, int numInputs1)
+{
+	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
+	unsigned char permC = 0x00, usingBuilderInput = 0xF0, *k0Bytes, *k1Bytes;
+	int inputID, i, tempLength = 0;
+
+
+	toReturn -> G_ID = rawGate -> G_ID;
+	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
+	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
+
+	toReturn -> gatePayload = processGate_FromRaw(rawGate -> numInputs, rawGate -> inputIDs, rawGate -> rawOutputTable, rawGate -> gateType);
+
+	if('X' == rawGate -> gateType)
+	{
+		for(i = 0; i < toReturn -> gatePayload -> numInputs; i ++)
+		{
+			inputID = toReturn -> gatePayload -> inputIDs[i];
+			permC ^= circuit[inputID] -> outputWire -> wirePerm;
+			usingBuilderInput &= 0xE0;
+		}
+
+		toReturn -> outputWire -> wireMask ^= usingBuilderInput;
+		toReturn -> outputWire -> wirePerm = permC;
+	}
+	else
+	{
+		toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
+	}
+
+	toReturn -> outputWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+	k0Bytes = convertMPZToBytes(key0, &tempLength);
+	k1Bytes = convertMPZToBytes(key1, &tempLength);
+
+	toReturn -> outputWire -> outputGarbleKeys -> key0 = (unsigned char *) calloc(17, sizeof(unsigned char));
+	toReturn -> outputWire -> outputGarbleKeys -> key1 = (unsigned char *) calloc(17, sizeof(unsigned char));
+
+	memcpy(toReturn -> outputWire -> outputGarbleKeys -> key0, k0Bytes, 16);
+	memcpy(toReturn -> outputWire -> outputGarbleKeys -> key1, k1Bytes, 16);
+
+	toReturn -> outputWire -> outputGarbleKeys -> key0[16] = 0x00 ^ (0x01 & toReturn -> outputWire -> wirePerm);
+	toReturn -> outputWire -> outputGarbleKeys -> key1[16] = 0x01 ^ (0x01 & toReturn -> outputWire -> wirePerm);
+
+
+	encWholeOutTable(toReturn, circuit);
+
+
+	free(k0Bytes);
+	free(k1Bytes);
+
+
+	return toReturn;
+}
+
 
 
 // Initialises an input wire, needed because input wires don't feature in the input file.
@@ -7,6 +80,7 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	struct bitsGarbleKeys *tempOutput;
+
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
@@ -18,12 +92,12 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 	tempOutput -> key0 = hashECC_Point(NP_InputsZero, 16);
 	tempOutput -> key1 = hashECC_Point(NP_InputsOne, 16);
 
-
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
 
 	toReturn -> gatePayload = NULL;
 	toReturn -> outputWire -> wireMask = 0x01;
 	toReturn -> outputWire -> wireOwner = owner;
+
 
 	return toReturn;
 }
@@ -73,7 +147,8 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 
 
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint *C, struct eccPoint **NaorPinkasInputs, struct eccParams *params, int partyID)
+struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint *C, struct eccPoint **NaorPinkasInputs,
+											struct HKE_Output_Struct_Builder *outputStructs, int j, struct eccParams *params, int partyID)
 {
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;
@@ -82,6 +157,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 	int i, k = 0, gateIndex = 0;
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
+	mpz_t *outputKeysLocal;
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -93,7 +169,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
-
+	outputKeysLocal = getOutputKeys(outputStructs, rawInputCircuit -> numOutputs, j);
 	gatesList = initAllInputs_FromRaw_HKE_2013( ctx, rawInputCircuit, R, C, NaorPinkasInputs, partyID, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
@@ -106,8 +182,10 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 		}
 		else
 		{
-			tempGateOrWire = processGateOrWire_FromRaw(ctx, rawInputCircuit -> gates[gateIndex], gatesList, R, outputCircuit -> numInputs);
-			k ++;
+			tempGateOrWire = processGateOrWire_FromRaw_VSS_Output(ctx, rawInputCircuit -> gates[gateIndex], gatesList,
+																outputKeysLocal[k], outputKeysLocal[k + 1],
+																outputCircuit -> numInputs);
+			k += 2;
 		}
 
 		if( NULL != tempGateOrWire )
@@ -188,22 +266,22 @@ mpz_t **getNaorPinkasInputs(int numInputs, int numCircuits, gmp_randstate_t stat
 }
 
 
-struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numInputs, int numCircuits, gmp_randstate_t state, struct DDH_Group *group)
+struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutput, int numCircuits, gmp_randstate_t state, struct DDH_Group *group)
 {
-	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(numInputs, sizeof(struct HKE_Output_Struct_Builder));
+	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(numOutput, sizeof(struct HKE_Output_Struct_Builder));
 	mpz_t *temp;
 	int i, t;
 
 
 	t = (numCircuits / 2);
 
-	output -> s_0Array = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
-	output -> s_1Array = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+	output -> s_0Array = (mpz_t *) calloc(numOutput, sizeof(mpz_t));
+	output -> s_1Array = (mpz_t *) calloc(numOutput, sizeof(mpz_t));
 
-	output -> scheme0Array = (struct sharingScheme **) calloc(numInputs, sizeof(struct sharingScheme *));
-	output -> scheme1Array = (struct sharingScheme **) calloc(numInputs, sizeof(struct sharingScheme *));
+	output -> scheme0Array = (struct sharingScheme **) calloc(numOutput, sizeof(struct sharingScheme *));
+	output -> scheme1Array = (struct sharingScheme **) calloc(numOutput, sizeof(struct sharingScheme *));
 
-	for(i = 0; i < numInputs; i ++)
+	for(i = 0; i < numOutput; i ++)
 	{
 		mpz_init(output -> s_0Array[i]);
 		mpz_urandomm(output -> s_0Array[i], state, group -> q);
@@ -218,4 +296,8 @@ struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numInputs, int n
 
 	return output;
 }
+
+
+
+
 

@@ -77,7 +77,8 @@ void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
 	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
 
 	state = seedRandGen();
-	group = getSchnorrGroup(1024, *state);
+	// group = generateGroup(128, *state);
+	group = get_128_Bit_Group(*state);
 	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(globalIsaacContext);
 
@@ -85,12 +86,12 @@ void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
 	timestamp_0 = timestamp();
 
 
-	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numInputsBuilder, 1, *state, group);
+	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, 6, *state, group);
 	C = setup_OT_NP_Sender(params, *state);
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, numCircuits, *state, params);
 	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, numCircuits, params);
 
-	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], params, builder);
+	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], outputStruct, 0, params, builder);
 
 
 	setCircuitsInputs_Hardcode(startOfInputChainExec, inputCircuit, 0xFF);
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	testVSS();
+	// testVSS();
 	testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();

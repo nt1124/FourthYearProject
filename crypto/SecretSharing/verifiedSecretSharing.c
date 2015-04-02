@@ -105,6 +105,7 @@ struct sharingScheme *VSS_Share(mpz_t secret, int t, int n, gmp_randstate_t stat
 }
 
 
+
 int VSS_Verify(struct pubVSS_Box *pub, mpz_t shareToVerify, unsigned int index, struct DDH_Group *group)
 {
 	mpz_t indexMPZ, indexMPZPowT, gPowShare, c_iProduct, c_iTemp, temp;
@@ -182,7 +183,8 @@ void testVSS()
 
 
 	state = seedRandGen();
-	group = getSchnorrGroup(1024, *state);
+	// group = getSchnorrGroup(1024, *state);
+	group = generateGroup(128, *state);
 
 	mpz_init(secret);
 	mpz_urandomm(secret, *state, group -> q);
