@@ -1,4 +1,5 @@
 
+
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
 struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsigned char owner, unsigned char *R,
@@ -50,7 +51,7 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputsExecutor;
 	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputsBuilder;
 
-	printf("%d => %d - %d  :  %d - %d\n", partyID, execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
+	// printf("%d => %d - %d  :  %d - %d\n", partyID, execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
 
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
@@ -87,9 +88,10 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 	outputCircuit -> checkFlag = 0x00;
 	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsBuilder;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsExecutor;
 	outputCircuit -> numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
+
 
 
 	gatesList = initAllInputs_FromRaw_HKE_2013( ctx, rawInputCircuit, R, C, NaorPinkasInputs, partyID, params );
@@ -186,46 +188,34 @@ mpz_t **getNaorPinkasInputs(int numInputs, int numCircuits, gmp_randstate_t stat
 }
 
 
-/*
-void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
+struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numInputs, int numCircuits, gmp_randstate_t state, struct DDH_Group *group)
 {
-	struct timespec timestamp_0, timestamp_1;
-	clock_t c_0, c_1;
-	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
-	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
-	struct eccParams *params = initBrainpool_256_Curve();
-
-	struct eccPoint ***NaorPinkasInputs, *C;
-	mpz_t **aList;
-	gmp_randstate_t *state;
-	int numCircuits = 1;
+	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(numInputs, sizeof(struct HKE_Output_Struct_Builder));
+	mpz_t *temp;
+	int i, t;
 
 
-	struct idAndValue *startOfInputChainExec = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.executor.input" );
-	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
+	t = (numCircuits / 2);
 
-	state = seedRandGen();
-	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
-	getIsaacContext(globalIsaacContext);
+	output -> s_0Array = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+	output -> s_1Array = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
 
-	c_0 = clock();
-	timestamp_0 = timestamp();
+	output -> scheme0Array = (struct sharingScheme **) calloc(numInputs, sizeof(struct sharingScheme *));
+	output -> scheme1Array = (struct sharingScheme **) calloc(numInputs, sizeof(struct sharingScheme *));
 
-	C = setup_OT_NP_Sender(params, *state);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, numCircuits, params);
+	for(i = 0; i < numInputs; i ++)
+	{
+		mpz_init(output -> s_0Array[i]);
+		mpz_urandomm(output -> s_0Array[i], state, group -> q);
 
-	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], params, builder);
+		mpz_init(output -> s_1Array[i]);
+		mpz_urandomm(output -> s_1Array[i], state, group -> q);
+
+		output -> scheme0Array[i] = VSS_Share(output -> s_0Array[i], t, numCircuits, state, group);
+		output -> scheme1Array[i] = VSS_Share(output -> s_1Array[i], t, numCircuits, state, group);
+	}
 
 
-	printf(">>>>>>>>>\n");
-	fflush(stdout);
-	setCircuitsInputs_Hardcode(startOfInputChainExec, inputCircuit, 0xFF);
-	setCircuitsInputs_Hardcode(startOfInputChainBuilder, inputCircuit, 0xFF);
-
-	printf(">>>>>>>>>\n");
-	fflush(stdout);
-
-	runCircuitExec( inputCircuit, 0, 0 );
+	return output;
 }
-*/
+

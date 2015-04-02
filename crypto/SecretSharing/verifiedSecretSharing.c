@@ -96,7 +96,7 @@ struct sharingScheme *VSS_Share(mpz_t secret, int t, int n, gmp_randstate_t stat
 	for(i = 0 ; i < n; i ++)
 	{
 		mpz_set_ui(secret_index, i + 1);
-		tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> p);
+		tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
 		mpz_set(scheme -> shares[i], *tempMPZ);
 		free(tempMPZ);
 	}
@@ -140,7 +140,7 @@ int VSS_Verify(struct pubVSS_Box *pub, mpz_t shareToVerify, unsigned int index, 
 
 mpz_t *VSS_Recover(mpz_t *shares, int *indices, int length, struct DDH_Group *group)
 {
-	struct Fq_poly *secretPoly = getPolyFromCodewords(shares, indices, length, group -> p);
+	struct Fq_poly *secretPoly = getPolyFromCodewords(shares, indices, length, group -> q);
 	mpz_t zeroMPZ, *secret;
 
 
@@ -151,6 +151,24 @@ mpz_t *VSS_Recover(mpz_t *shares, int *indices, int length, struct DDH_Group *gr
 	return secret;
 }
 
+
+unsigned char **hashAllShares(mpz_t *shares, int n)
+{
+	unsigned char **output, *tempBytes;
+	int i, tempLength;
+
+
+	output = (unsigned char **) calloc(n, sizeof(unsigned char*));
+	for(i = 0; i < n; i ++)
+	{
+		tempLength = 0;
+		tempBytes = convertMPZToBytes(shares[i], &tempLength);
+		output[i] = sha256_full(tempBytes, tempLength);
+		free(tempBytes);
+	}
+
+	return output;
+}
 
 
 void testVSS()
@@ -165,10 +183,6 @@ void testVSS()
 
 	state = seedRandGen();
 	group = getSchnorrGroup(1024, *state);
-
-	// mpz_set_ui(group -> g, 3);
-	// mpz_set_ui(group -> q, 5);
-	// mpz_set_ui(group -> p, 11);
 
 	mpz_init(secret);
 	mpz_urandomm(secret, *state, group -> q);
@@ -191,7 +205,7 @@ void testVSS()
 	for(i = 0; i < 10; i ++)
 	{
 		verified = VSS_Verify( scheme -> pub, scheme -> shares[i], i + 1, group);
-		printf("%d  =>  %d\n", i, verified);
+		printf("%d  =>  %d\n", i + 1, verified);
 	}
 }
 

@@ -55,12 +55,64 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
 
+
+
+void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
+{
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
+	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
+	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
+	struct eccParams *params = initBrainpool_256_Curve();
+
+	struct eccPoint ***NaorPinkasInputs, *C;
+	mpz_t **aList;
+	gmp_randstate_t *state;
+	int numCircuits = 1;
+
+	struct HKE_Output_Struct_Builder *outputStruct;
+	struct DDH_Group *group;
+
+	struct idAndValue *startOfInputChainExec = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.executor.input" );
+	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
+
+	state = seedRandGen();
+	group = getSchnorrGroup(1024, *state);
+	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
+	getIsaacContext(globalIsaacContext);
+
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+
+	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numInputsBuilder, 1, *state, group);
+	C = setup_OT_NP_Sender(params, *state);
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, numCircuits, *state, params);
+	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, numCircuits, params);
+
+	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], params, builder);
+
+
+	setCircuitsInputs_Hardcode(startOfInputChainExec, inputCircuit, 0xFF);
+	setCircuitsInputs_Hardcode(startOfInputChainBuilder, inputCircuit, 0xFF);
+
+	runCircuitExec( inputCircuit, 0, 0 );
+ 
+    printOutputHexString(inputCircuit);
+}
+
+
+
+
+
+
 // Useage. Circuit, IP, Port, Input file, builder flag
 int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
 	testVSS();
+	testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();
 	// testCircuitComp(argv[1]);
@@ -82,3 +134,4 @@ int main(int argc, char *argv[])
 // testOT_PWV_DDH_Local_ECC();
 // test_local_CnC_OT();
 // test_local_CnC_OT_ECC();
+
