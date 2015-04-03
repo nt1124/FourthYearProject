@@ -246,10 +246,10 @@
 					\begin{mdframed}
 						\centering
 						\begin{tabular}{l c l}
-							\textbf{Sender} & Group $(\mathbb{G}, g, q)$ & \textbf{Receiver}\\
+							\textbf{Sender} & Group $\mathbb{G} = (G, g, q)$ & \textbf{Receiver}\\
 							$x_0, x_1 \in \{0, 1\}^l$ & & $b \in \{0, 1\}$\\[0.6cm]
 
-							$C \xleftarrow{\$} \mathbb{G}$ & &\\
+							$C \xleftarrow{\$} G$ & &\\
 
 							& \commRightArrow{C} & \\
 
@@ -271,6 +271,8 @@
 							& & Output $x_b$\\
 						\end{tabular}
 					\end{mdframed}
+
+					\caption{ The Naor-Pinkas Oblivious Transfer protocol. Note that the same $C$ can be used for multiple OTs.\label{fig:NPOT_Protocol}}
 				\end{figure}
 
 
@@ -291,29 +293,41 @@
 					
 					\textcolor{red}{The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.}\\
 
-					\textcolor{red}{Plaintexts can be decrypted if encrypted with $b = \sigma$, but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted. Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.}\\
+					\textcolor{red}{Plaintexts can be decrypted if encrypted with $b = \sigma$ (the decryptable branch of $pk$), but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted (we call this the messy branch of $pk$). Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.}\\
 
 					\textcolor{red}{Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.}\\
 
 					\textcolor{red}{We now more formally define the abstract system and in particular what functions are required.}\\
 
-					\begin{mdframed}
-						\centering
-						\begin{itemize}
-							\item \textbf{Setup}($S$, $\mu$) - This function takes a security parameter $S$ and a bit $\mu \in \{0, 1\}$ which defines which mode (messy or decryptable). The function should output the CRS and trapdoor information (crs, t).\\
+					\begin{figure}
+						\begin{mdframed}
+							\centering
+							\begin{itemize}
+								\item \textbf{Setup}($S$, $\mu$) - This function takes a security parameter $S$ and a bit $\mu \in \{0, 1\}$ which defines which mode (messy or decryptable). The function should output the CRS and trapdoor information (crs, t).\\
 
-							All other functions take this crs as an implicit parameter.
+								All other functions take this crs as an implicit parameter.
 
-							\item \textbf{KeyGen}($\sigma$) - This function takes a single input of a bit $\sigma \in \{0, 1\}$ and outputs ($pk$, $sk$) where $pk$ is a public key for encryption and $sk$ is a secret key that allows decryption of plaintexts encrypted using $pk$ on the branch $\sigma$.
+								\item \textbf{KeyGen}($\sigma$) - This function takes a single input of a bit $\sigma \in \{0, 1\}$ and outputs ($pk$, $sk$) where $pk$ is a public key for encryption and $sk$ is a secret key that allows decryption of plaintexts encrypted using $pk$ on the branch $\sigma$.
 
-							\item \textbf{Enc}($m$, $pk$, $b$) - This function takes a message $m \in \{0, 1\}^l$, a public key $pk$ and a bit $b \in \{0, 1\}$. It returns the encryption of $m$ under $pk$ on branch $b$.
+								\item \textbf{Enc}($m$, $pk$, $b$) - This function takes a message $m \in \{0, 1\}^l$, a public key $pk$ and a bit $b \in \{0, 1\}$. It returns the encryption of $m$ under $pk$ on branch $b$.
 
-							\item \textbf{Dec}($c$, $sk$) - This function takes a ciphertext $c$ and a secret key $sk$. It outputs a message $m' \in \{0, 1\}^l$.
-						\end{itemize}
-					\end{mdframed}
+								\item \textbf{Dec}($c$, $sk$) - This function takes a ciphertext $c$ and a secret key $sk$. It outputs a message $m' \in \{0, 1\}^l$.
+
+								\item \textbf{FindMessy}($pk$, $t$) - This function takes a public key $pk$ and a messy mode trapdoor $t$. The function then outputs a bit $b \in \{0, 1\}$ indicating which branch of $pk$ is messy.
+
+								\item \textbf{TrapKeyGen}($t$) - This function takes decryptable mode trapdoor $t$ and is an alternative key generation. The function outputs $(pk, sk_0, sk_1)$, note that it outputs two secret keys, one for each branch. These secret keys allow the decryption of both branches of $pk$.
+							\end{itemize}
+						\end{mdframed}
+
+						\caption{The abstract functions the define a Dual-mode cryptosystem. \label{fig:PVW_Abstract_Functions}}
+					\end{figure}
 
 				\subsubsection{Dual-mode encryption using DDH}
 
+					Having described the abstract form of a Dual-mode cryptosystem we now give a concrete realisation. This realisation requires a group, as usual we define this group as $\mathbb{G} = (G, g, q)$ where $g$ generates $G$ and $|g| = q$. Further we require that the the group is chosen such that we believe the Decisional Diffie-Hellman problem be hard for this group.\\
+
+					%Not sure if we should bother explaining the DDH problem.
+					Before giving concrete definitions of the functions we need a few primitives
 
 					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 

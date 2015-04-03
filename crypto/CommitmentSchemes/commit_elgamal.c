@@ -2,8 +2,6 @@ struct commit_batch_params *init_commit_batch_params()
 {
 	struct commit_batch_params *toReturn = (struct commit_batch_params*) calloc(1, sizeof(struct commit_batch_params));
 
-	mpz_init(toReturn -> h);
-
 	return toReturn;
 }
 
@@ -14,14 +12,13 @@ struct commit_batch_params *generate_commit_params(int securityParam, gmp_randst
 	mpz_t a;
 	mpz_init(a);
 
-	toReturn -> group = getSchnorrGroup(securityParam, state);
+	toReturn -> params = initBrainpool_256_Curve();
 
-	mpz_urandomm(a, state, toReturn -> group -> p);
-	mpz_powm(toReturn -> h, toReturn -> group -> g, a, toReturn -> group -> p);
+	mpz_urandomm(a, state, toReturn -> params -> n);
+	toReturn -> h = windowedScalarPoint(a, toReturn -> params -> g, toReturn -> params);
 
 	return toReturn;
 }
-
 
 int getSerialSizeElgamal(struct DDH_Group *group, int numToSerialise, int numInEach)
 {
@@ -47,9 +44,6 @@ struct elgamal_commit_box *init_commit_box()
 {
 	struct elgamal_commit_box *c = (struct elgamal_commit_box*) calloc(1, sizeof(struct elgamal_commit_box));
 
-	mpz_init(c -> u);
-	mpz_init(c -> v);
-
 	return c;
 }
 
@@ -58,54 +52,46 @@ struct elgamal_commit_key *init_commit_key()
 {
 	struct elgamal_commit_key *k = (struct elgamal_commit_key*) calloc(1, sizeof(struct elgamal_commit_key));
 
-	mpz_init(k -> r);
-	mpz_init(k -> x);
-
 	return k;
+}
+
+
+int sizeOfCbox_Array(struct elgamal_commit_box **c, int numC_Boxes)
+{
+	int i, totalLength = 0;
+
+	for(i = 0; i < numC_Boxes; i ++)
+	{
+		totalLength += ( sizeOfSerial_ECCPoint(c[i] -> u) + sizeOfSerial_ECCPoint(c[i] -> v) );
+	}
+
+	return totalLength;
 }
 
 
 void serialise_elgamal_Cbox(struct elgamal_commit_box *c, unsigned char *outputBuffer, int *bufferOffset)
 {
 	unsigned char *curBytes;
-	int curLength;
+	int curLength, curOffset = *bufferOffset;
 
-	curBytes = convertMPZToBytes(c -> u, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, sizeof(int));
-	*bufferOffset += sizeof(int);
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	*bufferOffset += curLength;
+	serialise_ECC_Point(c -> u, outputBuffer, &curOffset);
+	serialise_ECC_Point(c -> v, outputBuffer, &curOffset);
 
-	curBytes = convertMPZToBytes(c -> v, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, sizeof(int));
-	*bufferOffset += sizeof(int);
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	*bufferOffset += curLength;
+	*bufferOffset = curOffset;
 }
 
 
 struct elgamal_commit_box *deserialise_elgamal_Cbox(unsigned char *inputBuffer, int *bufferOffset)
 {
 	struct elgamal_commit_box *c = init_commit_box();
-	mpz_t *temp = (mpz_t*) calloc(1, sizeof(mpz_t));
-	int curLength;
+	int curLength, curOffset = *bufferOffset;
 
 
-	mpz_init(*temp);
+	c -> u = deserialise_ECC_Point(inputBuffer, &curOffset);
+	c -> v = deserialise_ECC_Point(inputBuffer, &curOffset);
 
 
-	memcpy(&curLength, inputBuffer + *bufferOffset, sizeof(int));
-	*bufferOffset += sizeof(int);
-	convertBytesToMPZ(temp, inputBuffer + *bufferOffset, curLength);
-	*bufferOffset += curLength;
-	mpz_set(c -> u, *temp);
-
-	memcpy(&curLength, inputBuffer + *bufferOffset, sizeof(int));
-	*bufferOffset += sizeof(int);
-	convertBytesToMPZ(temp, inputBuffer + *bufferOffset, curLength);
-	*bufferOffset += curLength;
-	mpz_set(c -> v, *temp);
-
+	*bufferOffset = curOffset;
 
 	return c;
 }
@@ -114,19 +100,21 @@ struct elgamal_commit_box *deserialise_elgamal_Cbox(unsigned char *inputBuffer, 
 void serialise_elgamal_Kbox(struct elgamal_commit_key *k, unsigned char *outputBuffer, int *bufferOffset)
 {
 	unsigned char *curBytes;
-	int curLength;
+	int curLength, curOffset = *bufferOffset;
 
 	curBytes = convertMPZToBytes(k -> r, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, sizeof(int));
-	*bufferOffset += sizeof(int);
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	*bufferOffset += curLength;
+	memcpy(outputBuffer + curOffset, &curLength, sizeof(int));
+	curOffset += sizeof(int);
+	memcpy(outputBuffer + curOffset, curBytes, curLength);
+	curOffset += curLength;
 
-	curBytes = convertMPZToBytes(k -> x, &curLength);
-	memcpy(outputBuffer + *bufferOffset, &curLength, sizeof(int));
-	*bufferOffset += sizeof(int);
-	memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
-	*bufferOffset += curLength;
+	// curBytes = convertMPZToBytes(k -> x, &curLength);
+	// memcpy(outputBuffer + *bufferOffset, &curLength, sizeof(int));
+	// *bufferOffset += sizeof(int);
+	// memcpy(outputBuffer + *bufferOffset, curBytes, curLength);
+	// *bufferOffset += curLength;
+
+	serialise_ECC_Point(k -> x, outputBuffer, &curOffset);
 }
 
 
@@ -134,22 +122,23 @@ struct elgamal_commit_key *deserialise_elgamal_Kbox(unsigned char *inputBuffer, 
 {
 	struct elgamal_commit_key *k = init_commit_key();
 	mpz_t *temp = (mpz_t*) calloc(1, sizeof(mpz_t));
-	int curLength;
+	int curLength, curOffset = *bufferOffset;
 
 	mpz_init(*temp);
 
 
-	memcpy(&curLength, inputBuffer + *bufferOffset, sizeof(int));
-	*bufferOffset += sizeof(int);
-	convertBytesToMPZ(temp, inputBuffer + *bufferOffset, curLength);
-	*bufferOffset += curLength;
+	memcpy(&curLength, inputBuffer + curOffset, sizeof(int));
+	curOffset += sizeof(int);
+	convertBytesToMPZ(temp, inputBuffer + curOffset, curLength);
+	curOffset += curLength;
 	mpz_set(k -> r, *temp);
 
-	memcpy(&curLength, inputBuffer + *bufferOffset, sizeof(int));
-	*bufferOffset += sizeof(int);
-	convertBytesToMPZ(temp, inputBuffer + *bufferOffset, curLength);
-	*bufferOffset += curLength;
-	mpz_set(k -> x, *temp);
+	k -> x = deserialise_ECC_Point(inputBuffer, &curOffset);
+	// memcpy(&curLength, inputBuffer + *bufferOffset, sizeof(int));
+	// *bufferOffset += sizeof(int);
+	// convertBytesToMPZ(temp, inputBuffer + *bufferOffset, curLength);
+	// *bufferOffset += curLength;
+	// mpz_set(k -> x, *temp);
 
 	return k;
 }
@@ -163,23 +152,25 @@ void create_commit_box_key(struct commit_batch_params *params, unsigned char *to
 	mpz_init(*x);
 
 	convertBytesToMPZ(x, toCommit, toCommitLen);
+	k -> x = mapMPZ_To_Point(*x, params -> params);
 
 	mpz_urandomm(r, state, params -> group -> p);
 
-	mpz_powm(c -> u, params -> group -> g, r, params -> group -> p);
+	c -> u = windowedScalarPoint(r, params -> params -> g, params -> params);
+	c -> v = windowedScalarPoint(r, params -> params -> h, params -> params);
 
+	/*
 	mpz_powm(c -> v, params -> h, r, params -> group -> p);
 	mpz_mul(c -> v, c -> v, *x);
 	mpz_mod(c -> v, c -> v, params -> group -> p);
+	*/
 
 	mpz_set(k -> r, r);
-	mpz_set(k -> x, *x);
-
 
 	free(x);
 }
 
-
+/*
 struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *params,
 												unsigned char *toCommit, int toCommitLen,
 												unsigned char *outputBuffer, int *bufferOffset,
@@ -331,3 +322,5 @@ struct commit_batch_params *setup_elgamal_R(int writeSocket, int readSocket)
 
 	return params;
 }
+
+*/

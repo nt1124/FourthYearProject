@@ -9,25 +9,25 @@
 
 typedef struct elgamal_commit_box
 {
-	mpz_t u;
-	mpz_t v;
+	struct eccPoint *u;
+	struct eccPoint *v;
 }  elgamal_commit_box;
 
 
 typedef struct elgamal_commit_key
 {
 	mpz_t r;
-	mpz_t x;
+	struct eccPoint *x;
 }  elgamal_commit_key;
 
 typedef struct commit_batch_params
 {
-	struct DDH_Group *group;
-	mpz_t h;
+	struct eccParams *params;
+	struct eccPoint *h;
 }  commit_batch_params;
 
 
-
+/*
 struct commit_batch_params *init_commit_batch_params();
 struct commit_batch_params *generate_commit_params(int securityParam, gmp_randstate_t state);
 
@@ -56,11 +56,11 @@ struct commit_batch_params *receive_commit_batch_params(int writeSocket, int rea
 
 struct commit_batch_params *setup_elgamal_C(int writeSocket, int readSocket, int securityParam, gmp_randstate_t state);
 struct commit_batch_params *setup_elgamal_R(int writeSocket, int readSocket);
-
+*/
 
 
 #include "commit_elgamal.c"
-#include "testElgamalCommits.c"
+// #include "testElgamalCommits.c"
 
 
 #endif

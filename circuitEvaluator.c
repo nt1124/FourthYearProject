@@ -77,7 +77,8 @@ void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
 	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
 
 	state = seedRandGen();
-	// group = generateGroup(128, *state);
+
+	// So for now we are using non-ECC crypto for this, so yeah. Crappy security.
 	group = get_128_Bit_Group(*state);
 	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(globalIsaacContext);

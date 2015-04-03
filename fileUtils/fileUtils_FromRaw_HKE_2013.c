@@ -56,7 +56,6 @@ struct gateOrWire *processGateOrWire_FromRaw_VSS_Output(randctx *ctx, struct Raw
 
 	memcpy(toReturn -> outputWire -> outputGarbleKeys -> key0, k0Bytes, 16);
 	memcpy(toReturn -> outputWire -> outputGarbleKeys -> key1, k1Bytes, 16);
-
 	toReturn -> outputWire -> outputGarbleKeys -> key0[16] = 0x00 ^ (0x01 & toReturn -> outputWire -> wirePerm);
 	toReturn -> outputWire -> outputGarbleKeys -> key1[16] = 0x01 ^ (0x01 & toReturn -> outputWire -> wirePerm);
 
