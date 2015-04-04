@@ -283,7 +283,7 @@ void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inpu
 	state = seedRandGen();
 
 	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, 1, params, *state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, 1, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
 

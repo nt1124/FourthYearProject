@@ -198,7 +198,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputsBuilder, checkStatSecParam);
+	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputs_P1, checkStatSecParam);
 	
 	if(0 == memcmp(delta, deltaPrime, 128))
 	{
@@ -207,7 +207,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 
 
 	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, inputBit, delta, deltaPrime, J_set,
-								rawInputCircuit -> numInputsBuilder, lengthDelta, checkStatSecParam);
+								rawInputCircuit -> numInputs_P1, lengthDelta, checkStatSecParam);
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");

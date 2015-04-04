@@ -143,7 +143,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
 						OT_Inputs, state, checkStatSecParam, 1024);
 
-	commBuffer = getK0_AndDelta(circuitsArray, delta, rawInputCircuit -> numInputsBuilder, checkStatSecParam, &commBufferLen);
+	commBuffer = getK0_AndDelta(circuitsArray, delta, rawInputCircuit -> numInputs_P1, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 
 	int_c_1 = clock();

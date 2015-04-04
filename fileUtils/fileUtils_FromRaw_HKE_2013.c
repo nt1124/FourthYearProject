@@ -114,17 +114,16 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 
 	if(1 == partyID)
 	{
-		execPartyStartID = rawInputCircuit -> numInputsBuilder;
+		execPartyStartID = rawInputCircuit -> numInputs_P1;
 	}
 	else if(0 == partyID)
 	{
-		buildingPartyStartID = rawInputCircuit -> numInputsExecutor;
+		buildingPartyStartID = rawInputCircuit -> numInputs_P2;
 	}
 
-	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputsExecutor;
-	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputsBuilder;
+	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputs_P2;
+	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
 
-	// printf("%d => %d - %d  :  %d - %d\n", partyID, execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
 
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
@@ -161,10 +160,21 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
 
+	if(1 == partyID)
+	{
+		outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
+		outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P2;
+		outputCircuit -> builderInputOffset = 0;
+	}
+	else
+	{
+		outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P2;
+		outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+		outputCircuit -> builderInputOffset = rawInputCircuit -> numInputs_P1;
+	}
+
 	outputCircuit -> checkFlag = 0x00;
-	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsExecutor;
-	outputCircuit -> numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 

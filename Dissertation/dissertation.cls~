@@ -24,7 +24,7 @@
 }
 
 \ProcessPgfOptions{/dissertation}
-\LoadClass[10pt,a4paper,twoside]{book}
+\LoadClass[11pt, a4paper, twoside]{report}
 
 % see http://www.ctan.org/tex-archive/macros/latex/required/graphics
 \RequirePackage{graphicx}
@@ -68,16 +68,16 @@
 \renewcommand{\lstlistlistingname}{List of Listings}
 
 % configure hyperref
-\hypersetup{colorlinks=true,bookmarks=false,urlcolor=red}
+\hypersetup{colorlinks=false,urlcolor=red, linktocpage=true}
 
 % configure style of table of contents
-\setcounter{tocdepth}{1}
+\setcounter{tocdepth}{2}
 
 % configure style of bibliography
 \bibliographystyle{plain}
 
 % configure style of pages
-\geometry{a4paper,lmargin=2.5cm,rmargin=2.5cm,tmargin=2.5cm,bmargin=2.5cm}
+\geometry{a4paper,inner=4cm,outer=2.5cm,top=1.5cm,bottom=1.5cm}
 
 \fancypagestyle{plain}{
   \fancyhf{}
@@ -107,6 +107,22 @@
 
 % define macro to generate UoB title page
 
+\newcommand{\commRightArrow}[1]
+{
+	$\begin{array}{c}
+		#1\\[-5pt]
+		\xrightarrow{\hspace{2.2cm}}
+	\end{array}$
+}
+
+\newcommand{\commLeftArrow}[1]
+{
+	$\begin{array}{c}
+		#1\\[-5pt]
+		\xleftarrow{\hspace{2.2cm}}
+	\end{array}$
+}
+
 \renewcommand{\maketitle}{
   \newpage
   \thispagestyle{empty}
@@ -117,12 +133,14 @@
 
   \vspace*{\fill}
   \begin{center}
-          \includegraphics[scale=0.3]{logo/logo_uob_color}           \\
-                       \vspace{1cm}
-                DEPARTMENT OF COMPUTER SCIENCE                       \\
+          \includegraphics[scale=0.2]{bristolunilogo}\\
+			\vspace{1cm}
+			{\Large UNIVERSITY OF BRISTOL}\\
+			\vspace{0.5cm}
+			DEPARTMENT OF COMPUTER SCIENCE\\
 
                        \vspace{3cm}
-                 {\LARGE \dissertation@title}                        \\
+                \textbf{\LARGE \dissertation@title}                        \\
   \ifcsempty{dissertation@subtitle}{}{{\Large \dissertation@subtitle \\}}
                        \vspace{1cm}
                  {\Large \dissertation@author}                       \\
@@ -170,21 +188,21 @@
 }
 
 % define macros to mark front, main and back matter
-
-\renewcommand{\frontmatter}{
-  \cleardoublepage
-  \pagestyle{plain}
-  \pagenumbering{roman}
-}
-\renewcommand{\mainmatter}{
-  \cleardoublepage
-  \pagestyle{marked}
-  \pagenumbering{arabic}
-}
-\renewcommand{\backmatter}{
-  \cleardoublepage
-  \pagestyle{marked}
-}
+% 
+% \renewcommand{\frontmatter}{
+%   \cleardoublepage
+%   \pagestyle{plain}
+%   \pagenumbering{roman}
+% }
+% \renewcommand{\mainmatter}{
+%   \cleardoublepage
+%   \pagestyle{marked}
+%   \pagenumbering{arabic}
+% }
+% \renewcommand{\backmatter}{
+%   \cleardoublepage
+%   \pagestyle{marked}
+% }
 
 % define macros to consistently generate dissertation type field
 

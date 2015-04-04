@@ -51,6 +51,7 @@ typedef struct Circuit
 	int numInputsExecutor;
 	int numOutputs;
 	int numGates;
+	int builderInputOffset;
 
 	unsigned int seed;
 	int securityParam;

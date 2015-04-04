@@ -188,9 +188,9 @@ struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx *ctx, struct R
 													int j, struct eccParams *params)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
-	int i, numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	int i, numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 
-	for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+	for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 	{
 		gates[i] = initInputWire_FromRaw_ConsistentInput(ctx, i, 0xFF, R, secret_input, public_inputs, j, params);
 	}
@@ -209,9 +209,9 @@ struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx *ctx, struct R
 struct gateOrWire **initAllInputs_FromRaw(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned char *R)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
-	int i, numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	int i, numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 
-	for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+	for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 	{
 		gates[i] = initInputWire_FromRaw(ctx, i, 0xFF, R);
 	}
@@ -244,9 +244,9 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCi
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
 
 	outputCircuit -> checkFlag = 0x00;
-	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
@@ -297,9 +297,9 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
 
 	outputCircuit -> checkFlag = 0x00;
-	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
@@ -354,9 +354,9 @@ struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputC
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
 
 	outputCircuit -> checkFlag = 0x00;
-	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputsBuilder;
-	outputCircuit -> numInputs = rawInputCircuit -> numInputsBuilder + rawInputCircuit -> numInputsExecutor;
+	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 

@@ -26,6 +26,9 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	c_0 = clock();
 	timestamp_0 = timestamp();
 
+	runP1_HKE_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+
+	/*
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
@@ -46,6 +49,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// test_ZKPoK_ExtDH_Tuple_Verifier();
 		// test_CnC_OT_Mod_Sender();
 	}
+	*/
 
 	c_1 = clock();
 	timestamp_1 = timestamp();
@@ -87,10 +91,10 @@ void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
 	timestamp_0 = timestamp();
 
 
-	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, 6, *state, group);
+	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, 1, *state, group);
 	C = setup_OT_NP_Sender(params, *state);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputsBuilder, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputsBuilder, numCircuits, params);
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
+	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
 	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], outputStruct, 0, params, builder);
 
@@ -101,6 +105,9 @@ void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inp
 	runCircuitExec( inputCircuit, 0, 0 );
  
     printOutputHexString(inputCircuit);
+
+
+    makeCommitmentsBuilder(globalIsaacContext, &inputCircuit, state, 1);
 }
 
 
@@ -113,9 +120,8 @@ int main(int argc, char *argv[])
 {
 	srand(time(NULL));
 
-	// testVSS();
-	testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	// testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();
 	// testCircuitComp(argv[1]);
 
@@ -125,6 +131,8 @@ int main(int argc, char *argv[])
 
 
 
+// testVSS();
+// elgamal_commit_main();
 // runLocally(circuitFilepath, argv[2], argv[3]);
 // runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 // testRunZeroedInput(circuitFilepath);

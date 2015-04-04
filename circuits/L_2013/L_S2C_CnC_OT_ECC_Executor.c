@@ -211,7 +211,7 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
-		for(i = 0; i < rawInputCircuit -> numInputsBuilder; i ++)
+		for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 		{
 			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
 			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));

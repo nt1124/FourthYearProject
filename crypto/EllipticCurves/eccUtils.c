@@ -379,6 +379,41 @@ int eccPointsEqual(struct eccPoint *P, struct eccPoint *Q)
 }
 
 
+int checkValidECC_Point(struct eccPoint *P, struct eccParams *params)
+{
+	int output = 0;
+	mpz_t temp1, temp2, temp3, candidateY_2, pY_2;
+
+
+	mpz_init(temp1);
+	mpz_init(temp2);
+	mpz_init(temp3);
+	mpz_init(candidateY_2);
+	mpz_init(pY_2);
+
+
+	mpz_powm_ui(temp1, P -> x, 3, params -> p);
+	mpz_mul(temp2, P -> x, params -> a);
+	mpz_add(temp3, temp1, temp2);
+	mpz_add(temp1, temp3, params -> b);
+	mpz_mod(candidateY_2, temp1, params -> p);
+
+	mpz_powm_ui(pY_2, P -> y, 2, params -> p);
+
+
+	output = mpz_cmp(candidateY_2, pY_2);
+
+
+	mpz_clear(temp1);
+	mpz_clear(temp2);
+	mpz_clear(temp3);
+	mpz_clear(candidateY_2);
+	mpz_clear(pY_2);
+
+	return output;
+}
+
+
 
 void freeECC_Params(struct eccParams *params)
 {

@@ -12,14 +12,14 @@ struct RawCircuit *createRawCheckCircuit(int inputB_Size)
 	outputCircuit -> numGates = 2 * inputB_Size + 1;
 
 	// Set the number of inputs for each party and the number of outputs
-	outputCircuit -> numInputsBuilder = inputB_Size;
-	outputCircuit -> numInputsExecutor = 1;
+	outputCircuit -> numInputs_P1 = inputB_Size;
+	outputCircuit -> numInputs_P2 = 1;
 	outputCircuit -> numOutputs = inputB_Size; 
 
 	// Initilise the inputs and stuff.
 	execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
-	gatesList = initialiseAllInputs_Raw( outputCircuit -> numGates, outputCircuit -> numInputsBuilder,
-										outputCircuit -> numInputsExecutor, &execOrder);
+	gatesList = initialiseAllInputs_Raw( outputCircuit -> numGates, outputCircuit -> numInputs_P1,
+										outputCircuit -> numInputs_P2, &execOrder);
 	execIndex = inputB_Size + 1;
 
 	inputIDs = (int*) calloc(2, sizeof(int));

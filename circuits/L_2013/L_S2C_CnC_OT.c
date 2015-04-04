@@ -5,7 +5,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
 
 	struct Circuit **circuitsArray;
-	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
+	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
 	const int lengthDelta = 40;
 
@@ -40,7 +40,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	}
 
 	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 	delta = generateRandBytes(16, 16);
 
@@ -112,7 +112,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	free(commBuffer);
 
 
-	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputsBuilder, 3 * stat_SecParam,
+	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputs_P1, 3 * stat_SecParam,
 												secret_inputs, params, *state);
 
 
@@ -188,7 +188,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	printf("Connected to builder.\n");
 
-	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputsBuilder);
+	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -336,7 +336,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	else
 	{
 		setRawCircuitsInputs_Hardcode(startOfInputChain, rawInputCircuit -> gates);
-		setRawCircuitsInputs_Hardcode(SC_ReturnStruct -> output, 0, rawInputCircuit -> numInputsBuilder, rawInputCircuit -> gates);
+		setRawCircuitsInputs_Hardcode(SC_ReturnStruct -> output, 0, rawInputCircuit -> numInputs_P1, rawInputCircuit -> gates);
 		evaluateRawCircuit(rawInputCircuit);
 		printOutputHexString_Raw(rawInputCircuit);
 	}

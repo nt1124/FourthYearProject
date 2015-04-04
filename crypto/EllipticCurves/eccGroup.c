@@ -345,11 +345,13 @@ struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 	// mpz_mod(temp2, temp1, params -> p);
 
 	quadratic_residue(pointOutput -> y, temp1, params -> p);
+	// quadratic_residue_alt(pointOutput -> y, temp1, params -> p);
 
 	// z ^ ((p+1)/4) (mod p)
 	mpz_clear(temp1);
 	mpz_clear(temp2);
 	mpz_clear(temp3);
+
 
 	return pointOutput;
 }

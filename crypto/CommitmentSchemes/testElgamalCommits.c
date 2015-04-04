@@ -16,8 +16,10 @@ int elgamal_commit_main()
 	unsigned char *buffer, *result;
 
 
-	struct elgamal_commit_box **listOfBoxes = (struct elgamal_commit_box **) calloc(numberOfTests, sizeof(struct elgamal_commit_box *));
-	struct elgamal_commit_key **listOfKeys = (struct elgamal_commit_key **) calloc(numberOfTests, sizeof(struct elgamal_commit_key *));
+	struct elgamal_commit_box **listOfBoxes_C = (struct elgamal_commit_box **) calloc(numberOfTests, sizeof(struct elgamal_commit_box *));
+	struct elgamal_commit_box **listOfBoxes_R = (struct elgamal_commit_box **) calloc(numberOfTests, sizeof(struct elgamal_commit_box *));
+	struct elgamal_commit_key **listOfKeys_C = (struct elgamal_commit_key **) calloc(numberOfTests, sizeof(struct elgamal_commit_key *));
+	struct elgamal_commit_key **listOfKeys_R;
 
 	mpz_t *fakeX = (mpz_t*) calloc(1, sizeof(mpz_t));
 	mpz_init(*fakeX);
@@ -41,20 +43,26 @@ int elgamal_commit_main()
 
 	c_0 = clock();
 
-	bufferSize1 = getSerialSizeElgamal(params -> group, numberOfTests, 2);
-	buffer = (unsigned char *) calloc(bufferSize1, sizeof(unsigned char));
 
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		listOfKeys[i] = single_commit_elgamal_C(params, trueCommit[i], 16, buffer, &bufferOffset, *state);
+		listOfBoxes_C[i] = init_commit_box();
+		listOfKeys_C[i] = init_commit_key();
+		create_commit_box_key(params, trueCommit[i], 16, *state, listOfBoxes_C[i], listOfKeys_C[i]);
+		
+		//listOfKeys[i] = single_commit_elgamal_C(params, trueCommit[i], 16, buffer, &bufferOffset, *state);
 	}
+
+	bufferSize1 = 0;
+	buffer = serialiseAllC_Boxes_1D(listOfBoxes_C, numberOfTests, &bufferSize1);
 
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		listOfBoxes[i] = single_commit_elgamal_R(params, buffer, &bufferOffset);
+		listOfBoxes_R[i] = single_commit_elgamal_R(params, buffer, &bufferOffset);
 	}
+	
 
 	c_1 = clock();
 	printf("\nCPU time for n many commits  : %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
@@ -63,19 +71,23 @@ int elgamal_commit_main()
 
 	c_0 = clock();
 
+	bufferSize1 = 0;
 	bufferOffset = 0;
-	for(i = 0; i < numberOfTests; i ++)
-	{
-		single_decommit_elgamal_C(params, listOfKeys[i], buffer, &bufferOffset);
-	}
+	buffer = serialiseAllK_Boxes_1D(listOfKeys_C, 16, numberOfTests, &bufferSize1);
+	listOfKeys_R = deserialiseAllK_Boxes_1D(buffer, 16, numberOfTests, &bufferOffset);
+	
 
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		result = single_decommit_elgamal_R(params, listOfBoxes[i], buffer, &bufferOffset, &outputLength);
-		if(NULL == result || 0 != memcmp(result, trueCommit[i], 16))
+		result = single_decommit_elgamal_R(params, listOfBoxes_R[i], listOfKeys_R[i], 16, &outputLength);
+		if( NULL == result)
 		{
-			printf("Failed on index %02d\n", i);
+			printf("NULL results          Failed on index %02d\n", i);
+		}
+		else if(0 != memcmp(result, trueCommit[i], 16))
+		{
+			printf("result != trueCommit  Failed on index %02d\n", i);
 		}
 		else if(0 == i % (numberOfTests / 20))
 		{
@@ -87,15 +99,15 @@ int elgamal_commit_main()
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		mpz_set(listOfKeys[i] -> x, *fakeX);
-		single_decommit_elgamal_C(params, listOfKeys[i], buffer, &bufferOffset);
+		// mpz_set(listOfKeys_R[i] -> x -> x, *fakeX);
+		// single_decommit_elgamal_C(params, listOfKeys_R[i], buffer, &bufferOffset);
 	}
 
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		result = single_decommit_elgamal_R(params, listOfBoxes[i], buffer, &bufferOffset, &outputLength);
-		if(NULL != result)
+		result = single_decommit_elgamal_R(params, listOfBoxes_R[i], listOfKeys_R[i], 16, &outputLength);
+		if(NULL != result && 0 != memcmp(result, trueCommit[i], 16))
 		{
 			printf("Failed on index %02d\n", i);
 		}
@@ -112,8 +124,10 @@ int elgamal_commit_main()
 
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		free(listOfBoxes[i]);
-		free(listOfKeys[i]);
+		free(listOfBoxes_C[i]);
+		free(listOfBoxes_R[i]);
+		free(listOfKeys_C[i]);
+		free(listOfKeys_R[i]);
 		free(trueCommit[i]);
 	}
 	free(trueCommit);

@@ -34,7 +34,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputsBuilder, stat_SecParam, params, *state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
 	for(i = 0; i < stat_SecParam; i ++)
