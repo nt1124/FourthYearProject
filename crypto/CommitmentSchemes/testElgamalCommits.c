@@ -60,7 +60,7 @@ int elgamal_commit_main()
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
-		listOfBoxes_R[i] = single_commit_elgamal_R(params, buffer, &bufferOffset);
+		listOfBoxes_R[i] = single_commit_elgamal_R(buffer, &bufferOffset);
 	}
 	
 

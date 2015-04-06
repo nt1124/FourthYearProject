@@ -282,7 +282,7 @@ unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits
 {
 	unsigned char ***allKeys = (unsigned char ***) calloc(2, sizeof(unsigned char **));
 	struct wire *tempWire;
-	int i, j, k, numKeysToStore;
+	int i, j, k = 0, numKeysToStore;
 	int numInputsBuilder, numInputsExecutor;
 
 

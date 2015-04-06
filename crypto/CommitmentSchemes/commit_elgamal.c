@@ -78,7 +78,7 @@ struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *p
 }
 
 
-struct elgamal_commit_box *single_commit_elgamal_R(struct commit_batch_params *params, unsigned char *inputBuffer, int *bufferOffset)
+struct elgamal_commit_box *single_commit_elgamal_R(unsigned char *inputBuffer, int *bufferOffset)
 {
 	struct elgamal_commit_box *c = deserialise_elgamal_Cbox(inputBuffer, bufferOffset);
 

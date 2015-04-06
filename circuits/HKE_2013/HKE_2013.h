@@ -20,6 +20,7 @@ typedef struct builderInputCommitStruct
 
 
 #include "HKE_2013_Commitments.c"
+#include "HKE_2013_OT.c"
 #include "HKE_2013.c"
 
 

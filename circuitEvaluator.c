@@ -26,30 +26,23 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	c_0 = clock();
 	timestamp_0 = timestamp();
 
-	runP1_HKE_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 
-	/*
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		runP1_HKE_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// testReceive_OT_PVW_ECC(ipAddress);
-		// test_ZKPoK_ExtDH_Tuple_Prover(ipAddress);
-		// test_CnC_OT_Mod_Receiver(ipAddress);
 	}
 	else
 	{
 		printf("Running Builder.\n");
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
-		runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		runP2_HKE_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		// testSender_OT_PVW_ECC();
-		// test_ZKPoK_ExtDH_Tuple_Verifier();
-		// test_CnC_OT_Mod_Sender();
 	}
-	*/
 
 	c_1 = clock();
 	timestamp_1 = timestamp();

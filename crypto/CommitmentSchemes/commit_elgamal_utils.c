@@ -1,4 +1,52 @@
 
+
+unsigned char *serialise_commit_batch_params(struct commit_batch_params *params, int *outputLength)
+{
+	unsigned char *curBytes, *paramsBytes, *hBytes;
+	int curLength, paramsLength, hLength, tempOffset = 0;
+
+
+	paramsBytes = serialiseECC_Params(params -> params, &paramsLength);
+
+	hLength = sizeOfSerial_ECCPoint(params -> h);
+	hBytes = (unsigned char *) calloc(hLength, sizeof(unsigned char));
+	serialise_ECC_Point(params -> h, hBytes, &tempOffset);
+
+	curLength = paramsLength + hLength;
+	curBytes = (unsigned char*) calloc(curLength, sizeof(unsigned char));
+
+	tempOffset = 0;
+	memcpy(curBytes + tempOffset, paramsBytes, paramsLength);
+	tempOffset += paramsLength;
+
+	memcpy(curBytes + tempOffset, hBytes, hLength);
+	tempOffset += hLength;
+
+
+	*outputLength = curLength;
+	free(paramsBytes);
+	free(hBytes);
+
+	return curBytes;
+}
+
+
+struct commit_batch_params *deserialise_commit_batch_params(unsigned char *inputBuffer, int *inputOffset)
+{
+	struct commit_batch_params *params = (struct commit_batch_params*) calloc(1, sizeof(struct commit_batch_params));
+	int tempOffset = *inputOffset;
+
+
+	params -> params = deserialiseECC_Params(inputBuffer, &tempOffset);
+	params -> h = deserialise_ECC_Point(inputBuffer, &tempOffset);
+
+
+	*inputOffset = tempOffset;
+
+	return params;
+}
+
+
 int sizeOf_C_Box_Array(struct elgamal_commit_box **c, int numC_Boxes)
 {
 	int i, totalLength = 0;

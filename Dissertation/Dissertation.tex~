@@ -1,4 +1,3 @@
-% \documentclass[a4paper,11pt]{report}
 \documentclass[ % the name of the author
                     author={Nicholas Tutte},
                 % the name of the supervisor
@@ -70,6 +69,9 @@
 					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
 					\item For much of the random number generation we have used the implementation of ISAAC provided by [ISAAC IMPLEMENTATION CITATION HERE].
 			\end{itemize}
+
+		\section*{Notational Glossary}
+			$\mathbb{G} \leftarrow \zeta(1^n)$ informally speaking this indicates choosing a group such that the `security' of the group is $n$ bits. 
 
 	% \mainmatter
 	% CONTENTS.
@@ -297,15 +299,16 @@
 
 					\textcolor{red}{Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.}\\
 
-					\textcolor{red}{We now more formally define the abstract system and in particular what functions are required.}\\
+					\textcolor{red}{In Figure \ref{fig:PVW_Abstract_Functions} we more formally define the abstract system and in particular what functions are required.}\\
 
-					\begin{figure}
+					\begin{figure}[!htb]
 						\begin{mdframed}
 							\centering
 							\begin{itemize}
-								\item \textbf{Setup}($S$, $\mu$) - This function takes a security parameter $S$ and a bit $\mu \in \{0, 1\}$ which defines which mode (messy or decryptable). The function should output the CRS and trapdoor information (crs, t).\\
+								\item \textbf{Setup}($1^n$, $\mu$) - This function takes a security parameter $1^n$ and a bit $\mu \in \{0, 1\}$ which defines which mode (messy or decryptable). The function should output the CRS and trapdoor information (crs, t). All other functions take this crs as an implicit parameter.\\[0.25cm]
 
-								All other functions take this crs as an implicit parameter.
+								In order to ease notation later we define two separate functions depending on $\mu$. \textbf{SetupMessy}$(1^n) :=$ \textbf{Setup}$(1^n, 0)$ and \textbf{SetupDec}$(1^n) :=$ \textbf{Setup}$(1^n, 1)$.\\[0.25cm]
+
 
 								\item \textbf{KeyGen}($\sigma$) - This function takes a single input of a bit $\sigma \in \{0, 1\}$ and outputs ($pk$, $sk$) where $pk$ is a public key for encryption and $sk$ is a secret key that allows decryption of plaintexts encrypted using $pk$ on the branch $\sigma$.
 
@@ -330,6 +333,77 @@
 					Before giving concrete definitions of the functions we need a few primitives relating to DDH cryptosystems.\\
 					
 					\paragraph{Randomisation} Take $G$ to be an arbitrary group, we shall use multiplicative notation, such that the group is of order $p$ where $p$ is prime. We then define $DLOG_G(x) = \{ (g, g^x) : g \in G\}$. Put another way $DLOG_G(x)$ is the set of all pairs of elements in $G$ such that the discrete log of the second over the first is $x$.\\
+					
+					We define a probabilistic algorithm \emph{Randomise} that takes generators $g,h \in G$ and elements $g', h' \in G$. The algorithm then outputs $(u, v) \in G^2$ such that the following properties hold,
+					
+					\begin{itemize}
+						\item If $(g, g'), (h, h') \in DLOG_G(x)$ for some $x \in \mathbb{Z}_p$ then $(u, v)$ is chosen from $DLOG_G(x)$ uniformly at random.
+
+						\item If $(g, g')\in DLOG_G(x)$ and $(h, h') \in DLOG_G(y)$ for some distinct $x, y \in \mathbb{Z}_p$ then $(u, v)$ is chosen uniformly at random from $G^2$.
+					\end{itemize}
+					In particular we define $Randomise(g, h, g', h')$ as follows, choose $s, t \xleftarrow{\$} \mathbb{Z}_p$ independently of one another, then let $u = g^s \cdot h^t$ and $v = (g')^s \cdot (h')^t$.\\
+					A full proof that this instantiation of \emph{Randomise} is given in \cite{PVW_OT_2008}, suffice to say the main idea of the proof is to re-write $h$ as a power of $g$ which we can do as $g$ generates $G$.\\
+					Having defined the function \emph{Randomise} Peikert et al. next defined a simple asymmetric cryptosystem based on it.
+
+					\paragraph{DDH-Randomise Cryptosystem} As with all asymmetric cryptosystems we need to define three algorithms namely key generation, encryption and decryption.
+
+					\begin{figure}[!htb]
+						\begin{mdframed}
+							\centering
+							\begin{itemize}
+								\item \textbf{DDH-KeyGen}($1^n$) - This function takes a security parameter and chooses a group $\mathbb{G} = (G, g, q) \leftarrow \gamma(1^n)$, this group $G$ is the message space. For our purposes this group will be an Elliptic curve group of size $\sim2^{2n}$.\\[0.25cm]
+
+								Then choose another generator of the group $h \in G$ and an exponent $x \in \mathbb{Z}_p$. Then set $pk = (g, h, g^x, h^x)$ and $sk = x$. 
+
+								\item \textbf{DDH-Enc}($pk$, $m$) - This function takes a message $m \in \{0, 1\}^l$, a public key $pk$. The public key should be parsed as $(g, h, g', h')$.\\[0.25cm]
+
+								The function computes $(u, v) \leftarrow Randomise(g, h, g', h')$ and then outputs the ciphertext $(u, v \cdot m)$.
+
+								\item \textbf{DDH-Dec}($sk$, $c$) - This function takes a ciphertext $c$ and a secret key $sk$, parse $c$ as $(c_0, c_1)$. Output a decryption $m' = c_1 / c_0^{sk}$.
+
+							\end{itemize}
+						\end{mdframed}
+
+						\caption{A simple asymmetric cryptosystem based on \emph{Randomise} in a DDH group. It is important to note here that this system is messy if  \label{fig:DDH_Cryptosystem}}
+					\end{figure}
+
+
+					\paragraph{Dual-mode Cryptosystem based on Randomise} Finally Peikert et al. give instantiations of the functions specified in \ref{fig:PVW_Abstract_Functions}, using the DDH cryptosystem just defined. These instantiations can be seen in Figure \ref{fig:PVW_DDH_Concrete_Functions}\\
+
+					
+					\begin{figure}[!htb]
+						\begin{mdframed}
+							\centering
+							\begin{itemize}
+								\item \textbf{Setup}$(1^n, \mu)$ - Recall that for notational purposes we split this function depending on the value of $\mu$. However, both branches of this function begin by choosing a group $\mathbb{G} = (G, g, p) \leftarrow \zeta(1^n)$. Then the Decryption and Messy Setup functions diverge.
+
+								\textbf{SetupDec}$(1^n)$ - Choose a random generator $g_0 \in G$, a random \emph{non-zero} exponent $y \in \mathbb{Z}_p$ and let $g_1 = g_0^y$. Then take another random \emph{non-zero} exponent $x \in \mathbb{Z}_p$ and let $h_b = g_b^x$ for $b \in \{0, 1\}$. The outputs are then $(crs, t) = ( (g_0, h_0, g_1, h_1), y )$.
+
+								\textbf{SetupMessy}$(1^n)$ - Choose a pair of random generators $g_0, g_1 \in G$ and a pair of random \emph{distinct and non-zero} exponents $x_0, x_1 \in \mathbb{Z}_p$. Let $h_b = g_b^{x_b}$ for $b \in \{0, 1\}$.  The outputs are then $(crs, t) = ( (g_0, h_0, g_1, h_1), (x_0, x_1) )$.
+
+								\item \textbf{KeyGen}($\sigma$) - Firstly choose $r \xleftarrow{\$} \mathbb{Z}_p$. Then set $g = g_{\sigma}^r$ and  $h = h_{\sigma}^r$. Finally set $pk = (g, h)$ and $sk = r$ and output $(pk, sk)$.
+
+								\item \textbf{Enc}($m$, $pk$, $b$) - Parse $pk$ as $(g, h)$. Let $pk_b = (g_b, h_b, g, h)$ where $g_b, h_b$ are taken from the crs. Then output \textbf{DDH-ENC}$(pk_b, m)$
+
+								\item \textbf{Dec}($sk$, $c$) - This function just outputs \textbf{DDH-Dec}$(sk, c)$.
+
+								\item \textbf{FindMessy}($pk$, $t$) - Parse $pk$ as $(g, h)$ and a messy mode trapdoor $t$ as $x_0, x_1$. If $h \neq g^{x_0}$ then output 0 (as the $pk$ provided is for branch 1, so branch 0 is the messy branch). Else output 1.
+
+								\item \textbf{TrapKeyGen}($t$) - Parse $t$ as $y \in \mathbb{Z}_p$, check that $y$ is indeed non-zero and a member of $\mathbb{Z}_p$. Pick a random $r \xleftarrow{\$} \mathbb{Z}_p$, compute $pk = (g_0^r, h_0^r)$ and output $(pk, r, r / y)$
+							\end{itemize}
+						\end{mdframed}
+
+						\caption{The realisation of the Dual-mode cryptosystem based on the DDH cryptosystem defined. \label{fig:PVW_DDH_Concrete_Functions}}
+					\end{figure}
+
+					\paragraph{Trusted Setup} _ Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
+
+					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then childs play for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
+					
+					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\%One obvious possible solution might be to require a Zero Knowledge Proof of Knowledge that the 
+
+					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them.
+
 
 					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 

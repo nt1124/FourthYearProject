@@ -387,14 +387,21 @@
 
 								\item \textbf{Dec}($sk$, $c$) - This function just outputs \textbf{DDH-Dec}$(sk, c)$.
 
-								\item \textbf{FindMessy}($pk$, $t$) - Parse $pk$ as $(g, h)$ and a messy mode trapdoor $t$ as $x_0, x_1$. If $g \new h^{x_0}$.
+								\item \textbf{FindMessy}($pk$, $t$) - Parse $pk$ as $(g, h)$ and a messy mode trapdoor $t$ as $x_0, x_1$. If $h \neq g^{x_0}$ then output 0 (as the $pk$ provided is for branch 1, so branch 0 is the messy branch). Else output 1.
 
-								\item \textbf{TrapKeyGen}($t$) - This function takes decryptable mode trapdoor $t$ and is an alternative key generation. The function outputs $(pk, sk_0, sk_1)$, note that it outputs two secret keys, one for each branch. These secret keys allow the decryption of both branches of $pk$.
+								\item \textbf{TrapKeyGen}($t$) - Parse $t$ as $y \in \mathbb{Z}_p$, check that $y$ is indeed non-zero and a member of $\mathbb{Z}_p$. Pick a random $r \xleftarrow{\$} \mathbb{Z}_p$, compute $pk = (g_0^r, h_0^r)$ and output $(pk, r, r / y)$
 							\end{itemize}
 						\end{mdframed}
 
 						\caption{The realisation of the Dual-mode cryptosystem based on the DDH cryptosystem defined. \label{fig:PVW_DDH_Concrete_Functions}}
 					\end{figure}
+
+					\paragraph{Trusted Setup} _ Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
+
+					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then childs play for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
+					
+					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the obvious logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.
+
 
 					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
 
