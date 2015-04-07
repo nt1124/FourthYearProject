@@ -145,7 +145,7 @@ unsigned char *OT_NP_Output_Xb(struct eccPoint *C, struct eccPoint *a, mpz_t k,
 
 
 
-void test_local_OT_NP()
+void test_local_OT_NP(int sigmaBitInt)
 {
 	struct eccParams *params;
 	struct eccPoint *C, *a;
@@ -162,7 +162,7 @@ void test_local_OT_NP()
 	unsigned char *inputBytes[numTests][2];
 	unsigned char *outputBytes[numTests];
 	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x01;
+	unsigned char sigmaBit = (unsigned char) sigmaBitInt;
 
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 

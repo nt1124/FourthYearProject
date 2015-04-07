@@ -53,7 +53,7 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	struct HKE_Output_Struct_Builder *outputStruct;
 	struct DDH_Group *group;
-	int numCircuits = 8, tempLength = 0, bufferOffset = 0;
+	int numCircuits = 4, tempLength = 0, bufferOffset = 0;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
@@ -97,12 +97,15 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
 	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
+	// printPoint(C);
+	// printPoint(cTilde);
 
 	circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct, params, ctx, circuitCTXs, circuitSeeds, numCircuits, 1);
 	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 	full_NaorPinkas_OT_Receiver(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, permedInputs, state, numCircuits, params, cTilde);
 
+	/*
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray, state, numCircuits);
 	commBuffer = serialiseC_Boxes(commitStruct, &tempLength);
 	sendBoth(writeSocket, commBuffer, tempLength);
@@ -112,6 +115,7 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, commitStruct -> iMax, commitStruct -> jMax, state, &bufferOffset);
+	*/
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -168,7 +172,7 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	struct HKE_Output_Struct_Builder *outputStruct;
 	struct DDH_Group *group;
-	int numCircuits = 8, tempLength = 0, bufferOffset = 0;
+	int numCircuits = 4, tempLength = 0, bufferOffset = 0;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
@@ -211,13 +215,15 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
 	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
+	// printPoint(C);
+	// printPoint(cTilde);
 
 	circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct, params, ctx, circuitCTXs, circuitSeeds, numCircuits, 0);
 	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 	full_NaorPinkas_OT_Sender(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, OT_Inputs, state, numCircuits, params, C);
 
-
+	/*
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray, state, numCircuits);
 	commBuffer = serialiseC_Boxes(commitStruct, &tempLength);
 	sendBoth(writeSocket, commBuffer, tempLength);
@@ -227,6 +233,7 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, commitStruct -> iMax, commitStruct -> jMax, state, &bufferOffset);
+	*/
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();

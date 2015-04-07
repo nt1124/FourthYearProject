@@ -71,7 +71,7 @@
 			\end{itemize}
 
 		\section*{Notational Glossary}
-			$\mathbb{G} \leftarrow \zeta(1^n)$ informally speaking this indicates choosing a group such that the `security' of the group is $n$ bits. 
+			$\mathbb{G} = (G, g, q) \leftarrow \zeta(1^n)$ informally speaking this indicates choosing a group such that the `security' of the group is $n$ bits. We define the group as the tuple $(G, g, q)$ where $G$ is the set of all elements of the group, $g$ is a set that generates $G$ (we deal primarily in Cyclic groups so usually this will be a single element) and finally $q$ which is the order of the group.
 
 	% \mainmatter
 	% CONTENTS.
@@ -396,11 +396,13 @@
 						\caption{The realisation of the Dual-mode cryptosystem based on the DDH cryptosystem defined. \label{fig:PVW_DDH_Concrete_Functions}}
 					\end{figure}
 
-					\paragraph{Trusted Setup} _ Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
+					\paragraph{Trusted Setup} - Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
 
 					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then childs play for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
 					
-					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the obvious logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.
+					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\%One obvious possible solution might be to require a Zero Knowledge Proof of Knowledge that the 
+
+					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them.
 
 
 					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
@@ -549,13 +551,27 @@
 
 		\section{Elliptic Curve implementation}
 
-			\textcolor{red}{Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve \emph{brainpoolP256r1} specified in \cite{BrainpoolSpecifications}. This is a $256$-bit curve and as such provides $128$-bits of security.}
+			\textcolor{red}{Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve \emph{brainpoolP256r1} specified in \cite{BrainpoolSpecifications}. This is a $256$-bit curve and as such provides $128$-bits of security. I suggest [REFERENCE THE PRIMER ON ECC] as a high-level primer on ECC and \cite{ECC_RFC_6090} for a more technical introduction.}\\
 
-		\section{Secret Sharing and Multi-precision Polynomials}
+			\textcolor{red}{Elliptic curves groups are preferable over Schnorr groups for cryptographic puposes, they require smaller keys for the same level of security reducing the required size of the group. This is particularly desirable as it reduces the size of the number we are dealing with. This point is illustrated in the Figure [INSERT FIGURE REFERENCE HERE (AND FIGURE)].}\\
 
-			For the Zero Knowledge Proof of Knowledge specified in \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. I have implemented Shamir's Secret Scheme, this scheme is based on how many points are needed to uniquely define a polynomial curve.\\
+			\textcolor{red}{Elliptic Curve Groups are usually represented in Additive notation, differing from the usual Multiplicative notation used for groups in cryptography. We define a curve of the form $y^2 = x^3 + a\cdot x + b$ modulo some prime $q$, call this curve $C$. Say $n$ is the number of bits required to represent $q$, then we say this is an $n$-bit curve.}\\
+			
+			\textcolor{red}{We then need to define the group by the set of elements and the group operation. The set of elements is simply defined as,}
 
-			Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{G}$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given fewer points then this 
+			$$\{(x, y) \in \mathbb{Z}_p^2 : \textnormal{ where } y^2 = x^3 + a\cdot x + b\} $$
+
+			\textcolor{red}{The group operation is more complex, suffice to }
+
+		\section{Verifiable Secret Sharing and Multi-precision Polynomials}
+
+			\textcolor{red}{For the Zero Knowledge Proof of Knowledge specified in \cite{LindellAndPinkas2011} we need a Secret Sharing Scheme. For \cite{Katz_Symm_CnC_2013} we need to go one step further and have a Verifiable Secret Sharing Scheme.}\\
+
+			\textcolor{red}{A Secret Sharing Scheme is a way of obscuring a secret whilst distributing shares to a set of parties such that only certain combinations of shares will be able to reconstruct the secret. So consider perhaps a bank vault which requires at least $3$ out of $10$ keys. Here the secret is the vault opening, the shares are the keys and the parties are the bank employees holding the keys. In general we speak of a $t$-out-of-$n$ scheme, where there are $n$ shares and $t$ of them are required to reveal the secret.}\\
+
+			\textcolor{red}{We have implemented Shamir's Secret Scheme (Shamir's) and its extension the Feldman's Scheme. Shamir's scheme is based on how many points are needed to uniquely define a polynomial curve. }\\
+
+			\textcolor{red}{Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{F}_q$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given $n$ or fewer points we gain no information about the polynomial.}
 
 		\section{Peikert, Vaikuntanathan and Waters OT}
 
@@ -570,7 +586,7 @@
 		We shall be using the circuits provided in \cite{NigelCircuits} for our experiments with varying randomised inputs, in particular we shall consider
 		
 		\begin{itemize}
-			\item AES (expanded and non-expanded),
+			\item AES,
 			\item 32-bit Addition,
 			\item 32-bit Multiplication,
 			\item SHA-256 hashing.

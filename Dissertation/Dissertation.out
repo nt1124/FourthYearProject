@@ -27,11 +27,12 @@
 \BOOKMARK [2][-]{subsection.5.1.1}{Tillich-Smart Circuit Files}{section.5.1}% 27
 \BOOKMARK [2][-]{subsection.5.1.2}{Creating binary circuits}{section.5.1}% 28
 \BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 29
-\BOOKMARK [1][-]{section.5.3}{Secret Sharing and Multi-precision Polynomials}{chapter.5}% 30
+\BOOKMARK [1][-]{section.5.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{chapter.5}% 30
 \BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 31
 \BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 32
 \BOOKMARK [0][-]{chapter.6}{Experiments}{}% 33
 \BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 34
 \BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 35
 \BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 36
-\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 37
+\BOOKMARK [2][-]{subsection.6.3.1}{Communications}{section.6.3}% 37
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 38

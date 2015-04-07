@@ -117,6 +117,7 @@ int main(int argc, char *argv[])
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testECC_Utils();
 	// testCircuitComp(argv[1]);
+	// test_local_OT_NP(atoi(argv[5]));
 
 	return 0;
 }

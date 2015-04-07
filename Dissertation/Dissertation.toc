@@ -22,28 +22,30 @@
 \contentsline {paragraph}{Randomisation}{13}{section*.15}
 \contentsline {paragraph}{DDH-Randomise Cryptosystem}{13}{section*.16}
 \contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{13}{section*.17}
-\contentsline {section}{\numberline {3.2}Yao's Protocol}{14}{section.3.2}
-\contentsline {subsection}{\numberline {3.2.1}Overview}{14}{subsection.3.2.1}
+\contentsline {paragraph}{Trusted Setup}{14}{section*.18}
+\contentsline {section}{\numberline {3.2}Yao's Protocol}{15}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Overview}{15}{subsection.3.2.1}
 \contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{15}{subsection.3.2.2}
 \contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{16}{subsection.3.2.3}
 \contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{16}{subsection.3.2.4}
-\contentsline {subsubsection}{Concept}{16}{section*.18}
-\contentsline {subsubsection}{Issues}{16}{section*.19}
-\contentsline {chapter}{\numberline {4}Protocols}{18}{chapter.4}
-\contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{18}{section.4.1}
-\contentsline {section}{\numberline {4.2}Lindell 2013}{18}{section.4.2}
-\contentsline {subsubsection}{}{19}{section*.22}
-\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{19}{section.4.3}
-\contentsline {chapter}{\numberline {5}Implementation Details}{20}{chapter.5}
-\contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{20}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{20}{subsection.5.1.1}
-\contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{21}{subsection.5.1.2}
-\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{21}{section.5.2}
-\contentsline {section}{\numberline {5.3}Secret Sharing and Multi-precision Polynomials}{21}{section.5.3}
-\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{21}{section.5.4}
-\contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{21}{subsection.5.4.1}
-\contentsline {chapter}{\numberline {6}Experiments}{22}{chapter.6}
-\contentsline {section}{\numberline {6.1}Measurement metrics}{22}{section.6.1}
-\contentsline {section}{\numberline {6.2}Testing Environment}{22}{section.6.2}
-\contentsline {section}{\numberline {6.3}Benchmarks}{22}{section.6.3}
-\contentsline {chapter}{\numberline {7}Conclusions}{23}{chapter.7}
+\contentsline {subsubsection}{Concept}{16}{section*.19}
+\contentsline {subsubsection}{Issues}{17}{section*.20}
+\contentsline {chapter}{\numberline {4}Protocols}{19}{chapter.4}
+\contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{19}{section.4.1}
+\contentsline {section}{\numberline {4.2}Lindell 2013}{19}{section.4.2}
+\contentsline {subsubsection}{}{20}{section*.23}
+\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{20}{section.4.3}
+\contentsline {chapter}{\numberline {5}Implementation Details}{21}{chapter.5}
+\contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{21}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{21}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{22}{subsection.5.1.2}
+\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{22}{section.5.2}
+\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{22}{section.5.3}
+\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{23}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{23}{subsection.5.4.1}
+\contentsline {chapter}{\numberline {6}Experiments}{24}{chapter.6}
+\contentsline {section}{\numberline {6.1}Measurement metrics}{24}{section.6.1}
+\contentsline {section}{\numberline {6.2}Testing Environment}{24}{section.6.2}
+\contentsline {section}{\numberline {6.3}Benchmarks}{24}{section.6.3}
+\contentsline {subsection}{\numberline {6.3.1}Communications}{24}{subsection.6.3.1}
+\contentsline {chapter}{\numberline {7}Conclusions}{25}{chapter.7}
