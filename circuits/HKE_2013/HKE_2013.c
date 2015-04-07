@@ -47,6 +47,7 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	unsigned char *commBuffer, *J_set, *permedInputs, ***OT_Inputs;
 	struct eccParams *params;
 
+	struct OT_NP_Receiver_Query **queries_R;
 	struct eccPoint ***NaorPinkasInputs, *C, *cTilde;
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
 	mpz_t **aList;
@@ -95,17 +96,17 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
-
-	// printPoint(C);
-	// printPoint(cTilde);
+	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
 	circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct, params, ctx, circuitCTXs, circuitSeeds, numCircuits, 1);
 	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	full_NaorPinkas_OT_Receiver(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, permedInputs, state, numCircuits, params, cTilde);
 
-	/*
+
+	queries_R = NaorPinkas_OT_Receiver_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, permedInputs, state, params, cTilde);
+	full_NaorPinkas_OT_Receiver(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, permedInputs, state, numCircuits, queries_R, params, cTilde);
+
+
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray, state, numCircuits);
 	commBuffer = serialiseC_Boxes(commitStruct, &tempLength);
 	sendBoth(writeSocket, commBuffer, tempLength);
@@ -115,7 +116,7 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, commitStruct -> iMax, commitStruct -> jMax, state, &bufferOffset);
-	*/
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -166,7 +167,7 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	unsigned char *commBuffer, *J_set, *permedInputs, ***OT_Inputs;
 	struct eccParams *params;
 
-	struct eccPoint ***NaorPinkasInputs, *C, *cTilde;
+	struct eccPoint ***NaorPinkasInputs, **queries_S, *C, *cTilde;
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
 	mpz_t **aList;
 
@@ -213,17 +214,16 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
-
-	// printPoint(C);
-	// printPoint(cTilde);
+	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
 	circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct, params, ctx, circuitCTXs, circuitSeeds, numCircuits, 0);
 	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	full_NaorPinkas_OT_Sender(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, OT_Inputs, state, numCircuits, params, C);
 
-	/*
+	queries_S = NaorPinkas_OT_Sender_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1);
+	full_NaorPinkas_OT_Sender(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, OT_Inputs, state, numCircuits, queries_S, params, C);
+
+
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray, state, numCircuits);
 	commBuffer = serialiseC_Boxes(commitStruct, &tempLength);
 	sendBoth(writeSocket, commBuffer, tempLength);
@@ -233,7 +233,7 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, commitStruct -> iMax, commitStruct -> jMax, state, &bufferOffset);
-	*/
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
