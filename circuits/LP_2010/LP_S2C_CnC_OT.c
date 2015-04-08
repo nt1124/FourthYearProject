@@ -160,7 +160,6 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	fflush(stdout);
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < stat_SecParam; i ++)

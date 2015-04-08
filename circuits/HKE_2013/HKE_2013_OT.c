@@ -27,16 +27,12 @@ struct eccPoint *exchangeC_ForNaorPinkas(int writeSocket, int readSocket, struct
 }
 
 
-
-
-
-struct OT_NP_Receiver_Query **NaorPinkas_OT_Receiver_Queries(int writeSocket, int readSocket, int numInputsExecutor,
-							unsigned char *permedInputs, gmp_randstate_t *state, struct eccParams *params, struct eccPoint *C)
+struct OT_NP_Receiver_Query **NaorPinkas_OT_Produce_Queries(int numInputsExecutor, unsigned char *permedInputs,
+															gmp_randstate_t *state, struct eccParams *params, struct eccPoint *cTilde)
 {
 	struct OT_NP_Receiver_Query **queries_R;
-
-	unsigned char *commBuffer, sigmaBit, **outputBytes;
-	int i, commBufferLen;
+	unsigned char sigmaBit;
+	int i;
 
 
 	queries_R = (struct OT_NP_Receiver_Query **) calloc(numInputsExecutor, sizeof(struct OT_NP_Receiver_Query *));
@@ -44,39 +40,37 @@ struct OT_NP_Receiver_Query **NaorPinkas_OT_Receiver_Queries(int writeSocket, in
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		sigmaBit = permedInputs[i];
-		queries_R[i] = OT_NP_query(C, sigmaBit, params, *state);
+		queries_R[i] = OT_NP_query(cTilde, sigmaBit, params, *state);
 	}
-
-	commBufferLen = 0;
-	commBuffer = serialiseQueries(queries_R, numInputsExecutor, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-
 
 	return queries_R;
 }
 
 
-
-struct eccPoint **NaorPinkas_OT_Sender_Queries(int writeSocket, int readSocket, int numInputsExecutor)
+struct eccPoint **NaorPinkas_OT_Exchange_Queries(int writeSocket, int readSocket, int numInputsExecutor,
+										struct OT_NP_Receiver_Query **queries_Own)
 {
-	struct eccPoint **queries_S;
+	struct eccPoint **queries_Partner;
 	unsigned char *commBuffer;
 	int commBufferLen;
 
 
 	commBufferLen = 0;
+	commBuffer = serialiseQueries(queries_Own, numInputsExecutor, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	queries_S = deserialiseQueries(commBuffer, numInputsExecutor);
+	queries_Partner = deserialiseQueries(commBuffer, numInputsExecutor);
 	free(commBuffer);
 
 
-	return queries_S;
+	return queries_Partner;
 }
 
 
-
-void full_NaorPinkas_OT_Sender(int writeSocket, int readSocket, int numInputsExecutor,
+void NaorPinkas_OT_Sender_Transfer(int writeSocket, int readSocket, int numInputsExecutor,
 							unsigned char ***OT_Inputs, gmp_randstate_t *state, int numCircuits,
 							struct eccPoint **queries_S, struct eccParams *params, struct eccPoint *C)
 {
@@ -93,26 +87,19 @@ void full_NaorPinkas_OT_Sender(int writeSocket, int readSocket, int numInputsExe
 
 	numOTs = numInputsExecutor * numCircuits;
 
-	/*
-	commBufferLen = 0;
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	queries_S = deserialiseQueries(commBuffer, numInputsExecutor);
-	free(commBuffer);
-	*/
+	transfers_S = (struct OT_NP_Sender_Transfer **) calloc(numOTs, sizeof(struct OT_NP_Sender_Transfer *));
 
-	transfers_S = (struct OT_NP_Sender_Transfer **) calloc(numCircuits, sizeof(struct OT_NP_Sender_Transfer *));
-
+	#pragma omp parallel for private(i, j, k) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
-		// #pragma omp parallel for private(j, k) schedule(auto)
 		for(j = 0; j < numCircuits; j ++)
 		{
 			k = i * numCircuits + j;
 
-			transfers_S[j] = OT_NP_Transfer(C, queries_S[i], OT_Inputs[0][k], OT_Inputs[1][k], 16, *state, params);
+			transfers_S[k] = OT_NP_Transfer(C, queries_S[i], OT_Inputs[0][k], OT_Inputs[1][k], 16, *state, params);
 
-/*			for(h = 0; h < 16; h ++)
+			/*
+			for(h = 0; h < 16; h ++)
 			{
 				printf("%02X", OT_Inputs[0][k][h]);
 			}
@@ -121,28 +108,27 @@ void full_NaorPinkas_OT_Sender(int writeSocket, int readSocket, int numInputsExe
 			{
 				printf("%02X", OT_Inputs[1][k][h]);
 			}
-			printf("\n\n");*/
-			
-		}
-
-		commBufferLen = 0;
-		commBuffer = serialiseTransferStructs(transfers_S, numCircuits, 16, &commBufferLen);
-		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
-
-		for(j = 0; j < numCircuits; j ++)
-		{
-			clearECC_Point(transfers_S[j] -> a);
-			free(transfers_S[j] -> c_0);
-			free(transfers_S[j] -> c_1);
-			free(transfers_S[j]);
+			printf("\n\n");
+			*/
 		}
 	}
 
+	commBufferLen = 0;
+	commBuffer = serialiseTransferStructs(transfers_S, numOTs, 16, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	for(i = 0; i < numOTs; i ++)
+	{
+		clearECC_Point(transfers_S[i] -> a);
+		free(transfers_S[i] -> c_0);
+		free(transfers_S[i] -> c_1);
+		free(transfers_S[i]);
+	}
 }
 
 
-unsigned char **full_NaorPinkas_OT_Receiver(int writeSocket, int readSocket, int numInputsExecutor,
+unsigned char **NaorPinkas_OT_Receiver_Transfer(int writeSocket, int readSocket, int numInputsExecutor,
 							unsigned char *permedInputs, gmp_randstate_t *state, int numCircuits,
 							struct OT_NP_Receiver_Query **queries_R, struct eccParams *params, struct eccPoint *C)
 {
@@ -158,52 +144,41 @@ unsigned char **full_NaorPinkas_OT_Receiver(int writeSocket, int readSocket, int
 
 
 	numOTs = numInputsExecutor * numCircuits;
-	/*
-	queries_R = (struct OT_NP_Receiver_Query **) calloc(numOTs, sizeof(struct OT_NP_Receiver_Query *));
-	
-	for(i = 0; i < numInputsExecutor; i ++)
-	{
-		sigmaBit = permedInputs[i];
-		queries_R[i] = OT_NP_query(C, sigmaBit, params, *state);
-	}
+
 
 	commBufferLen = 0;
-	commBuffer = serialiseQueries(queries_R, numInputsExecutor, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	transfers_R = deserialiseTransferStructs(commBuffer, numOTs, 16);
 	free(commBuffer);
-	*/
-
 
 	outputBytes = (unsigned char **) calloc(numOTs, sizeof(unsigned char *));
+	#pragma omp parallel for private(i, j, k, sigmaBit) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		sigmaBit = permedInputs[i];
 
-		commBufferLen = 0;
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		transfers_R = deserialiseTransferStructs(commBuffer, numCircuits, 16);
-		free(commBuffer);
-
-		// #pragma omp parallel for private(j, k) schedule(auto)
 		for(j = 0; j < numCircuits; j ++)
 		{
 			k = i * numCircuits + j;
 
-			outputBytes[k] = OT_NP_Output_Xb(C, transfers_R[j] -> a, queries_R[i] -> k, transfers_R[j] -> c_0, transfers_R[j] -> c_1, sigmaBit, 16, params);
+			outputBytes[k] = OT_NP_Output_Xb(C, transfers_R[k] -> a, queries_R[i] -> k, transfers_R[k] -> c_0, transfers_R[k] -> c_1, sigmaBit, 16, params);
 
-/*
+			/*
 			for(h = 0; h < 16; h ++)
 			{
 				printf("%02X", outputBytes[k][h]);
 			}
-			printf("\n\n");*/
-
-
-			clearECC_Point(transfers_R[j] -> a);
-			free(transfers_R[j] -> c_0);
-			free(transfers_R[j] -> c_1);
-			free(transfers_R[j]);
+			printf("\n\n");
+			*/
 		}
+	}
+
+	for(i = 0; i < numOTs; i ++)
+	{
+		clearECC_Point(transfers_R[i] -> a);
+		free(transfers_R[i] -> c_0);
+		free(transfers_R[i] -> c_1);
+		free(transfers_R[i]);
 	}
 
 
