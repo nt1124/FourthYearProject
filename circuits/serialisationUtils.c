@@ -348,5 +348,4 @@ struct gateOrWire **deserialiseCircuit(unsigned char *inputBuffer, int numGates)
 
 
 
-
 #endif

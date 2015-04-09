@@ -82,8 +82,12 @@ void setCircuitsInputs_Values(struct idAndValue *start, struct Circuit *inputCir
 		outputWire = inputCircuit -> gates[current -> id] -> outputWire;
 		outputWire -> wireOwner = ownerFlag;
 		outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePerm & 0x01);
+		
+		// printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePerm));
+
 		current = current -> next;
 	}
+	// printf("\n");
 }
 
 
@@ -107,9 +111,11 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 			memcpy(outputWire -> wireOutputKey, outputWire -> outputGarbleKeys -> key0, 16);
 			outputWire -> wirePermedValue = (0x01 & outputWire -> wirePerm);
 		}
+		// printf("%02d - %X - %X\n", current -> id, outputWire -> wirePermedValue, (0x01 & outputWire -> wirePerm));
 
 		current = current -> next;
 	}
+
 }
 
 

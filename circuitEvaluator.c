@@ -54,59 +54,6 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 
 
 
-void testHKE(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
-{
-	struct timespec timestamp_0, timestamp_1;
-	clock_t c_0, c_1;
-	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
-	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
-	struct eccParams *params = initBrainpool_256_Curve();
-
-	struct eccPoint ***NaorPinkasInputs, *C;
-	mpz_t **aList;
-	gmp_randstate_t *state;
-	int numCircuits = 1;
-
-	struct HKE_Output_Struct_Builder *outputStruct;
-	struct DDH_Group *group;
-
-	struct idAndValue *startOfInputChainExec = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.executor.input" );
-	struct idAndValue *startOfInputChainBuilder = readInputDetailsFile_Alt( (char*)"./inputs/adder_32bit.builder.input" );
-
-	state = seedRandGen();
-
-	// So for now we are using non-ECC crypto for this, so yeah. Crappy security.
-	group = get_128_Bit_Group(*state);
-	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
-	getIsaacContext(globalIsaacContext);
-
-	c_0 = clock();
-	timestamp_0 = timestamp();
-
-
-	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, 1, *state, group);
-	C = setup_OT_NP_Sender(params, *state);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(C, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
-
-	struct Circuit *inputCircuit = readInCircuit_FromRaw_HKE_2013(globalIsaacContext, rawInputCircuit, C, NaorPinkasInputs[0], outputStruct, 0, params, builder);
-
-
-	setCircuitsInputs_Hardcode(startOfInputChainExec, inputCircuit, 0xFF);
-	setCircuitsInputs_Hardcode(startOfInputChainBuilder, inputCircuit, 0xFF);
-
-	runCircuitExec( inputCircuit, 0, 0 );
- 
-    printOutputHexString(inputCircuit);
-
-
-    makeCommitmentsBuilder(globalIsaacContext, &inputCircuit, state, 1);
-}
-
-
-
-
-
 
 // Useage. Circuit, IP, Port, Input file, builder flag
 int main(int argc, char *argv[])

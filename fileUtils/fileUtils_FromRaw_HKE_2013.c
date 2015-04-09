@@ -125,6 +125,9 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
 
 
+	printf("%d - %d - %d - %d\n", execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
+
+
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
 		gates[i] = initInputWire_FromRaw_HKE_2013(ctx, i, 0xFF, R, NaorPinkasInputs[index], NaorPinkasInputs[index + 1], params);
@@ -135,6 +138,7 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	for(i = execPartyStartID; i < execPartyEndID; i ++)
 	{
 		gates[i] = initInputWire_FromRaw(ctx, i, 0x00, R);
+		// printf("%d - %02X\n", i, gates[i] -> outputWire -> wirePerm);
 	}
 
 

@@ -136,6 +136,37 @@ ub4 *getIsaacContext(randctx *ctx)
 }
 
 
+ub4 *getIsaacContextPartyID(randctx *ctx, int partyID)
+{
+	int itemCount = 256, i, bytesRead;
+	ub4 *seed = (ub4*) calloc(256, sizeof(ub4));
+	FILE *fp;
+
+	fp = fopen("/dev/urandom", "r");
+	bytesRead = fread(seed, sizeof(ub4), itemCount, fp);
+	fclose(fp);
+
+	(*ctx).randa = (*ctx).randb = (*ctx).randc = (ub4)0;
+
+	if(partyID == 0)
+	{
+		for (i=0; i<256; ++i)
+		{
+			seed[i]=(ub4)0;
+		}
+	}
+
+	for (i=0; i<256; ++i)
+	{
+		(*ctx).randrsl[i]=(ub4)seed[i];
+	}
+	isaac_randinit(ctx, TRUE);
+
+	return seed;
+}
+
+
+
 void setIsaacContextFromSeed(randctx *ctx, ub4 *seed)
 {
 	int i;

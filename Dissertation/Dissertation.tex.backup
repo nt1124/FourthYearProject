@@ -405,20 +405,10 @@
 					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them.
 
 
-					%\textcolor{red}{The base public key is then sent to the Sender, who computes two public keys derived from the base public key and the CRS. Each of the Sender's input values are then encrypted with one of these keys and the resulting ciphertexts sent to the Receiver. Finally the Receiver uses its private key in order to decrypt the ciphertext relating to its input bit.}\\
-
-					%\textcolor{red}{The properties of the dual-mode cryptosystem ensure that the Receiver can only decrypt one of the values. When generating the ``base'' keys the key generation takes as a parameter a decryptable branch ($\sigma \in \{0, 1\}$), and the resulting private key is associated with that branch. When encrypting we specify a branch (say $b \in \{0, 1\}$) which defines which public key derived from the base key to use, the resulting ciphertext can only be decrypted if $\sigma = b$.}\\
-
-					% \textcolor{red}{Further properties of the cryptosystem are that the first outputs of the setup of each modes are indistinguishable from one another, that use of a trapdoor value for the messy mode will reveal the encryptable branch of a public key and that a trapdoor value for the decryptable mode will allow the generation of keys decryptable on both branches.}\\
-
-					% \textcolor{red}{It should be noted that the security of their protocol depends on a trusted setup of the CRS. Peikert et al. consider this a reasonable assumption that can be satistfied with a shared randomness pool (they give the example of sunspots).}\\
-
-					%\textcolor{red}{In at least the DDH-based realisation of the dual-mode cryptosystem it is possible to have both parties take part in the CRS setup in order to assure both parties neither has access to the trapdoors in only one round.}
-
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
 
 		\subsection{Overview} \label{sub:Yao_Overview}
-			Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. Yao first proposed garbled circuits \cite{YaoOriginal}. The two parties are designated the Builder and the Executor. The Builder then constructs a circuit representing the function the parties wish to compute, this circuit is ``garbled'' in such a way that it can still be executed.\\
+			Yao garbled circuits are one of the primary avenues of research into Secure multi-party computation. Yao first proposed garbled circuits in \cite{YaoOriginal}. The two parties are designated the Builder and the Executor. The Builder then constructs a circuit representing the function the parties wish to compute, this circuit is ``garbled'' in such a way that it can still be executed.\\
 
 			This garbled circuit, hardcoded with the Builder's input data, is sent to the Executing party who then obtains the data representing its input from the Builder via Oblivious Transfer (for details on OT see Section  \ref{sec:OT_Intro}). The Executor then evaluates the circuit and obtains the output of the function.
 
@@ -604,7 +594,16 @@
 		\section{Benchmarks}
 			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
 
+			\subsection{Communications}
 
+% 				\begin{figure}
+% 					\begin{tabular}{ c | c | c }
+% 						Block Size & Time Taken (seconds) &  \\
+% 						\hline
+% 						$100,000$ & 0 &  \\
+% 						$10,000,000$ & 0 &  \\
+% 					\end{tabular}
+% 				\end{figure}
 	\chapter{Conclusions}
 
 		
