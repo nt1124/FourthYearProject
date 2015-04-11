@@ -295,7 +295,6 @@ unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits
 
 	for(i = 0; i < numInputsBuilder + numInputsExecutor; i ++)
 	{
-		// printf("%d = %02X\n", i, circuitsArray[0] -> gates[i] -> outputWire -> wireOwner);
 		if(0xFF == circuitsArray[0] -> gates[i] -> outputWire -> wireOwner)
 		{
 			for(j = 0; j < numCircuits; j ++)
@@ -313,10 +312,10 @@ unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits
 	return allKeys;
 }
 
-/*
-unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
+
+unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray, int partyID)
 {
-	int i, outputIndex = 0, numInputsBuilder, numInputsExecutor;
+	int i, outputIndex = 0, numInputsBuilder, numInputsExecutor, gateIndex;
 	unsigned char *output, value;
 
 
@@ -324,16 +323,20 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 	output = (unsigned char *) calloc(numInputsExecutor, sizeof(unsigned char));
 
-	for(i = numInputsBuilder; i < numInputsBuilder + numInputsExecutor; i ++)
+	for(i = 0; i < numInputsExecutor; i ++)
 	{
-		value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
-		output[outputIndex++] = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
+		gateIndex = i + numInputsBuilder * (1 - partyID);
+
+	// for(i = numInputsBuilder; i < numInputsBuilder + numInputsExecutor; i ++)
+	// {
+		value = circuitsArray[0] -> gates[gateIndex] -> outputWire -> wirePermedValue;
+		output[outputIndex++] = value ^ (circuitsArray[0] -> gates[gateIndex] -> outputWire -> wirePerm & 0x01);
 	}
 
 
 	return output;
 }
-*/
+
 
 unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 {

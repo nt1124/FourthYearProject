@@ -84,7 +84,6 @@ void setCircuitsInputs_Values(struct idAndValue *start, struct Circuit *inputCir
 		outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePerm & 0x01);
 		
 		// printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePerm));
-
 		current = current -> next;
 	}
 	// printf("\n");

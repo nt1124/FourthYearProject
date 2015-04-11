@@ -162,6 +162,8 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 		memcpy(keyList[j], inputCircuit[tempIndex] -> outputWire -> wireOutputKey, 16);
 	}
 
+	// printf(">> 0 %03d + %02X\n", curGate -> G_ID, tempBit);
+
 	// Get the row of the output table indexed by the values of our input wires.
 	tempRow = curGate -> gatePayload -> encOutputTable[outputIndex];
 
@@ -201,6 +203,7 @@ void freeXOR_Gate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 			toReturn[j] ^= inputCircuit[tempIndex] -> outputWire -> wireOutputKey[j];
 		}
 	}
+	// printf("%03d = %02X\n", curGate -> G_ID, outputBit);
 
 	// Get the decrypted permutated wire value.
 	curGate -> outputWire -> wirePermedValue = outputBit;
@@ -218,13 +221,14 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) || 0x02 == curGate -> outputWire -> wireMask )
 	{
+		// printf(">> 0 %03d\n", curGate -> G_ID);
 		decryptGate(curGate, inputCircuit);
 	}
 	else
 	{
-		decryptGate(curGate, inputCircuit);
 		// decryptGate(curGate, inputCircuit);
-		// freeXOR_Gate(curGate, inputCircuit);
+		// printf(">> 1 %03d\n", curGate -> G_ID);
+		freeXOR_Gate(curGate, inputCircuit);
 	}
 }
 

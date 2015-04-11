@@ -21,6 +21,22 @@ gmp_randstate_t *seedRandGen()
 	return state;
 }
 
+gmp_randstate_t *seedRandGenFromISAAC(randctx *ctx)
+{
+	gmp_randstate_t *state = (gmp_randstate_t*) calloc(1, sizeof(gmp_randstate_t));
+	unsigned char *seedBytes = generateIsaacRandBytes(ctx, sizeof(unsigned long int), sizeof(unsigned long int));
+
+
+	unsigned long int seed = 0;
+	memcpy(&seed, seedBytes, sizeof(unsigned long int));
+
+
+	gmp_randinit_default(*state);
+	gmp_randseed_ui(*state, seed);
+
+	return state;
+}
+
 
 
 void getPrimeGMP(mpz_t output, gmp_randstate_t state, int keySize)
