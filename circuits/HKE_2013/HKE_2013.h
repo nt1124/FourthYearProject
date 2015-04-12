@@ -21,8 +21,9 @@ typedef struct builderInputCommitStruct
 typedef struct jSetRevealHKE
 {
 	mpz_t **aListRevealed;
-	mpz_t **shares0Revealed;
-	mpz_t **shares1Revealed;
+	// mpz_t **shares0Revealed;
+	// mpz_t **shares1Revealed;
+	mpz_t **ouputWireShares;
 
 	ub4 **revealedSeeds;
 } jSetRevealHKE;

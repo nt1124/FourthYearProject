@@ -1,3 +1,35 @@
+struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aLists, int numInputs, int numCircuits,
+												struct eccParams *params, unsigned char *J_set)
+{
+	struct eccPoint ***output = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
+	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1;
+	int i, j, index;
+
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
+			index = 0;
+
+			for(j = 0; j < numInputs; j ++)
+			{
+				output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+
+				invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+
+				output[i][index + 1] = groupOp(C, invG_a1, params);
+				clearECC_Point(invG_a1);
+
+				index += 2;
+			}
+		}
+	}
+
+	return output;
+}
+
 
 // Function that gets the OT inputs as an array from the circuits.
 unsigned char ***getAllInputKeysSymm(struct Circuit **circuitsArray, int numCircuits, int partyID)
@@ -45,7 +77,6 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char *
 	numInputsExecutor = circuitsArray_Own[0] -> numInputsExecutor;
 
 
-
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		iOffset = numCircuits * i;
@@ -64,11 +95,11 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char *
 
 
 unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Builder *outputStruct, ub4 **circuitSeeds,
-									unsigned char *jSet, int numInputs, int numOutputs, int numCircuits, int jSetSize)
+									unsigned char *jSet, int numInputs, int numOutputs, int numCircuits, int *outputLength)
 {
 	unsigned char *outputBuffer;
-	int i, j, k, outputLength, tempOffset = 0;
-	int aListLen = 0, sharesLen = 0, seedLengths = jSetSize * 256 * sizeof(ub4);
+	int i, j, k, tempOffset = 0;
+	int aListLen = 0, sharesLen = 0, seedLengths = (numCircuits / 2) * 256 * sizeof(ub4);
 
 
 	for(j = 0; j < numCircuits; j ++)
@@ -92,8 +123,8 @@ unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Build
 		}
 	}
 
-	outputLength = aListLen + sharesLen + seedLengths;
-	outputBuffer = (unsigned char *) calloc(outputLength, sizeof(unsigned char));
+	*outputLength = aListLen + sharesLen + seedLengths;
+	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -132,15 +163,13 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 
 
 	output -> aListRevealed = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
-	output -> shares0Revealed = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
-	output -> shares1Revealed = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
+	output -> ouputWireShares =  (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
 	output -> revealedSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 
 
 	for(i = 0; i < numOutputs; i ++)
 	{
-		output -> shares0Revealed[i] = (mpz_t *) calloc(numCircuits, sizeof(mpz_t));
-		output -> shares1Revealed[i] = (mpz_t *) calloc(numCircuits, sizeof(mpz_t));
+		output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numCircuits, sizeof(mpz_t));
 	}
 
 	for(j = 0; j < numCircuits; j ++)
@@ -155,20 +184,23 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 			{
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
 				mpz_init_set(output -> aListRevealed[j][k], *tempMPZ);
+				k ++;
 
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> aListRevealed[j][k + 1], *tempMPZ);
-
-				k += 2;
+				mpz_init_set(output -> aListRevealed[j][k], *tempMPZ);
+				k ++;
 			}
 
+			k = 0;
 			for(i = 0; i < numOutputs; i ++)
 			{
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> shares0Revealed[i][j], *tempMPZ);
+				mpz_init_set(output -> ouputWireShares[i][k], *tempMPZ);
+				k ++;
 
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> shares1Revealed[i][j], *tempMPZ);
+				mpz_init_set(output -> ouputWireShares[i][k], *tempMPZ);
+				k ++;
 			}
 
 			memcpy(output -> revealedSeeds[j], inputBuffer + tempOffset, 256 * sizeof(ub4));

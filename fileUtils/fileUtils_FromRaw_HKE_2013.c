@@ -147,7 +147,7 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 
 // Create a circuit given a file in RTL format.
 struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint *C, struct eccPoint **NaorPinkasInputs,
-											struct HKE_Output_Struct_Builder *outputStructs, int j, struct eccParams *params, int partyID)
+											mpz_t *outputKeysLocal, int j, struct eccParams *params, int partyID)
 {
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;
@@ -156,7 +156,6 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 	int i, k = 0, gateIndex = 0;
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
-	mpz_t *outputKeysLocal;
 
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
@@ -179,7 +178,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
-	outputKeysLocal = getOutputKeys(outputStructs, rawInputCircuit -> numOutputs, j);
+	// outputKeysLocal = getOutputKeys(outputStructs, rawInputCircuit -> numOutputs, j);
 	gatesList = initAllInputs_FromRaw_HKE_2013( ctx, rawInputCircuit, R, C, NaorPinkasInputs, partyID, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
