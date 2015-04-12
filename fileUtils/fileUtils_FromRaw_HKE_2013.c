@@ -147,7 +147,7 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 
 // Create a circuit given a file in RTL format.
 struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint *C, struct eccPoint **NaorPinkasInputs,
-											mpz_t *outputKeysLocal, int j, struct eccParams *params, int partyID)
+											mpz_t *outputKeysLocal, struct eccParams *params, int partyID)
 {
 	struct gateOrWire *tempGateOrWire;
 	struct gateOrWire **gatesList;

@@ -8,15 +8,24 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 
 	for(i = 0; i < numCircuits; i ++)
 	{
+
 		if(0x01 == J_set[i])
 		{
+			printf("Checkpoint 2.%d  -  %d\n", i, numInputs);
+			fflush(stdout);
 			output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
 			index = 0;
 
 			for(j = 0; j < numInputs; j ++)
 			{
+				printf("Checkpoint 2.%d.%d  A\n", i, j);
+				fflush(stdout);
+				printf("Checkpoint 2.%d.%d  B\n", i, j);
+				fflush(stdout);
 				output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
 
+				printf("Checkpoint 2.%d.%d  C\n", i, j);
+				fflush(stdout);
 				invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);
@@ -111,8 +120,10 @@ unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Build
 			for(i = 0; i < numInputs; i ++)
 			{
 				aListLen += sizeOfSerialMPZ(aList[j][k]);
-				aListLen += sizeOfSerialMPZ(aList[j][k + 1]);
-				k += 2;
+				k ++;
+
+				aListLen += sizeOfSerialMPZ(aList[j][k]);
+				k ++;
 			}
 
 			for(i = 0; i < numOutputs; i ++)
@@ -135,9 +146,10 @@ unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Build
 			for(i = 0; i < numInputs; i ++)
 			{
 				serialiseMPZ(aList[j][k], outputBuffer, &tempOffset);
-				serialiseMPZ(aList[j][k + 1], outputBuffer, &tempOffset);
+				k ++;
 
-				k += 2;
+				serialiseMPZ(aList[j][k], outputBuffer, &tempOffset);
+				k ++;
 			}
 
 			for(i = 0; i < numOutputs; i ++)
@@ -167,9 +179,13 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 	output -> revealedSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 
 
-	for(i = 0; i < numOutputs; i ++)
+	// for(i = 0; i < numOutputs; i ++)
+	// {
+	// 	output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numCircuits, sizeof(mpz_t));
+	// }
+	for(i = 0; i < numCircuits; i ++)
 	{
-		output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numCircuits, sizeof(mpz_t));
+		output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numOutputs, sizeof(mpz_t));
 	}
 
 	for(j = 0; j < numCircuits; j ++)
@@ -195,11 +211,11 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 			for(i = 0; i < numOutputs; i ++)
 			{
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> ouputWireShares[i][k], *tempMPZ);
+				mpz_init_set(output -> ouputWireShares[j][k], *tempMPZ);
 				k ++;
 
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> ouputWireShares[i][k], *tempMPZ);
+				mpz_init_set(output -> ouputWireShares[j][k], *tempMPZ);
 				k ++;
 			}
 
@@ -209,4 +225,47 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 	}
 
 	return output;
+}
+
+
+void testTime(mpz_t **aList, struct jSetRevealHKE *revealedDeserialised, unsigned char *jSetOwn, unsigned char *jSetPartner, int numInputs, int numOutputs, int numCircuits)
+{
+	int i, j, k;
+
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		printf(">>>>>>>>>   %d\n", j);
+		if(0x01 == jSetPartner[j])
+		{
+			k = 0;
+			for(i = 0; i < numInputs; i ++)
+			{
+				gmp_printf("%Zd\n", aList[j][k]);
+				k ++;
+
+				gmp_printf("%Zd\n\n", aList[j][k]);
+				k ++;
+			}
+		}
+	}
+
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		printf(">>>>>>>>>   %d\n", j);
+		if(0x01 == jSetPartner[j])
+		{
+			k = 0;
+			for(i = 0; i < numInputs; i ++)
+			{
+				gmp_printf("%Zd\n", revealedDeserialised -> aListRevealed[j][k]);
+				k ++;
+
+				gmp_printf("%Zd\n\n", revealedDeserialised -> aListRevealed[j][k]);
+				k ++;
+				fflush(stdout);
+			}
+		}
+	}
 }

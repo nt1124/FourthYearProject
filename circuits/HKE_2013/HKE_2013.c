@@ -14,7 +14,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	for(j = 0; j < numCircuits; j++)
 	{
 		outputKeysLocals = getOutputKeys(outputStruct, rawInputCircuit -> numOutputs, j);
-		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, C, NaorPinkasInputs[j], outputKeysLocals, j, params, partyID);
+		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, C, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
 
 		for(i = 0; i < 2*rawInputCircuit -> numOutputs; i ++)
 		{
@@ -42,10 +42,14 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 							unsigned char *J_set, int J_setSize, int numCircuits, int partyID_Own)
 {
 	struct Circuit *tempGarbleCircuit;
-	struct eccPoint *NaorPinkasInputs;
+	struct eccPoint ***NaorPinkasInputs;
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 	int partyID_Partner = 1 - partyID_Own;
+
+
+	printf("Checkpoint 1\n");
+	fflush(stdout);
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -58,14 +62,25 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 		}
 	}
 
-	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
+	printf("Checkpoint 2\n");
+	fflush(stdout);
+
+	NaorPinkasInputs = computeNaorPinkasInputsForJSet(cTilde, revealStruct -> aListRevealed, rawInputCircuit -> numInputs_P1, numCircuits, params, J_set);
+
+	printf("Checkpoint 3\n");
+	fflush(stdout);
+
+	// #pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
-		k = idList[j];
-		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, cTilde, NaorPinkasInputs[j], revealStruct -> outputWireShares[j], k, params, partyID_Partner);
-		// temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
+		printf("Checkpoint 3.%d\n", j);
+		fflush(stdout);
 
-		// freeTempGarbleCircuit(tempGarbleCircuit);
+		k = idList[j];
+		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, cTilde, NaorPinkasInputs[j], revealStruct -> ouputWireShares[j], params, partyID_Partner);
+		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;
@@ -192,6 +207,9 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnerReveals = jSetRevealDeserialise(commBuffer, J_setOwn, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
 
+
+	printf("%d\n", HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, cTilde, partnerReveals, params, J_setOwn, numCircuits / 2, numCircuits, partyID));
+	// testTime(aList, partnerReveals, J_setOwn, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
 
 	for(i = 0; i < numCircuits; i ++)
 	{
