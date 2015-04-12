@@ -326,9 +326,6 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray, int 
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		gateIndex = i + numInputsBuilder * (1 - partyID);
-
-	// for(i = numInputsBuilder; i < numInputsBuilder + numInputsExecutor; i ++)
-	// {
 		value = circuitsArray[0] -> gates[gateIndex] -> outputWire -> wirePermedValue;
 		output[outputIndex++] = value ^ (circuitsArray[0] -> gates[gateIndex] -> outputWire -> wirePerm & 0x01);
 	}

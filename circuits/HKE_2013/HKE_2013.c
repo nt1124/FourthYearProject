@@ -1,39 +1,3 @@
-// Function that gets the OT inputs as an array from the circuits.
-unsigned char ***getAllInputKeysSymm(struct Circuit **circuitsArray, int numCircuits, int partyID)
-{
-	unsigned char ***allKeys = (unsigned char ***) calloc(2, sizeof(unsigned char **));
-	struct wire *tempWire;
-	int i, j, k = 0, numKeysToStore, gateIndex;
-	int numInputsBuilder, numInputsExecutor;
-
-
-	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
-	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
-	numKeysToStore = circuitsArray[0] -> numInputsExecutor * numCircuits;
-
-
-	allKeys[0] = (unsigned char **) calloc(numKeysToStore, sizeof(unsigned char *));
-	allKeys[1] = (unsigned char **) calloc(numKeysToStore, sizeof(unsigned char *));
-
-	for(i = 0; i < numInputsExecutor; i ++)
-	{
-		gateIndex = i + numInputsBuilder * partyID;
-
-		for(j = 0; j < numCircuits; j ++)
-		{
-			tempWire = circuitsArray[j] -> gates[gateIndex] -> outputWire;
-			allKeys[0][k] = tempWire -> outputGarbleKeys -> key0;
-			allKeys[1][k] = tempWire -> outputGarbleKeys -> key1;
-
-			k ++;
-		}
-	}
-
-	return allKeys;
-}
-
-
-
 struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
 									struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
 									struct HKE_Output_Struct_Builder *outputStruct, struct eccParams *params,
@@ -63,32 +27,6 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 }
 
 
-void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char **output, int numCircuits, int partyID)
-{
-	int i, j, iOffset, gateIndex, numInputsBuilder, numInputsExecutor;
-	struct wire *tempWire;
-	unsigned char value;
-
-
-	numInputsBuilder = circuitsArray_Own[0] -> numInputsBuilder;
-	numInputsExecutor = circuitsArray_Own[0] -> numInputsExecutor;
-
-
-
-	for(i = 0; i < numInputsExecutor; i ++)
-	{
-		iOffset = numCircuits * i;
-		gateIndex = i + numInputsBuilder * (1 - partyID);
-
-		for(j = 0; j < numCircuits; j ++)
-		{
-			tempWire = circuitsArray_Own[j] -> gates[gateIndex] -> outputWire;
-			tempWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
-			memcpy(tempWire -> wireOutputKey, output[iOffset + j], 16);
-		}
-	}
-
-}
 
 
 // NOTE : PartyID is 1 for P1, 0 for P2. For now you're just going to have to accept this and move on.
@@ -102,7 +40,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	clock_t ext_c_0, ext_c_1;
 	clock_t int_c_0, int_c_1;
 
-	unsigned char *commBuffer, *J_set, *permedInputs, ***OT_Inputs, **OT_Outputs;
+	unsigned char *commBuffer, *J_setOwn, *J_setPartner, *permedInputs, ***OT_Inputs, **OT_Outputs;
 	struct eccParams *params;
 
 	struct OT_NP_Receiver_Query **queries_Own;
@@ -131,6 +69,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
 	}
 
+	// J_setOwn
+
 
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
@@ -158,7 +98,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	for(i = 0; i < numCircuits; i++)
 	{
-		// setCircuitsInputs_Hardcode(startOfInputChain, circuitsArray_Own[i], 0xFF);
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 	}
 	for(i = 0; i < numCircuits; i ++)
@@ -200,6 +139,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, numCircuits, partyID);
 
+	J_setOwn = generateJ_Set(numCircuits);
+	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, numCircuits / 2, numCircuits);
 
 	for(i = 0; i < numCircuits; i ++)
 	{
@@ -234,8 +175,8 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	close_server_socket(readSocket, mainReadSock);
 
 
-	// freeRawCircuit(rawInputCircuit);
-	// free_idAndValueChain(startOfInputChain);
+	freeRawCircuit(rawInputCircuit);
+	free_idAndValueChain(startOfInputChain);
 }
 
 
@@ -259,8 +200,8 @@ void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 	close_client_socket(writeSocket);
 
 
-	// freeRawCircuit(rawInputCircuit);
-	// free_idAndValueChain(startOfInputChain);
+	freeRawCircuit(rawInputCircuit);
+	free_idAndValueChain(startOfInputChain);
 }
 
 

@@ -201,6 +201,12 @@ void convertBytesToMPZ(	mpz_t *z, unsigned char *input, int inputLength)
 	mpz_import(*z, inputLength / sizeof(mp_limb_t), 1, sizeof( mp_limb_t ), 0, 0, input);
 }
 
+int sizeOfSerialMPZ(mpz_t inputMPZ)
+{
+	int length = mpz_size(inputMPZ) * sizeof(mp_limb_t) + sizeof(int);
+
+	return length;
+}
 
 void serialiseMPZ(mpz_t z, unsigned char *outputBuffer, int *bufferOffset)
 {
@@ -389,6 +395,7 @@ int quadratic_residue(mpz_t x, mpz_t q, mpz_t n)
 }
 
 
+/*
 // This is the original function
 int quadratic_residue_alt(mpz_t x,mpz_t q,mpz_t n)
 {
@@ -472,7 +479,7 @@ int quadratic_residue_alt(mpz_t x,mpz_t q,mpz_t n)
 
     return 1;
 }
-
+*/
 
 
 

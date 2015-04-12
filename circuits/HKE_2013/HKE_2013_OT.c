@@ -89,7 +89,7 @@ void NaorPinkas_OT_Sender_Transfer(int writeSocket, int readSocket, int numInput
 
 	transfers_S = (struct OT_NP_Sender_Transfer **) calloc(numOTs, sizeof(struct OT_NP_Sender_Transfer *));
 
-	// #pragma omp parallel for private(i, j, k) schedule(auto)
+	#pragma omp parallel for private(i, j, k) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		for(j = 0; j < numCircuits; j ++)
@@ -97,23 +97,6 @@ void NaorPinkas_OT_Sender_Transfer(int writeSocket, int readSocket, int numInput
 			k = i * numCircuits + j;
 
 			transfers_S[k] = OT_NP_Transfer(C, queries_S[i], OT_Inputs[0][k], OT_Inputs[1][k], 16, *state, params);
-
-			/*
-			printf("%03d  -  %03d  -  ", i, j);
-			for(h = 0; h < 16; h ++)
-			{
-				printf("%02X", OT_Inputs[0][k][h]);
-			}
-			printf("\n");
-
-			printf("%03d  -  %03d  -  ", i, j);
-			for(h = 0; h < 16; h ++)
-			{
-				printf("%02X", OT_Inputs[1][k][h]);
-			}
-			printf("\n\n");
-			*/
-
 		}
 	}
 
@@ -156,11 +139,10 @@ unsigned char **NaorPinkas_OT_Receiver_Transfer(int writeSocket, int readSocket,
 	free(commBuffer);
 
 	outputBytes = (unsigned char **) calloc(numOTs, sizeof(unsigned char *));
-	// #pragma omp parallel for private(i, j, k, sigmaBit) schedule(auto)
+	#pragma omp parallel for private(i, j, k, sigmaBit) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		sigmaBit = permedInputs[i];
-		// printf("%X\n", sigmaBit);
 
 		for(j = 0; j < numCircuits; j ++)
 		{
@@ -168,17 +150,8 @@ unsigned char **NaorPinkas_OT_Receiver_Transfer(int writeSocket, int readSocket,
 
 			outputBytes[k] = OT_NP_Output_Xb(C, transfers_R[k] -> a, queries_R[i] -> k, transfers_R[k] -> c_0, transfers_R[k] -> c_1, sigmaBit, 16, params);
 
-			/*
-			printf("%03d  -  %03d  -  ", i, j);
-			for(h = 0; h < 16; h ++)
-			{
-				printf("%02X", outputBytes[k][h]);
-			}
-			printf("\n");
-			*/	
 		}
 	}
-	printf("\n");
 
 	for(i = 0; i < numOTs; i ++)
 	{

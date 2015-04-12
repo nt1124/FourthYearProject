@@ -152,7 +152,7 @@ mpz_t *VSS_Recover(mpz_t *shares, int *indices, int length, struct DDH_Group *gr
 	return secret;
 }
 
-
+/*
 unsigned char **hashAllShares(mpz_t *shares, int n)
 {
 	unsigned char **output, *tempBytes;
@@ -170,7 +170,7 @@ unsigned char **hashAllShares(mpz_t *shares, int n)
 
 	return output;
 }
-
+*/
 
 void testVSS()
 {

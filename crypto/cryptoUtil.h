@@ -36,6 +36,8 @@
 
 #include "OT/otL_Mod_CnC/otL_Mod_CnC.h"
 
+#include "SecureCoinToss/secureCoinToss.c"
+
 
 #include "ConsistencyChecks/builder_keys.h"
 

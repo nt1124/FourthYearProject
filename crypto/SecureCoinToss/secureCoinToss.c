@@ -17,12 +17,11 @@ unsigned char *getPartnerJ_Set(int writeSocket, int readSocket, unsigned char *o
 	int commBufferLen = 0, i, sumOfJs = 0;
 
 
-	sendBoth(writeSocket, ownJ_Set, J_setLength);
-	free(commBuffer);
+	sendBoth(writeSocket, ownJ_Set, numCircuits);
 
 	partnerJ_Set = receiveBoth(readSocket, commBufferLen);
 
-	for(i = 0; i < J_setLength; j ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		sumOfJs += (int) partnerJ_Set[i];
 	}
@@ -30,7 +29,7 @@ unsigned char *getPartnerJ_Set(int writeSocket, int readSocket, unsigned char *o
 	if(sumOfJs != numCircuits / 2)
 	{
 		free(partnerJ_Set);
-		return NULL
+		return NULL;
 	}
 
 

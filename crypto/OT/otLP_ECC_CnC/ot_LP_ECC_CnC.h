@@ -19,6 +19,7 @@ typedef struct CRS_CnC_ECC
 } CRS_CnC_ECC;
 
 
+
 typedef struct params_CnC_ECC
 {
 	struct CRS_CnC_ECC *crs;

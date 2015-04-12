@@ -18,8 +18,19 @@ typedef struct builderInputCommitStruct
 } builderInputCommitStruct;
 
 
+typedef struct jSetRevealHKE
+{
+	mpz_t **aListRevealed;
+	mpz_t **shares0Revealed;
+	mpz_t **shares1Revealed;
+
+	ub4 **revealedSeeds;
+} jSetRevealHKE;
+
+
 
 #include "HKE_2013_Commitments.c"
+#include "HKE_2013_Utils.c"
 #include "HKE_2013_OT.c"
 #include "HKE_2013.c"
 

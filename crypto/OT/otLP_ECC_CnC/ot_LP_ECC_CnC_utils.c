@@ -39,6 +39,25 @@ struct params_CnC_ECC *initParams_CnC_ECC(int stat_SecParam, int comp_SecParam, 
 	return params;
 }
 
+/*
+unsigned char *generateJ_Set(int stat_SecParam)
+{
+	unsigned char *J_set = (unsigned char *) calloc(stat_SecParam, sizeof(int));
+	int i = 0, tempInt;
+
+	while(i < stat_SecParam / 2)
+	{
+		tempInt = rand() % stat_SecParam;
+		if(0x00 == J_set[tempInt])
+		{
+			J_set[tempInt] = 0x01;
+			i ++;
+		}
+	}
+
+	return J_set;
+}
+*/
 
 unsigned char *serialise_CRS_ECC(struct params_CnC_ECC *params, int *bufferOffset)
 {
@@ -125,7 +144,6 @@ unsigned char *serialiseParams_CnC_ECC(struct params_CnC_ECC *params, int *outpu
 
 	return outputBytes;
 }
-
 
 
 void freeParams_CnC_ECC(struct params_CnC_ECC *params)
