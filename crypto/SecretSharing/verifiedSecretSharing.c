@@ -13,7 +13,6 @@ struct pubVSS_Box *init_VSS_PublicBox(int t, int n)
 		mpz_init(pub -> commitments[i]);
 	}
 
-
 	return pub;
 }
 
@@ -152,25 +151,70 @@ mpz_t *VSS_Recover(mpz_t *shares, int *indices, int length, struct DDH_Group *gr
 	return secret;
 }
 
-/*
-unsigned char **hashAllShares(mpz_t *shares, int n)
+
+unsigned char *serialisePubBoxes(struct sharingScheme **schemes, int numSchemes, int *bufferLength)
 {
-	unsigned char **output, *tempBytes;
-	int i, tempLength;
+	unsigned char *outputBuffer;
+	int i, j, tempOffset = 0;//2 * sizeof(int);
 
 
-	output = (unsigned char **) calloc(n, sizeof(unsigned char*));
-	for(i = 0; i < n; i ++)
+	*bufferLength = 0;//2 * sizeof(int);
+
+	for(i = 0; i < numSchemes; i ++)
 	{
-		tempLength = 0;
-		tempBytes = convertMPZToBytes(shares[i], &tempLength);
-		output[i] = sha256_full(tempBytes, tempLength);
-		free(tempBytes);
+		for(j = 0; j < (schemes[i] -> pub -> t + 1); j ++)
+		{
+			*bufferLength += sizeOfSerialMPZ(schemes[i] -> pub -> commitments[j]);
+		}
 	}
 
-	return output;
+	outputBuffer = (unsigned char *) calloc(*bufferLength, sizeof(unsigned char));
+	// memcpy(outputBuffer, &(schemes[i] -> pub -> t), sizeof(int));
+	// memcpy(outputBuffer + sizeof(int), &(schemes[i] -> pub -> n), sizeof(int));
+
+	for(i = 0; i < numSchemes; i ++)
+	{
+		for(j = 0; j < (schemes[i] -> pub -> t + 1); j ++)
+		{
+			serialiseMPZ(schemes[i] -> pub -> commitments[j], outputBuffer, &tempOffset);
+		}
+	}
+
+
+	return outputBuffer;
 }
-*/
+
+
+struct sharingScheme **deserialisePubBoxes(unsigned char *inputBuffer, int t, int n, int numSchemes, int *inputOffset)
+{
+	struct sharingScheme **schemes = (struct sharingScheme **) calloc(numSchemes, sizeof(struct sharingScheme *));
+	int i, j, tempOffset = *inputOffset;
+	mpz_t *tempMPZ;
+
+
+	// memcpy(&t, inputBuffer + tempOffset, sizeof(int));
+	// memcpy(&n, inputBuffer + tempOffset, sizeof(int));
+
+	for(i = 0; i < numSchemes; i ++)
+	{
+		schemes[i] = (struct sharingScheme *) calloc(1, sizeof(struct sharingScheme));
+		schemes[i] -> pub = init_VSS_PublicBox(t, n);
+
+		for(j = 0; j < t + 1; j ++)
+		{
+			tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
+			mpz_set(schemes[i] -> pub -> commitments[j], *tempMPZ);
+
+			mpz_clear(*tempMPZ);
+			free(tempMPZ);
+		}
+	}
+
+
+	return schemes;
+}
+
+
 
 void testVSS()
 {

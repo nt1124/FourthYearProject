@@ -168,7 +168,7 @@ struct RawCircuit *readInCircuit_Raw(char* filepath)
 
 		outputCircuit -> numInputs_P1 = numInputs1;
 		outputCircuit -> numInputs_P2 = numInputs2;
-
+		outputCircuit -> numInputs = outputCircuit -> numInputs_P1 + outputCircuit -> numInputs_P2;
 
 		execOrder = (int*) calloc(outputCircuit -> numGates, sizeof(int));
 		gatesList = initialiseAllInputs_Raw( outputCircuit -> numGates, numInputs1, numInputs2, &execOrder);

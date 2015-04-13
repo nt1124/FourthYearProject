@@ -1,6 +1,6 @@
 struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
 									struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
-									struct HKE_Output_Struct_Builder *outputStruct, struct eccParams *params,
+									struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
 									randctx *globalRandCTX, randctx **circuitCTXs, ub4 **circuitSeeds,
 									int numCircuits, int partyID)
 {
@@ -13,7 +13,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	// #pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
 	for(j = 0; j < numCircuits; j++)
 	{
-		outputKeysLocals = getOutputKeys(outputStruct, rawInputCircuit -> numOutputs, j);
+		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
 		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, C, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
 
 		for(i = 0; i < 2*rawInputCircuit -> numOutputs; i ++)
@@ -61,22 +61,15 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 	NaorPinkasInputs = computeNaorPinkasInputsForJSet(cTilde, revealStruct -> aListRevealed, rawInputCircuit -> numInputs_P1, numCircuits, params, J_set);
 
-	// #pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
+	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
 
-		printf("Checkpoint 3.%d %d\n", j, k);
-		fflush(stdout);
-		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, cTilde, NaorPinkasInputs[k], revealStruct -> ouputWireShares[j], params, partyID_Partner);
-
-		printf("Checkpoint 3.%d B\n", j);
-		fflush(stdout);
+		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, cTilde, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		printf("Checkpoint 3.%d C %d\n\n", j, temp);
-		fflush(stdout);
 		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
@@ -90,7 +83,7 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, randctx *ctx, int partyID)
 {
 	struct Circuit **circuitsArray_Own, **circuitsArray_Partner;
-	int i, commBufferLen = 0, J_setSize = 0, j;
+	int i, commBufferLen = 0, J_setSize = 0, j, k;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -105,7 +98,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
 	mpz_t **aList;
 
-	struct HKE_Output_Struct_Builder *outputStruct;
+	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct jSetRevealHKE *partnerReveals;
 	struct DDH_Group *group;
 	int numCircuits = 4, tempLength = 0, bufferOffset = 0;
@@ -137,14 +130,14 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
-	outputStruct = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, group);
+	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, group);
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
 	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
 
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct, params,
+	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
 											ctx, circuitCTXs, circuitSeeds, numCircuits, partyID);
 	circuitsArray_Partner = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit *));
 	
@@ -161,6 +154,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
 	}
+
+	outputStruct_Partner = exchangePublicBoxesOfSchemes(writeSocket, readSocket, outputStruct_Own, rawInputCircuit -> numOutputs, numCircuits);
 
 	// Having received the circuits we now have the OT.
 	// Note we do this after the circuits have been built and sent.
@@ -196,24 +191,17 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, numCircuits, partyID);
 
 	J_setOwn = generateJ_Set(numCircuits);
-	/*
-	J_setOwn = (unsigned char *) calloc(numCircuits, sizeof(unsigned char));
-	for(i = 0; i < numCircuits / 2; i ++)
-	{
-		J_setOwn[i] = 1;
-	}
-	*/
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, numCircuits / 2, numCircuits);
 
-	commBuffer = jSetRevealSerialise(aList, outputStruct, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
+	commBuffer = jSetRevealSerialise(aList, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnerReveals = jSetRevealDeserialise(commBuffer, J_setOwn, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
 
 
-	HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, cTilde, partnerReveals, params, J_setOwn, numCircuits / 2, numCircuits, partyID);
-	// testTime(aList, partnerReveals, J_setOwn, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
+	// testTime(outputStruct_Own, partnerReveals, J_setOwn, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
+	HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, C, partnerReveals, params, J_setOwn, numCircuits / 2, numCircuits, partyID);
 
 	for(i = 0; i < numCircuits; i ++)
 	{

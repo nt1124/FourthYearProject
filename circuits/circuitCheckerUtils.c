@@ -218,7 +218,7 @@ int compareGate(struct gate *gateA, struct gate *gateB)
 
 	for(i = 0; i < gateA -> outputTableSize; i ++)
 	{
-		output |= memcmp(gateA -> encOutputTable[i], gateB -> encOutputTable[i], 32);
+		output |= memcmp(gateA -> encOutputTable[i], gateB -> encOutputTable[i], 16);
 	}
 		
 
@@ -231,6 +231,7 @@ int compareGateOrWirePair(struct gateOrWire *gateA, struct gateOrWire *gateB)
 
 	output |= (0x01 ^ (gateA -> G_ID == gateB -> G_ID));
 
+
 	if(NULL != gateA -> gatePayload && NULL != gateB -> gatePayload)
 	{
 		output |= compareGate(gateA -> gatePayload, gateB -> gatePayload);
@@ -239,13 +240,9 @@ int compareGateOrWirePair(struct gateOrWire *gateA, struct gateOrWire *gateB)
 	{
 		output |= (0x01 ^ (gateA -> gatePayload == gateB -> gatePayload));
 
-		// printGateOrWire(gateA);
-		// fflush(stdout);
-		// printGateOrWire(gateB);
-		// fflush(stdout);
-
 		output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key0, gateB -> outputWire -> outputGarbleKeys -> key0, 16);
 		output |= memcmp(gateA -> outputWire -> outputGarbleKeys -> key1, gateB -> outputWire -> outputGarbleKeys -> key1, 16);
+
 	}
 
 	return output;
@@ -256,21 +253,21 @@ int compareGateOrWirePair(struct gateOrWire *gateA, struct gateOrWire *gateB)
 int compareCircuit(struct RawCircuit *baseCircuit, struct Circuit *circuitA, struct Circuit *circuitB)
 {
 	int temp = 0;
-	int i;
+	int i, j;
 
-	for(i = 0; i < baseCircuit -> numGates; i ++)
+
+	for(i = baseCircuit -> numInputs; i < baseCircuit -> numGates; i ++)
 	{
-		printf("Comparing gate// %d\n", i);
 		temp |= compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
-		printf(">>> %d\n", temp);
 	}
+
 
 	return temp;
 }
 
 
 
-void testCircuitComp(char *circuitFilepath)//, char *inputFilepath_B, char *inputFilepath_E)
+void testCircuitComp(char *circuitFilepath)
 {
 	struct RawCircuit *rawInputCircuit = readInCircuit_Raw(circuitFilepath);
 	struct Circuit *garbledCircuit1, *garbledCircuit2;

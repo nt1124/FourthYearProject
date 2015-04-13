@@ -1,5 +1,3 @@
-
-
 struct builderInputCommitStruct *initBuilderInputCommitStruct(int iMax, int jMax, gmp_randstate_t *state)
 {
 	struct builderInputCommitStruct *outputStruct = (struct builderInputCommitStruct *) calloc(1, sizeof(struct builderInputCommitStruct));

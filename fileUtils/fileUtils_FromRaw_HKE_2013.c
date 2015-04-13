@@ -125,18 +125,13 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
 
 
-	printf("Starting builders input wires init stuff\n");
-	fflush(stdout);
 
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
-		// printf(">>>  %d\n", i);
 		gates[i] = initInputWire_FromRaw_HKE_2013(ctx, i, 0xFF, R, NaorPinkasInputs[index], NaorPinkasInputs[index + 1], params);
 		index += 2;
 	}
 
-	printf("Done builders input wires stuff\n");
-	fflush(stdout);
 
 	for(i = execPartyStartID; i < execPartyEndID; i ++)
 	{
@@ -163,11 +158,6 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 	unsigned char *R = generateIsaacRandBytes(ctx, 16, 17);
 
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", R[i]);
-	}
-	printf("\n");
 
 	outputCircuit -> numGates = rawInputCircuit -> numGates;
 
@@ -286,22 +276,22 @@ mpz_t **getNaorPinkasInputs(int numInputs, int numCircuits, gmp_randstate_t stat
 }
 
 
-struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutput, int numCircuits, gmp_randstate_t state, struct DDH_Group *group)
+struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutputs, int numCircuits, gmp_randstate_t state, struct DDH_Group *group)
 {
-	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(numOutput, sizeof(struct HKE_Output_Struct_Builder));
+	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(1, sizeof(struct HKE_Output_Struct_Builder));
 	mpz_t *temp;
 	int i, t;
 
 
 	t = (numCircuits / 2);
 
-	output -> s_0Array = (mpz_t *) calloc(numOutput, sizeof(mpz_t));
-	output -> s_1Array = (mpz_t *) calloc(numOutput, sizeof(mpz_t));
+	output -> s_0Array = (mpz_t *) calloc(numOutputs, sizeof(mpz_t));
+	output -> s_1Array = (mpz_t *) calloc(numOutputs, sizeof(mpz_t));
 
-	output -> scheme0Array = (struct sharingScheme **) calloc(numOutput, sizeof(struct sharingScheme *));
-	output -> scheme1Array = (struct sharingScheme **) calloc(numOutput, sizeof(struct sharingScheme *));
+	output -> scheme0Array = (struct sharingScheme **) calloc(numOutputs, sizeof(struct sharingScheme *));
+	output -> scheme1Array = (struct sharingScheme **) calloc(numOutputs, sizeof(struct sharingScheme *));
 
-	for(i = 0; i < numOutput; i ++)
+	for(i = 0; i < numOutputs; i ++)
 	{
 		mpz_init(output -> s_0Array[i]);
 		mpz_urandomm(output -> s_0Array[i], state, group -> q);
@@ -316,8 +306,5 @@ struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutput, int n
 
 	return output;
 }
-
-
-
 
 

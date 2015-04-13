@@ -167,17 +167,13 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 
 
 	output -> aListRevealed = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
-	output -> ouputWireShares =  (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
+	output -> outputWireShares =  (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
 	output -> revealedSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 
 
-	// for(i = 0; i < numOutputs; i ++)
-	// {
-	// 	output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numCircuits, sizeof(mpz_t));
-	// }
 	for(i = 0; i < numCircuits; i ++)
 	{
-		output -> ouputWireShares[i] = (mpz_t *) calloc(2 * numOutputs, sizeof(mpz_t));
+		output -> outputWireShares[i] = (mpz_t *) calloc(2 * numOutputs, sizeof(mpz_t));
 	}
 
 	for(j = 0; j < numCircuits; j ++)
@@ -203,11 +199,11 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 			for(i = 0; i < numOutputs; i ++)
 			{
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> ouputWireShares[j][k], *tempMPZ);
+				mpz_init_set(output -> outputWireShares[j][k], *tempMPZ);
 				k ++;
 
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_init_set(output -> ouputWireShares[j][k], *tempMPZ);
+				mpz_init_set(output -> outputWireShares[j][k], *tempMPZ);
 				k ++;
 			}
 
@@ -220,44 +216,61 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 }
 
 
-void testTime(mpz_t **aList, struct jSetRevealHKE *revealedDeserialised, unsigned char *jSetOwn, unsigned char *jSetPartner, int numInputs, int numOutputs, int numCircuits)
+struct HKE_Output_Struct_Builder *exchangePublicBoxesOfSchemes(int writeSocket, int readSocket, struct HKE_Output_Struct_Builder *ownInput, int numOutputs, int numCircuits)
 {
-	int i, j, k;
+	struct HKE_Output_Struct_Builder *output = (struct HKE_Output_Struct_Builder *) calloc(1, sizeof(struct HKE_Output_Struct_Builder));
+	int t, commBufferLen = 0, bufferOffset = 0;
+	unsigned char *commBuffer;
 
 
-	for(j = 0; j < numCircuits; j ++)
+	t = (numCircuits / 2);
+
+
+	commBuffer = serialisePubBoxes(ownInput -> scheme0Array, numOutputs, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	commBuffer = serialisePubBoxes(ownInput -> scheme1Array, numOutputs, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+
+	commBufferLen = 0;
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	output -> scheme0Array = deserialisePubBoxes(commBuffer, t, numCircuits, numOutputs, &bufferOffset);
+	free(commBuffer);
+
+	commBufferLen = 0;
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	output -> scheme1Array = deserialisePubBoxes(commBuffer, t, numCircuits, numOutputs, &bufferOffset);
+	free(commBuffer);
+
+
+	return output;
+}
+
+
+int verifyRevealedOutputs(struct HKE_Output_Struct_Builder *outputStruct_Partner, struct jSetRevealHKE *output, unsigned char *jSetPartner,
+						int numCircuits, int numOutputs, struct DDH_Group *group)
+{
+	int i, j, k, verified = 0;
+
+
+	for(i = 0; i < numCircuits; i ++)
 	{
-		printf(">>>>>>>>>   %d\n", j);
-		if(0x01 == jSetPartner[j])
+		k = 0;
+		for(j = 0; j < numOutputs; j ++)
 		{
-			k = 0;
-			for(i = 0; i < numInputs; i ++)
-			{
-				gmp_printf("%Zd\n", aList[j][k]);
-				k ++;
+			verified |= VSS_Verify(outputStruct -> scheme0Array[j] -> pub, output -> outputWireShares[i][k], j, group);
+			k ++;
 
-				gmp_printf("%Zd\n\n", aList[j][k]);
-				k ++;
-			}
+			verified |= VSS_Verify(outputStruct -> scheme1Array[j] -> pub, output -> outputWireShares[i][k], j, group);
+			k ++;
 		}
 	}
 
 
-	for(j = 0; j < numCircuits; j ++)
-	{
-		printf(">>>>>>>>>   %d\n", j);
-		if(0x01 == jSetPartner[j])
-		{
-			k = 0;
-			for(i = 0; i < numInputs; i ++)
-			{
-				gmp_printf("%Zd\n", revealedDeserialised -> aListRevealed[j][k]);
-				k ++;
-
-				gmp_printf("%Zd\n\n", revealedDeserialised -> aListRevealed[j][k]);
-				k ++;
-				fflush(stdout);
-			}
-		}
-	}
+	return verified;
 }
