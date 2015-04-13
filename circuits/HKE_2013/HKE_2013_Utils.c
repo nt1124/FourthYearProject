@@ -11,21 +11,13 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 
 		if(0x01 == J_set[i])
 		{
-			printf("Checkpoint 2.%d  -  %d\n", i, numInputs);
-			fflush(stdout);
 			output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
 			index = 0;
 
 			for(j = 0; j < numInputs; j ++)
 			{
-				printf("Checkpoint 2.%d.%d  A\n", i, j);
-				fflush(stdout);
-				printf("Checkpoint 2.%d.%d  B\n", i, j);
-				fflush(stdout);
 				output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
 
-				printf("Checkpoint 2.%d.%d  C\n", i, j);
-				fflush(stdout);
 				invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);
