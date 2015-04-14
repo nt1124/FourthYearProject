@@ -133,6 +133,7 @@ struct DDH_Group *get_128_Bit_Group(gmp_randstate_t state)
 	do
 	{
 		mpz_urandomm(candiateG, state, group -> p);
+		// mpz_set_ui(candiateG, 4);
 		mpz_powm_ui(group -> g, candiateG, 2, group -> p);
 	} while( 0 == mpz_cmp_ui(group -> g, 1) || 0 == mpz_cmp_ui(group -> g, 0)   );
 

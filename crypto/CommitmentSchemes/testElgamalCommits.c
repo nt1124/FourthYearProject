@@ -95,14 +95,6 @@ int elgamal_commit_main()
 		}
 	}
 
-
-	bufferOffset = 0;
-	for(i = 0; i < numberOfTests; i ++)
-	{
-		// mpz_set(listOfKeys_R[i] -> x -> x, *fakeX);
-		// single_decommit_elgamal_C(params, listOfKeys_R[i], buffer, &bufferOffset);
-	}
-
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{

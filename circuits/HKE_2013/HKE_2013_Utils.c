@@ -260,14 +260,17 @@ int verifyRevealedOutputs(struct HKE_Output_Struct_Builder *outputStruct_Partner
 
 	for(i = 0; i < numCircuits; i ++)
 	{
-		k = 0;
-		for(j = 0; j < numOutputs; j ++)
+		if(0x01 == jSetPartner[i])
 		{
-			verified |= VSS_Verify(outputStruct -> scheme0Array[j] -> pub, output -> outputWireShares[i][k], j, group);
-			k ++;
+			k = 0;
+			for(j = 0; j < numOutputs; j ++)
+			{
+				verified |= VSS_Verify(outputStruct_Partner -> scheme0Array[j] -> pub, output -> outputWireShares[i][k], i + 1, group);
+				k ++;
 
-			verified |= VSS_Verify(outputStruct -> scheme1Array[j] -> pub, output -> outputWireShares[i][k], j, group);
-			k ++;
+				verified |= VSS_Verify(outputStruct_Partner -> scheme1Array[j] -> pub, output -> outputWireShares[i][k], i + 1, group);
+				k ++;
+			}
 		}
 	}
 

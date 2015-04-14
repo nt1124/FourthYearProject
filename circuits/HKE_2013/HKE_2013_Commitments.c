@@ -140,7 +140,6 @@ struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, 
 
 		for(j = 0; j < jMax; j ++)
 		{
-			// outputStruct -> c_boxes_0[i][j] = init_commit_box();
 			outputStruct -> c_boxes_0[i][j] = single_commit_elgamal_R(inputBuffer, &tempOffset);
 		}
 		for(j = 0; j < jMax; j ++)
@@ -153,4 +152,83 @@ struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, 
 
 
 	return outputStruct;
+}
+
+
+
+// Note that the Receiver already has the x from the key boxes.
+unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStruct *commitStruct, unsigned char *jSetPartner, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int i, j, bufferOffset = 0;
+	int tempBytesCount = commitStruct -> jMax * sizeof(unsigned char);
+
+
+	*outputLength = commitStruct -> iMax * tempBytesCount;
+
+	for(i = 0; i < commitStruct -> iMax; i ++)
+	{
+		if(0x01 == jSetPartner[i])
+		{
+			for(j = 0; j < commitStruct -> jMax; j ++)
+			{
+				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_0[i][j] -> r);
+				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_1[i][j] -> r);
+			}
+		}
+	}
+
+	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
+
+	for(i = 0; i < commitStruct -> iMax; i ++)
+	{
+		if(0x01 == jSetPartner[i])
+		{
+			memcpy(outputBuffer + bufferOffset, commitStruct -> commitmentPerms[i], tempBytesCount);
+			bufferOffset += tempBytesCount;
+
+			for(j = 0; j < commitStruct -> jMax; j ++)
+			{
+				serialiseMPZ(commitStruct -> k_boxes_0[i][j] -> r, outputBuffer, &bufferOffset);
+				serialiseMPZ(commitStruct -> k_boxes_1[i][j] -> r, outputBuffer, &bufferOffset);
+			}
+		}
+	}
+
+
+	return outputBuffer;
+}
+
+
+// Note that the Receiver already has the x from the key boxes.
+int decommitToCheckCircuitInputs_Exec(unsigned char *inputBuffer, unsigned char *jSetOwn, int numCircuits, int numInputs, int *inputOffset)
+{
+	unsigned char *outputBuffer, **permutations = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
+	int i, j, tempOffset = *inputOffset, validCommitments = 0;
+	int tempBytesCount = numInputs * sizeof(unsigned char);
+	mpz_t *tempR;
+
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == jSetOwn[i])
+		{
+			permutations[i] = (unsigned char *) calloc(numInputs, sizeof(unsigned char));
+			memcpy(permutations[i], inputBuffer + tempOffset, tempBytesCount);
+			tempOffset += tempBytesCount;
+
+			for(j = 0; j < numInputs; j ++)
+			{
+				tempR = deserialiseMPZ(inputBuffer, &tempOffset);
+				mpz_clear(*tempR);
+				free(tempR);
+
+				tempR = deserialiseMPZ(inputBuffer, &tempOffset);
+				mpz_clear(*tempR);
+				free(tempR);
+			}
+		}
+	}
+
+	return validCommitments;
 }

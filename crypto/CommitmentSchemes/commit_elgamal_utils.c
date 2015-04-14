@@ -239,10 +239,6 @@ struct elgamal_commit_box ***deserialiseAllC_Boxes_2D(unsigned char *inputBuffer
 
 
 
-
-
-
-
 unsigned char *serialiseAllK_Boxes_1D(struct elgamal_commit_key **k, int msgLength, int numK_Boxes, int *totalLength)
 {
 	unsigned char *outputBuffer;

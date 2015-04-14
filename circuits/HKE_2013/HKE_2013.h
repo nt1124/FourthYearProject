@@ -13,6 +13,8 @@ typedef struct builderInputCommitStruct
 	struct elgamal_commit_key ***k_boxes_0;
 	struct elgamal_commit_key ***k_boxes_1;
 
+	// iMax is the number of circuits
+	// jMax is the number of inputs
 	int iMax;
 	int jMax;
 } builderInputCommitStruct;
@@ -21,8 +23,6 @@ typedef struct builderInputCommitStruct
 typedef struct jSetRevealHKE
 {
 	mpz_t **aListRevealed;
-	// mpz_t **shares0Revealed;
-	// mpz_t **shares1Revealed;
 	mpz_t **outputWireShares;
 
 	ub4 **revealedSeeds;

@@ -107,13 +107,44 @@ unsigned char *single_decommit_elgamal_R(struct commit_batch_params *params, str
 	// validPointTest |= checkValidECC_Point(g_x, params -> params);
 	// validPointTest |= checkValidECC_Point(v_test, params -> params);
 	
-	if(0 != validPointTest)
+	if(0 != validPointTest || 0 != eccPointsEqual(u_test, c -> u) || 0 != eccPointsEqual(v_test, c -> v))
 	{
 		return NULL;
 	}
 
 
 	return k -> x;
+}
+
+
+int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *xBytes, mpz_t r, int msgLength, int *outputLength)
+{
+	struct eccPoint *u_test, *v_test, *g_x;
+	int validPointTest = 0;
+	mpz_t *x = (mpz_t*) calloc(1, sizeof(mpz_t));
+
+
+	mpz_init(*x);
+
+	convertBytesToMPZ(x, xBytes, msgLength);
+	g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
+
+
+	u_test = windowedScalarPoint(r, params -> params -> g, params -> params);
+	v_test = windowedScalarPoint(r, params -> h, params -> params);
+	groupOp_PlusEqual(v_test, g_x, params -> params);
+
+	// validPointTest |= checkValidECC_Point(params -> h, params -> params);
+	// validPointTest |= checkValidECC_Point(g_x, params -> params);
+	// validPointTest |= checkValidECC_Point(v_test, params -> params);
+	
+	if(0 != validPointTest || 0 != eccPointsEqual(u_test, c -> u) || 0 != eccPointsEqual(v_test, c -> v))
+	{
+		return 1;
+	}
+
+
+	return 0;
 }
 
 
