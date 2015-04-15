@@ -117,7 +117,7 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	printf("Outputs verified : %d\n\n", outputsVerified);
 
 
-	return (outputsVerified | circuitsCorrect);
+	return (validCommitments | outputsVerified | circuitsCorrect);
 }
 
 
@@ -240,6 +240,11 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, aList, circuitSeeds, NaorPinkasInputs,
 								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_setOwn, J_setPartner, numCircuits, groupPartner, params, partyID);
+
+
+
+	Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2);
+
 
 	for(i = 0; i < numCircuits; i ++)
 	{

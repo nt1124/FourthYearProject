@@ -328,9 +328,45 @@ int verifyRevealedOutputs(struct HKE_Output_Struct_Builder *outputStruct_Partner
 }
 
 
-mpz_t **Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **aList, unsigned char *inputBitsOwn,
-								struct OT_NP_Receiver_Query **queries_Own, unsigned char *J_SetPartner, int numCircuits, int numInputs)
+mpz_t **Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **aLists, struct OT_NP_Receiver_Query **queries_Own,
+								struct eccParams *params, unsigned char *inputBitsOwn, unsigned char *J_SetPartner, int numCircuits, int numInputs)
 {
+	mpz_t **logsOutput = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *)), tempMPZ;
+	int i, j, k;
 
+	struct eccPoint *a, *b, *c, *d;
+
+
+	mpz_init(tempMPZ);
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_SetPartner[i])
+		{
+			logsOutput[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+			for(j = 0; j < numInputs; j ++)
+			{
+				k = 2 * j + inputBitsOwn[j];
+				mpz_init(logsOutput[i][j]);
+				if(0x00 == inputBitsOwn[j])
+				{
+					mpz_sub(tempMPZ, aLists[i][k], queries_Own[j] -> k);
+				}
+				else
+				{
+					mpz_sub(tempMPZ, queries_Own[j] -> k, aLists[i][k]);
+					// mpz_sub(tempMPZ, aLists[i][k], queries_Own[j] -> k);
+				}
+				mpz_mod(logsOutput[i][j], tempMPZ, params -> n);
+
+				// a = windowedScalarPoint(queries_Own[j] -> k, params -> g, params);
+				b = invertPoint(queries_Own[j] -> h, params);
+				c = groupOp(NaorPinkasInputs[i][k], b, params);
+				d = windowedScalarPoint(logsOutput[i][j], params -> g, params);
+
+				printf("(%d, %02d, %02d) %d\n", i, j, k, eccPointsEqual(c, d));
+			}
+		}
+	}
+	mpz_clear(tempMPZ);
 }
  
