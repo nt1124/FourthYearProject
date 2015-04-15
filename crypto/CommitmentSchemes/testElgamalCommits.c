@@ -35,7 +35,6 @@ int elgamal_commit_main()
 
 	c_0 = clock();
 
-	printf("Here\n");
 	params = generate_commit_params(1024, *state);
 
 	c_1 = clock();
@@ -76,10 +75,11 @@ int elgamal_commit_main()
 	buffer = serialiseAllK_Boxes_1D(listOfKeys_C, 16, numberOfTests, &bufferSize1);
 	listOfKeys_R = deserialiseAllK_Boxes_1D(buffer, 16, numberOfTests, &bufferOffset);
 	
-
+	int tempInt = 0;
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
+		/*
 		result = single_decommit_elgamal_R(params, listOfBoxes_R[i], listOfKeys_R[i], 16, &outputLength);
 		if( NULL == result)
 		{
@@ -93,8 +93,12 @@ int elgamal_commit_main()
 		{
 			printf("Successful test of index %02d\n", i);
 		}
+		*/
+		tempInt = single_decommit_raw_elgamal_R(params, listOfBoxes_R[i], listOfKeys_R[i] -> x, listOfKeys_R[i] -> r, 16);
+		printf("%d - %d\n", i, tempInt);
 	}
 
+	/*
 	bufferOffset = 0;
 	for(i = 0; i < numberOfTests; i ++)
 	{
@@ -108,7 +112,7 @@ int elgamal_commit_main()
 			printf("Successful test of index %02d\n", i);
 		}
 	}
-
+	*/
 
 	c_1 = clock();
 

@@ -95,13 +95,15 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char *
 
 
 
-unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Builder *outputStruct, ub4 **circuitSeeds,
-									unsigned char *jSet, int numInputs, int numOutputs, int numCircuits, int *outputLength)
+unsigned char *jSetRevealSerialise(struct eccPoint ***NaorPinkasInputs, mpz_t **aList, unsigned char *inputBitsOwn,
+								struct HKE_Output_Struct_Builder *outputStruct, ub4 **circuitSeeds,
+								unsigned char *jSet, int numInputs, int numOutputs, int numCircuits, int *outputLength)
 {
 	unsigned char *outputBuffer;
 	int i, j, k, tempOffset = 0;
 	int aListLen = 0, sharesLen = 0, seedLengths = (numCircuits / 2) * 256 * sizeof(ub4);
 
+	(*outputLength) = 0;
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -124,9 +126,23 @@ unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Build
 				sharesLen += sizeOfSerialMPZ(outputStruct -> scheme1Array[i] -> shares[j]);
 			}
 		}
+		else
+		{
+			for(i = 0; i < numInputs; i ++)
+			{
+				if(0x00 == inputBitsOwn[i])
+				{
+					(*outputLength) += sizeOfSerial_ECCPoint(NaorPinkasInputs[j][2*i]);
+				}
+				else
+				{
+					(*outputLength) += sizeOfSerial_ECCPoint(NaorPinkasInputs[j][2*i + 1]);
+				}
+			}
+		}
 	}
 
-	*outputLength = aListLen + sharesLen + seedLengths;
+	(*outputLength) += (aListLen + sharesLen + seedLengths);
 	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
 
 	for(j = 0; j < numCircuits; j ++)
@@ -155,6 +171,25 @@ unsigned char *jSetRevealSerialise(mpz_t **aList, struct HKE_Output_Struct_Build
 		}
 	}
 
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		if(0x00 == jSet[j])
+		{
+			for(i = 0; i < numInputs; i ++)
+			{
+				if(0x00 == inputBitsOwn[i])
+				{
+					serialise_ECC_Point(NaorPinkasInputs[j][2*i], outputBuffer, &tempOffset);
+				}
+				else
+				{
+					serialise_ECC_Point(NaorPinkasInputs[j][2*i + 1], outputBuffer, &tempOffset);
+				}
+			}
+		}
+	}
+
 	return outputBuffer;
 }
 
@@ -169,6 +204,7 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 	output -> aListRevealed = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
 	output -> outputWireShares =  (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
 	output -> revealedSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
+	output -> builderInputsEval = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
 
 
 	for(i = 0; i < numCircuits; i ++)
@@ -211,6 +247,19 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 			tempOffset += 256 * sizeof(ub4);
 		}
 	}
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		if(0x00 == jSet[j])
+		{
+			output -> builderInputsEval[j] = (struct eccPoint **) calloc(numInputs, sizeof(struct eccPoint *));
+			for(i = 0; i < numInputs; i ++)
+			{
+				output -> builderInputsEval[j][i] = deserialise_ECC_Point(inputBuffer, &tempOffset);
+			}
+		}
+	}
+
 
 	return output;
 }
@@ -277,3 +326,11 @@ int verifyRevealedOutputs(struct HKE_Output_Struct_Builder *outputStruct_Partner
 
 	return verified;
 }
+
+
+mpz_t **Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **aList, unsigned char *inputBitsOwn,
+								struct OT_NP_Receiver_Query **queries_Own, unsigned char *J_SetPartner, int numCircuits, int numInputs)
+{
+
+}
+ 

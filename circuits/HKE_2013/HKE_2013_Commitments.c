@@ -43,8 +43,9 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 {
 	struct builderInputCommitStruct *outputStruct = initBuilderInputCommitStruct(numCircuits, circuitsArray[0] -> numInputsBuilder, state);
 	struct wire *tempWire;
-	int i, j, gateIndex;
+	int i, j, k, gateIndex;
 	unsigned char *temp0, *temp1;
+
 
 
 	for(i = 0; i < outputStruct -> iMax; i ++)
@@ -53,7 +54,8 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 		{
 			outputStruct -> commitmentPerms[i][j] = (0x01 & getIsaacPermutation(ctx));
 			gateIndex = circuitsArray[i] -> builderInputOffset + j;
-			tempWire = circuitsArray[i] -> gates[j] -> outputWire;
+			tempWire = circuitsArray[i] -> gates[gateIndex] -> outputWire;
+
 
 			if(0 == outputStruct -> commitmentPerms[i][j])
 			{
@@ -81,7 +83,6 @@ unsigned char *serialiseC_Boxes(struct builderInputCommitStruct *commitStruct, i
 {
 	unsigned char *outputBuffer, *temp0, *temp1, *temp2;
 	int outputLength = 0, tempOffset0, tempOffset1, tempOffset2, temp2Length;
-
 
 
 	tempOffset0 = 0;
@@ -119,12 +120,9 @@ struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, 
 	int i, j, tempOffset = *inputOffset;
 
 
-	// outputStruct -> params = params;
 	outputStruct -> commitmentPerms = (unsigned char **) calloc(iMax, sizeof(unsigned char *));
 	outputStruct -> c_boxes_0 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
 	outputStruct -> c_boxes_1 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
-	outputStruct -> k_boxes_0 = (struct elgamal_commit_key ***) calloc(iMax, sizeof(struct elgamal_commit_key **));
-	outputStruct -> k_boxes_1 = (struct elgamal_commit_key ***) calloc(iMax, sizeof(struct elgamal_commit_key **));
 
 	outputStruct -> iMax = iMax;
 	outputStruct -> jMax = jMax;
@@ -133,20 +131,11 @@ struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, 
 	for(i = 0; i < iMax; i ++)
 	{
 		outputStruct -> commitmentPerms[i] = (unsigned char *) calloc(jMax, sizeof(unsigned char));
-		outputStruct -> c_boxes_0[i] = (struct elgamal_commit_box **) calloc(jMax, sizeof(struct elgamal_commit_box *));
-		outputStruct -> c_boxes_1[i] = (struct elgamal_commit_box **) calloc(jMax, sizeof(struct elgamal_commit_box *));
-		outputStruct -> k_boxes_0[i] = (struct elgamal_commit_key **) calloc(jMax, sizeof(struct elgamal_commit_key *));
-		outputStruct -> k_boxes_1[i] = (struct elgamal_commit_key **) calloc(jMax, sizeof(struct elgamal_commit_key *));
-
-		for(j = 0; j < jMax; j ++)
-		{
-			outputStruct -> c_boxes_0[i][j] = single_commit_elgamal_R(inputBuffer, &tempOffset);
-		}
-		for(j = 0; j < jMax; j ++)
-		{
-			outputStruct -> c_boxes_1[i][j] = single_commit_elgamal_R(inputBuffer, &tempOffset);
-		}
 	}
+
+	outputStruct -> c_boxes_0 = deserialiseAllC_Boxes_2D(inputBuffer, iMax, jMax, &tempOffset);
+	outputStruct -> c_boxes_1 = deserialiseAllC_Boxes_2D(inputBuffer, iMax, jMax, &tempOffset);
+
 
 	outputStruct -> params = deserialise_commit_batch_params(inputBuffer, &tempOffset);
 
@@ -157,11 +146,13 @@ struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, 
 
 
 // Note that the Receiver already has the x from the key boxes.
-unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStruct *commitStruct, unsigned char *jSetPartner, int *outputLength)
+unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStruct *commitStruct, unsigned char *inputBitsOwn, unsigned char *jSetPartner, int *outputLength)
 {
-	unsigned char *outputBuffer;
+	unsigned char *outputBuffer, permedBit;
 	int i, j, bufferOffset = 0;
 	int tempBytesCount = commitStruct -> jMax * sizeof(unsigned char);
+
+	int validCommitments, h;
 
 
 	*outputLength = commitStruct -> iMax * tempBytesCount;
@@ -174,6 +165,20 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 			{
 				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_0[i][j] -> r);
 				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_1[i][j] -> r);
+			}
+		}
+		else
+		{
+			for(j = 0; j < commitStruct -> jMax; j ++)
+			{
+				if(0x00 == inputBitsOwn[j])
+				{
+					(*outputLength) += (1 + sizeOfSerialMPZ(commitStruct -> k_boxes_0[i][j] -> r));
+				}
+				else
+				{
+					(*outputLength) += (1 + sizeOfSerialMPZ(commitStruct -> k_boxes_1[i][j] -> r));
+				}
 			}
 		}
 	}
@@ -195,40 +200,113 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 		}
 	}
 
+	for(i = 0; i < commitStruct -> iMax; i ++)
+	{
+		if(0x00 == jSetPartner[i])
+		{
+			for(j = 0; j < commitStruct -> jMax; j ++)
+			{
+				outputBuffer[bufferOffset] = permedBit = (inputBitsOwn[j] ^ commitStruct -> commitmentPerms[i][j]);
+				bufferOffset ++;
+
+				if(0x00 == permedBit)
+				{
+					serialiseMPZ(commitStruct -> k_boxes_0[i][j] -> r, outputBuffer, &bufferOffset);
+				}
+				else
+				{
+					serialiseMPZ(commitStruct -> k_boxes_1[i][j] -> r, outputBuffer, &bufferOffset);
+				}
+			}
+		}
+	}
 
 	return outputBuffer;
 }
 
 
 // Note that the Receiver already has the x from the key boxes.
-int decommitToCheckCircuitInputs_Exec(unsigned char *inputBuffer, unsigned char *jSetOwn, int numCircuits, int numInputs, int *inputOffset)
+int decommitToCheckCircuitInputs_Exec(struct builderInputCommitStruct *commitStruct, struct jSetRevealHKE *partnerReveals, struct eccPoint ***NaorPinkasInputs_Partner,
+									unsigned char *inputBuffer, unsigned char *jSetOwn, int numCircuits, int numInputs, int *inputOffset)
 {
-	unsigned char *outputBuffer, **permutations = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
-	int i, j, tempOffset = *inputOffset, validCommitments = 0;
+	unsigned char permedBit, **permutations = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *)), *x0, *x1;
+	int i, j, k, tempOffset = *inputOffset, validCommitments = 0;
 	int tempBytesCount = numInputs * sizeof(unsigned char);
-	mpz_t *tempR;
+	mpz_t *tempR0, *tempR1;
 
 
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x01 == jSetOwn[i])
 		{
+			k = 0;
 			permutations[i] = (unsigned char *) calloc(numInputs, sizeof(unsigned char));
 			memcpy(permutations[i], inputBuffer + tempOffset, tempBytesCount);
 			tempOffset += tempBytesCount;
 
 			for(j = 0; j < numInputs; j ++)
 			{
-				tempR = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_clear(*tempR);
-				free(tempR);
+				tempR0 = deserialiseMPZ(inputBuffer, &tempOffset);
+				x0 = hashECC_Point(NaorPinkasInputs_Partner[i][k], 16);
+				k ++;
 
-				tempR = deserialiseMPZ(inputBuffer, &tempOffset);
-				mpz_clear(*tempR);
-				free(tempR);
+				tempR1 = deserialiseMPZ(inputBuffer, &tempOffset);
+				x1 = hashECC_Point(NaorPinkasInputs_Partner[i][k], 16);
+				k ++;
+
+				if(0x00 == permutations[i][j])
+				{
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x0, *tempR0, 16);
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x1, *tempR1, 16);
+				}
+				else
+				{
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x1, *tempR0, 16);
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x0, *tempR1, 16);
+				}
+
+				mpz_clear(*tempR0);
+				free(tempR0);
+				free(x0);
+
+				mpz_clear(*tempR1);
+				free(tempR1);
+				free(x1);
 			}
 		}
 	}
+
+
+	// Now check that the 
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == jSetOwn[i])
+		{
+			for(j = 0; j < numInputs; j ++)
+			{
+				permedBit = inputBuffer[tempOffset ++];
+
+				x0 = hashECC_Point(partnerReveals -> builderInputsEval[i][j], 16);
+				tempR0 = deserialiseMPZ(inputBuffer, &tempOffset);
+
+				if(0x00 == permedBit)
+				{
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x0, *tempR0, 16);
+				}
+				else
+				{
+					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x0, *tempR0, 16);
+				}
+
+				mpz_clear(*tempR0);
+				free(tempR0);
+			}
+		}
+	}
+
+
+	*inputOffset = tempOffset;
+
 
 	return validCommitments;
 }

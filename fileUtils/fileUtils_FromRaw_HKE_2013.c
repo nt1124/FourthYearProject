@@ -80,6 +80,8 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	struct bitsGarbleKeys *tempOutput;
 
+	int i;
+
 
 	toReturn -> G_ID = idNum;
 	toReturn -> outputWire = (struct wire *) calloc(1, sizeof(struct wire));
@@ -90,6 +92,20 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 
 	tempOutput -> key0 = hashECC_Point(NP_InputsZero, 16);
 	tempOutput -> key1 = hashECC_Point(NP_InputsOne, 16);
+
+	/*
+	printf("+++ %d\n", idNum);
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", tempOutput -> key0[i]);
+	}
+	printf("\n");
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", tempOutput -> key1[i]);
+	}
+	printf("\n");
+	*/
 
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
 
@@ -124,14 +140,13 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputs_P2;
 	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
 
-
+	// printf("%d  %d  %d  %d\n", execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
 
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
 		gates[i] = initInputWire_FromRaw_HKE_2013(ctx, i, 0xFF, R, NaorPinkasInputs[index], NaorPinkasInputs[index + 1], params);
 		index += 2;
 	}
-
 
 	for(i = execPartyStartID; i < execPartyEndID; i ++)
 	{

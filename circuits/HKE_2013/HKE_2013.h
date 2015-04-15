@@ -26,6 +26,9 @@ typedef struct jSetRevealHKE
 	mpz_t **outputWireShares;
 
 	ub4 **revealedSeeds;
+
+	struct eccPoint ***builderInputsEval;
+	mpz_t **logarithms;
 } jSetRevealHKE;
 
 

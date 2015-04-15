@@ -80,7 +80,12 @@ struct elgamal_commit_key *single_commit_elgamal_C(struct commit_batch_params *p
 
 struct elgamal_commit_box *single_commit_elgamal_R(unsigned char *inputBuffer, int *bufferOffset)
 {
-	struct elgamal_commit_box *c = deserialise_elgamal_Cbox(inputBuffer, bufferOffset);
+	struct elgamal_commit_box *c;
+	int tempOffset = *bufferOffset;
+
+	c = deserialise_elgamal_Cbox(inputBuffer, &tempOffset);
+
+	*bufferOffset = tempOffset;
 
 	return c;
 }
@@ -117,7 +122,7 @@ unsigned char *single_decommit_elgamal_R(struct commit_batch_params *params, str
 }
 
 
-int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *xBytes, mpz_t r, int msgLength, int *outputLength)
+int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elgamal_commit_box *c, unsigned char *xBytes, mpz_t r, int msgLength)
 {
 	struct eccPoint *u_test, *v_test, *g_x;
 	int validPointTest = 0;

@@ -230,7 +230,6 @@ struct elgamal_commit_box ***deserialiseAllC_Boxes_2D(unsigned char *inputBuffer
 		}
 	}
 
-
 	*bufferOffset = tempOffset;
 
 	return c;
