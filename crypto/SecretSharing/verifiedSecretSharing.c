@@ -100,6 +100,8 @@ struct sharingScheme *VSS_Share(mpz_t secret, int t, int n, gmp_randstate_t stat
 		free(tempMPZ);
 	}
 
+	mpz_init_set(scheme -> secret, secret);
+
 	return scheme;
 }
 

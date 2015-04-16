@@ -461,11 +461,11 @@ int *getBaseIndiciesForShares(unsigned char *J_SetOwn, int numCircuits)
 
 
 mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Circuit **circuitsArray_Partner, struct DDH_Group *group,
-								gmp_randstate_t *state, unsigned char *J_SetOwn, int numCircuits, int numOutputs)
+								mpz_t **outputWireShares, gmp_randstate_t *state, unsigned char *J_SetOwn, int numCircuits, int numOutputs)
 {
 	unsigned char **trueOutputs = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
-	mpz_t **outputKeyShares = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
-	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t)), *revealedSecret;
+	mpz_t **outputKeySecrets = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
+	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t)), *revealedSecret, *sharesMPZ;
 	int i, j, foundKey0, foundKey1, gateIndexOffset, *indices;
 	struct wire *tempWire;
 
@@ -487,9 +487,9 @@ mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Ci
 		j = 0;
 		foundKey0 = 0;
 		foundKey1 = 0;
-		outputKeyShares[i] = (mpz_t *) calloc(2, sizeof(mpz_t));
-		mpz_init(outputKeyShares[i][0]);
-		mpz_init(outputKeyShares[i][1]);
+		outputKeySecrets[i] = (mpz_t *) calloc(2, sizeof(mpz_t));
+		mpz_init(outputKeySecrets[i][0]);
+		mpz_init(outputKeySecrets[i][1]);
 
 		while( j < numCircuits && (0 == foundKey0 || 0 == foundKey1) )
 		{
@@ -500,14 +500,22 @@ mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Ci
 					foundKey0 = j;
 					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
 					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
-					mpz_set(outputKeyShares[i][0], *tempMPZ);
+					sharesMPZ = constructSharesMPZ_FromCircuits(*tempMPZ, outputWireShares, i, J_SetOwn, 0x00, numCircuits);
+					
+					indices[(numCircuits / 2)] = j + 1;
+					tempMPZ = VSS_Recover(sharesMPZ, indices, (numCircuits / 2) + 1, group);
+					mpz_set(outputKeySecrets[i][0], *tempMPZ);
 				}
 				else if(0 == foundKey1 && 1 == trueOutputs[j][i])
 				{
 					foundKey1 = j;
 					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
 					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
-					mpz_set(outputKeyShares[i][1], *tempMPZ);
+					sharesMPZ = constructSharesMPZ_FromCircuits(*tempMPZ, outputWireShares, i, J_SetOwn, 0x01, numCircuits);
+
+					indices[(numCircuits / 2)] = j + 1;
+					tempMPZ = VSS_Recover(sharesMPZ, indices, (numCircuits / 2) + 1, group);
+					mpz_set(outputKeySecrets[i][1], *tempMPZ);
 				}
 			}
 
@@ -516,16 +524,16 @@ mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Ci
 
 		if(0 == foundKey0)
 		{
-			mpz_urandomm(outputKeyShares[i][0], *state, group -> q);
+			mpz_urandomm(outputKeySecrets[i][0], *state, group -> q);
 		}
-		// gmp_printf("%d - %Zd\n", i, outputKeyShares[i][0]);
+		gmp_printf("%d - %Zd\n", i, outputKeySecrets[i][0]);
 		if(0 == foundKey1)
 		{
-			mpz_urandomm(outputKeyShares[i][1], *state, group -> q);
+			mpz_urandomm(outputKeySecrets[i][1], *state, group -> q);
 		}
-		// gmp_printf("%d - %Zd\n", i, outputKeyShares[i][1]);
+		gmp_printf("%d - %Zd\n", i, outputKeySecrets[i][1]);
 	}
 
 
-	return outputKeyShares;
+	return outputKeySecrets;
 }

@@ -1,4 +1,16 @@
+void printSecrets(struct HKE_Output_Struct_Builder *outputStruct_Own, int numOutputs)
+{
+	int i, j;
 
+	for(i = 0; i < numOutputs; i ++)
+	{
+		gmp_printf("%d - %Zd\n", i, outputStruct_Own -> scheme0Array[i] -> secret);
+		gmp_printf("%d - %Zd\n", i, outputStruct_Own -> scheme1Array[i] -> secret);
+	}
+	printf("\n+++\n\n");
+	fflush(stdout);
+
+}
 
 
 struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
@@ -260,8 +272,10 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
-
-	getEvalCircuitOutputShares(rawInputCircuit, circuitsArray_Partner, groupPartner, state, J_SetOwn, numCircuits, rawInputCircuit -> numOutputs);
+	printSecrets(outputStruct_Own, rawInputCircuit -> numOutputs);
+	getEvalCircuitOutputShares(rawInputCircuit, circuitsArray_Partner, groupPartner,
+							partnerReveals -> outputWireShares, state, J_SetOwn, numCircuits,
+							rawInputCircuit -> numOutputs);
 
 
 	for(i = 0; i < numCircuits; i ++)
