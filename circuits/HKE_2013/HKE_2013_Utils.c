@@ -2,7 +2,7 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 												struct eccParams *params, unsigned char *J_set)
 {
 	struct eccPoint ***output = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
-	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1;
+	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1, *G_a1;
 	int i, j, index;
 
 
@@ -18,7 +18,9 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 			{
 				output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
 
-				invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+				G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+				invG_a1 = invertPoint(G_a1, params);
+				// invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);
 				clearECC_Point(invG_a1);
@@ -328,25 +330,28 @@ int verifyRevealedOutputs(struct HKE_Output_Struct_Builder *outputStruct_Partner
 }
 
 
-mpz_t **Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **aLists, struct OT_NP_Receiver_Query **queries_Own,
-								struct eccParams *params, unsigned char *inputBitsOwn, unsigned char *J_SetPartner, int numCircuits, int numInputs)
+unsigned char *Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **aLists, struct OT_NP_Receiver_Query **queries_Own,
+										struct eccParams *params, unsigned char *inputBitsOwn, unsigned char *J_SetPartner,
+										int numCircuits, int numInputs, int *outputLength)
 {
-	mpz_t **logsOutput = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *)), tempMPZ;
-	int i, j, k;
+	unsigned char *outputBuffer;
+	mpz_t **logsMPZ = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *)), tempMPZ;
+	int i, j, k, bufferOffset = 0;
 
-	struct eccPoint *a, *b, *c, *d;
 
-
+	*outputLength = 0;
 	mpz_init(tempMPZ);
+
 	for(i = 0; i < numCircuits; i ++)
 	{
-		if(0x01 == J_SetPartner[i])
+		if(0x00 == J_SetPartner[i])
 		{
-			logsOutput[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+			logsMPZ[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
 			for(j = 0; j < numInputs; j ++)
 			{
 				k = 2 * j + inputBitsOwn[j];
-				mpz_init(logsOutput[i][j]);
+				mpz_init(logsMPZ[i][j]);
+
 				if(0x00 == inputBitsOwn[j])
 				{
 					mpz_sub(tempMPZ, aLists[i][k], queries_Own[j] -> k);
@@ -354,19 +359,173 @@ mpz_t **Step5_CalculateLogarithms(struct eccPoint ***NaorPinkasInputs, mpz_t **a
 				else
 				{
 					mpz_sub(tempMPZ, queries_Own[j] -> k, aLists[i][k]);
-					// mpz_sub(tempMPZ, aLists[i][k], queries_Own[j] -> k);
 				}
-				mpz_mod(logsOutput[i][j], tempMPZ, params -> n);
+				mpz_mod(logsMPZ[i][j], tempMPZ, params -> n);
 
-				// a = windowedScalarPoint(queries_Own[j] -> k, params -> g, params);
-				b = invertPoint(queries_Own[j] -> h, params);
-				c = groupOp(NaorPinkasInputs[i][k], b, params);
-				d = windowedScalarPoint(logsOutput[i][j], params -> g, params);
-
-				printf("(%d, %02d, %02d) %d\n", i, j, k, eccPointsEqual(c, d));
+				(*outputLength) += sizeOfSerialMPZ(logsMPZ[i][j]);
 			}
 		}
 	}
 	mpz_clear(tempMPZ);
+
+	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
+
+	// Serialise the list of logarithms for sending.
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_SetPartner[i])
+		{
+			for(j = 0; j < numInputs; j ++)
+			{
+				//
+				serialiseMPZ(logsMPZ[i][j], outputBuffer, &bufferOffset);
+				mpz_clear(logsMPZ[i][j]);
+			}
+			free(logsMPZ[i]);
+		}
+	}
+	free(logsMPZ);
+
+
+	return outputBuffer;
 }
- 
+
+
+int Step5_CheckLogarithms(unsigned char *inputBuffer, struct eccPoint ***builderInputsEval, struct eccPoint **queries_Partner,
+						struct eccParams *params, unsigned char *J_setOwn, int numCircuits, int numInputs, int *bufferOffset)
+{
+	struct eccPoint *invH, *vOverH, *gPow;
+	mpz_t *tempMPZ;
+	int i, j, k, logarithmsChecked = 0, tempOffset = *bufferOffset;
+
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_setOwn[i])
+		{
+			for(j = 0; j < numInputs; j ++)
+			{
+				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
+
+				invH = invertPoint(queries_Partner[j], params);
+				vOverH = groupOp(builderInputsEval[i][j], invH, params);
+				gPow = windowedScalarPoint(*tempMPZ, params -> g, params);
+
+				logarithmsChecked |= eccPointsEqual(vOverH, gPow);
+			}
+		}
+	}
+
+
+	return logarithmsChecked;
+}
+
+
+mpz_t *constructSharesMPZ_FromCircuits(mpz_t wireShare, mpz_t **outputWireShares, int j, unsigned char *J_SetOwn, unsigned char outputBit, int numCircuits)
+{
+	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t)), *sharesToUse;
+	int i, k = 2 * j + outputBit, h = 0;
+
+
+	sharesToUse = (mpz_t *) calloc((numCircuits / 2) + 1, sizeof(mpz_t));
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_SetOwn[i])
+		{
+			mpz_init_set(sharesToUse[h ++], outputWireShares[i][k]);
+		}
+	}
+	mpz_init_set(sharesToUse[h], wireShare);
+
+
+	return sharesToUse;
+}
+
+
+int *getBaseIndiciesForShares(unsigned char *J_SetOwn, int numCircuits)
+{
+	int *indices = (int *) calloc((numCircuits / 2) + 1, sizeof(int)), i, j = 0;
+
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_SetOwn[i])
+		{
+			indices[j ++] = i + 1;
+		}
+	}
+
+
+	return indices;
+}
+
+
+mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Circuit **circuitsArray_Partner, struct DDH_Group *group,
+								gmp_randstate_t *state, unsigned char *J_SetOwn, int numCircuits, int numOutputs)
+{
+	unsigned char **trueOutputs = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
+	mpz_t **outputKeyShares = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
+	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t)), *revealedSecret;
+	int i, j, foundKey0, foundKey1, gateIndexOffset, *indices;
+	struct wire *tempWire;
+
+
+	mpz_init(*tempMPZ);
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_SetOwn[i])
+		{
+			trueOutputs[i] = getOutputAsBinary(circuitsArray_Partner[i], &gateIndexOffset);
+		}
+	}
+
+	indices = getBaseIndiciesForShares(J_SetOwn, numCircuits);
+	gateIndexOffset = rawInputCircuit -> numGates - rawInputCircuit -> numOutputs;
+
+	for(i = 0; i < numOutputs; i ++)
+	{
+		j = 0;
+		foundKey0 = 0;
+		foundKey1 = 0;
+		outputKeyShares[i] = (mpz_t *) calloc(2, sizeof(mpz_t));
+		mpz_init(outputKeyShares[i][0]);
+		mpz_init(outputKeyShares[i][1]);
+
+		while( j < numCircuits && (0 == foundKey0 || 0 == foundKey1) )
+		{
+			if(0x00 == J_SetOwn[j])
+			{
+				if(0 == foundKey0 && 0 == trueOutputs[j][i])
+				{
+					foundKey0 = j;
+					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
+					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
+					mpz_set(outputKeyShares[i][0], *tempMPZ);
+				}
+				else if(0 == foundKey1 && 1 == trueOutputs[j][i])
+				{
+					foundKey1 = j;
+					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
+					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
+					mpz_set(outputKeyShares[i][1], *tempMPZ);
+				}
+			}
+
+			j ++;
+		}
+
+		if(0 == foundKey0)
+		{
+			mpz_urandomm(outputKeyShares[i][0], *state, group -> q);
+		}
+		// gmp_printf("%d - %Zd\n", i, outputKeyShares[i][0]);
+		if(0 == foundKey1)
+		{
+			mpz_urandomm(outputKeyShares[i][1], *state, group -> q);
+		}
+		// gmp_printf("%d - %Zd\n", i, outputKeyShares[i][1]);
+	}
+
+
+	return outputKeyShares;
+}

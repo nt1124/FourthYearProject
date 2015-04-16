@@ -93,19 +93,6 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 	tempOutput -> key0 = hashECC_Point(NP_InputsZero, 16);
 	tempOutput -> key1 = hashECC_Point(NP_InputsOne, 16);
 
-	/*
-	printf("+++ %d\n", idNum);
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", tempOutput -> key0[i]);
-	}
-	printf("\n");
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", tempOutput -> key1[i]);
-	}
-	printf("\n");
-	*/
 
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
 
@@ -237,7 +224,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, int numInputs, int numCircuits, struct eccParams *params)
 {
 	struct eccPoint ***output = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
-	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1;
+	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1, *G_a1;
 	int i, j, index;
 
 
@@ -249,8 +236,12 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 		for(j = 0; j < numInputs; j ++)
 		{
 			output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+				
 
-			invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+			G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+			invG_a1 = invertPoint(G_a1, params);
+			// invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+
 
 			output[i][index + 1] = groupOp(C, invG_a1, params);
 			clearECC_Point(invG_a1);

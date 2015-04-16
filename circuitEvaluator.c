@@ -65,6 +65,7 @@ int main(int argc, char *argv[])
 	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testCircuitComp(argv[1]);
 	// test_local_OT_NP(atoi(argv[5]));
+	// testVSS();
 
 	return 0;
 }
@@ -72,7 +73,6 @@ int main(int argc, char *argv[])
 
 
 
-// testVSS();
 // elgamal_commit_main();
 // runLocally(circuitFilepath, argv[2], argv[3]);
 // runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));

@@ -192,8 +192,6 @@ struct sharingScheme **deserialisePubBoxes(unsigned char *inputBuffer, int t, in
 	mpz_t *tempMPZ;
 
 
-	// memcpy(&t, inputBuffer + tempOffset, sizeof(int));
-	// memcpy(&n, inputBuffer + tempOffset, sizeof(int));
 
 	for(i = 0; i < numSchemes; i ++)
 	{
@@ -225,7 +223,6 @@ void testVSS()
 	unsigned int i;
 	int verified = 0, *tempIndices = (int *) calloc(10, sizeof(int));
 
-
 	state = seedRandGen();
 	// group = getSchnorrGroup(1024, *state);
 	group = generateGroup(128, *state);
@@ -235,10 +232,13 @@ void testVSS()
 
 	scheme = VSS_Share(secret, 5, 10, *state, group);
 
+
 	for(i = 0; i < 10; i ++)
 	{
 		tempIndices[i] = i + 1;
 	}
+
+
 
 	for(i = 2; i <= 10; i ++)
 	{
@@ -246,13 +246,31 @@ void testVSS()
 		printf("%d  =>  %d\n", i, mpz_cmp(*tempMPZ, secret));
 	}
 
-	printf("\n\n\n");
+	printf("\n\n");
+
 
 	for(i = 0; i < 10; i ++)
 	{
 		verified = VSS_Verify( scheme -> pub, scheme -> shares[i], i + 1, group);
 		printf("%d  =>  %d\n", i + 1, verified);
 	}
+
+
+	mpz_t *sharesTemp = (mpz_t *) calloc(6, sizeof(mpz_t));
+	for(i = 0; i < 5; i ++)
+	{
+		mpz_init_set(sharesTemp[i], scheme -> shares[i + 2]);
+	}
+	mpz_init_set(sharesTemp[i], scheme ->shares[0]);
+
+	for(i = 0; i < 5; i ++)
+	{
+		tempIndices[i] = i + 3;
+	}
+	tempIndices[5] = 1;
+
+	tempMPZ = VSS_Recover(sharesTemp, tempIndices, 6, group);
+	printf("\n%d  =>  %d\n", i, mpz_cmp(*tempMPZ, secret));
 }
 
 
