@@ -402,7 +402,7 @@
 					
 					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\%One obvious possible solution might be to require a Zero Knowledge Proof of Knowledge that the 
 
-					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them.
+					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them .
 
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
@@ -468,7 +468,7 @@
 
 				\textcolor{red}{A simpler alternative though would be for the Builder to seed the random generator differently for each circuit and then sending the seed for each circuit identified as a check circuit. The Executor can then re-build each Check Circuit using this seed and the full inputs sets and check that the resulting circuit is equal to the Check circuit.}\\
 
-				\textcolor{red}{Fourthly, how should the Executor react to differing outputs from the evaluation circuits. Whilst it is tempting to simply abort immediately this opens the Executor up to a \emph{selective failure} attack. This is an attack where the Builder crafts one of the circuits to fail in some way if the Executors input fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information.}\\
+				\textcolor{red}{Fourthly, how should the Executor react to differing outputs from the evaluation circuits. Whilst it is tempting to simply abort immediately this opens the Executor up to an attack referred to as a \emph{selective failure} attack. This is where the Builder crafts one (or more) of the circuits to fail in some way if the Executors input fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information, namely whether the Executor's input satisfies the condition or not.}\\
 
 				In the classic protocol the Executor returns the majority output on each output wire. Suppose that we have $s$ many circuits, $t$ of which are selected as check circuits. Then clearly the output will only be corrupted if half of the Evaluation circuits are corrupted. This means that the Builder needs to submit at least $\frac{s - t}{2}$ many corrupted circuits else the bad circuits will certainly be outvoted when it comes to decided the majority output. However, the Builder also requires that none of the corrupted circuits are selected as Check circuits, else their cheating will be detected.
 
@@ -477,24 +477,28 @@
 	\chapter{Protocols} \label{sec:Protocols}
 		\section{Lindell and Pinkas 2011}
 			\subsection*{Overview}
-				The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. Firstly his protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entails in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.\\
+				The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007}. Firstly his protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entails in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that vastly inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.\\
 
 				The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
 
-				This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal both values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
+				This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for the OTs to obtain inputs for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal \emph{both} values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
 
-				When running the OT to get its garbled inputs the parties use the $j^{th}$ CRS for all OTs concerning the $j^{th}$ circuit. Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}.
+				The Executor can then reveal for which circuit it received all inputs.\\
+
+				Clearly this requires that the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011} which also uses a secret sharing scheme.
 
 		\section{Lindell 2013}
 			\subsection*{Overview}
 
-				In \cite{Lindell_CnC_2013} Lindell proposed further improvements on his work with Pinkas in \cite{LindellAndPinkas2011}. There are two
+				In \cite{Lindell_CnC_2013} Lindell proposed further improvements on his work with Pinkas in \cite{LindellAndPinkas2011}.\\% Primarily these consist of a 
 
 				Lindell proposes using a Secure Computation to determine the output that will produce the correct output if only one of the evaluation circuits produces the correct output. Lindell suggest this Secure Computation be carried out using the protocol he authored with Pinkas in \cite{LindellAndPinkas2011} using a small circuit he provides. The hope is that, especially for large circuits, this small secure computation will be relatively cheap.\\
 
 				This means that to successfully cheat a malicious builder will need guess \emph{exactly} which circuits will be selected as check circuits and will have to fully commit to this guess by corrupting every circuit it does not think will be selected as a check circuit. If this malicious builders guess is wrong by even one circuit the cheating will either be detected (if it corrupts a check circuit) or mitigated (if it fails to corrupt every evaluation circuit).\\
 
 				In order to take full advantage of this improved output determination Lindell modifies the Cut and Choose Oblivious Transfer in \cite{LindellAndPinkas2011}. This modification removes the requirement that exactly half the circuits are selected as check circuits, instead each circuit is selected with probability $\frac{1}{2}$. This is modification of the OT requires a series of Zero knowledge proofs. However, as we shall see it also allows a significant reduction in the number of circuits needed and so the number of OTs needed.\\
+
+				One of the purposes of our implementation is to find out if this exchange is worth it.\\
 
 				As each circuit is chosen to be a check-circuit with probability $\frac{1}{2}$ this is effectively requiring a malicious adversary to guess at a random element in the set $\{0, 1\}^s$ in order to cheat successfully. Therefore such a builder can only successfully cheat with probability $2^{-s}$.\\
 
@@ -509,7 +513,9 @@
 
 				The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
 				
-				Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
+				Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works out in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
+				
+				Once again it is difficult to estimate how much of an improvement this will provide when implemented, but given two parties of similar capabilities we would expect high CPU/Wall time ratio, due to the lack of idling.
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}
@@ -533,11 +539,11 @@
 				From then on each line refers to a single gate of the binary circuit. The first number (call this number $m$) of a gate definition says how many inputs wires go into the gate, the second number (call this $n$) how many outputs. Then the next $m$ numbers are the input wire IDs, then the last $n$ number are the IDs of the output wires. Finally the gate type is indicated, either AND, XOR, or INV.\\
 
 			\subsection{Creating binary circuits}
-				By creating a binary circuit from the RTL files and then using this binary circuit as a template for the creation of Yao Circuits we gain three advantages over reading from the RTL file to create a Yao Garbled Circuit directly.\\
+				By creating a binary circuit from the RTL files and then using this binary circuit (referred to here on in as Raw input circuit) as a template for the creation of Yao Circuits we gain three advantages over reading from the RTL file to create a Yao Garbled Circuit directly.\\
 
-				Firstly this reducing the amount of file I/O, we only need read the file once. Secondly this means makes it easier for us to perform further optimisations on the circuits, for example wire switching the inversion gates to reduce the size of the circuits. Thirdly we need to be able to execute the normal binary circuit in the course of the Lindell 2013 protocol.
+				Firstly this reducing the amount of file I/O, we only need read the file once. Secondly this means makes it easier for us to perform further optimisations on the circuits, for example wire switching the inversion gates to reduce the size of the circuits. Thirdly we need to be able to execute the normal binary circuit in the course of the Lindell 2013 protocol.\\
 
-				The actual creation of 
+				Then for each gate in the raw 
 
 		\section{Elliptic Curve implementation}
 

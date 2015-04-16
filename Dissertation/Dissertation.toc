@@ -40,7 +40,7 @@
 \contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{21}{subsection.5.1.1}
 \contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{22}{subsection.5.1.2}
 \contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{22}{section.5.2}
-\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{22}{section.5.3}
+\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{23}{section.5.3}
 \contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{23}{section.5.4}
 \contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{23}{subsection.5.4.1}
 \contentsline {chapter}{\numberline {6}Experiments}{24}{chapter.6}
