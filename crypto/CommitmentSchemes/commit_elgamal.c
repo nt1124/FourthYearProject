@@ -58,6 +58,7 @@ void create_commit_box_key(struct commit_batch_params *params, unsigned char *to
 
 	mpz_set(k -> r, r);
 	k -> x = toCommit;
+	k -> xLen = toCommitLen;
 
 	free(x);
 }

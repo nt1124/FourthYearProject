@@ -140,12 +140,14 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	clock_t int_c_0, int_c_1;
 
 	unsigned char *commBuffer, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
+	unsigned char **secureEqualityInputs, *hexOutputs;
+	struct secureEqualityCommitments *secEqualityCommits_Own, *secEqualityCommits_Partner;
 	struct eccParams *params;
 
 	struct OT_NP_Receiver_Query **queries_Own;
 	struct eccPoint ***NaorPinkasInputs, ***NaorPinkasInputs_Partner, **queries_Partner, *C, *cTilde;
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
-	mpz_t **aList;
+	mpz_t **aList, **partnerSecretList;
 
 	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct jSetRevealHKE *partnerReveals;
@@ -272,10 +274,17 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
-	printSecrets(outputStruct_Own, rawInputCircuit -> numOutputs);
-	getEvalCircuitOutputShares(rawInputCircuit, circuitsArray_Partner, groupPartner,
-							partnerReveals -> outputWireShares, state, J_SetOwn, numCircuits,
-							rawInputCircuit -> numOutputs);
+
+	hexOutputs = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+										partnerReveals, outputStruct_Own, numCircuits, J_SetOwn, &commBufferLen);
+
+
+	printf("Candidate Output : ");
+	for(i = 0; i < commBufferLen; i ++)
+	{
+		printf("%02X", hexOutputs[i]);
+	}
+	printf("\n");
 
 
 	for(i = 0; i < numCircuits; i ++)

@@ -179,12 +179,12 @@ char *convertBytesToHex(unsigned char *input, int inputLength)
 }
 
 
-unsigned char *convertMPZToBytes(mpz_t input, int *inputLength)
+unsigned char *convertMPZToBytes(mpz_t input, int *outputLength)
 {
 	unsigned char *bytesToOutput;
 
-	*inputLength = sizeof(mp_limb_t) * mpz_size(input);
-	bytesToOutput = (unsigned char*) calloc(*inputLength, sizeof(unsigned char));
+	*outputLength = sizeof(mp_limb_t) * mpz_size(input);
+	bytesToOutput = (unsigned char*) calloc(*outputLength, sizeof(unsigned char));
 
 	// *rop, *countp, order, size, endian, nails, op
 	mpz_export(bytesToOutput, NULL, 1, sizeof( mp_limb_t ), 0, 0, input);

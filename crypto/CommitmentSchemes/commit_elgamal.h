@@ -18,6 +18,7 @@ typedef struct elgamal_commit_key
 {
 	mpz_t r;
 	unsigned char *x;
+	int xLen;
 }  elgamal_commit_key;
 
 typedef struct commit_batch_params

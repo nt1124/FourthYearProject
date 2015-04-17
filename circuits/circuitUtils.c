@@ -60,6 +60,15 @@ void printOutputHexString(struct Circuit *inputCircuit)
 	int i, outputLength;
 	
 	binaryOutput = getOutputAsBinary(inputCircuit, &outputLength);
+	/*
+	printf("Candidate output as binary: ");
+	for(i = 0; i < outputLength; i ++)
+	{
+		printf("%d", binaryOutput[i]);
+	}
+	printf("\n");
+	*/
+
 	hexOutput = getOutputAsHex(binaryOutput, inputCircuit -> numOutputs, &outputLength);
 
 	printf("Candidate output as Hex: ");

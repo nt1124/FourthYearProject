@@ -188,3 +188,41 @@ unsigned char *XOR_TwoStrings(unsigned char *x_1, unsigned char *x_2, int length
 
 	return output;
 }
+
+
+unsigned char *XOR_TwoStringsDiffLength(unsigned char *x_1, unsigned char *x_2, int length1, int length2)
+{
+	unsigned char *output, *lowerX, *higherX;
+	int i, lowerLength, higherLength;
+
+
+	if(length1 <= length2)
+	{
+		lowerLength = length1;
+		higherLength = length2;
+		lowerX = x_1;
+		higherX = x_2;
+	}
+	else
+	{
+		lowerLength = length2;
+		higherLength = length1;
+		lowerX = x_2;
+		higherX = x_1;
+	}
+
+
+	output = (unsigned char *) calloc(higherLength, sizeof(unsigned char));
+
+	for(i = 0; i < lowerLength; i ++)
+	{
+		output[i] = x_1[i] ^ x_2[i];
+	}
+	for(; i < higherLength; i ++)
+	{
+		output[i] = higherX[i];
+	}
+
+
+	return output;
+}
