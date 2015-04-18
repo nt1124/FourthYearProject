@@ -507,14 +507,14 @@
 		\section{Huang, Katz and Evans 2013}
 			\subsection*{Overview}
 
-				Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits. They the combine the outputs of the circuits they evaluated, looking for common outputs. The key to this working is we only care about situations where at least one of the parties is honest. If this is true then\\
+				Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits. They the combine the outputs of the circuits they evaluated, looking for common outputs. The key to this working is we only care about situations where at least one of the parties is honest. If this is true then one of the parties will provide .\\
 
 				They then both open half of each others circuits to check for correctness before evaluating the unopened circuits, this is .\\
 
 				The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
 				
 				Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works out in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
-				
+
 				Once again it is difficult to estimate how much of an improvement this will provide when implemented, but given two parties of similar capabilities we would expect high CPU/Wall time ratio, due to the lack of idling.
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
@@ -591,6 +591,9 @@
 			\textcolor{red}{We have implemented Shamir's Secret Scheme (Shamir's) and its extension the Feldman's Scheme. Shamir's scheme is based on how many points are needed to uniquely define a polynomial curve. }\\
 
 			\textcolor{red}{Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{F}_q$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given $n$ or fewer points we gain no information about the polynomial.}
+
+			\subsection{Multi-precision polynomials}
+				In order to use Shamir Secret Sharing we need an implementation of polynomials, furthermore due to the 
 
 		\section{Peikert, Vaikuntanathan and Waters OT}
 

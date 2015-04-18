@@ -1,4 +1,4 @@
-// const int stat_SecParam = 4;
+// const int  = 4;
 
 
 void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
@@ -6,11 +6,11 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
+	int i, J_setSize = 0, numCircuits = stat_SecParam / 0.32;
 
 	struct Circuit **circuitsArray;
-	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
-	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
-	int i, J_setSize = 0;
+	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
+	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
 
 
 	struct timespec ext_t_0, ext_t_1;
@@ -34,10 +34,10 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 
 	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
 		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
@@ -56,7 +56,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_0 = clock();
 
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, stat_SecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -67,7 +67,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 
-	for(i = 0; i < stat_SecParam; i++)
+	for(i = 0; i < numCircuits; i++)
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
@@ -77,12 +77,12 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_0 = clock();
 
 
-	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
-	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, state, stat_SecParam, 1024);
+	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, state, numCircuits, 1024);
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, circuitSeeds);
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, numCircuits, &J_setSize, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -113,7 +113,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	free_idAndValueChain(startOfInputChain);
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
@@ -131,9 +131,10 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i, commBufferLen = 0, arrayLen, J_setSize  = 0, circuitsChecked = 0, consistency;
+	int numCircuits = stat_SecParam / 0.32;
 
 	// struct RawCircuit *rawInputCircuit;
-	struct Circuit **circuitsArray = (struct Circuit**) calloc(stat_SecParam, sizeof(struct Circuit*));
+	struct Circuit **circuitsArray = (struct Circuit**) calloc(numCircuits, sizeof(struct Circuit*));
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
 	unsigned char *J_set, **output, *permedInputs;
@@ -162,12 +163,12 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
@@ -184,8 +185,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, stat_SecParam, 1024);
-	setInputsFromCharArray(circuitsArray, output, stat_SecParam);
+	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, numCircuits, 1024);
+	setInputsFromCharArray(circuitsArray, output, numCircuits);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -194,12 +195,12 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
-							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
+							pubInputGroup -> params, J_set, &J_setSize, numCircuits);
 
 
 	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
 												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedCircuitSeeds,
-												pubInputGroup -> params, J_set, J_setSize, stat_SecParam);
+												pubInputGroup -> params, J_set, J_setSize, numCircuits);
 
 	printf("Circuits Check = %d\n", circuitsChecked);
 
@@ -249,7 +250,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	printf("Evaluating Circuits ");
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_set[i])
 		{
@@ -269,12 +270,12 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
+	printMajorityOutputAsHex(circuitsArray, numCircuits, J_set);
 
 	testAES_FromRandom();
 
 
-	for(i = 0; i < stat_SecParam; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}

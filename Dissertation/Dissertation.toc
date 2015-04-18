@@ -1,51 +1,63 @@
-\contentsline {chapter}{\numberline {1}Introduction}{6}{chapter.1}
-\contentsline {chapter}{\numberline {2}Background to Secure Multiparty Computation}{7}{chapter.2}
-\contentsline {section}{\numberline {2.1}Security Properties}{7}{section.2.1}
-\contentsline {section}{\numberline {2.2}Security levels}{7}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Semi-honest Adversary}{7}{subsection.2.2.1}
-\contentsline {subsubsection}{Example}{8}{section*.9}
-\contentsline {subsection}{\numberline {2.2.2}Malicious Adversary}{8}{subsection.2.2.2}
-\contentsline {subsubsection}{Example}{8}{section*.10}
-\contentsline {subsection}{\numberline {2.2.3}Covert Adversary}{8}{subsection.2.2.3}
-\contentsline {subsubsection}{Example}{8}{section*.11}
-\contentsline {section}{\numberline {2.3}Applications of SMC}{9}{section.2.3}
-\contentsline {subsection}{\numberline {2.3.1}Secret Auctions - Danish Beets}{9}{subsection.2.3.1}
-\contentsline {subsection}{\numberline {2.3.2}Distributed secrets}{9}{subsection.2.3.2}
-\contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{9}{subsection.2.3.3}
-\contentsline {chapter}{\numberline {3}Technical Background}{10}{chapter.3}
-\contentsline {section}{\numberline {3.1}Oblivious Transfer}{10}{section.3.1}
-\contentsline {subsection}{\numberline {3.1.1}Naor-Pinkas Oblivious Transfer}{10}{subsection.3.1.1}
-\contentsline {subsection}{\numberline {3.1.2}Peikert - Vaikuntanathan - Waters Oblivious Transfer}{11}{subsection.3.1.2}
-\contentsline {subsubsection}{High level concepts}{12}{section*.12}
-\contentsline {subsubsection}{Dual-Mode Encryption}{12}{section*.13}
-\contentsline {subsubsection}{Dual-mode encryption using DDH}{12}{section*.14}
-\contentsline {paragraph}{Randomisation}{13}{section*.15}
-\contentsline {paragraph}{DDH-Randomise Cryptosystem}{13}{section*.16}
-\contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{13}{section*.17}
-\contentsline {paragraph}{Trusted Setup}{14}{section*.18}
-\contentsline {section}{\numberline {3.2}Yao's Protocol}{15}{section.3.2}
-\contentsline {subsection}{\numberline {3.2.1}Overview}{15}{subsection.3.2.1}
-\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{15}{subsection.3.2.2}
-\contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{16}{subsection.3.2.3}
-\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{16}{subsection.3.2.4}
-\contentsline {subsubsection}{Concept}{16}{section*.19}
-\contentsline {subsubsection}{Issues}{17}{section*.20}
-\contentsline {chapter}{\numberline {4}Protocols}{19}{chapter.4}
-\contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{19}{section.4.1}
-\contentsline {section}{\numberline {4.2}Lindell 2013}{19}{section.4.2}
-\contentsline {subsubsection}{}{20}{section*.23}
-\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{20}{section.4.3}
-\contentsline {chapter}{\numberline {5}Implementation Details}{21}{chapter.5}
-\contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{21}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{21}{subsection.5.1.1}
-\contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{22}{subsection.5.1.2}
-\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{22}{section.5.2}
-\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{23}{section.5.3}
-\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{23}{section.5.4}
-\contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{23}{subsection.5.4.1}
-\contentsline {chapter}{\numberline {6}Experiments}{24}{chapter.6}
-\contentsline {section}{\numberline {6.1}Measurement metrics}{24}{section.6.1}
-\contentsline {section}{\numberline {6.2}Testing Environment}{24}{section.6.2}
-\contentsline {section}{\numberline {6.3}Benchmarks}{24}{section.6.3}
-\contentsline {subsection}{\numberline {6.3.1}Communications}{24}{subsection.6.3.1}
-\contentsline {chapter}{\numberline {7}Conclusions}{25}{chapter.7}
+\contentsline {chapter}{\numberline {1}Introduction}{7}{chapter.1}
+\contentsline {chapter}{\numberline {2}Background to Secure Multiparty Computation}{8}{chapter.2}
+\contentsline {section}{\numberline {2.1}Security Properties}{8}{section.2.1}
+\contentsline {section}{\numberline {2.2}Security levels}{8}{section.2.2}
+\contentsline {subsection}{\numberline {2.2.1}Semi-honest Adversary}{8}{subsection.2.2.1}
+\contentsline {subsubsection}{Example}{9}{section*.9}
+\contentsline {subsection}{\numberline {2.2.2}Malicious Adversary}{9}{subsection.2.2.2}
+\contentsline {subsubsection}{Example}{9}{section*.10}
+\contentsline {subsection}{\numberline {2.2.3}Covert Adversary}{9}{subsection.2.2.3}
+\contentsline {subsubsection}{Example}{9}{section*.11}
+\contentsline {section}{\numberline {2.3}Applications of SMC}{10}{section.2.3}
+\contentsline {subsection}{\numberline {2.3.1}Secret Auctions - Danish Beets}{10}{subsection.2.3.1}
+\contentsline {subsection}{\numberline {2.3.2}Distributed secrets}{10}{subsection.2.3.2}
+\contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{10}{subsection.2.3.3}
+\contentsline {chapter}{\numberline {3}Technical Background}{11}{chapter.3}
+\contentsline {section}{\numberline {3.1}Oblivious Transfer}{11}{section.3.1}
+\contentsline {subsection}{\numberline {3.1.1}Naor-Pinkas Oblivious Transfer}{11}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}Peikert - Vaikuntanathan - Waters Oblivious Transfer}{12}{subsection.3.1.2}
+\contentsline {subsubsection}{High level concepts}{13}{section*.12}
+\contentsline {subsubsection}{Dual-Mode Encryption}{13}{section*.13}
+\contentsline {subsubsection}{Dual-mode encryption using DDH}{13}{section*.14}
+\contentsline {paragraph}{Randomisation}{14}{section*.15}
+\contentsline {paragraph}{DDH-Randomise Cryptosystem}{14}{section*.16}
+\contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{14}{section*.17}
+\contentsline {paragraph}{Trusted Setup}{15}{section*.18}
+\contentsline {section}{\numberline {3.2}Yao's Protocol}{16}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Overview}{16}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{16}{subsection.3.2.2}
+\contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{17}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{17}{subsection.3.2.4}
+\contentsline {subsubsection}{Concept}{17}{section*.19}
+\contentsline {subsubsection}{Issues}{18}{section*.20}
+\contentsline {chapter}{\numberline {4}Protocols}{20}{chapter.4}
+\contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{20}{section.4.1}
+\contentsline {section}{\numberline {4.2}Lindell 2013}{20}{section.4.2}
+\contentsline {subsubsection}{}{21}{section*.23}
+\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{21}{section.4.3}
+\contentsline {chapter}{\numberline {5}Implementation Details}{22}{chapter.5}
+\contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{22}{section.5.1}
+\contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{22}{subsection.5.1.1}
+\contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{23}{subsection.5.1.2}
+\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{23}{section.5.2}
+\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{24}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}Multi-precision polynomials}{24}{subsection.5.3.1}
+\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{24}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{24}{subsection.5.4.1}
+\contentsline {chapter}{\numberline {6}Experiments}{25}{chapter.6}
+\contentsline {section}{\numberline {6.1}Measurement metrics}{25}{section.6.1}
+\contentsline {section}{\numberline {6.2}Testing Environment}{25}{section.6.2}
+\contentsline {section}{\numberline {6.3}Benchmarks}{25}{section.6.3}
+\contentsline {subsection}{\numberline {6.3.1}Communications}{26}{subsection.6.3.1}
+\contentsline {subsection}{\numberline {6.3.2}Elliptic Curve Group Operations}{26}{subsection.6.3.2}
+\contentsline {subsection}{\numberline {6.3.3}PVW Oblivious Transfer}{26}{subsection.6.3.3}
+\contentsline {subsection}{\numberline {6.3.4}Cut and Choose Oblivious Transfer}{26}{subsection.6.3.4}
+\contentsline {subsection}{\numberline {6.3.5}Modified Cut and Choose Oblivious Transfer}{26}{subsection.6.3.5}
+\contentsline {subsection}{\numberline {6.3.6}Naor Pinkas Oblivious Transfer}{26}{subsection.6.3.6}
+\contentsline {subsection}{\numberline {6.3.7}Circuit Evaluation}{26}{subsection.6.3.7}
+\contentsline {section}{\numberline {6.4}Results}{26}{section.6.4}
+\contentsline {subsection}{\numberline {6.4.1}32-bit addition}{26}{subsection.6.4.1}
+\contentsline {subsection}{\numberline {6.4.2}32-bit multiplication}{26}{subsection.6.4.2}
+\contentsline {subsection}{\numberline {6.4.3}AES encryption}{26}{subsection.6.4.3}
+\contentsline {subsection}{\numberline {6.4.4}SHA-256 Hashing}{26}{subsection.6.4.4}
+\contentsline {chapter}{\numberline {7}Conclusions}{27}{chapter.7}

@@ -150,6 +150,9 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	// For the all the input bits 
 	for(j = 0; j < numInputs; j ++)
 	{
+		// printf(">>> %d  %d\n", curGate -> G_ID, curGate -> gatePayload -> inputIDs[j]);
+		// fflush(stdout);
+
 		// Get the index of the j^th input wire, then get that wires permutated output value.
 		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - j - 1];
 		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
@@ -219,6 +222,9 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	unsigned char temp;
 
+
+
+
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) || 0x02 == curGate -> outputWire -> wireMask )
 	{
 		// printf(">> 0 %03d\n", curGate -> G_ID);
@@ -226,9 +232,9 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	}
 	else
 	{
-		// decryptGate(curGate, inputCircuit);
+		decryptGate(curGate, inputCircuit);
 		// printf(">> 1 %03d\n", curGate -> G_ID);
-		freeXOR_Gate(curGate, inputCircuit);
+		// freeXOR_Gate(curGate, inputCircuit);
 	}
 }
 

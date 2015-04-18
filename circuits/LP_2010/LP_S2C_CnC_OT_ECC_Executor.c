@@ -108,6 +108,7 @@ void setInputsFromCharArray(struct Circuit **circuitsArray, unsigned char **outp
 	unsigned char value;
 
 
+
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 

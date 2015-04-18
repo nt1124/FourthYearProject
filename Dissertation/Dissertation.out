@@ -28,11 +28,23 @@
 \BOOKMARK [2][-]{subsection.5.1.2}{Creating binary circuits}{section.5.1}% 28
 \BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 29
 \BOOKMARK [1][-]{section.5.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{chapter.5}% 30
-\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 31
-\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 32
-\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 33
-\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 34
-\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 35
-\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 36
-\BOOKMARK [2][-]{subsection.6.3.1}{Communications}{section.6.3}% 37
-\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 38
+\BOOKMARK [2][-]{subsection.5.3.1}{Multi-precision polynomials}{section.5.3}% 31
+\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 32
+\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 33
+\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 34
+\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 35
+\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 36
+\BOOKMARK [1][-]{section.6.3}{Benchmarks}{chapter.6}% 37
+\BOOKMARK [2][-]{subsection.6.3.1}{Communications}{section.6.3}% 38
+\BOOKMARK [2][-]{subsection.6.3.2}{Elliptic Curve Group Operations}{section.6.3}% 39
+\BOOKMARK [2][-]{subsection.6.3.3}{PVW Oblivious Transfer}{section.6.3}% 40
+\BOOKMARK [2][-]{subsection.6.3.4}{Cut and Choose Oblivious Transfer}{section.6.3}% 41
+\BOOKMARK [2][-]{subsection.6.3.5}{Modified Cut and Choose Oblivious Transfer}{section.6.3}% 42
+\BOOKMARK [2][-]{subsection.6.3.6}{Naor Pinkas Oblivious Transfer}{section.6.3}% 43
+\BOOKMARK [2][-]{subsection.6.3.7}{Circuit Evaluation}{section.6.3}% 44
+\BOOKMARK [1][-]{section.6.4}{Results}{chapter.6}% 45
+\BOOKMARK [2][-]{subsection.6.4.1}{32-bit addition}{section.6.4}% 46
+\BOOKMARK [2][-]{subsection.6.4.2}{32-bit multiplication}{section.6.4}% 47
+\BOOKMARK [2][-]{subsection.6.4.3}{AES encryption}{section.6.4}% 48
+\BOOKMARK [2][-]{subsection.6.4.4}{SHA-256 Hashing}{section.6.4}% 49
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 50

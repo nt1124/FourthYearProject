@@ -592,6 +592,13 @@
 
 			\textcolor{red}{Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{F}_q$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given $n$ or fewer points we gain no information about the polynomial.}
 
+			\subsection{Multi-precision polynomials}
+				In order to use Shamir Secret Sharing we need an implementation of polynomials, furthermore in order to deal with the secrets of the the size we shall need to be dealing with we shall need Multi-precision polynomials.\\
+				
+				While several libraries exist with support for Multi-precision polynomials these are not commonly installed and given the ease of using GMP it was simpler to implement GMP polynomials ourselves.\\
+
+			
+
 		\section{Peikert, Vaikuntanathan and Waters OT}
 
 			.
@@ -633,6 +640,34 @@
 % 						$10,000,000$ & 0 &  \\
 % 					\end{tabular}
 % 				\end{figure}
+
+			\subsection{Elliptic Curve Group Operations}
+
+			\subsection{PVW Oblivious Transfer}
+
+			\subsection{Cut and Choose Oblivious Transfer}
+
+			\subsection{Modified Cut and Choose Oblivious Transfer}
+
+			\subsection{Naor Pinkas Oblivious Transfer}
+
+			\subsection{Circuit Evaluation}
+
+		\section{Results}
+			We now give results of using each of the Protocol on the test circuits, we have generated a large set of random inputs for each circuit using a simple python script. This allows use to use the same inputs for each Protocol whilst also trying a range of random test inputs. We also give a short précis to each circuit detailing the expected results and a small amount of analysis of the results. We go further into depth on the results later.
+
+			\subsection{32-bit addition}
+				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
+
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
+
+			\subsection{32-bit multiplication}
+				
+			
+			\subsection{AES encryption}
+			
+			\subsection{SHA-256 Hashing}
+
 	\chapter{Conclusions}
 
 		

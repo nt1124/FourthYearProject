@@ -5,6 +5,7 @@
 
 
 #include "circuits/circuitUtils.h"
+#include "benchmarking.c"
 
 randctx *globalIsaacContext;
 
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
 
 	// elgamal_commit_main();
 	// testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 	// testCircuitComp(argv[1]);
 	// test_local_OT_NP(atoi(argv[5]));
 	// testVSS();

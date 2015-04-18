@@ -304,14 +304,13 @@ unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits
 
 	for(i = 0; i < numInputsBuilder + numInputsExecutor; i ++)
 	{
-		if(0xFF == circuitsArray[0] -> gates[i] -> outputWire -> wireOwner)
+		if(0xFF != circuitsArray[0] -> gates[i] -> outputWire -> wireOwner)
 		{
 			for(j = 0; j < numCircuits; j ++)
 			{
 				tempWire = circuitsArray[j] -> gates[i] -> outputWire;
 				allKeys[0][k] = tempWire -> outputGarbleKeys -> key0;
 				allKeys[1][k] = tempWire -> outputGarbleKeys -> key1;
-
 				k ++;
 			}
 		}
@@ -360,11 +359,11 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 		{
 			value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 			output[outputIndex] = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
-			printf("%X", output[outputIndex]);
+			// printf("%X", output[outputIndex]);
 			outputIndex ++;
 		}
 	}
-	printf("\n");
+	// printf("\n");
 
 
 	return output;
