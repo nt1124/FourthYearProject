@@ -331,7 +331,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	if(1 || NULL == SC_ReturnStruct -> output)
 	{
-		printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
+		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
 	}
 	else
 	{
@@ -341,7 +341,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 		printOutputHexString_Raw(rawInputCircuit);
 	}
 
-	testAES_FromRandom();
+	// testAES_FromRandom();
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{

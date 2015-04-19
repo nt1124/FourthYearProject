@@ -145,13 +145,43 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 		curBinaryStr[j] = (outputBitCounts[0][j] < outputBitCounts[1][j]);
 	}
 
-	finalOutput = getOutputAsHex(curBinaryStr, curLength, outputLength);
+	*outputLength = curLength;
+	// finalOutput = getOutputAsHex(curBinaryStr, curLength, outputLength);
 
 	free(outputBitCounts[0]);
 	free(outputBitCounts[1]);
 	free(outputBitCounts);
 
-	return finalOutput;
+	return curBinaryStr;
+}
+
+
+
+
+// Prints all outputs as a hex string, taking gates in ascending position in the gates table.
+void printMajorityOutputAsBinary(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
+{
+	unsigned char *binaryOutput;
+	int i, outputLength;
+
+
+	if(1 < securityParam)
+	{
+		binaryOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
+	}
+	else
+	{
+		binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
+	}
+
+	printf(" Majority output binary: ");
+	for(i = 0; i < outputLength; i ++)
+	{
+		printf("%d", binaryOutput[i]);
+	}
+	printf("\n");
+
+	free(binaryOutput);
 }
 
 

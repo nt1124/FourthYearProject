@@ -25,7 +25,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	int i, j;
 
 
-	#pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
+	// #pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
 	for(j = 0; j < numCircuits; j++)
 	{
 		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
@@ -182,29 +182,60 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
-	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, groupOwn);
-	C = setup_OT_NP_Sender(params, *state);
-	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
+	// printf("%d - %d - %d - %d\n", numCircuits, rawInputCircuit -> numOutputs, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numInputs_P2);
+	// fflush(stdout);
 
+
+	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, groupOwn);
+
+	C = setup_OT_NP_Sender(params, *state);
+
+	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
+
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
+
+	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
 
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
 											ctx, circuitCTXs, circuitSeeds, numCircuits, partyID);
+
 	circuitsArray_Partner = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit *));
 	
 	OT_Inputs = getAllInputKeysSymm(circuitsArray_Own, numCircuits, partyID);
 
 
-	for(i = 0; i < numCircuits; i++)
+	if(0 == partyID)
 	{
-		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
+		for(i = 0; i < numCircuits; i++)
+		{
+			printf("Checkpoint H %d\n", i);
+			fflush(stdout);
+			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
+		}
+		for(i = 0; i < numCircuits; i ++)
+		{
+			circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
+			setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
+		}
 	}
-	for(i = 0; i < numCircuits; i ++)
+	else
 	{
-		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
-		setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
+		for(i = 0; i < numCircuits; i ++)
+		{
+			circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
+			setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
+		}
+		for(i = 0; i < numCircuits; i++)
+		{
+			printf("Checkpoint H %d\n", i);
+			fflush(stdout);
+			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
+		}
 	}
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits exchanged");
 
 	outputStruct_Partner = exchangePublicBoxesOfSchemes(writeSocket, readSocket, outputStruct_Own, rawInputCircuit -> numOutputs, numCircuits);
 	sendDDH_Group(writeSocket, readSocket, groupOwn);
@@ -214,12 +245,17 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	// Note we do this after the circuits have been built and sent.
 	inputBitsOwn = convertChainIntoArray(startOfInputChain, circuitsArray_Own[0] -> numInputsBuilder);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
 	queries_Partner = NaorPinkas_OT_Exchange_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, queries_Own);
 	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, OT_Inputs, state, numCircuits, queries_Partner, params, C);
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, inputBitsOwn, state, numCircuits, queries_Own, params, cTilde);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT");
 
 	// Each party now commits to their input values.
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray_Own, state, numCircuits);
@@ -265,26 +301,33 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	for(i = 0; i < numCircuits; i ++)
 	{
-		runCircuitExec( circuitsArray_Partner[i], 0, 0 );
-		printOutputHexString(circuitsArray_Partner[i]);
+		if(0x00 == J_SetOwn[i])
+		{
+			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
+		}
+		// printOutputHexString(circuitsArray_Partner[i]);
 	}
 
-	ext_c_1 = clock();
-	ext_t_1 = timestamp();
+	printMajorityOutputAsBinary(circuitsArray_Partner, numCircuits, J_SetOwn);
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
+	// printSecrets(outputStruct_Own, rawInputCircuit -> numOutputs);
 
 	hexOutputs = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
-										partnerReveals, outputStruct_Own, numCircuits, J_SetOwn, &commBufferLen);
+										partnerReveals, outputStruct_Own, outputStruct_Partner, numCircuits, J_SetOwn, &commBufferLen, partyID);
 
 
 	printf("Candidate Output : ");
 	for(i = 0; i < commBufferLen; i ++)
 	{
-		printf("%02X", hexOutputs[i]);
+		printf("%X", hexOutputs[i]);
 	}
 	printf("\n");
+
+	ext_c_1 = clock();
+	ext_t_1 = timestamp();
+
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
 
 	for(i = 0; i < numCircuits; i ++)
@@ -297,7 +340,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 
 
-void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
+void runP1_HKE_2013(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
@@ -321,7 +364,7 @@ void runP1_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 
 
-void runP2_HKE_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx *ctx)
+void runP2_HKE_2013(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;

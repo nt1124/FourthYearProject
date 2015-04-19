@@ -8,8 +8,15 @@ mpz_t *getOutputKeys(struct HKE_Output_Struct_Builder *outputStructs, int numInp
 	{
 		mpz_init_set(outputKeys[index + 0], outputStructs -> scheme0Array[i] -> shares[j]);
 		mpz_init_set(outputKeys[index + 1], outputStructs -> scheme1Array[i] -> shares[j]);
+
+		// gmp_printf("%d - %d - 0 - %Zd\n", j, i, outputKeys[index + 0]);
+		// gmp_printf("%d - %d - 1 - %Zd\n", j, i, outputKeys[index + 1]);
+
 		index += 2;
 	}
+
+	// gmp_printf("%d - 0 - %Zd\n", j, outputKeys[2 * (numInputs - 1)]);
+	// gmp_printf("%d - 1 - %Zd\n", j, outputKeys[2 * (numInputs - 1) + 1]);
 
 	return outputKeys;
 }
@@ -208,9 +215,23 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 	for(i = 0; i < outputCircuit -> numOutputs; i ++)
 	{
-		gateIndex = outputCircuit -> numGates - i - 1;
+		gateIndex = outputCircuit -> numGates - outputCircuit -> numOutputs + i;
 		gatesList[gateIndex] -> outputWire -> wireMask = 0x02;
 	}
+
+	/*
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", gatesList[outputCircuit -> numGates - outputCircuit -> numOutputs] -> outputWire -> outputGarbleKeys -> key0[i]);
+	}
+	printf("\n");
+
+	for(i = 0; i < 16; i ++)
+	{
+		printf("%02X", gatesList[outputCircuit -> numGates - outputCircuit -> numOutputs] -> outputWire -> outputGarbleKeys -> key1[i]);
+	}
+	printf("\n");
+	*/
 
 	outputCircuit -> gates = gatesList;
 	outputCircuit -> execOrder = rawInputCircuit -> execOrder;
@@ -240,7 +261,6 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 
 			G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 			invG_a1 = invertPoint(G_a1, params);
-			// invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 
 
 			output[i][index + 1] = groupOp(C, invG_a1, params);

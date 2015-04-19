@@ -270,9 +270,10 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	printMajorityOutputAsHex(circuitsArray, numCircuits, J_set);
+	// printMajorityOutputAsHex(circuitsArray, numCircuits, J_set);
+	printMajorityOutputAsBinary(circuitsArray, numCircuits, J_set);
 
-	testAES_FromRandom();
+	// testAES_FromRandom();
 
 
 	for(i = 0; i < numCircuits; i ++)

@@ -39,26 +39,29 @@ int *getBaseIndiciesForShares(unsigned char *J_SetOwn, int numCircuits)
 
 
 mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Circuit **circuitsArray_Partner, struct DDH_Group *group,
-								mpz_t **outputWireShares, gmp_randstate_t *state, unsigned char *J_SetOwn, int numCircuits, int numOutputs)
+								struct HKE_Output_Struct_Builder *outputStruct_Partner, mpz_t **outputWireShares, gmp_randstate_t *state,
+								unsigned char *J_SetOwn, int numCircuits, int numOutputs)
 {
 	unsigned char **trueOutputs = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
 	mpz_t **outputKeySecrets = (mpz_t **) calloc(numOutputs, sizeof(mpz_t *));
 	mpz_t *tempMPZ = (mpz_t *) calloc(1, sizeof(mpz_t)), *revealedSecret, *sharesMPZ;
-	int i, j, foundKey0, foundKey1, gateIndexOffset, *indices;
+	int i, j, foundKey0, foundKey1, gateIndexOffset, *indices, verified = 0;
 	struct wire *tempWire;
 
 
 	mpz_init(*tempMPZ);
-	for(i = 0; i < numCircuits; i ++)
+	for(j = 0; j < numCircuits; j ++)
 	{
-		if(0x00 == J_SetOwn[i])
+		if(0x00 == J_SetOwn[j])
 		{
-			trueOutputs[i] = getOutputAsBinary(circuitsArray_Partner[i], &gateIndexOffset);
+			trueOutputs[j] = getOutputAsBinary(circuitsArray_Partner[j], &gateIndexOffset);
 		}
 	}
 
+
 	indices = getBaseIndiciesForShares(J_SetOwn, numCircuits);
 	gateIndexOffset = rawInputCircuit -> numGates - rawInputCircuit -> numOutputs;
+
 
 	for(i = 0; i < numOutputs; i ++)
 	{
@@ -75,21 +78,29 @@ mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Ci
 			{
 				if(0 == foundKey0 && 0 == trueOutputs[j][i])
 				{
-					foundKey0 = j;
+					foundKey0 = j + 1;
 					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
 					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
+					
+					// gmp_printf("%d - %d - 0 - %Zd\n", j, i, *tempMPZ);
 					sharesMPZ = constructSharesMPZ_FromCircuits(*tempMPZ, outputWireShares, i, J_SetOwn, 0x00, numCircuits);
 					
+					verified |= VSS_Verify(outputStruct_Partner -> scheme0Array[i] -> pub, *tempMPZ, j + 1, group);
+
 					indices[(numCircuits / 2)] = j + 1;
 					tempMPZ = VSS_Recover(sharesMPZ, indices, (numCircuits / 2) + 1, group);
 					mpz_set(outputKeySecrets[i][0], *tempMPZ);
 				}
 				else if(0 == foundKey1 && 1 == trueOutputs[j][i])
 				{
-					foundKey1 = j;
+					foundKey1 = j + 1;
 					tempWire = circuitsArray_Partner[j] -> gates[gateIndexOffset + i] -> outputWire;
 					convertBytesToMPZ(tempMPZ, tempWire -> wireOutputKey, 16);
+
+					// gmp_printf("%d - %d - 1 - %Zd\n", j, i, *tempMPZ);
 					sharesMPZ = constructSharesMPZ_FromCircuits(*tempMPZ, outputWireShares, i, J_SetOwn, 0x01, numCircuits);
+
+					verified |= VSS_Verify(outputStruct_Partner -> scheme1Array[i] -> pub, *tempMPZ, j + 1, group);
 
 					indices[(numCircuits / 2)] = j + 1;
 					tempMPZ = VSS_Recover(sharesMPZ, indices, (numCircuits / 2) + 1, group);
@@ -110,8 +121,10 @@ mpz_t **getEvalCircuitOutputShares(struct RawCircuit *rawInputCircuit, struct Ci
 			mpz_urandomm(outputKeySecrets[i][1], *state, group -> q);
 		}
 		// gmp_printf("%d - %Zd\n", i, outputKeySecrets[i][1]);
+
 	}
 
+	printf("verified = %d\n", verified);
 
 	return outputKeySecrets;
 }
@@ -121,18 +134,19 @@ unsigned char **getSecureEqualityTestInputs(struct HKE_Output_Struct_Builder *ou
 {
 	unsigned char **secureEqualityInputs = (unsigned char **) calloc(2 * numOutputs, sizeof(unsigned char *));
 	unsigned char *ownSecretChars, *partnerSecretChars;
-	int i, j = 0, ownLength, partnerLength;
+	int i, j = 0, ownLength, partnerLength, h;
 
 	for(i = 0; i < numOutputs; i ++)
 	{
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme0Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][0], &partnerLength);
-		secureEqualityInputs[j ++] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
-
+		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+		j ++;
 
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme1Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][1], &partnerLength);
-		secureEqualityInputs[j ++] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+		j ++;
 	}
 
 	return secureEqualityInputs;
@@ -311,16 +325,23 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 			printf("NOOOOO\n");
 			return NULL;
 		}
-		else if(0 == memcmp(x0, secureEqualityInputs[j ++], xLen0))
+		else if(0 == memcmp(x0, secureEqualityInputs[j], xLen0))
 		{
 			binaryOutput[i] = 0x00;
 			// printf("0");
 		}
-		else if(0 == memcmp(x1, secureEqualityInputs[j ++], xLen1))
+		else if(0 == memcmp(x1, secureEqualityInputs[j + 1], xLen1))
 		{
 			binaryOutput[i] = 0x01;
 			// printf("1");
 		}
+		else
+		{
+			printf("NOOOOO\n");
+			return NULL;
+		}
+
+		j += 2;
 	}
 
 	return binaryOutput;
@@ -328,8 +349,9 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 
 
 unsigned char *HKE_OutputDetermination(int writeSocket, int readSocket, gmp_randstate_t *state, struct Circuit **circuitsArray_Partner, struct RawCircuit *rawInputCircuit,
-										struct DDH_Group *groupPartner, struct jSetRevealHKE *partnerReveals, struct HKE_Output_Struct_Builder *outputStruct_Own,
-										int numCircuits, unsigned char *J_SetOwn, int *outputLength)
+										struct DDH_Group *groupPartner, struct jSetRevealHKE *partnerReveals,
+										struct HKE_Output_Struct_Builder *outputStruct_Own, struct HKE_Output_Struct_Builder *outputStruct_Partner,
+										int numCircuits, unsigned char *J_SetOwn, int *outputLength, int partyID)
 {
 	unsigned char *commBuffer, **secureEqualityInputs, *binaryOutputs, *hexOutputs;
 	struct secureEqualityCommitments *secEqualityCommits_Own, *secEqualityCommits_Partner;
@@ -341,8 +363,8 @@ unsigned char *HKE_OutputDetermination(int writeSocket, int readSocket, gmp_rand
 
 
 	partnerSecretList = getEvalCircuitOutputShares(rawInputCircuit, circuitsArray_Partner, groupPartner,
-												partnerReveals -> outputWireShares, state, J_SetOwn, numCircuits,
-												rawInputCircuit -> numOutputs);
+												outputStruct_Partner, partnerReveals -> outputWireShares,
+												state, J_SetOwn, numCircuits, rawInputCircuit -> numOutputs);
 
 	secureEqualityInputs = getSecureEqualityTestInputs(outputStruct_Own, partnerSecretList, rawInputCircuit -> numOutputs);
 	secEqualityCommits_Own = commitForEqualityTest(secureEqualityInputs, state, rawInputCircuit -> numOutputs);
@@ -367,9 +389,17 @@ unsigned char *HKE_OutputDetermination(int writeSocket, int readSocket, gmp_rand
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	binaryOutputs = decommitOwn_SecEqTest(secEqualityCommits_Partner, secureEqualityInputs, commBuffer, rawInputCircuit -> numOutputs, &bufferOffset);
 
-	bufferOffset = 0;
-	hexOutputs = getOutputAsHex(binaryOutputs, rawInputCircuit -> numOutputs, &bufferOffset);
-	*outputLength = bufferOffset;
+	int i;
+	for(i = 0; i < rawInputCircuit -> numOutputs; i ++)
+	{
+		printf("%X", binaryOutputs[i]);
+	}
+	printf("\n");
 
-	return hexOutputs;
+	// bufferOffset = 0;
+	// hexOutputs = getOutputAsHex(binaryOutputs, rawInputCircuit -> numOutputs, &bufferOffset);
+	// *outputLength = bufferOffset;
+	*outputLength = rawInputCircuit -> numOutputs;
+
+	return binaryOutputs;
 }

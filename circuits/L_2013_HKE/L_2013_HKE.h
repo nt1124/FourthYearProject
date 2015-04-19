@@ -23,10 +23,10 @@ struct secCompExecutorOutput_HKE
 // #include "L_2013_HKE_ECC_Builder.c"
 // #include "L_2013_HKE_ECC_Executor.c"
 
-#include "L_2013_HKE_Check_Builder.c"
-#include "L_2013_HKE_Check_Executor.c"
+// #include "L_2013_HKE_Check_Builder.c"
+// #include "L_2013_HKE_Check_Executor.c"
 
 
-#include "L_2013_HKE.c"
+// #include "L_2013_HKE.c"
 
 #endif
