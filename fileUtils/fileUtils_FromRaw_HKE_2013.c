@@ -249,6 +249,8 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 	int i, j, index;
 
 
+	// #pragma omp parallel for default(shared) private(G_a1, invG_a1, index)
+	#pragma omp parallel for private(i, j, index, G_a1, invG_a1) schedule(auto)
 	for(i = 0; i < numCircuits; i ++)
 	{
 		output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
@@ -257,11 +259,9 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 		for(j = 0; j < numInputs; j ++)
 		{
 			output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
-				
 
 			G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 			invG_a1 = invertPoint(G_a1, params);
-
 
 			output[i][index + 1] = groupOp(C, invG_a1, params);
 			clearECC_Point(invG_a1);

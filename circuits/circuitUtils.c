@@ -174,7 +174,7 @@ void printMajorityOutputAsBinary(struct Circuit **circuitsArray, int securityPar
 		binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
 	}
 
-	printf(" Majority output binary: ");
+	printf(" Majority output binary : ");
 	for(i = 0; i < outputLength; i ++)
 	{
 		printf("%d", binaryOutput[i]);
