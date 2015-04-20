@@ -25,7 +25,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	int i, j;
 
 
-	// #pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
+	#pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
 	for(j = 0; j < numCircuits; j++)
 	{
 		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
@@ -341,13 +341,13 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
-
+	/*
 	for(i = 0; i < numCircuits; i ++)
 	{
 		freeCircuitStruct(circuitsArray_Own[i], 0);
 		freeCircuitStruct(circuitsArray_Partner[i], 0);
 	}
-
+	*/
 }
 
 
