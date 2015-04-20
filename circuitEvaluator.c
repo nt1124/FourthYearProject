@@ -34,8 +34,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		// runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		// runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 	}
 	else
 	{
@@ -43,8 +43,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
 		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		// runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		// runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 	}
 
 	c_1 = clock();
@@ -69,6 +69,7 @@ int main(int argc, char *argv[])
 	// testCircuitComp(argv[1]);
 	// test_local_OT_NP(atoi(argv[5]));
 	// testVSS();
+	// test_ZKPoK_ECC();
 
 	return 0;
 }

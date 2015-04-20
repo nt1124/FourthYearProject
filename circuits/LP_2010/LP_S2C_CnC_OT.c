@@ -32,6 +32,8 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	initRandGen();
 	state = seedRandGen();
 
+	numCircuits += numCircuits % 2;
+	printf("+++ %d\n", numCircuits);
 
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
@@ -150,6 +152,9 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	clock_t int_c_0, int_c_1;
 
 
+	numCircuits += numCircuits % 2;
+	printf("+++ %d\n", numCircuits);
+
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
@@ -172,7 +177,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
-	free_idAndValueChain(startOfInputChain);
+	// free_idAndValueChain(startOfInputChain);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -185,8 +190,13 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
+
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, numCircuits, 1024);
+	printf("Hellloooooo there\n");
+	fflush(stdout);
+
 	setInputsFromCharArray(circuitsArray, output, numCircuits);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -223,6 +233,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	printf("Consistency Check = %d\n", consistency);
 
+	/*
 	#pragma omp parallel for private(i) schedule(auto)
 	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)
 	{
@@ -246,7 +257,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 		clearECC_Point(builderInputs[i]);
 	}
 	free(builderInputs);
-
+	*/
 
 
 	printf("Evaluating Circuits ");

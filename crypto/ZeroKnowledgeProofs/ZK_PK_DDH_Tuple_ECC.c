@@ -347,6 +347,9 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	int bufferOffset = 0, commBufferLen = 0;
 
 
+	printf("Checkpoint B 1\n");
+	fflush(stdout);
+
 	witnessSet = proverSetupWitnesses(stat_SecParam, alphas_List);
 	alphaAndA_P = proverSetupCommitment_ECC(params, g_0, *state);
 
@@ -356,10 +359,15 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 1
 
+	printf("Checkpoint B 2\n");
+	fflush(stdout);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
 	commitment_box_P = initVerifierCommitment_ECC();
+
+	printf("Checkpoint B 3\n");
+	fflush(stdout);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commitment_box_P -> C_commit = deserialise_ECC_Point(commBuffer, &bufferOffset);
@@ -367,13 +375,22 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	// Round 2
 
 
+	printf("Checkpoint B 4\n");
+	fflush(stdout);
+
 	bufferOffset = 0;
 	msgOne_P = proverMessageOne_ECC(stat_SecParam, params, J_set, alphaAndA_P -> alpha, g_0, g_1,
 									h_0_List, h_1_List, *state);
+
+	printf("Checkpoint B 5\n");
+	fflush(stdout);
+
 	commBuffer = serialise_A_B_Arrays_ECC(msgOne_P, stat_SecParam, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	// Round 3
 
+	printf("Checkpoint B 6\n");
+	fflush(stdout);
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -382,6 +399,9 @@ void ZKPoK_Prover_ECC(int writeSocket, int readSocket, 	struct eccParams *params
 	free(commBuffer);
 	// Round 4
 
+
+	printf("Checkpoint B 7\n");
+	fflush(stdout);
 
 	bufferOffset = 0;
 	commBuffer = proverMessageTwo_ECC(params, stat_SecParam, J_set, commitment_box_P, g_0, msgOne_P, witnessSet, alphaAndA_P, &bufferOffset);
