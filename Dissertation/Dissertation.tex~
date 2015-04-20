@@ -507,14 +507,14 @@
 		\section{Huang, Katz and Evans 2013}
 			\subsection*{Overview}
 
-				Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits. They the combine the outputs of the circuits they evaluated, looking for common outputs. The key to this working is we only care about situations where at least one of the parties is honest. If this is true then \\
+				Concurrently to Lindell's work in \cite{Lindell_CnC_2013} Huang, Katz and Evans produced a protocol also based along the same cut and choose paradigm, however in their approach the parties symmetrically generate a set of circuits and then evaluate each others circuits. They the combine the outputs of the circuits they evaluated, looking for common outputs. The key to this working is we only care about situations where at least one of the parties is honest. If this is true then one of the parties will provide .\\
 
 				They then both open half of each others circuits to check for correctness before evaluating the unopened circuits, this is .\\
 
 				The probability of a malicious adversary successfully cheating is $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
 				
 				Moreover, as the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works out in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
-				
+
 				Once again it is difficult to estimate how much of an improvement this will provide when implemented, but given two parties of similar capabilities we would expect high CPU/Wall time ratio, due to the lack of idling.
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
@@ -592,6 +592,13 @@
 
 			\textcolor{red}{Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{F}_q$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given $n$ or fewer points we gain no information about the polynomial.}
 
+			\subsection{Multi-precision polynomials}
+				In order to use Shamir Secret Sharing we need an implementation of polynomials, furthermore in order to deal with the secrets of the the size we shall need to be dealing with we shall need Multi-precision polynomials.\\
+				
+				While several libraries exist with support for Multi-precision polynomials these are not commonly installed and given the ease of using GMP it was simpler to implement GMP polynomials ourselves.\\
+
+			
+
 		\section{Peikert, Vaikuntanathan and Waters OT}
 
 			.
@@ -633,14 +640,46 @@
 % 						$10,000,000$ & 0 &  \\
 % 					\end{tabular}
 % 				\end{figure}
+
+			\subsection{Elliptic Curve Group Operations}
+
+			\subsection{PVW Oblivious Transfer}
+
+			\subsection{Cut and Choose Oblivious Transfer}
+
+			\subsection{Modified Cut and Choose Oblivious Transfer}
+
+			\subsection{Naor Pinkas Oblivious Transfer}
+
+			\subsection{Circuit Evaluation}
+
+		\section{Results}
+			We now give results of using each of the Protocol on the test circuits, we have generated a large set of random inputs for each circuit using a simple python script. This allows use to use the same inputs for each Protocol whilst also trying a range of random test inputs. We also give a short précis to each circuit detailing the expected results and a small amount of analysis of the results. We go further into depth on the results later.
+
+			\subsection{32-bit addition}
+				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
+
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
+
+			\subsection{32-bit multiplication}
+
+				The 32-bit multiplication circuit is slightly larger than addition and has a significantly large output.
+			\subsection{AES encryption}
+
+				AES encryption is a classic benchmark for Secure two part computations. 
+			\subsection{SHA-256 Hashing}
+
 	\chapter{Conclusions}
 
 		
 
-	\begin{thebibliography}{5}
-	
+	\begin{thebibliography}{99}
+
 		\bibitem{LindellAndPinkas2007}
 			Y. Lindell and B. Pinkas. \emph{An Efficient Protocol for Secure Two-Party Computation in the Presence of Malicious Adversaries}. To appear in the Journal of Cryptology. (Extended abstract appeared in EUROCRYPT 2007, Springer (LNCS 4515), pages 52–78, 2007.)
+
+		\bibitem{LindellPinkasSmart2008}
+			Y. Lindell, B. Pinkas and N. P. Smart. \emph{Implementing Two-Party Computation Efficiently with Security Against Malicious Adversaries}. Proceedings of the Sixth Conference on Security and Cryptography for Networks (SCN), 2008.
 
 		\bibitem{LindellAndPinkas2011}
 			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
@@ -711,6 +750,11 @@
 		\bibitem{NSA_CaseForECC}
 			NSA. \emph{The Case for Elliptic Curve Cryptography}, January 2009,
 			\url{https://www.nsa.gov/business/programs/elliptic_curve.shtml}.
+			
+		\bibitem{ISAAC_Implementation}
+			Bob Jenkins. \emph{ISAAC: a fast cryptographic random number generator},
+			\url{http://burtleburtle.net/bob/rand/isaacafa.html}.
+			
 	\end{thebibliography}
 
 

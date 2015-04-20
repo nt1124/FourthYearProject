@@ -67,7 +67,7 @@
 					\item The net code was provided by my supervisor Prof. Nigel Smart.
 					\item The AES implementation I use was mostly provided by my supervisor Prof. Nigel Smart (coded by Dr. Dan Page). Though I have extended this as it did not provide non-AES-NI decryption.
 					\item The SHA-2 implementation used was taken from [INSERT CITATION HERE].
-					\item For much of the random number generation we have used the implementation of ISAAC provided by [ISAAC IMPLEMENTATION CITATION HERE].
+					\item For much of the random number generation we have used the implementation of ISAAC provided by \cite{ISAAC_Implementation}.
 			\end{itemize}
 
 		\section*{Notational Glossary}
@@ -665,7 +665,8 @@
 
 				The 32-bit multiplication circuit is slightly larger than addition and has a significantly large output.
 			\subsection{AES encryption}
-			
+
+				AES encryption is a classic benchmark for Secure two part computations. 
 			\subsection{SHA-256 Hashing}
 
 	\chapter{Conclusions}
@@ -749,6 +750,11 @@
 		\bibitem{NSA_CaseForECC}
 			NSA. \emph{The Case for Elliptic Curve Cryptography}, January 2009,
 			\url{https://www.nsa.gov/business/programs/elliptic_curve.shtml}.
+			
+		\bibitem{ISAAC_Implementation}
+			Bob Jenkins. \emph{ISAAC: a fast cryptographic random number generator},
+			\url{http://burtleburtle.net/bob/rand/isaacafa.html}.
+			
 	\end{thebibliography}
 
 

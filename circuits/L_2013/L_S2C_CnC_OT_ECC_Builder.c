@@ -166,6 +166,9 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Parallel ZKPoK");
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 	// #pragma omp parallel for private(i, j, k) schedule(auto)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
@@ -194,6 +197,9 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 		}
 	}
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Actual OT");
 
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -207,11 +213,16 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	ZKPoK_Ext_DH_TupleVerifierAll(writeSocket, readSocket, stat_SecParam,
 								params_S -> params -> g, params_S -> crs -> g_1,
 								checkTildes -> h_tildeList,
 								params_S -> params, state);
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "ZKPoK for check values");
 }
 
 

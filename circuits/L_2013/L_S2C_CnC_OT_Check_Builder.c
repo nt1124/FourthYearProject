@@ -134,6 +134,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
 	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
+
 	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
 
 

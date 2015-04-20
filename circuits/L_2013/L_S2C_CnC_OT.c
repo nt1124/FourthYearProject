@@ -126,10 +126,16 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	free(commBuffer);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	proveConsistencyEvaluationKeys_Builder_L_2013(writeSocket, readSocket, J_set, J_setSize,
 											startOfInputChain, builderInputs,
 											public_inputs, secret_inputs, params, SC_ReturnStruct, state);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();

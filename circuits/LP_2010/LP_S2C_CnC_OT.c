@@ -100,11 +100,18 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	free(commBuffer);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
 											builderInputs, public_inputs -> public_keyPairs,
 											public_inputs -> public_circuitKeys,
 											public_inputs ->  numKeyPairs, public_inputs -> stat_SecParam, secret_inputs,
 											params, state);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -192,8 +199,6 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, numCircuits, 1024);
-	printf("Hellloooooo there\n");
-	fflush(stdout);
 
 	setInputsFromCharArray(circuitsArray, output, numCircuits);
 
@@ -212,7 +217,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 												secretsRevealed -> revealedSecrets, secretsRevealed -> revealedCircuitSeeds,
 												pubInputGroup -> params, J_set, J_setSize, numCircuits);
 
-	printf("Circuits Check = %d\n", circuitsChecked);
+	printf("Circuits Check = %d\n\n", circuitsChecked);
 
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
@@ -224,6 +229,9 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	consistency = proveConsistencyEvaluationKeys_Exec(writeSocket, readSocket, J_set, J_setSize,
 													builderInputs, pubInputGroup -> public_inputs -> public_keyPairs,
 													pubInputGroup -> public_inputs -> public_circuitKeys,
@@ -231,33 +239,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 													pubInputGroup -> public_inputs -> stat_SecParam,
 													pubInputGroup -> params, state);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
+
 	printf("Consistency Check = %d\n", consistency);
-
-	/*
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < pubInputGroup -> public_inputs -> numKeyPairs; i ++)
-	{
-		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][0]);
-		clearECC_Point(pubInputGroup -> public_inputs -> public_keyPairs[i][1]);
-
-		free(pubInputGroup -> public_inputs -> public_keyPairs[i]);
-	}
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < pubInputGroup -> public_inputs -> stat_SecParam; i ++)
-	{
-		clearECC_Point(pubInputGroup -> public_inputs -> public_circuitKeys[i]);
-	}
-	free(pubInputGroup -> public_inputs -> public_circuitKeys);
-	freeECC_Params(pubInputGroup -> params);
-
-
-	#pragma omp parallel for private(i) schedule(auto)
-	for(i = 0; i < arrayLen; i ++)
-	{
-		clearECC_Point(builderInputs[i]);
-	}
-	free(builderInputs);
-	*/
 
 
 	printf("Evaluating Circuits ");

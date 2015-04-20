@@ -21,16 +21,12 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 	numInputsExecutor = numInputsExecutor;
 	*output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
 
-	printf("Checkpoint A\n");
-	fflush(stdout);
 
 	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
 
-	printf("Checkpoint B\n");
-	fflush(stdout);
 
 
 	// Prove that we did indeed select s/2 many to open.
@@ -39,8 +35,6 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
 					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
 
-	printf("Checkpoint C\n");
-	fflush(stdout);
 
 	keyPairs_R = (struct otKeyPair_ECC **) calloc(totalOTs, sizeof(struct otKeyPair_ECC*));
 
@@ -58,24 +52,18 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 		}
 	}
 
-	printf("Checkpoint D\n");
-	fflush(stdout);
 
 	bufferLength = 0;
 	commBuffer = serialise_PKs_otKeyPair_ECC_Array(keyPairs_R, totalOTs, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
 
-	printf("Checkpoint E\n");
-	fflush(stdout);
 
 	bufferLength = 0;
 	commBuffer = receiveBoth(readSocket, bufferLength);
 	c_i_Array_R = deserialise_U_V_Pair_Array_ECC(commBuffer, totalOTs * 2);
 	free(commBuffer);
 
-	printf("Checkpoint F\n");
-	fflush(stdout);
 
 	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
 	for(i = 0; i < numInputsExecutor; i ++)
