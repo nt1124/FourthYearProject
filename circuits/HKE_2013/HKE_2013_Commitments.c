@@ -38,7 +38,7 @@ struct builderInputCommitStruct *initBuilderInputCommitStruct(int iMax, int jMax
 }
 
 
-// Should just use the normal global
+// This function computes all the commitments a party needs to make for its inputs.
 struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Circuit **circuitsArray, gmp_randstate_t *state, int numCircuits)
 {
 	struct builderInputCommitStruct *outputStruct = initBuilderInputCommitStruct(numCircuits, circuitsArray[0] -> numInputsBuilder, state);
@@ -47,15 +47,27 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 	unsigned char *temp0, *temp1;
 
 
-
+	// iMax = numCircuits
 	for(i = 0; i < outputStruct -> iMax; i ++)
 	{
+		// jMax = numInputs
 		for(j = 0; j < outputStruct -> jMax; j ++)
 		{
+			// We permute the commitment pair so that when decommiting to the eval circuit inputs
+			// the other party doesn't know which bit our input represents.
 			outputStruct -> commitmentPerms[i][j] = (0x01 & getIsaacPermutation(ctx));
+		}
+	}
+
+	// iMax = numCircuits
+	#pragma omp parallel for default(shared) private(i, j, temp0, temp1, gateIndex, tempWire) 
+	for(i = 0; i < outputStruct -> iMax; i ++)
+	{
+		// jMax = numInputs
+		for(j = 0; j < outputStruct -> jMax; j ++)
+		{
 			gateIndex = circuitsArray[i] -> builderInputOffset + j;
 			tempWire = circuitsArray[i] -> gates[gateIndex] -> outputWire;
-
 
 			if(0 == outputStruct -> commitmentPerms[i][j])
 			{

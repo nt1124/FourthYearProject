@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  18 APR 2015 11:33
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  20 APR 2015 15:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1658,20 +1658,20 @@ Chapter 7.
 ] [28
 
 ]
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 752.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 755.
  [29]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 752.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 755.
  (./Dissertation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 752.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 752.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 755.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 755.
 Package rerunfilecheck Info: File `Dissertation.out' has not changed.
 (rerunfilecheck)             Checksum: 39251EA1A47BC813BE448B3542D49AFA;3643.
  ) 
 Here is how much of TeX's memory you used:
- 18220 strings out of 495028
- 303879 string characters out of 6181497
- 525651 words of memory out of 5000000
- 20980 multiletter control sequences out of 15000+600000
+ 18222 strings out of 495028
+ 303930 string characters out of 6181497
+ 525696 words of memory out of 5000000
+ 20981 multiletter control sequences out of 15000+600000
  11839 words of font info for 44 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  45i,26n,51p,10426b,443s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1690,10 +1690,10 @@ amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Dissertation.pdf (29 pages, 380550 bytes).
+Output written on Dissertation.pdf (29 pages, 380919 bytes).
 PDF statistics:
- 612 PDF objects out of 1000 (max. 8388607)
- 556 compressed objects within 6 object streams
- 136 named destinations out of 1000 (max. 500000)
+ 614 PDF objects out of 1000 (max. 8388607)
+ 558 compressed objects within 6 object streams
+ 137 named destinations out of 1000 (max. 500000)
  406 words of extra memory for PDF output out of 10000 (max. 10000000)
 

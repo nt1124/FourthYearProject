@@ -659,11 +659,11 @@
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
 
 			\subsection{32-bit multiplication}
-				
-			
+
+				The 32-bit multiplication circuit is slightly larger than addition and has a significantly large output.
 			\subsection{AES encryption}
 			
 			\subsection{SHA-256 Hashing}
@@ -672,10 +672,13 @@
 
 		
 
-	\begin{thebibliography}{5}
-	
+	\begin{thebibliography}{99}
+
 		\bibitem{LindellAndPinkas2007}
 			Y. Lindell and B. Pinkas. \emph{An Efficient Protocol for Secure Two-Party Computation in the Presence of Malicious Adversaries}. To appear in the Journal of Cryptology. (Extended abstract appeared in EUROCRYPT 2007, Springer (LNCS 4515), pages 52–78, 2007.)
+
+		\bibitem{LindellPinkasSmart2008}
+			Y. Lindell, B. Pinkas and N. P. Smart. \emph{Implementing Two-Party Computation Efficiently with Security Against Malicious Adversaries}. Proceedings of the Sixth Conference on Security and Cryptography for Networks (SCN), 2008.
 
 		\bibitem{LindellAndPinkas2011}
 			Y. Lindell and B. Pinkas. \emph{Secure Two-Party Computation via Cut-and-Choose Oblivious Transfer}. In TCC 2011, Springer (LNCS 6597), pages 329–346, 2011
