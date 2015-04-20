@@ -152,7 +152,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct jSetRevealHKE *partnerReveals;
 	struct DDH_Group *groupOwn, *groupPartner;
-	int numCircuits = 4, tempLength = 0, bufferOffset = 0;
+	int numCircuits = stat_SecParam, tempLength = 0, bufferOffset = 0;
 	int jSetChecks = 0, logChecks; 
 
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
@@ -225,8 +225,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		}
 		for(i = 0; i < numCircuits; i++)
 		{
-			printf("Checkpoint H %d\n", i);
-			fflush(stdout);
 			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 		}
 	}
@@ -287,15 +285,31 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 								inputBitsOwn, J_SetOwn, J_setPartner, numCircuits, groupPartner, params, partyID);
 
 
-	bufferOffset = 0;
-	commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, tempLength);
-	free(commBuffer);
+	if(0 == partyID)
+	{
+		bufferOffset = 0;
+		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
 
-	commBufferLen = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
-	printf("Logarithm Checks : %d\n\n", logChecks);
+		commBufferLen = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
+		printf("Logarithm Checks : %d\n\n", logChecks);
+	}
+	else
+	{
+		commBufferLen = 0;
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
+		printf("Logarithm Checks : %d\n\n", logChecks);
+
+		bufferOffset = 0;
+		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
+		sendBoth(writeSocket, commBuffer, commBufferLen);
+		free(commBuffer);
+
+	}
 
 	for(i = 0; i < numCircuits; i ++)
 	{
