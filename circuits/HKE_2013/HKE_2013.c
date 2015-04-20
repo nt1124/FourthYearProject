@@ -31,7 +31,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
 		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, C, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
 
-		for(i = 0; i < 2*rawInputCircuit -> numOutputs; i ++)
+		for(i = 0; i < 2 * rawInputCircuit -> numOutputs; i ++)
 		{
 			mpz_clear(outputKeysLocals[i]);
 		}
@@ -208,8 +208,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	{
 		for(i = 0; i < numCircuits; i++)
 		{
-			printf("Checkpoint H %d\n", i);
-			fflush(stdout);
 			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 		}
 		for(i = 0; i < numCircuits; i ++)

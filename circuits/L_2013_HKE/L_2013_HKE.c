@@ -339,7 +339,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	if(1 || NULL == SC_ReturnStruct -> output)
 	{
-		printMajorityOutputAsHex(circuitsArray, stat_SecParam, J_set);
+		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
 	}
 	else
 	{

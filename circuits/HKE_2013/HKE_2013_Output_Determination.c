@@ -389,12 +389,6 @@ unsigned char *HKE_OutputDetermination(int writeSocket, int readSocket, gmp_rand
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	binaryOutputs = decommitOwn_SecEqTest(secEqualityCommits_Partner, secureEqualityInputs, commBuffer, rawInputCircuit -> numOutputs, &bufferOffset);
 
-	int i;
-	for(i = 0; i < rawInputCircuit -> numOutputs; i ++)
-	{
-		printf("%X", binaryOutputs[i]);
-	}
-	printf("\n");
 
 	// bufferOffset = 0;
 	// hexOutputs = getOutputAsHex(binaryOutputs, rawInputCircuit -> numOutputs, &bufferOffset);

@@ -15,8 +15,6 @@ mpz_t *getOutputKeys(struct HKE_Output_Struct_Builder *outputStructs, int numInp
 		index += 2;
 	}
 
-	// gmp_printf("%d - 0 - %Zd\n", j, outputKeys[2 * (numInputs - 1)]);
-	// gmp_printf("%d - 1 - %Zd\n", j, outputKeys[2 * (numInputs - 1) + 1]);
 
 	return outputKeys;
 }
@@ -28,7 +26,7 @@ struct gateOrWire *processGateOrWire_FromRaw_VSS_Output(randctx *ctx, struct Raw
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
 	unsigned char permC = 0x00, usingBuilderInput = 0xF0, *k0Bytes, *k1Bytes;
-	int inputID, i, tempLength = 0;
+	int inputID, i, tempLength0 = 0, tempLength1 = 0;
 
 
 	toReturn -> G_ID = rawGate -> G_ID;
@@ -55,8 +53,9 @@ struct gateOrWire *processGateOrWire_FromRaw_VSS_Output(randctx *ctx, struct Raw
 	}
 
 	toReturn -> outputWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-	k0Bytes = convertMPZToBytes(key0, &tempLength);
-	k1Bytes = convertMPZToBytes(key1, &tempLength);
+	k0Bytes = convertMPZToBytes(key0, &tempLength0);
+	k1Bytes = convertMPZToBytes(key1, &tempLength1);
+
 
 	toReturn -> outputWire -> outputGarbleKeys -> key0 = (unsigned char *) calloc(17, sizeof(unsigned char));
 	toReturn -> outputWire -> outputGarbleKeys -> key1 = (unsigned char *) calloc(17, sizeof(unsigned char));
@@ -201,10 +200,11 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 		}
 		else
 		{
+			k = 2 * (gateIndex - (outputCircuit -> numGates - outputCircuit -> numOutputs));
 			tempGateOrWire = processGateOrWire_FromRaw_VSS_Output(ctx, rawInputCircuit -> gates[gateIndex], gatesList,
 																outputKeysLocal[k], outputKeysLocal[k + 1],
 																outputCircuit -> numInputs);
-			k += 2;
+			//k += 2;
 		}
 
 		if( NULL != tempGateOrWire )
