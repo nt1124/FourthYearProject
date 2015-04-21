@@ -1,100 +1,5 @@
-struct secCompExecutorOutput_HKE *getSecCompReturnStruct_L_2013_E_HKE(unsigned char *J_set, int J_setSize, unsigned char *output)
-{
-	struct secCompExecutorOutput_HKE *returnStruct = (struct secCompExecutorOutput_HKE *) calloc(1, sizeof(struct secCompExecutorOutput_HKE));
-
-	returnStruct -> J_set = J_set;
-	returnStruct -> J_setSize = J_setSize;
-
-	returnStruct -> output = output;
-
-	return returnStruct;
-}
-
-
-unsigned char *getDeltaPrimeCompressed_HKE(struct Circuit **circuitsArray, unsigned char *J_set, int stat_SecParams)
-{
-	unsigned char *deltaPrime;
-	struct wire *zeroCircuitWire, *iCircuitWire;
-	int i, j, k, firstJ = 0;
-	const int iOffset = circuitsArray[0] -> numGates - circuitsArray[0] -> numOutputs;
-
-
-	while(J_set[firstJ] == 0x01)
-	{
-		firstJ ++;
-	}
-
-	for(i = 0; i < circuitsArray[0] -> numOutputs; i ++)
-	{
-		zeroCircuitWire = circuitsArray[firstJ] -> gates[i + iOffset] -> outputWire;
-		for(j = firstJ + 1; j < stat_SecParams; j ++)
-		{
-
-			if( 0x00 == J_set[j])
-			{
-				iCircuitWire = circuitsArray[j] -> gates[i + iOffset] -> outputWire;
-				if(0 != memcmp(zeroCircuitWire -> wireOutputKey, iCircuitWire -> wireOutputKey, 16))
-				{
-					deltaPrime = (unsigned char *) calloc(16, sizeof(unsigned char));
-					for(k = 0; k < 16; k ++)
-					{
-						deltaPrime[k] = zeroCircuitWire -> wireOutputKey[k] ^ iCircuitWire -> wireOutputKey[k];
-					}
-
-					printf("\nAha! Delta Prime triggered!  %d\n", j);
-
-					return deltaPrime;
-				}
-			}
-		}
-	}
-
-	return generateRandBytes(16, 16);
-}
-
-
-unsigned char *expandDeltaPrim_HKE(struct Circuit **circuitsArray, unsigned char *J_set, int checkStatSecParam)
-{
-	unsigned char *deltaPrimeComp, *deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
-	int i;
-
-	deltaPrimeComp = getDeltaPrimeCompressed(circuitsArray, J_set, checkStatSecParam);
-
-	for(i = 0; i < 128; i ++)
-	{
-		deltaPrime[i] = getBitFromCharArray(deltaPrimeComp, i);
-	}
-
-	return deltaPrime;
-}
-
-
-unsigned char *deserialiseK0sAndDelta_HKE(unsigned char *commBuffer, struct Circuit **circuitsArray, int numInputsB, int checkStatSecParam)
-{
-	struct wire *tempWire;
-	unsigned char *delta = (unsigned char *) calloc(128, sizeof(unsigned char));
-	int i, bufferOffset = 0;
-	
-	for(i = 0; i < checkStatSecParam; i ++)
-	{
-		tempWire = circuitsArray[i] -> gates[numInputsB] -> outputWire;
-
-		tempWire -> outputGarbleKeys = (struct bitsGarbleKeys *) calloc(1, sizeof(struct bitsGarbleKeys));
-		tempWire -> outputGarbleKeys -> key0 = (unsigned char *) calloc(16, sizeof(unsigned char));
-		tempWire -> outputGarbleKeys -> key1 = (unsigned char *) calloc(16, sizeof(unsigned char));
-
-		memcpy(tempWire -> outputGarbleKeys -> key0, commBuffer + bufferOffset, 16);
-		bufferOffset += 16;
-	}
-
-	memcpy(delta, commBuffer + bufferOffset, 128);
-	bufferOffset += 128;
-
-	return delta;
-}
-
-
-void setDeltaXOR_onCircuitInputs_HKE(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char inputBit,
+/*
+void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char inputBit,
 								unsigned char *delta, unsigned char *deltaPrime, unsigned char *J_set,
 								int numInputsB, int lengthDelta, int checkStatSecParam)
 {
@@ -152,12 +57,12 @@ void setDeltaXOR_onCircuitInputs_HKE(struct Circuit **circuitsArray, unsigned ch
 		}
 	}
 }
+*/
 
 
-
-struct secCompExecutorOutput_HKE *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
-															unsigned char *deltaPrime, int lengthDelta,
-															int checkStatSecParam, gmp_randstate_t *state )
+struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+														unsigned char *deltaPrime, int lengthDelta,
+														int checkStatSecParam, gmp_randstate_t *state )
 {
 	struct Circuit **circuitsArray = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 	struct publicInputsWithGroup *pubInputGroup;
@@ -165,17 +70,26 @@ struct secCompExecutorOutput_HKE *SC_DetectCheatingExecutor_HKE(int writeSocket,
 	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
 	struct revealedCheckSecrets *secretsRevealed;
 	struct eccPoint **builderInputs;
-	struct secCompExecutorOutput_HKE *returnStruct;
+	struct secCompExecutorOutput *returnStruct;
+
+	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
+	struct DDH_Group *groupOwn, *groupPartner;
+	struct eccPoint *C, *cTilde;
 
 	unsigned char *commBuffer, *J_set, **OT_Outputs, *output, *delta, inputBit = 0x00;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0;
-	int partyID = 1;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
 
 
 	params = initBrainpool_256_Curve();
+	groupOwn = get_128_Bit_Group(*state);
+
+	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, checkStatSecParam, *state, groupOwn);
+	C = setup_OT_NP_Sender(params, *state);
+	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
+
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < checkStatSecParam; i ++)
@@ -201,13 +115,13 @@ struct secCompExecutorOutput_HKE *SC_DetectCheatingExecutor_HKE(int writeSocket,
 		inputBit = 0x01;
 	}
 
-
 	setDeltaXOR_onCircuitInputs(circuitsArray, OT_Outputs, inputBit, delta, deltaPrime, J_set,
 								rawInputCircuit -> numInputs_P1, lengthDelta, checkStatSecParam);
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
+	/*
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
@@ -257,7 +171,8 @@ struct secCompExecutorOutput_HKE *SC_DetectCheatingExecutor_HKE(int writeSocket,
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
 
-	returnStruct = getSecCompReturnStruct_L_2013_E_HKE(J_set, J_setSize, output);
+	returnStruct = getSecCompReturnStruct_L_2013_E(pubInputGroup, builderInputs, J_set, J_setSize, output);
+	*/
 
 	return returnStruct;
 }

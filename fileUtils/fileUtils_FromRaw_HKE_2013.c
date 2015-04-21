@@ -114,7 +114,7 @@ struct gateOrWire *initInputWire_FromRaw_HKE_2013(randctx *ctx, int idNum, unsig
 // partyID = 1 indicates the building party inputs come first.
 // partyID = 0 indicates the building party inputs come second.
 struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned char *R,
-												struct eccPoint *C, struct eccPoint **NaorPinkasInputs, int partyID, struct eccParams *params)
+												struct eccPoint **NaorPinkasInputs, int partyID, struct eccParams *params)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
 	int i, index = 0;
@@ -152,10 +152,8 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 }
 
 
-
-
 // Create a circuit given a file in RTL format.
-struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint *C, struct eccPoint **NaorPinkasInputs,
+struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *rawInputCircuit, struct eccPoint **NaorPinkasInputs,
 											mpz_t *outputKeysLocal, struct eccParams *params, int partyID)
 {
 	struct gateOrWire *tempGateOrWire;
@@ -188,7 +186,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 
 
 	// outputKeysLocal = getOutputKeys(outputStructs, rawInputCircuit -> numOutputs, j);
-	gatesList = initAllInputs_FromRaw_HKE_2013( ctx, rawInputCircuit, R, C, NaorPinkasInputs, partyID, params );
+	gatesList = initAllInputs_FromRaw_HKE_2013( ctx, rawInputCircuit, R, NaorPinkasInputs, partyID, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
 	{

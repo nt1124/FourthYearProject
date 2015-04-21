@@ -18,7 +18,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	struct public_builderPRS_Keys *public_inputs;
 	struct secret_builderPRS_Keys *secret_inputs, *checkSecretInputs;
 	struct eccParams *params;
-	struct secCompBuilderOutput_HKE *SC_ReturnStruct;
+	struct secCompBuilderOutput *SC_ReturnStruct;
 
 	struct eccPoint **builderInputs;
 	unsigned char *commBuffer, *J_set, ***bLists, ***hashedB_Lists, *delta;
@@ -39,13 +39,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
 	}
 
-	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
-	public_inputs = computePublicInputs(secret_inputs, params);
-	delta = generateRandBytes(16, 16);
-
-	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
-	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -55,6 +48,25 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	ext_c_0 = clock();
 
 	printf("Executor has connected to us.\n");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
+	delta = generateRandBytes(16, 16);
+
+	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
+	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit build prelims complete");
+	fflush(stdout);
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -111,19 +123,18 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	free(commBuffer);
 
 
-	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputs_P1, 3 * stat_SecParam,
+	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputs_P1, stat_SecParam,
 												secret_inputs, params, *state);
 
 
-	// SC_ReturnStruct = SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
-	// 										startOfInputChain, delta, lengthDelta,
-	//  										checkSecretInputs, 3 * stat_SecParam, state);
+	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
+												startOfInputChain, delta, lengthDelta,
+												checkSecretInputs, stat_SecParam, state);
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
-
 
 
 	proveConsistencyEvaluationKeys_Builder(writeSocket, readSocket, J_set, J_setSize, startOfInputChain,
@@ -168,7 +179,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	struct secCompExecutorOutput_HKE *SC_ReturnStruct;
+	struct secCompExecutorOutput *SC_ReturnStruct;
 	unsigned char *J_set, *deltaPrime, *permedInputs;
 
 	gmp_randstate_t *state;
@@ -267,8 +278,8 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	// SC_ReturnStruct = SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
-	//  											deltaPrime, lengthDelta, 3 * stat_SecParam, state );
+	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit,
+	 												deltaPrime, lengthDelta, stat_SecParam, state );
 
 
 	int_t_0 = timestamp();

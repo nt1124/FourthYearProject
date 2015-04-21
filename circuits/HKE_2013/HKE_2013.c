@@ -1,3 +1,4 @@
+/*
 void printSecrets(struct HKE_Output_Struct_Builder *outputStruct_Own, int numOutputs)
 {
 	int i, j;
@@ -9,14 +10,12 @@ void printSecrets(struct HKE_Output_Struct_Builder *outputStruct_Own, int numOut
 	}
 	printf("\n+++\n\n");
 	fflush(stdout);
-
 }
-
-
+*/
 struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
 									struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
 									struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
-									randctx *globalRandCTX, randctx **circuitCTXs, ub4 **circuitSeeds,
+									randctx **circuitCTXs, ub4 **circuitSeeds,
 									int numCircuits, int partyID)
 {
 	struct Circuit **circuitsArray_Own = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit*));
@@ -29,7 +28,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	for(j = 0; j < numCircuits; j++)
 	{
 		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
-		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, C, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
+		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
 
 		for(i = 0; i < 2 * rawInputCircuit -> numOutputs; i ++)
 		{
@@ -52,7 +51,7 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 
 
 
-int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCircuit *rawInputCircuit, struct eccPoint *cTilde,
+int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCircuit *rawInputCircuit,
 							struct eccPoint ***NaorPinkasInputs, struct jSetRevealHKE *revealStruct, struct eccParams *params,
 							unsigned char *J_set, int J_setSize, int numCircuits, int partyID_Own)
 {
@@ -78,7 +77,7 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	{
 		k = idList[j];
 
-		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, cTilde, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
+		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
@@ -114,7 +113,7 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	free(commBuffer);
 
 
-	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, C, NaorPinkasInputs_Partner, partnerReveals,
+	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, NaorPinkasInputs_Partner, partnerReveals,
 											params, J_SetOwn, numCircuits / 2, numCircuits, partyID);
 	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_setPartner, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
 	
@@ -196,7 +195,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	// Build the circuits that you own.
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
-											ctx, circuitCTXs, circuitSeeds, numCircuits, partyID);
+											circuitCTXs, circuitSeeds, numCircuits, partyID);
 
 	circuitsArray_Partner = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit *));
 	
