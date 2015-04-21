@@ -42,7 +42,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 	// circuitsArray_Own = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, checkStatSecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, inputsForBuilder, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, 0);
+											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
+
 
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 	for(i = 0; i < checkStatSecParam; i++)
@@ -70,7 +71,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
 
 
-	/*
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray_Own, secret_inputs, checkStatSecParam, &J_setSize, circuitSeeds);
 
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
@@ -81,6 +81,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	/*
 
 	returnStruct = getSecCompReturnStruct_L_2013_B(public_inputs, builderInputs, J_set, J_setSize);
 	*/

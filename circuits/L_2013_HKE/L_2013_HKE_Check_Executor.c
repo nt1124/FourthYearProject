@@ -1,63 +1,59 @@
-/*
-void setDeltaXOR_onCircuitInputs(struct Circuit **circuitsArray, unsigned char **OT_Outputs, unsigned char inputBit,
-								unsigned char *delta, unsigned char *deltaPrime, unsigned char *J_set,
-								int numInputsB, int lengthDelta, int checkStatSecParam)
+int secretInputsToCheckCircuits_HKE(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
+									struct public_builderPRS_Keys *public_inputs,
+									mpz_t *secret_J_set, ub4 **circuitSeeds, struct eccParams *params,
+									unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
+	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
-	int i, j, k, iOffset, OT_index, u_v_index;
-	unsigned char **XORedInputs = (unsigned char **) calloc(checkStatSecParam, sizeof(unsigned char *));
+	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
+	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
+	struct eccPoint ***builderInputs = (struct eccPoint ***) calloc(stat_SecParam, sizeof(struct eccPoint **));
 
-
-	for(j = 0; j < checkStatSecParam; j ++)
+	for(j = 0; j < stat_SecParam; j ++)
 	{
-		XORedInputs[j] = (unsigned char *) calloc(16, sizeof(unsigned char));
-	}
-
-	for(i = 0; i < lengthDelta; i ++)
-	{
-		iOffset = checkStatSecParam * i;
-		u_v_index = 2 * iOffset;
-
-		for(j = 0; j < checkStatSecParam; j ++)
+		if(0x01 == J_set[j])
 		{
-			if(0x00 == J_set[j] && NULL != OT_Outputs[u_v_index + deltaPrime[i]])
-			{
-				for(k = 0; k < 16; k ++)
-				{
-					XORedInputs[j][k] ^= OT_Outputs[u_v_index + deltaPrime[i]][k];
-				}
-			}
-			else if(NULL != OT_Outputs[u_v_index + delta[i]])
-			{
-				for(k = 0; k < 16; k ++)
-				{
-					XORedInputs[j][k] ^= OT_Outputs[u_v_index + delta[i]][k];
-				}
-			}
-			u_v_index += 2;
+			tempCTX[k] = (randctx*) calloc(1, sizeof(randctx));
+			setIsaacContextFromSeed(tempCTX[k], circuitSeeds[j]);
+			idList[k] = j;
+			k ++;
 		}
 	}
 
-	for(j = 0; j < checkStatSecParam; j ++)
+
+	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
+	for(j = 0; j < J_setSize; j ++)
 	{
-		tempWire = circuitsArray[j] -> gates[numInputsB] -> outputWire;
-		memcpy(tempWire -> outputGarbleKeys -> key1, XORedInputs[j], 16);
+		k = idList[j];
 
-		tempWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
+		builderInputs[k] = (struct eccPoint **) calloc(2 * rawInputCircuit -> numInputs_P1, sizeof(struct eccPoint *));
 
-		if(0x00 == inputBit)
+		for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 		{
-			memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key0, 16);
-			tempWire -> wirePermedValue = (0x01 & tempWire -> wirePerm);
+			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
+			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
+
+
+			builderInputs[k][2 * i + 0] = windowedScalarPoint(secret_J_set[k], public_inputs -> public_keyPairs[i][0], params);
+			builderInputs[k][2 * i + 1] = windowedScalarPoint(secret_J_set[k], public_inputs -> public_keyPairs[i][1], params);
+
+			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
+			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
 		}
-		else
-		{
-			memcpy(tempWire -> wireOutputKey, tempWire -> outputGarbleKeys -> key1, 16);
-			tempWire -> wirePermedValue = 0x01 ^ (0x01 & tempWire -> wirePerm);
-		}
+
+		// tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+		tempGarbleCircuit = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, inputsForBuilder, outputStruct_Own, params,
+											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
+
+		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
+
+
+	return temp;
 }
-*/
+
 
 
 struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
@@ -121,16 +117,18 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
-	/*
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
 
-	circuitsChecked = secretInputsToCheckCircuits(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
-												secretsRevealed -> revealedSecrets,
-												secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
-												J_set, J_setSize, checkStatSecParam);
+	printf("Stuff\n");
+	fflush(stdout);
+
+	circuitsChecked = secretInputsToCheckCircuits_HKE(circuitsArray, rawInputCircuit, pubInputGroup -> public_inputs,
+													secretsRevealed -> revealedSecrets,
+													secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
+													J_set, J_setSize, checkStatSecParam);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -143,6 +141,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
 	free(commBuffer);
 
+	/*
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 

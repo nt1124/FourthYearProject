@@ -182,6 +182,7 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 	}
 	*J_setSize = count;
 	
+	// We want to send the whole J_set and then to send both keys for a wire in each circuit in the J_Set.
 	commBufferLen = stat_SecParam + (16 * 2) * count;
 	commBuffer = (unsigned char*) calloc(commBufferLen, sizeof(unsigned char));
 
@@ -204,12 +205,12 @@ struct revealedCheckSecrets *executor_decommitToJ_Set(int writeSocket, int readS
 		}
 	}
 
-
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
+
 
 	if(1 != commBufferLen)
 	{

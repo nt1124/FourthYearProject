@@ -119,9 +119,9 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 {
 	struct wire *tempWire;
 	unsigned char *commBuffer, *J_Set;
-	int tempOffset = circuitsArray[0] -> numInputs, commBufferLen = 0;
+	int tempOffset = stat_SecParam; 
 	unsigned char key0_Correct, key1_Correct, finalOutput = 0x00;
-	int i, count = 0;
+	int i, count = 0, commBufferLen = 0;
 
 
 	J_Set = (unsigned char *) calloc(stat_SecParam, sizeof(unsigned char));
@@ -148,7 +148,8 @@ unsigned char *builder_decommitToJ_Set(int writeSocket, int readSocket, struct C
 	}
 	free(commBuffer);
 
-	if(0x00 != finalOutput)
+
+	if(0x00 == finalOutput)
 	{
 		commBufferLen = 0;
 		commBuffer = serialise_Requested_CircuitSecrets(secret_Inputs, circuitSeeds, J_Set, &commBufferLen);
