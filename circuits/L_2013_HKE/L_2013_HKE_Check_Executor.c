@@ -7,7 +7,7 @@ int secretInputsToCheckCircuits_HKE(struct Circuit **circuitsArray, struct RawCi
 	struct wire *tempWire;
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
-	struct eccPoint ***builderInputs = (struct eccPoint ***) calloc(stat_SecParam, sizeof(struct eccPoint **));
+	struct eccPoint ***consistentInputs;
 
 	for(j = 0; j < stat_SecParam; j ++)
 	{
@@ -20,33 +20,31 @@ int secretInputsToCheckCircuits_HKE(struct Circuit **circuitsArray, struct RawCi
 		}
 	}
 
+	consistentInputs = getAllConsistentInputsAsPoints(secret_J_set, public_inputs -> public_keyPairs, params, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
+
 
 	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
 
-		builderInputs[k] = (struct eccPoint **) calloc(2 * rawInputCircuit -> numInputs_P1, sizeof(struct eccPoint *));
 
 		for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 		{
 			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
 			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-
-			builderInputs[k][2 * i + 0] = windowedScalarPoint(secret_J_set[k], public_inputs -> public_keyPairs[i][0], params);
-			builderInputs[k][2 * i + 1] = windowedScalarPoint(secret_J_set[k], public_inputs -> public_keyPairs[i][1], params);
-
-			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
-			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
+			tempWire -> outputGarbleKeys -> key0 = hashECC_Point(consistentInputs[k][2 * i], 16);
+			tempWire -> outputGarbleKeys -> key1 = hashECC_Point(consistentInputs[k][2 * i + 1], 16);
 		}
 
-		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
-		// tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, builderInputs[k], outputKeysLocals, params, 1);
+		/* tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, builderInputs[k], outputKeysLocals, params, 1);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
 
 		freeTempGarbleCircuit(tempGarbleCircuit);
+		*/
 	}
 
 

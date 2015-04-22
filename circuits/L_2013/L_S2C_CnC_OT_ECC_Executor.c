@@ -184,13 +184,14 @@ int verifyB_Lists(unsigned char ***hashedB_List, unsigned char ***b_List, int nu
 
 
 int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
-								struct public_builderPRS_Keys *public_inputs, mpz_t *secret_J_set,
-								ub4 **circuitSeeds,
+								struct eccPoint ***consistentInputs, ub4 **circuitSeeds,
 								unsigned char **b0List, unsigned char **b1List, struct eccParams *params,
 								unsigned char *J_set, int J_setSize, int stat_SecParam)
 {
 	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
+	//struct eccPoint ***consistentInputs;
+
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 
@@ -206,6 +207,8 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 		}
 	}
 
+	//consistentInputs = getAllConsistentInputsAsPoints(secret_J_set, public_inputs -> public_keyPairs, params, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
+
 
 	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
@@ -216,12 +219,11 @@ int secretInputsToCheckCircuitsConsistentOutputs(struct Circuit **circuitsArray,
 			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
 			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
-			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
+			tempWire -> outputGarbleKeys -> key0 = hashECC_Point(consistentInputs[k][2 * i], 16);
+			tempWire -> outputGarbleKeys -> key1 = hashECC_Point(consistentInputs[k][2 * i + 1], 16);
 		}
 
-		// tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
-		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, secret_J_set[k], b0List, b1List, public_inputs, k, params);
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, consistentInputs[k], b0List, b1List, k, params);
 			
 		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
 

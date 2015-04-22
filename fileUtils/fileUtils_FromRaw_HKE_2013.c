@@ -202,7 +202,6 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 			tempGateOrWire = processGateOrWire_FromRaw_VSS_Output(ctx, rawInputCircuit -> gates[gateIndex], gatesList,
 																outputKeysLocal[k], outputKeysLocal[k + 1],
 																outputCircuit -> numInputs);
-			//k += 2;
 		}
 
 		if( NULL != tempGateOrWire )
@@ -217,19 +216,6 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 		gatesList[gateIndex] -> outputWire -> wireMask = 0x02;
 	}
 
-	/*
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", gatesList[outputCircuit -> numGates - outputCircuit -> numOutputs] -> outputWire -> outputGarbleKeys -> key0[i]);
-	}
-	printf("\n");
-
-	for(i = 0; i < 16; i ++)
-	{
-		printf("%02X", gatesList[outputCircuit -> numGates - outputCircuit -> numOutputs] -> outputWire -> outputGarbleKeys -> key1[i]);
-	}
-	printf("\n");
-	*/
 
 	outputCircuit -> gates = gatesList;
 	outputCircuit -> execOrder = rawInputCircuit -> execOrder;

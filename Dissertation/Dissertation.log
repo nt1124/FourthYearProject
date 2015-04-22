@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2015.3.18)  21 APR 2015 20:24
+This is pdfTeX, Version 3.1415926-1.40.10 (TeX Live 2009/Debian) (format=pdflatex 2015.3.18)  22 APR 2015 22:34
 entering extended mode
  %&-line parsing enabled.
 **Dissertation.tex
@@ -135,9 +135,23 @@ Package: amsfonts 2009/06/22 v3.00 Basic AMSFonts support
 \symAMSb=\mathgroup5
 LaTeX Font Info:    Overwriting math alphabet `\mathfrak' in version `bold'
 (Font)                  U/euf/m/n --> U/euf/b/n on input line 96.
-))
+)) (./adjustbox.sty
+Package: adjustbox 2012/05/21 v1.0 Adjusting TeX boxes (trim, clip, ...)
 
-! LaTeX Error: File `adjustbox.sty' not found.
+(/usr/share/texmf-texlive/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2008/08/13 v2.6a package option processing (HA)
+
+(/usr/share/texmf-texlive/tex/generic/xkeyval/xkeyval.tex
+\XKV@toks=\toks23
+\XKV@tempa@toks=\toks24
+\XKV@depth=\count101
+File: xkeyval.tex 2008/08/13 v2.6a key=value parser (HA)
+)) (./adjcalc.sty
+Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back
+-ends (calc, etex, pgfmath)
+)
+
+! LaTeX Error: File `trimclip.sty' not found.
 
 Type X to quit or <RETURN> to proceed,
 or enter new name. (Default extension: sty)
@@ -146,16 +160,16 @@ Enter file name:
 ! Emergency stop.
 <read *> 
          
-l.39 \RequirePackage
-                    {etoolbox}^^M
+l.50 \RequirePackage
+                    {graphicx}[1999/02/16]^^M
 *** (cannot \read from terminal in nonstop modes)
 
  
 Here is how much of TeX's memory you used:
- 1805 strings out of 493848
- 25873 string characters out of 1152823
- 81035 words of memory out of 3000000
- 5110 multiletter control sequences out of 15000+50000
+ 2072 strings out of 493848
+ 29831 string characters out of 1152823
+ 86842 words of memory out of 3000000
+ 5364 multiletter control sequences out of 15000+50000
  3940 words of font info for 15 fonts, out of 3000000 for 9000
  714 hyphenation exceptions out of 8191
  41i,0n,51p,298b,36s stack positions out of 5000i,500n,10000p,200000b,50000s

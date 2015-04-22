@@ -277,6 +277,7 @@ void testCircuitComp(char *circuitFilepath)
 	gmp_randstate_t *state;
 	struct public_builderPRS_Keys *public_inputs;
 	struct secret_builderPRS_Keys *secret_inputs;
+	struct eccPoint ***consistentInputs;
 	struct eccParams *params;
 
 	randctx ctx1, ctx2;
@@ -291,11 +292,13 @@ void testCircuitComp(char *circuitFilepath)
 	public_inputs = computePublicInputs(secret_inputs, params);
 
 
+	consistentInputs = getAllConsistentInputsAsPoints(secret_inputs -> secret_circuitKeys, public_inputs -> public_keyPairs, params, 1, rawInputCircuit -> numInputs_P1);
+
 	// garbledCircuit1 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 	// garbledCircuit2 = readInCircuit_FromRaw_Seeded(rawInputCircuit, seedLong);
 
-	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx1, rawInputCircuit, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
-	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx2, rawInputCircuit, secret_inputs -> secret_circuitKeys[0], public_inputs, 0, params);
+	garbledCircuit1 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx1, rawInputCircuit, consistentInputs[0], 0, params);
+	garbledCircuit2 = readInCircuit_FromRaw_Seeded_ConsistentInput(&ctx2, rawInputCircuit, consistentInputs[0], 0, params);
 
 
 	/*

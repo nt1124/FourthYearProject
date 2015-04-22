@@ -17,15 +17,18 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	gmp_randstate_t *state;
 	struct public_builderPRS_Keys *public_inputs;
 	struct secret_builderPRS_Keys *secret_inputs, *checkSecretInputs;
-	struct eccParams *params;
 	struct secCompBuilderOutput *SC_ReturnStruct;
+	struct eccParams *params;
 
-	struct eccPoint **builderInputs;
+	struct eccPoint **builderInputs, ***NP_consistentInputs, *C, *cTilde;
+	struct builderInputCommitStruct *commitStruct;
+
 	unsigned char *commBuffer, *J_set, ***bLists, ***hashedB_Lists, *delta;
-	unsigned char **Xj_checkValues, ***OT_Inputs;
+	unsigned char **Xj_checkValues, ***OT_Inputs, *inputBitsOwn;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
+	mpz_t **aList;
 
 
 	initRandGen();
@@ -53,7 +56,19 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+
 	params = initBrainpool_256_Curve();
+
+
+	C = setup_OT_NP_Sender(params, *state);
+	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
+	NP_consistentInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
+
+	// queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
+	// queries_Partner = NaorPinkas_OT_Exchange_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, queries_Own);
+
+
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 	delta = generateRandBytes(16, 16);
@@ -77,8 +92,17 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
 	}
 
+
+	/*
 	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, bLists[0], bLists[1],
 													params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+	*/
+
+	circuitsArray =  buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
+									params, circuitCTXs, stat_SecParam);
+
+
+	inputBitsOwn = convertChainIntoArray(startOfInputChain, circuitsArray[0] -> numInputsBuilder);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -87,14 +111,14 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	fflush(stdout);
 
 
-	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
-	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 
 	for(i = 0; i < stat_SecParam; i++)
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
+
+	// Builder sends the Hashed b Lists
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
@@ -104,34 +128,40 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray, state, stat_SecParam);
+	commBuffer = serialiseC_Boxes(commitStruct, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCommitted to inputs");
+	fflush(stdout);
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
 	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
-
-	// At this point receive from the Executor the proof of the J-set. Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 
-	builderInputs = computeBuilderInputs(public_inputs, secret_inputs,
-								J_set, J_setSize, startOfInputChain, 
-								params, &arrayLen);
 
-	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
+	// Get the J-set proof from the Executor, then revealed all needed to build the J-set circuits, and the builder's
+	// inputs for the non-J-set circuits.
+	J_set = builder_decommitToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, NP_consistentInputs,
+											aList, inputBitsOwn, stat_SecParam, &J_setSize, circuitSeeds);
 
 
+	/*
 	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputs_P1, stat_SecParam,
 												secret_inputs, params, *state);
 
 
-	/*
 	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 												startOfInputChain, delta, lengthDelta,
 												checkSecretInputs, stat_SecParam, state);
-	*/
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -144,6 +174,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 										public_inputs -> public_circuitKeys,
 										public_inputs ->  numKeyPairs, public_inputs -> stat_SecParam, secret_inputs,
 										params, state);
+	*/
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -180,13 +212,17 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
 	struct secCompExecutorOutput *SC_ReturnStruct;
+
+	struct builderInputCommitStruct *partnersCommitStruct;
+	struct eccPoint **builderInputs, ***NaorPinkasInputs, *C, *cTilde;
+	struct eccParams *params;
+
+	unsigned char *commBuffer, ***bLists, ***outputHashTable;
 	unsigned char *J_set, *deltaPrime, *permedInputs;
 
 	gmp_randstate_t *state;
 
-	struct eccPoint **builderInputs;
 	int arrayLen, commBufferLen = 0, bufferOffset, J_setSize = 0, circuitsChecked = 0;
-	unsigned char *commBuffer, ***bLists, ***outputHashTable;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -194,30 +230,46 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	clock_t int_c_0, int_c_1;
 
 
+
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
-
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
 
+
+	params = initBrainpool_256_Curve();
+
 	printf("Connected to builder.\n");
 
+	state = seedRandGen();
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+
+	C = setup_OT_NP_Sender(params, *state);
+	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
+
+	// Executor receives the Hashed b Lists
 	commBufferLen = 0;
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	outputHashTable = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
 	free(commBuffer);
+
+
+	commBufferLen = 0;
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	partnersCommitStruct = deserialiseC_Boxes(commBuffer, stat_SecParam, rawInputCircuit -> numInputs_P1, state, &bufferOffset);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -232,11 +284,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
 	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 
 
+	executor_ToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, params, J_set, &J_setSize, stat_SecParam);
+	/*
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
@@ -279,10 +332,8 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	/*
 	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit,
 	 												deltaPrime, lengthDelta, stat_SecParam, state );
-	*/
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -347,9 +398,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
-	close_client_socket(readSocket);
-	close_client_socket(writeSocket);
-
 	if(1 || NULL == SC_ReturnStruct -> output)
 	{
 		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
@@ -361,8 +409,11 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 		evaluateRawCircuit(rawInputCircuit);
 		printOutputHexString_Raw(rawInputCircuit);
 	}
+	*/
 
-	testAES_FromRandom();
+
+	close_client_socket(readSocket);
+	close_client_socket(writeSocket);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{

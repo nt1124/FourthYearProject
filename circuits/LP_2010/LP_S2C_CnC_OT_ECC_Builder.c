@@ -15,7 +15,8 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 	#pragma omp parallel for default(shared) private(j) schedule(auto)
 	for(j = 0; j < numCircuits; j++)
 	{
-		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
+		// circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
+		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, consistentInputs[j], j, params);
 	}
 
  

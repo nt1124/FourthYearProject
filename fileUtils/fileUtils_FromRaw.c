@@ -151,8 +151,7 @@ struct gateOrWire *initInputWire_FromRaw(randctx *ctx, int idNum, unsigned char 
 // Initialises an input wire, needed because input wires don't feature in the input file.
 // Therefore they need to initialised separately.
 struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx *ctx, int idNum, unsigned char owner, unsigned char *R,
-													mpz_t secret_input,
-													struct public_builderPRS_Keys *public_inputs,
+													struct eccPoint **consistentInputs,
 													int j, struct eccParams *params)
 {
 	struct gateOrWire *toReturn = (struct gateOrWire*) calloc(1, sizeof(struct gateOrWire));
@@ -163,12 +162,11 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx *ctx, int idNum
 	toReturn -> outputWire -> wirePerm = getIsaacPermutation(ctx);
 	toReturn -> outputWire -> wireOutputKey = (unsigned char*) calloc(16, sizeof(unsigned char));
 
-	// toReturn -> outputWire -> outputGarbleKeys = genFreeXORPairInput(toReturn -> outputWire -> wirePerm, R);
 
 	tempOutput = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
 
-	tempOutput -> key0 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum, 0x00);
-	tempOutput -> key1 = compute_Key_b_Input_i_Circuit_j(secret_input, public_inputs, params, idNum, 0x01);
+	tempOutput -> key0 = hashECC_Point(consistentInputs[2 * idNum], 16);
+	tempOutput -> key1 = hashECC_Point(consistentInputs[2 * idNum + 1], 16);
 
 
 	toReturn -> outputWire -> outputGarbleKeys = tempOutput;
@@ -183,16 +181,14 @@ struct gateOrWire *initInputWire_FromRaw_ConsistentInput(randctx *ctx, int idNum
 
 // We assume party 1 is building the circuit.
 struct gateOrWire **initAllInputs_FromRaw_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit, unsigned char *R,
-													mpz_t secret_input,
-													struct public_builderPRS_Keys *public_inputs,
-													int j, struct eccParams *params)
+													struct eccPoint **consistentInputs, int j, struct eccParams *params)
 {
 	struct gateOrWire **gates = (struct gateOrWire**) calloc(rawInputCircuit -> numGates, sizeof(struct gateOrWire*));
 	int i, numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 
 	for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
 	{
-		gates[i] = initInputWire_FromRaw_ConsistentInput(ctx, i, 0xFF, R, secret_input, public_inputs, j, params);
+		gates[i] = initInputWire_FromRaw_ConsistentInput(ctx, i, 0xFF, R, consistentInputs, j, params);
 	}
 
 	for(; i < numInputs; i ++)
@@ -228,8 +224,7 @@ struct gateOrWire **initAllInputs_FromRaw(randctx *ctx, struct RawCircuit *rawIn
 
 // Create a circuit given a file in RTL format.
 struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit,
-													mpz_t secret_input,
-													struct public_builderPRS_Keys *public_inputs,
+													struct eccPoint **consistentInputs,
 													int j, struct eccParams *params)
 {
 	struct gateOrWire *tempGateOrWire;
@@ -250,7 +245,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCi
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
-	gatesList = initAllInputs_FromRaw_ConsistentInput( ctx, rawInputCircuit, R, secret_input, public_inputs, j, params );
+	gatesList = initAllInputs_FromRaw_ConsistentInput( ctx, rawInputCircuit, R, consistentInputs, j, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
 	{
@@ -281,8 +276,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCi
 
 // Create a circuit given a file in RTL format.
 struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit,
-													mpz_t secret_input, unsigned char **b0List, unsigned char **b1List,
-													struct public_builderPRS_Keys *public_inputs,
+													struct eccPoint **consistentInputs, unsigned char **b0List, unsigned char **b1List,
 													int j, struct eccParams *params)
 {
 	struct gateOrWire *tempGateOrWire;
@@ -303,7 +297,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
 
-	gatesList = initAllInputs_FromRaw_ConsistentInput( ctx, rawInputCircuit, R, secret_input, public_inputs, j, params );
+	gatesList = initAllInputs_FromRaw_ConsistentInput( ctx, rawInputCircuit, R, consistentInputs, j, params );
 
 	for(i = outputCircuit -> numInputs; i < outputCircuit -> numGates; i ++)
 	{
@@ -339,7 +333,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct
 	return outputCircuit;
 }
 
-
+/*
 struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputCircuit)
 {
 	struct gateOrWire *tempGateOrWire;
@@ -387,39 +381,29 @@ struct Circuit *readInCircuit_FromRaw(randctx *ctx, struct RawCircuit *rawInputC
 
 	return outputCircuit;
 }
+*/
 
-
-struct Circuit *readInCircuit_FromRaw_Seeded(randctx *ctx, struct RawCircuit *rawInputCircuit)
-{
-	struct Circuit *toReturn;
-
-	toReturn = readInCircuit_FromRaw(ctx, rawInputCircuit);
-
-	return toReturn;
-}
 
 
 struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInput(randctx *ctx, struct RawCircuit *rawInputCircuit,
-															mpz_t secret_input,
-															struct public_builderPRS_Keys *public_inputs,
+															struct eccPoint **consistentInputs,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
 
-	toReturn = readInCircuit_FromRaw_ConsistentInput(ctx, rawInputCircuit, secret_input, public_inputs, j, params);
+	toReturn = readInCircuit_FromRaw_ConsistentInput(ctx, rawInputCircuit, consistentInputs, j, params);
 
 	return toReturn;
 }
 
 
 struct Circuit *readInCircuit_FromRaw_Seeded_ConsistentInputOutput(randctx *ctx, struct RawCircuit *rawInputCircuit,
-															mpz_t secret_input, unsigned char **b0List, unsigned char **b1List,
-															struct public_builderPRS_Keys *public_inputs,
+															struct eccPoint **consistentInputs, unsigned char **b0List, unsigned char **b1List,
 															int j, struct eccParams *params)
 {
 	struct Circuit *toReturn;
 
-	toReturn = readInCircuit_FromRaw_ConsistentInputOutput(ctx, rawInputCircuit, secret_input, b0List, b1List, public_inputs, j, params);
+	toReturn = readInCircuit_FromRaw_ConsistentInputOutput(ctx, rawInputCircuit, consistentInputs, b0List, b1List, j, params);
 
 	return toReturn;
 }

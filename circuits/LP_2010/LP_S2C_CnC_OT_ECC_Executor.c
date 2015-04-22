@@ -230,6 +230,8 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 {
 	struct Circuit *tempGarbleCircuit;
 	struct wire *tempWire;
+	struct eccPoint ***consistentInputs;
+
 	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 
@@ -244,6 +246,7 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 		}
 	}
 
+	consistentInputs = getAllConsistentInputsAsPoints(secret_J_set, public_inputs -> public_keyPairs, params, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
 
 	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
@@ -254,12 +257,14 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 		{
 			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
 			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-
-			tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
-			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
+	
+			tempWire -> outputGarbleKeys -> key0 = hashECC_Point(consistentInputs[k][2 * i], 16);
+			tempWire -> outputGarbleKeys -> key1 = hashECC_Point(consistentInputs[k][2 * i + 1], 16);
+			// tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
+			// tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
 		}
 
-		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, consistentInputs[k], k, params);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
 
@@ -271,17 +276,12 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 }
 
 
-
-
 void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, int J_setSize, struct Circuit **circuitsArray,
 					struct public_builderPRS_Keys *public_inputs, struct eccParams *params)
 {
-	unsigned char *rawInput, *hashedInput;
 	const int numInputs = public_inputs -> numKeyPairs;
 	const int numEvalCircuits = public_inputs -> stat_SecParam;
 	int i, j, k = 0;
-	int outputLength;
-
 
 
 	for(i = 0; i < numInputs; i ++)
@@ -290,21 +290,12 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, int
 		{
 			if(0x00 == J_set[j])
 			{
-				outputLength = 0;
-				rawInput = convertMPZToBytes(builderInputs[k] -> x, &outputLength);
-				hashedInput = sha256_full(rawInput, outputLength);
-				//circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey = sha256_full(rawInput, outputLength);
-
-				memcpy(circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey, hashedInput, 16);
+				circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey = hashECC_Point(builderInputs[k], 16);
 				k ++;
-
-				free(hashedInput);
-				free(rawInput);
 			}
 		}
 	}
 }
-
 
 
 

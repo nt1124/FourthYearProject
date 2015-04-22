@@ -20,7 +20,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	struct eccParams *params;
 	struct secCompBuilderOutput *SC_ReturnStruct;
 
-	struct eccPoint **builderInputs;
+	struct eccPoint **builderInputs, ***consistentInputs;
 	unsigned char *commBuffer, *J_set, ***bLists, ***hashedB_Lists, *delta;
 	unsigned char **Xj_checkValues, ***OT_Inputs;
 
@@ -176,7 +176,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	gmp_randstate_t *state;
 
-	struct eccPoint **builderInputs;
+	struct eccPoint **builderInputs, ***consistentInputs;
 	int arrayLen, commBufferLen = 0, bufferOffset, J_setSize = 0, circuitsChecked = 0;
 	unsigned char *commBuffer, ***bLists, ***outputHashTable;
 
@@ -293,10 +293,11 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit,	pubInputGroup -> public_inputs,
-								secretsRevealed -> revealedSecrets, secretsRevealed -> revealedCircuitSeeds,
-	 							bLists[0], bLists[1], pubInputGroup -> params,
-	 							J_set, J_setSize, stat_SecParam);
+
+	consistentInputs = getAllConsistentInputsAsPoints(secretsRevealed -> revealedSecrets, pubInputGroup -> public_inputs -> public_keyPairs, pubInputGroup -> params, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
+	circuitsChecked = secretInputsToCheckCircuitsConsistentOutputs(circuitsArray, rawInputCircuit, consistentInputs, 
+																secretsRevealed -> revealedCircuitSeeds, bLists[0], bLists[1], pubInputGroup -> params,
+																J_set, J_setSize, stat_SecParam);
 
 	printf("Circuits Correct = %d\n", circuitsChecked);
 

@@ -1,17 +1,3 @@
-/*
-void printSecrets(struct HKE_Output_Struct_Builder *outputStruct_Own, int numOutputs)
-{
-	int i, j;
-
-	for(i = 0; i < numOutputs; i ++)
-	{
-		gmp_printf("%d - %Zd\n", i, outputStruct_Own -> scheme0Array[i] -> secret);
-		gmp_printf("%d - %Zd\n", i, outputStruct_Own -> scheme1Array[i] -> secret);
-	}
-	printf("\n+++\n\n");
-	fflush(stdout);
-}
-*/
 struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
 									struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
 									struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
