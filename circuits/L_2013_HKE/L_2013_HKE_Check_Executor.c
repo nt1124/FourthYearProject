@@ -41,9 +41,8 @@ int secretInputsToCheckCircuits_HKE(struct Circuit **circuitsArray, struct RawCi
 			tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
 		}
 
-		// tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
-		tempGarbleCircuit = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, inputsForBuilder, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
+		// tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, builderInputs[k], outputKeysLocals, params, 1);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
 

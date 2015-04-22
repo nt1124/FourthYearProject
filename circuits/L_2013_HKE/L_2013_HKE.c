@@ -127,9 +127,11 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 												secret_inputs, params, *state);
 
 
+	/*
 	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 												startOfInputChain, delta, lengthDelta,
 												checkSecretInputs, stat_SecParam, state);
+	*/
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -271,16 +273,18 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 			runCircuitExec( circuitsArray[i], writeSocket, readSocket );
 		}
 	}
+	printf("\n");
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\n\nEvaluating all circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nEvaluating all circuits");
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
+	/*
 	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit,
 	 												deltaPrime, lengthDelta, stat_SecParam, state );
-
+	*/
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

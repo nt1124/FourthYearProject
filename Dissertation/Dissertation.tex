@@ -675,7 +675,7 @@
 
 			\subsection{32-bit multiplication}
 
-				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit.
+				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit. Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much of an effect the `depth' (size of circuit discounting inputs) of the circuit has on the performance.
 
 			\subsection{AES encryption}
 
@@ -685,7 +685,9 @@
 
 				The SHA-256 Hashing circuit is the largest we shall be testing upon with $236,112$ gates (around 6 times larger than AES. The circuit takes a 512 bit input from one of the parties and outputs the SHA-256 hash of this input.\\
 
-				This test should heavily favour Lindell's 2013 protocol over the Lindell-Pinkas protocol from 2010 due to the size of the circuit. Of particular interest will be to see how the HKE protocol fares compared both variants of Lindell's 2013 protocol.\\
+				This test should heavily favour Lindell's 2013 protocol over the Lindell-Pinkas 2010 protocol due to the size of the circuit. Of particular interest is the comparison of the HKE protocol versus the both variants of Lindell's 2013 protocol.\\
+
+				
 
 
 	\chapter{Conclusions}

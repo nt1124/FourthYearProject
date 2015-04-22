@@ -40,9 +40,9 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	inputsForBuilder = ComputeAllConsistentOutputs(secret_inputs, public_inputs,
 												params, checkStatSecParam, rawInputCircuit -> numInputs_P1);
 
-	// circuitsArray_Own = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, checkStatSecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, inputsForBuilder, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
+	circuitsArray_Own = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, checkStatSecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+	// circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, inputsForBuilder, outputStruct_Own, params,
+	// 										circuitCTXs, circuitSeeds, checkStatSecParam, 1);
 
 
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);

@@ -70,6 +70,7 @@ int main(int argc, char *argv[])
 	// test_local_OT_NP(atoi(argv[5]));
 	// testVSS();
 	// test_ZKPoK_ECC();
+	// test_ZKPoK_ECC_1Of2();
 
 	return 0;
 }

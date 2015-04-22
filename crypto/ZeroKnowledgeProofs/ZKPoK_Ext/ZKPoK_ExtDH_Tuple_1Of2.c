@@ -498,6 +498,7 @@ void test_ZKPoK_ECC_1Of2()
 	struct eccPoint **g_1 = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 	struct eccPoint **h_0 = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 	struct eccPoint **h_1 = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
+	struct eccPoint **h_1Prime = (struct eccPoint **) calloc(2, sizeof(struct eccPoint*));
 
 
 
@@ -505,12 +506,10 @@ void test_ZKPoK_ECC_1Of2()
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_0[0] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
-	// mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_0[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_1[0] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
-	// mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
 	g_1[1] = windowedScalarPoint(*tempMPZ, params_P -> params -> g, params_P -> params);
 
 	mpz_urandomm(*tempMPZ, *state, params_P -> params -> n);
@@ -529,6 +528,10 @@ void test_ZKPoK_ECC_1Of2()
 	params_P -> crs -> J_set[1] = 0x00;
 
 	mpz_set(params_P -> crs -> alphas_List[1], params_P -> crs -> alphas_List[0]);
+	// h_1Prime[0] = copyECC_Point(h_1[0]);
+	// h_1Prime[1] = copyECC_Point(h_1[1]);
+	// h_1[1] = copyECC_Point(h_1[1]);
+
 
 	witnessSet = proverSetupWitnesses_1Of2(params_P -> crs -> alphas_List, params_P -> crs -> J_set);
 	alphaAndA_P = proverSetupCommitment_ECC_1Of2(params_P -> params, *state);
@@ -598,7 +601,7 @@ void test_ZKPoK_ECC_1Of2()
 								Z_array_V, msgOne_V -> A_array, msgOne_V -> B_array,
 								alphaAndA_V, cShares_V, commitment_box_V -> c);
 
-
+	printf("Verified = %d\n", verified);
 }
 
 

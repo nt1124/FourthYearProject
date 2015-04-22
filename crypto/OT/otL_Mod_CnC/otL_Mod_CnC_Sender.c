@@ -26,6 +26,7 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Full_Sender(int writeSocket, int readSoc
 					params_S -> params -> g, params_S -> crs -> g_1, state);
 
 	printf("Verified CnC_OT_Mod setup = %d\n", verified);
+	fflush(stdout);
 
 
 	return params_S;
