@@ -166,8 +166,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 
 
-
-
 void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *ipAddress, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in serv_addr_write, serv_addr_read;

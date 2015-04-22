@@ -1,6 +1,3 @@
-// const int  = 4;
-
-
 void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, char *portNumStr, randctx *ctx)
 {
 	struct sockaddr_in destWrite, destRead;

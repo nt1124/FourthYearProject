@@ -393,4 +393,63 @@ struct revealedCheckSecrets *deserialise_Requested_CircuitSecrets(unsigned char 
 	return outputStruct;
 }
 
+	
+struct eccPoint ***getAllConsistentInputsAsPoints(mpz_t *circuitSecrets, struct eccPoint ***publicKeyPairs, struct eccParams *params,
+												int numCircuits, int numInputs)
+{
+	struct eccPoint ***outputPoints = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
+	int i, j, k;
+
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		outputPoints[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
+		for(j = 0; j < numInputs; j ++)
+		{
+			k = 2 * j;
+
+			outputPoints[i][k + 0] = windowedScalarPoint(circuitSecrets[i], publicKeyPairs[j][0], params);
+			outputPoints[i][k + 1] = windowedScalarPoint(circuitSecrets[i], publicKeyPairs[j][1], params);
+		}
+	}
+
+
+	return outputPoints;
+}
+
+
+struct eccPoint ***getAllConsistentInputsAsPoints(mpz_t *circuitSecrets, struct eccPoint ***publicKeyPairs, struct eccParams *params,
+												unsigned char *J_set, int numCircuits, int numInputs)
+{
+	struct eccPoint ***outputPoints = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
+	int i, j, k;
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			outputPoints[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
+			for(j = 0; j < numInputs; j ++)
+			{
+				k = 2 * j;
+
+				outputPoints[i][k + 0] = windowedScalarPoint(circuitSecrets[i], publicKeyPairs[j][0], params);
+				outputPoints[i][k + 1] = windowedScalarPoint(circuitSecrets[i], publicKeyPairs[j][1], params);
+			}
+		}
+	}
+
+	return outputPoints;
+}
+
+
+
+
+
+
+
+
+
+
+
 

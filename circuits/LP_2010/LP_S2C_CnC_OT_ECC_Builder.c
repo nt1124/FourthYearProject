@@ -1,21 +1,25 @@
 struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
-								gmp_randstate_t state, int stat_SecParam,
-								struct eccParams *params, struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
+								gmp_randstate_t state, int numCircuits, struct eccParams *params,
+								struct secret_builderPRS_Keys *secret_inputs, struct public_builderPRS_Keys *public_inputs,
 								randctx **circuitCTXs, ub4 **circuitSeeds)
 {
-	struct Circuit **circuitsArray = (struct Circuit **) calloc(stat_SecParam, sizeof(struct Circuit*));
+	struct Circuit **circuitsArray = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit*));
+	struct eccPoint ***consistentInputs;
 	struct idAndValue *start;
 	int j;
 
 
+	consistentInputs = getAllConsistentInputsAsPoints(secret_inputs -> secret_circuitKeys, public_inputs -> public_keyPairs,
+													params, numCircuits, rawInputCircuit -> numInputs_P1);
+
 	#pragma omp parallel for default(shared) private(j) schedule(auto)
-	for(j = 0; j < stat_SecParam; j++)
+	for(j = 0; j < numCircuits; j++)
 	{
 		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
 	}
 
  
-	for(j = 0; j < stat_SecParam; j++)
+	for(j = 0; j < numCircuits; j++)
 	{
 		start = startOfInputChain;
 		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
