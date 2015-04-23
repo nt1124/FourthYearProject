@@ -3,7 +3,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct sockaddr_in destWrite, destRead;
 	int writeSocket, readSocket, mainWriteSock, mainReadSock;
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
-	int i, J_setSize = 0, numCircuits = stat_SecParam / 0.32;
+	int i, J_setSize = 0, numCircuits = stat_SecParam / 0.31;
 
 	struct Circuit **circuitsArray;
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
@@ -137,9 +137,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
 	int i, commBufferLen = 0, arrayLen, J_setSize  = 0, circuitsChecked = 0, consistency;
-	int numCircuits = stat_SecParam / 0.32;
+	int numCircuits = stat_SecParam / 0.31;
 
-	// struct RawCircuit *rawInputCircuit;
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(numCircuits, sizeof(struct Circuit*));
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;

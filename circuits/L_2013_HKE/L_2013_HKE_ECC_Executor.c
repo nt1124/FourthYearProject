@@ -113,3 +113,68 @@ struct jSetReveal_L_2013_HKE *executor_ToJ_Set_L_2013_HKE(int writeSocket, int r
 
 	return NULL;
 }
+
+
+
+void setBuilderInputs_L_2013_HKE(struct Circuit **circuitsArray, struct eccPoint ***builderInputsEval,
+								unsigned char *J_Set, int numCircuits, int numInputs)
+{
+	struct wire *tempWire;
+	int i, j;
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_Set[i])
+		{
+			for(j = 0; j < numInputs; j ++)
+			{
+				tempWire = circuitsArray[i] -> gates[j] -> outputWire;
+				tempWire -> wireOutputKey = hashECC_Point(builderInputsEval[i][j], 16);
+			}
+		}
+	}
+}
+
+
+int L_2013_HKE_performCircuitChecks(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
+							struct eccPoint *C, struct jSetReveal_L_2013_HKE *revealStruct,
+							unsigned char **b0List, unsigned char **b1List, struct eccParams *params,
+							unsigned char *J_set, int J_setSize, int numCircuits)
+{
+	struct Circuit *tempGarbleCircuit;
+	struct eccPoint ***builderInputsCheck;
+
+	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
+	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
+
+
+	builderInputsCheck = computeNaorPinkasInputsForJSet(C, revealStruct -> aListRevealed,rawInputCircuit -> numInputs_P1, numCircuits, params, J_set);
+
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		if(0x01 == J_set[j])
+		{
+			tempCTX[k] = (randctx*) calloc(1, sizeof(randctx));
+			setIsaacContextFromSeed(tempCTX[k], revealStruct -> revealedSeeds[j]);
+			idList[k] = j;
+			k ++;
+		}
+	}
+
+	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
+	for(j = 0; j < J_setSize; j ++)
+	{
+		k = idList[j];
+
+		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(tempCTX[j], rawInputCircuit, builderInputsCheck[k],
+																			b0List, b1List, k, params);
+
+		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
+	}
+
+
+	return temp;
+}

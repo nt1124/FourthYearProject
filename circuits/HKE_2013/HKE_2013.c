@@ -291,17 +291,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Initial J-Set checks");
 
 
-	/*
-	bufferOffset = 0;
-	commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-
-	commBufferLen = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
-	printf("Logarithm Checks : %d\n\n", logChecks);
-	*/
 	if(0 == partyID)
 	{
 		bufferOffset = 0;

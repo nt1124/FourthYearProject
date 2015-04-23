@@ -16,7 +16,7 @@ typedef struct jSetReveal_L_2013_HKE
 } jSetReveal_L_2013_HKE;
 
 
-#include "L_2013_HKE_Utils.c"
+// #include "L_2013_HKE_Utils.c"
 
 #include "L_2013_HKE_ECC_Builder.c"
 #include "L_2013_HKE_ECC_Executor.c"
