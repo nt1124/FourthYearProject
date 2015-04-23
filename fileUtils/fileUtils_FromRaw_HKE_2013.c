@@ -123,17 +123,22 @@ struct gateOrWire **initAllInputs_FromRaw_HKE_2013(randctx *ctx, struct RawCircu
 
 	if(1 == partyID)
 	{
+		buildingPartyStartID = 0;
 		execPartyStartID = rawInputCircuit -> numInputs_P1;
+
+		buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
+		execPartyEndID = execPartyStartID + rawInputCircuit -> numInputs_P2;
 	}
 	else if(0 == partyID)
 	{
-		buildingPartyStartID = rawInputCircuit -> numInputs_P2;
+		buildingPartyStartID = rawInputCircuit -> numInputs_P1;
+		execPartyStartID = 0;
+
+		buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P2;
+		execPartyEndID = rawInputCircuit -> numInputs_P1;
 	}
 
-	execPartyEndID = execPartyStartID + rawInputCircuit -> numInputs_P2;
-	buildingPartyEndID = buildingPartyStartID + rawInputCircuit -> numInputs_P1;
-
-	// printf("%d  %d  %d  %d\n", execPartyStartID, execPartyEndID, buildingPartyStartID, buildingPartyEndID);
+	// printf("%d  %d  %d  %d\n", buildingPartyStartID, buildingPartyEndID, execPartyStartID, execPartyEndID);
 
 	for(i = buildingPartyStartID; i < buildingPartyEndID; i ++)
 	{
@@ -179,6 +184,8 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 		outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
 		outputCircuit -> builderInputOffset = rawInputCircuit -> numInputs_P1;
 	}
+
+	// printf("%d - %d - %d\n", outputCircuit -> numInputsBuilder, outputCircuit -> numInputsExecutor, outputCircuit -> builderInputOffset);
 
 	outputCircuit -> checkFlag = 0x00;
 	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
@@ -233,7 +240,6 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 	int i, j, index;
 
 
-	// #pragma omp parallel for default(shared) private(G_a1, invG_a1, index)
 	#pragma omp parallel for private(i, j, index, G_a1, invG_a1) schedule(auto)
 	for(i = 0; i < numCircuits; i ++)
 	{

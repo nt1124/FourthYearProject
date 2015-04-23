@@ -15,8 +15,8 @@ typedef struct builderInputCommitStruct
 
 	// iMax is the number of circuits
 	// jMax is the number of inputs
-	int iMax;
-	int jMax;
+	int numCircuits;
+	int numInputs;
 } builderInputCommitStruct;
 
 

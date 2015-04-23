@@ -85,7 +85,7 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	int commBufferLen, tempOffset = 0, circuitsCorrect = 0, outputsVerified = 0, validCommitments = 0;
 
 
-	NaorPinkasInputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, rawInputCircuit -> numInputs_P1, numCircuits, params, J_SetOwn);
+	NaorPinkasInputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder, numCircuits, params, J_SetOwn);
 
 
 	commBuffer = decommitToCheckCircuitInputs_Builder(commitStruct, inputBitsOwn, J_setPartner, &commBufferLen);
@@ -93,8 +93,9 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, NaorPinkasInputs_Partner, commBuffer, J_SetOwn, numCircuits,
-														rawInputCircuit -> numInputs_P2, &tempOffset);
+														circuitsArray_Partner[0] -> numInputsBuilder, &tempOffset);
 	free(commBuffer);
+
 
 
 	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, NaorPinkasInputs_Partner, partnerReveals,
@@ -136,7 +137,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	struct jSetRevealHKE *partnerReveals;
 	struct DDH_Group *groupOwn, *groupPartner;
 	int numCircuits = stat_SecParam, tempLength = 0, bufferOffset = 0;
-	int jSetChecks = 0, logChecks; 
+	int jSetChecks = 0, logChecks, numOwnInputs;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
@@ -166,8 +167,18 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, groupOwn);
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
-	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, numCircuits, *state, params);
-	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, numCircuits, params);
+
+	if(0 == partyID)
+	{
+		numOwnInputs = rawInputCircuit -> numInputs_P2;
+	}
+	else
+	{
+		numOwnInputs = rawInputCircuit -> numInputs_P1;
+	}
+
+	aList = getNaorPinkasInputs(numOwnInputs, numCircuits, *state, params);
+	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, numOwnInputs, numCircuits, params);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -235,10 +246,11 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 	// Perform all the Oblivious Transfer stuff.
-	queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
-	queries_Partner = NaorPinkas_OT_Exchange_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, queries_Own);
-	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, OT_Inputs, state, numCircuits, queries_Partner, params, C);
-	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, inputBitsOwn, state, numCircuits, queries_Own, params, cTilde);
+	queries_Own = NaorPinkas_OT_Produce_Queries(circuitsArray_Partner[0] -> numInputsExecutor, inputBitsOwn, state, params, cTilde);
+	queries_Partner = NaorPinkas_OT_Exchange_Queries(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor,
+													circuitsArray_Own[0] -> numInputsExecutor, queries_Own);
+	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, circuitsArray_Own[0] -> numInputsExecutor, OT_Inputs, state, numCircuits, queries_Partner, params, C);
+	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor, inputBitsOwn, state, numCircuits, queries_Own, params, cTilde);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -257,7 +269,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	commBufferLen = 0;
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnersCommitStruct = deserialiseC_Boxes(commBuffer, commitStruct -> iMax, commitStruct -> jMax, state, &bufferOffset);
+	partnersCommitStruct = deserialiseC_Boxes(commBuffer, state, &bufferOffset);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -273,22 +285,23 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
+
+	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
+									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnerReveals = jSetRevealDeserialise(commBuffer, J_SetOwn, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, numCircuits);
+	partnerReveals = jSetRevealDeserialise(commBuffer, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
 	free(commBuffer);
-
-
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
 								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_SetOwn, J_setPartner, numCircuits, groupPartner, params, partyID);
 
+
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Initial J-Set checks");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nInitial J-Set checks");
 
 
 	if(0 == partyID)

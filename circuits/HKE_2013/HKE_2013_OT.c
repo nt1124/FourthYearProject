@@ -47,7 +47,7 @@ struct OT_NP_Receiver_Query **NaorPinkas_OT_Produce_Queries(int numInputsExecuto
 }
 
 
-struct eccPoint **NaorPinkas_OT_Exchange_Queries(int writeSocket, int readSocket, int numInputsExecutor,
+struct eccPoint **NaorPinkas_OT_Exchange_Queries(int writeSocket, int readSocket, int numOwnQueries, int numPartnerQueries,
 										struct OT_NP_Receiver_Query **queries_Own)
 {
 	struct eccPoint **queries_Partner;
@@ -56,13 +56,13 @@ struct eccPoint **NaorPinkas_OT_Exchange_Queries(int writeSocket, int readSocket
 
 
 	commBufferLen = 0;
-	commBuffer = serialiseQueries(queries_Own, numInputsExecutor, &commBufferLen);
+	commBuffer = serialiseQueries(queries_Own, numOwnQueries, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	queries_Partner = deserialiseQueries(commBuffer, numInputsExecutor);
+	queries_Partner = deserialiseQueries(commBuffer, numPartnerQueries);
 	free(commBuffer);
 
 

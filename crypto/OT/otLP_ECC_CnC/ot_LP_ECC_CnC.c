@@ -98,7 +98,7 @@ mpz_t *CnC_OT_Dec_ECC_Alt(struct u_v_Pair_ECC *CT, struct params_CnC_ECC *params
 }
 
 
-struct params_CnC_ECC *setup_CnC_OT_Receiver_ECC(int stat_SecParam,	int comp_SecParam, gmp_randstate_t state)
+struct params_CnC_ECC *setup_CnC_OT_Receiver_ECC(int stat_SecParam, unsigned char *J_set, int comp_SecParam, gmp_randstate_t state)
 {
 	struct params_CnC_ECC *params = initParams_CnC_ECC(stat_SecParam, comp_SecParam, state);
 	int i = 0, groupBytesLen = 0, CRS_BytesLen = 0, tempInt = 0;
@@ -107,7 +107,8 @@ struct params_CnC_ECC *setup_CnC_OT_Receiver_ECC(int stat_SecParam,	int comp_Sec
 	mpz_init(alpha);
 
 
-	params -> crs -> J_set = generateJ_Set(stat_SecParam);
+	params -> crs -> J_set = J_set;
+	// generateJ_Set(stat_SecParam);
 
 	do
 	{
@@ -294,9 +295,8 @@ void test_local_CnC_OT_ECC()
 
 	unsigned char *inputBytes[numTests][2];
 	unsigned char *outputBytes[numTests][2];
-	unsigned char *tempChars_0, *tempChars_1;
-	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x01;
+	unsigned char *tempChars_0, *tempChars_1, *commBuffer;
+	unsigned char sigmaBit = 0x01, *J_set;
 
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
 
@@ -309,7 +309,8 @@ void test_local_CnC_OT_ECC()
 	}
 
 
-	params_R = setup_CnC_OT_Receiver_ECC(numTests, comp_SecParam, *state);
+	J_set = generateJ_Set(stat_SecParam);
+	params_R = setup_CnC_OT_Receiver_ECC(numTests, J_set, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferOffset);
 
 

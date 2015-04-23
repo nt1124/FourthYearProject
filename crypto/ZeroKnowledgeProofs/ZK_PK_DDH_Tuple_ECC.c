@@ -469,7 +469,7 @@ void test_ZKPoK_ECC()
 	struct msgOneArrays_ECC *msgOne_P, *msgOne_V;
 
 	unsigned char *commBuffer;
-	unsigned char sigmaBit = 0x00;
+	unsigned char sigmaBit = 0x00, *J_set;
 
 	int i, j, k, numTests = 2, comp_SecParam = 102, cCheck = 0, verified = 0;
 	int bufferOffset = 0, u_v_index = 0, tempInt = 0;
@@ -477,7 +477,8 @@ void test_ZKPoK_ECC()
 	gmp_randstate_t *state = seedRandGen();
 
 
-	params_P = setup_CnC_OT_Receiver_ECC(numTests, comp_SecParam, *state);
+	J_set = generateJ_Set(stat_SecParam);
+	params_P = setup_CnC_OT_Receiver_ECC(numTests, J_set, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC_ECC(params_P, &bufferOffset);
 	params_V = setup_CnC_OT_Sender_ECC(commBuffer);
 	free(commBuffer);

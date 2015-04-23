@@ -8,7 +8,7 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 
 	struct wire *tempWire;
 
-	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1;
+	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1, *J_set;
 	int bufferLength = 0, i, j, iOffset = 0;
 	int totalOTs = numInputsExecutor * stat_SecParam;
 	int u_v_index = 0;
@@ -21,8 +21,8 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 	numInputsExecutor = numInputsExecutor;
 	*output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
 
-
-	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, comp_SecParam, *state);
+	J_set = generateJ_Set(stat_SecParam);
+	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, J_set, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);

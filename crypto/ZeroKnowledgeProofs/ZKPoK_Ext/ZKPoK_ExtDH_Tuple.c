@@ -634,7 +634,7 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
 	struct eccPoint **h_list;
 
 
-	unsigned char *commBuffer, inputBit = 0x00;
+	unsigned char *commBuffer, inputBit = 0x00, *J_set;
 	int bufferOffset = 0, commBufferLen = 0;
 	int stat_SecParam = 8, comp_SecParam = 256;
 	int i;
@@ -649,7 +649,8 @@ void test_ZKPoK_ExtDH_Tuple_Prover(char *ipAddress)
     set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
 
-	params_P = setup_CnC_OT_Receiver_ECC(stat_SecParam, comp_SecParam, *state);
+	J_set = generateJ_Set(stat_SecParam);
+	params_P = setup_CnC_OT_Receiver_ECC(stat_SecParam, J_set, comp_SecParam, *state);
 	commBuffer = serialiseParams_CnC_ECC(params_P, &bufferOffset);
 	sendBoth(writeSocket, commBuffer, bufferOffset);
 	free(commBuffer);

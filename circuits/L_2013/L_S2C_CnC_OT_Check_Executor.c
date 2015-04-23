@@ -199,7 +199,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputs_P1, checkStatSecParam);
-	
+
 	if(0 == memcmp(delta, deltaPrime, 128))
 	{
 		inputBit = 0x01;

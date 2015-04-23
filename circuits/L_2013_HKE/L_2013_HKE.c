@@ -158,8 +158,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 												startOfInputChain, delta, lengthDelta,
-												NP_consistentInputsCheck, C, cTilde,
-												stat_SecParam, state);
+												NP_consistentInputsCheck, aListCheck, C, cTilde,
+												stat_SecParam, state, ctx);
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -267,7 +267,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	commBufferLen = 0;
 	bufferOffset = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnersCommitStruct = deserialiseC_Boxes(commBuffer, stat_SecParam, rawInputCircuit -> numInputs_P1, state, &bufferOffset);
+	partnersCommitStruct = deserialiseC_Boxes(commBuffer, state, &bufferOffset);
 
 
 	int_c_1 = clock();
@@ -323,7 +323,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
-													lengthDelta, C, cTilde, stat_SecParam, state);
+													lengthDelta, C, cTilde, stat_SecParam, state, ctx);
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

@@ -1,29 +1,29 @@
-struct builderInputCommitStruct *initBuilderInputCommitStruct(int iMax, int jMax, gmp_randstate_t *state)
+struct builderInputCommitStruct *initBuilderInputCommitStruct(int numCircuits, int numInputs, gmp_randstate_t *state)
 {
 	struct builderInputCommitStruct *outputStruct = (struct builderInputCommitStruct *) calloc(1, sizeof(struct builderInputCommitStruct));
 	int i, j;
 
 
 	outputStruct -> params = generate_commit_params(1024, *state);
-	outputStruct -> commitmentPerms = (unsigned char **) calloc(iMax, sizeof(unsigned char *));
-	outputStruct -> c_boxes_0 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
-	outputStruct -> c_boxes_1 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
-	outputStruct -> k_boxes_0 = (struct elgamal_commit_key ***) calloc(iMax, sizeof(struct elgamal_commit_key **));
-	outputStruct -> k_boxes_1 = (struct elgamal_commit_key ***) calloc(iMax, sizeof(struct elgamal_commit_key **));
+	outputStruct -> commitmentPerms = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
+	outputStruct -> c_boxes_0 = (struct elgamal_commit_box ***) calloc(numCircuits, sizeof(struct elgamal_commit_box **));
+	outputStruct -> c_boxes_1 = (struct elgamal_commit_box ***) calloc(numCircuits, sizeof(struct elgamal_commit_box **));
+	outputStruct -> k_boxes_0 = (struct elgamal_commit_key ***) calloc(numCircuits, sizeof(struct elgamal_commit_key **));
+	outputStruct -> k_boxes_1 = (struct elgamal_commit_key ***) calloc(numCircuits, sizeof(struct elgamal_commit_key **));
 
-	outputStruct -> iMax = iMax;
-	outputStruct -> jMax = jMax;
+	outputStruct -> numCircuits = numCircuits;
+	outputStruct -> numInputs = numInputs;
 
 
-	for(i = 0; i < iMax; i ++)
+	for(i = 0; i < numCircuits; i ++)
 	{
-		outputStruct -> commitmentPerms[i] = (unsigned char *) calloc(jMax, sizeof(unsigned char));
-		outputStruct -> c_boxes_0[i] = (struct elgamal_commit_box **) calloc(jMax, sizeof(struct elgamal_commit_box *));
-		outputStruct -> c_boxes_1[i] = (struct elgamal_commit_box **) calloc(jMax, sizeof(struct elgamal_commit_box *));
-		outputStruct -> k_boxes_0[i] = (struct elgamal_commit_key **) calloc(jMax, sizeof(struct elgamal_commit_key *));
-		outputStruct -> k_boxes_1[i] = (struct elgamal_commit_key **) calloc(jMax, sizeof(struct elgamal_commit_key *));
+		outputStruct -> commitmentPerms[i] = (unsigned char *) calloc(numInputs, sizeof(unsigned char));
+		outputStruct -> c_boxes_0[i] = (struct elgamal_commit_box **) calloc(numInputs, sizeof(struct elgamal_commit_box *));
+		outputStruct -> c_boxes_1[i] = (struct elgamal_commit_box **) calloc(numInputs, sizeof(struct elgamal_commit_box *));
+		outputStruct -> k_boxes_0[i] = (struct elgamal_commit_key **) calloc(numInputs, sizeof(struct elgamal_commit_key *));
+		outputStruct -> k_boxes_1[i] = (struct elgamal_commit_key **) calloc(numInputs, sizeof(struct elgamal_commit_key *));
 
-		for(j = 0; j < jMax; j ++)
+		for(j = 0; j < numInputs; j ++)
 		{
 			outputStruct -> c_boxes_0[i][j] = init_commit_box();
 			outputStruct -> c_boxes_1[i][j] = init_commit_box();
@@ -47,11 +47,11 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 	unsigned char *temp0, *temp1;
 
 
-	// iMax = numCircuits
-	for(i = 0; i < outputStruct -> iMax; i ++)
+	// numCircuits = numCircuits
+	for(i = 0; i < outputStruct -> numCircuits; i ++)
 	{
-		// jMax = numInputs
-		for(j = 0; j < outputStruct -> jMax; j ++)
+		// numInputs = numInputs
+		for(j = 0; j < outputStruct -> numInputs; j ++)
 		{
 			// We permute the commitment pair so that when decommiting to the eval circuit inputs
 			// the other party doesn't know which bit our input represents.
@@ -59,12 +59,12 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 		}
 	}
 
-	// iMax = numCircuits
+	// numCircuits = numCircuits
 	#pragma omp parallel for default(shared) private(i, j, temp0, temp1, gateIndex, tempWire) 
-	for(i = 0; i < outputStruct -> iMax; i ++)
+	for(i = 0; i < outputStruct -> numCircuits; i ++)
 	{
-		// jMax = numInputs
-		for(j = 0; j < outputStruct -> jMax; j ++)
+		// numInputs = numInputs
+		for(j = 0; j < outputStruct -> numInputs; j ++)
 		{
 			gateIndex = circuitsArray[i] -> builderInputOffset + j;
 			tempWire = circuitsArray[i] -> gates[gateIndex] -> outputWire;
@@ -94,59 +94,76 @@ struct builderInputCommitStruct *makeCommitmentsBuilder(randctx *ctx, struct Cir
 unsigned char *serialiseC_Boxes(struct builderInputCommitStruct *commitStruct, int *totalLength)
 {
 	unsigned char *outputBuffer, *temp0, *temp1, *temp2;
-	int outputLength = 0, tempOffset0, tempOffset1, tempOffset2, temp2Length;
+	int outputLength = 0, tempOffset, temp0Length, temp1Length, temp2Length;
 
 
-	tempOffset0 = 0;
-	temp0 = serialiseAllC_Boxes_2D(commitStruct -> c_boxes_0, commitStruct -> iMax, commitStruct -> jMax, &tempOffset0);
-	outputLength += tempOffset0;
+	temp0Length = 0;
+	temp0 = serialiseAllC_Boxes_2D(commitStruct -> c_boxes_0, commitStruct -> numCircuits, commitStruct -> numInputs, &temp0Length);
+	outputLength += temp0Length;
 
-	tempOffset1 = 0;
-	temp1 = serialiseAllC_Boxes_2D(commitStruct -> c_boxes_1, commitStruct -> iMax, commitStruct -> jMax, &tempOffset1);
-	outputLength += tempOffset1;
+	temp1Length = 0;
+	temp1 = serialiseAllC_Boxes_2D(commitStruct -> c_boxes_1, commitStruct -> numCircuits, commitStruct -> numInputs, &temp1Length);
+	outputLength += temp1Length;
 
-	tempOffset2 = 0;
-	temp2 = serialise_commit_batch_params(commitStruct -> params, &tempOffset2);
-	outputLength += tempOffset2;
+	temp2Length = 0;
+	temp2 = serialise_commit_batch_params(commitStruct -> params, &temp2Length);
+	outputLength += temp2Length;
+	outputLength += 2 * sizeof(int);
 
 
+	tempOffset = 2 * sizeof(int);
 	outputBuffer = (unsigned char *) calloc(outputLength, sizeof(unsigned char));
 
-	memcpy(outputBuffer, temp0, tempOffset0);
-	memcpy(outputBuffer + tempOffset0, temp1, tempOffset1);
-	memcpy(outputBuffer + tempOffset0 + tempOffset1, temp2, tempOffset2);
+	memcpy(outputBuffer, &(commitStruct -> numCircuits), sizeof(int));
+	memcpy(outputBuffer + sizeof(int), &(commitStruct -> numInputs), sizeof(int));
+
+	memcpy(outputBuffer + tempOffset, temp0, temp0Length);
+	tempOffset += temp0Length;
+
+	memcpy(outputBuffer + tempOffset, temp1, temp1Length);
+	tempOffset += temp1Length;
+
+	memcpy(outputBuffer + tempOffset, temp2, temp2Length);
+	tempOffset += temp2Length;
+
 	free(temp0);
 	free(temp1);
 	free(temp2);
 
 
-	*totalLength = tempOffset0 + tempOffset1 + tempOffset2;
+	*totalLength = tempOffset;
 
 	return outputBuffer;
 }
 
 
-struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, int iMax, int jMax, gmp_randstate_t *state, int *inputOffset)
+struct builderInputCommitStruct *deserialiseC_Boxes(unsigned char *inputBuffer, gmp_randstate_t *state, int *inputOffset)
 {
 	struct builderInputCommitStruct *outputStruct = (struct builderInputCommitStruct *) calloc(1, sizeof(struct builderInputCommitStruct));
-	int i, j, tempOffset = *inputOffset;
+	int i, j, tempOffset = *inputOffset, tempInt;
 
 
-	outputStruct -> commitmentPerms = (unsigned char **) calloc(iMax, sizeof(unsigned char *));
-	outputStruct -> c_boxes_0 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
-	outputStruct -> c_boxes_1 = (struct elgamal_commit_box ***) calloc(iMax, sizeof(struct elgamal_commit_box **));
 
-	outputStruct -> iMax = iMax;
-	outputStruct -> jMax = jMax;
+	memcpy(&tempInt, inputBuffer + tempOffset, sizeof(int));
+	outputStruct -> numCircuits = tempInt;
+	tempOffset += sizeof(int);
+
+	memcpy(&tempInt, inputBuffer + tempOffset, sizeof(int));
+	outputStruct -> numInputs = tempInt;
+	tempOffset += sizeof(int);
+
+	outputStruct -> commitmentPerms = (unsigned char **) calloc(outputStruct -> numCircuits, sizeof(unsigned char *));
+	outputStruct -> c_boxes_0 = (struct elgamal_commit_box ***) calloc(outputStruct -> numCircuits, sizeof(struct elgamal_commit_box **));
+	outputStruct -> c_boxes_1 = (struct elgamal_commit_box ***) calloc(outputStruct -> numCircuits, sizeof(struct elgamal_commit_box **));
 
 
-	for(i = 0; i < iMax; i ++)
+	for(i = 0; i < outputStruct -> numCircuits; i ++)
 	{
-		outputStruct -> commitmentPerms[i] = (unsigned char *) calloc(jMax, sizeof(unsigned char));
+		outputStruct -> commitmentPerms[i] = (unsigned char *) calloc(outputStruct -> numInputs, sizeof(unsigned char));
 	}
 
-	outputStruct -> c_boxes_0 = deserialiseAllC_Boxes_2D(inputBuffer, iMax, jMax, &tempOffset);
-	outputStruct -> c_boxes_1 = deserialiseAllC_Boxes_2D(inputBuffer, iMax, jMax, &tempOffset);
+	outputStruct -> c_boxes_0 = deserialiseAllC_Boxes_2D(inputBuffer, outputStruct -> numCircuits, outputStruct -> numInputs, &tempOffset);
+	outputStruct -> c_boxes_1 = deserialiseAllC_Boxes_2D(inputBuffer, outputStruct -> numCircuits, outputStruct -> numInputs, &tempOffset);
 
 
 	outputStruct -> params = deserialise_commit_batch_params(inputBuffer, &tempOffset);
@@ -162,18 +179,18 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 {
 	unsigned char *outputBuffer, permedBit;
 	int i, j, bufferOffset = 0;
-	int tempBytesCount = commitStruct -> jMax * sizeof(unsigned char);
+	int tempBytesCount = commitStruct -> numInputs * sizeof(unsigned char);
 
 	int validCommitments, h;
 
 
-	*outputLength = commitStruct -> iMax * tempBytesCount;
+	*outputLength = commitStruct -> numCircuits * tempBytesCount;
 
-	for(i = 0; i < commitStruct -> iMax; i ++)
+	for(i = 0; i < commitStruct -> numCircuits; i ++)
 	{
 		if(0x01 == jSetPartner[i])
 		{
-			for(j = 0; j < commitStruct -> jMax; j ++)
+			for(j = 0; j < commitStruct -> numInputs; j ++)
 			{
 				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_0[i][j] -> r);
 				(*outputLength) += sizeOfSerialMPZ(commitStruct -> k_boxes_1[i][j] -> r);
@@ -181,7 +198,7 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 		}
 		else
 		{
-			for(j = 0; j < commitStruct -> jMax; j ++)
+			for(j = 0; j < commitStruct -> numInputs; j ++)
 			{
 				if(0x00 == inputBitsOwn[j])
 				{
@@ -197,14 +214,14 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 
 	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
 
-	for(i = 0; i < commitStruct -> iMax; i ++)
+	for(i = 0; i < commitStruct -> numCircuits; i ++)
 	{
 		if(0x01 == jSetPartner[i])
 		{
 			memcpy(outputBuffer + bufferOffset, commitStruct -> commitmentPerms[i], tempBytesCount);
 			bufferOffset += tempBytesCount;
 
-			for(j = 0; j < commitStruct -> jMax; j ++)
+			for(j = 0; j < commitStruct -> numInputs; j ++)
 			{
 				serialiseMPZ(commitStruct -> k_boxes_0[i][j] -> r, outputBuffer, &bufferOffset);
 				serialiseMPZ(commitStruct -> k_boxes_1[i][j] -> r, outputBuffer, &bufferOffset);
@@ -212,11 +229,11 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 		}
 	}
 
-	for(i = 0; i < commitStruct -> iMax; i ++)
+	for(i = 0; i < commitStruct -> numCircuits; i ++)
 	{
 		if(0x00 == jSetPartner[i])
 		{
-			for(j = 0; j < commitStruct -> jMax; j ++)
+			for(j = 0; j < commitStruct -> numInputs; j ++)
 			{
 				outputBuffer[bufferOffset] = permedBit = (inputBitsOwn[j] ^ commitStruct -> commitmentPerms[i][j]);
 				bufferOffset ++;
