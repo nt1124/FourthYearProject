@@ -48,6 +48,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NP_consistentInputs, outputStruct_Own, params,
 											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
 
+	printf("%d - %d - %d\n", circuitsArray_Own[0] -> numInputsBuilder, circuitsArray_Own[0] -> numInputsExecutor, circuitsArray_Own[0] -> builderInputOffset);
+
 	for(i = 0; i < checkStatSecParam; i++)
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
@@ -98,8 +100,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 
 
-	J_setOwn = generateJ_Set(stat_SecParam);
-	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
+	J_setOwn = generateJ_Set(checkStatSecParam);
+	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, checkStatSecParam / 2, checkStatSecParam);
 
 
 	commBuffer = jSetRevealSerialise(NP_consistentInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
@@ -112,7 +114,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NP_consistentInputs,
-								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
+								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
 
 	/*

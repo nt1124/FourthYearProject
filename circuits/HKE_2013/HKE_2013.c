@@ -65,9 +65,9 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
 
-		// temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
+		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		// freeTempGarbleCircuit(tempGarbleCircuit);
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;
@@ -77,7 +77,7 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit, struct Circuit **circuitsArray_Partner,
 				struct eccPoint *C, struct jSetRevealHKE *partnerReveals, struct eccPoint ***NaorPinkasInputs,
-				struct HKE_Output_Struct_Builder *outputStruct_Own, struct HKE_Output_Struct_Builder *outputStruct_Partner,
+				struct HKE_Output_Struct_Builder *outputStruct_Partner,
 				struct builderInputCommitStruct *commitStruct, struct builderInputCommitStruct *partnerCommitStruct,
 				unsigned char *inputBitsOwn, unsigned char *J_SetOwn, unsigned char *J_setPartner,
 				int numCircuits, struct DDH_Group *groupPartner, struct eccParams *params, int partyID)
@@ -304,7 +304,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	free(commBuffer);
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
-								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
+								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_SetOwn, J_setPartner, numCircuits, groupPartner, params, partyID);
 
 

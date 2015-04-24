@@ -14,6 +14,7 @@ struct RawCircuit *createRawCheckCircuit(int inputB_Size)
 	// Set the number of inputs for each party and the number of outputs
 	outputCircuit -> numInputs_P1 = inputB_Size;
 	outputCircuit -> numInputs_P2 = 1;
+	outputCircuit -> numInputs = outputCircuit -> numInputs_P1 + outputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = inputB_Size; 
 
 	// Initilise the inputs and stuff.

@@ -179,9 +179,10 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
-								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
-								&inputBit, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
-
+								outputStruct_Partner, commitStruct, partnersCommitStruct,
+								&inputBit, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 0);
+	
+	printf("%d - %d - %d\n", circuitsArray_Own[0] -> numInputsBuilder, circuitsArray_Own[0] -> numInputsExecutor, circuitsArray_Own[0] -> builderInputOffset);
 
 	/*
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray_Partner,

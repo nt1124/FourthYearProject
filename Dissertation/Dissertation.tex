@@ -561,7 +561,37 @@
 
 
 		\section{Merging Lindell 2013 and HKE 2013}
-			In the Lindell 2013 protocol 
+			In the Lindell 2013 protocol the Sub-computation is carried out using the Lindell-Pinkas 2010 protocol. This raises the question, given the HKE protocol requires less circuits to achieve the same level of statistical security as Lindell-Pinkas, can we alter the sub-computation to use HKE?\\
+
+			This is a very simple concept, though we must be careful of a few subtle problems that do not present themselves on first glance, indeed the solutions to these require us to modify the behaviour of the protocol outside the sub-computation.\\
+
+			At this point it should be noted that while I will argue \emph{informally} that my merging of Lindell 2013 and HKE I give no formal proof, as such this should not be used seriously till such a formal proof exists.
+
+			\subsection{Problems to address}
+				At first this seems like a trivial matter, merely change the sub-computation implementation to call HKE instead of Lindell-Pinkas. However, consider the following questions, several of which arise due to the symmetrical nature of HKE.
+
+				\begin{enumerate}
+					\item The consistency of the Builder's input to the main computation and the sub-computation must be assured, but now it must also be assured in the sub-computation circuit built by the Executor.
+					
+					\item The output of the sub-computation must be concealed from the Builder, else the Builder might be able to tell if the Executor got inconsistent results from the main computation circuits. This would open the door to what is effectively a Selective Failure attack.
+
+					\item In the final optimisation of the sub-computation the Executor's input to the sub-computation circuit is a single bit, indicating if it knows $\delta$. When the Executor is building some of the circuits what happens if the Executor giving its input bit as $1$?\\
+
+					This issue is made all the more prickly given that the Builder cannot gain information about whether the input of the Executor was 0 or 1.
+				\end{enumerate}
+
+
+			\subsection{Consistency of Builder's inputs}
+				Recall in the Lindell-Pinkas / Lindell protocols consistency of the builder's inputs can be assured by the use of a `base key' for each bit value on each input wire. By using a common starting point and then adding in some randomness for each circuit the Builder creates keys that are still indistinguishable to the Executor. They can then run a Zero Knowledge proof that the keys used by the Builder are an Extended Diffie-Hellman Tuple based on the same `base key'.\\
+
+				Clearly we could extend this to be used for the Builder's inputs to the Builder's sub-computation circuits. However, I see no way for this to be extended to the builder's inputs to the Executor's sub-computation circuits. Fundamentally the Zero Knowledge Proof proves that,
+				
+				$$\forall j (g, g^{r_j}, g^{a_i^0}, k_{i,j}) \in DH \textnormal{ OR } \forall j (g, g^{r_j}, g^{a_i^1}, k_{i,j}) \in DH$$
+				
+				This causes serious problems because both parties need to know $k_{i,j}$, and as the Executor generated $k_{i,j}$ if the Builder tells the Executor which one to use for the proof then the Executor learns the Builder's input bit. Whilst there are probably ways to alter the Zero Knowledge Proof to account for this I propose a simpler and more efficient solution by using the HKE approach to consistency.\\
+
+				
+
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}
@@ -647,18 +677,13 @@
 						}
 						{
 							$x_3 = (\frac{3\cdot x_1^2 + a}{2 \cdot y_1}) ^ 2 - 2\cdot x_1$\\
-							$y_3 = (x_1 - x_3) * \frac{y_2 - y_1}{x_2 - x_1}$
+							$y_3 = (x_1 - x_3) * \frac{3 \cdot x_1^2 + a}{2 \cdot y_1} - y_1$
 						}
 					}
-					\caption{How to write algorithms}
+
+					\caption{The group operation of the group of point on an Elliptic Curve defined by $y^2 = x^3 + a \cdot x + b$ in Affine Representation. \label{Algo:ECC_GroupOp}}
 				\end{algorithm}
 			\end{mdframed}
-			Take $P = (x_1, y_1)$ and $Q = (x_2, y_2)$, then $(x_3, y_3) = P + Q$ is as follows\\
-
-			$(x_3, y_3) = (@, @) \textnormal{ if } x_1 = x_2 \textnormal{ and } y_1 \neq y_2$\\[0.1cm]
-
-			$x_3 = (\frac{y_2 - y_1}{x_2 - x_1})^2 - x_1 - x_2 \textnormal{ and }$
-			$y_3 = (x_1 - x_3) * \frac{y_2 - y_1}{x_2 - x_1} \textnormal{ where } x_1 \neq x_2$
 
 		\section{Verifiable Secret Sharing and Multi-precision Polynomials}
 
