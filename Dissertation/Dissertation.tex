@@ -631,6 +631,28 @@
 
 			This representation is sometimes called the \emph{Affine} representation, other representations exist and mostly exit as their operations reduce the number of modular inversions required for each group operation.\\
 
+			\begin{mdframed}
+				\begin{algorithm}[H]
+					Take $P = (x_1, y_1)$ and $Q = (x_2, y_2)$, then $(x_3, y_3) = P + Q$. Then,\\[0.15cm]
+					\eIf{($x_1 = x_2 \textnormal{ AND } y_1 \neq y_2$) OR
+					    ($P = Q \textnormal{ AND } y_1 = 0$)}
+					{
+						$(x_3, y_3) = (@, @)$
+					}
+					{
+						\eIf{($P \neq Q \textnormal{ AND } x_1 \neq x_2$)}
+						{
+							$x_3 = (\frac{y_2 - y_1}{x_2 - x_1})^2 - x_1 - x_2$\\
+							$y_3 = (x_1 - x_3) * \frac{y_2 - y_1}{x_2 - x_1}$
+						}
+						{
+							$x_3 = (\frac{3\cdot x_1^2 + a}{2 \cdot y_1}) ^ 2 - 2\cdot x_1$\\
+							$y_3 = (x_1 - x_3) * \frac{y_2 - y_1}{x_2 - x_1}$
+						}
+					}
+					\caption{How to write algorithms}
+				\end{algorithm}
+			\end{mdframed}
 			Take $P = (x_1, y_1)$ and $Q = (x_2, y_2)$, then $(x_3, y_3) = P + Q$ is as follows\\
 
 			$(x_3, y_3) = (@, @) \textnormal{ if } x_1 = x_2 \textnormal{ and } y_1 \neq y_2$\\[0.1cm]

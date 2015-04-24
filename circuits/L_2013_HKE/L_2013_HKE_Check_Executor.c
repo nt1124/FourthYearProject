@@ -112,6 +112,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Building Own Circuits");
 
+
 	circuitsArray_Partner = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
@@ -121,7 +122,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 	}
-
 
 	// Each party now commits to their input values.
 	commBufferLen = 0;
@@ -135,6 +135,12 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, state, &bufferOffset);
 
+
+	// Send the public commitments for the Verified Secret Sharing Scheme and exchange groups.
+	outputStruct_Partner = exchangePublicBoxesOfSchemes(writeSocket, readSocket, outputStruct_Own,
+														rawInputCircuit -> numOutputs, checkStatSecParam);
+	sendDDH_Group(writeSocket, readSocket, groupOwn);
+	groupPartner = receiveDDH_Group(writeSocket, readSocket);
 
 	// OT_Inputs
 	int_t_0 = timestamp();
@@ -163,7 +169,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	// J_setOwn = generateJ_Set(stat_SecParam);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
 
-
 	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, &inputBit, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P2,
 									rawInputCircuit -> numOutputs, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
@@ -176,26 +181,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
 								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
 								&inputBit, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
-	/*
-	int_t_0 = timestamp();
-	int_c_0 = clock();
 
-	circuitsChecked = secretInputsToCheckCircuits_HKE(circuitsArray_Partner, rawInputCircuit, pubInputGroup -> public_inputs,
-													secretsRevealed -> revealedSecrets,
-													secretsRevealed -> revealedCircuitSeeds, pubInputGroup -> params,
-													J_set, J_setSize, checkStatSecParam);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sub-circuit correctness and decommit to J-Set");
-
-	printf("\nSub-circuits Correct = %d\n", circuitsChecked);
-
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	commBufferLen = 0;
-	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
-	free(commBuffer);
-	*/
 
 	/*
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray_Partner,

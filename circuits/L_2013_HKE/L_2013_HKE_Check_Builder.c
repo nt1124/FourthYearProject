@@ -3,7 +3,7 @@
 
 struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
 													struct idAndValue *startOfInputChain, unsigned char *delta, int lengthDelta,
-													struct eccPoint ***NP_consistentInputsCheck, mpz_t **aList,
+													// struct eccPoint ***NP_consistentInputsCheck, mpz_t **aList,
 													struct eccPoint *C, struct eccPoint *cTilde,
 													int checkStatSecParam, gmp_randstate_t *state, randctx *ctx)
 {
@@ -15,6 +15,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
 	struct DDH_Group *groupOwn, *groupPartner;
 	struct jSetRevealHKE *partnerReveals;
+	struct eccPoint ***NP_consistentInputs;
+	mpz_t **aList;
 
 	unsigned char *commBuffer, *J_setOwn, *J_setPartner, ***OT_Inputs, *deltaExpanded, *inputBitsOwn;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, bufferOffset = 0;
@@ -35,11 +37,15 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 	params = initBrainpool_256_Curve();
 	groupOwn = get_128_Bit_Group(*state);
-
 	inputBitsOwn = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
 
+
+	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, checkStatSecParam, *state, params);
+	NP_consistentInputs = computeNaorPinkasInputs(cTilde, aList, rawInputCircuit -> numInputs_P1, checkStatSecParam, params);
+
+
 	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, checkStatSecParam, *state, groupOwn);
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NP_consistentInputsCheck, outputStruct_Own, params,
+	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NP_consistentInputs, outputStruct_Own, params,
 											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
 
 	for(i = 0; i < checkStatSecParam; i++)
@@ -51,7 +57,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	{
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
-
 
 	// Each party now commits to their input values.
 	commBufferLen = 0;
@@ -65,6 +70,14 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	partnersCommitStruct = deserialiseC_Boxes(commBuffer, state, &bufferOffset);
 
+
+	// Send the public commitments for the Verified Secret Sharing Scheme and exchange groups.
+	outputStruct_Partner = exchangePublicBoxesOfSchemes(writeSocket, readSocket, outputStruct_Own,
+													rawInputCircuit -> numOutputs, checkStatSecParam);
+	sendDDH_Group(writeSocket, readSocket, groupOwn);
+	groupPartner = receiveDDH_Group(writeSocket, readSocket);
+
+	
 
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
 	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
@@ -84,11 +97,12 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
 
 
+
 	J_setOwn = generateJ_Set(stat_SecParam);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
 
 
-	commBuffer = jSetRevealSerialise(NP_consistentInputsCheck, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
+	commBuffer = jSetRevealSerialise(NP_consistentInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
 									rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
@@ -97,9 +111,10 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	free(commBuffer);
 
 
-	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NP_consistentInputsCheck,
+	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NP_consistentInputs,
 								outputStruct_Own, outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
+
 	/*
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 										J_set, J_setSize, startOfInputChain, 

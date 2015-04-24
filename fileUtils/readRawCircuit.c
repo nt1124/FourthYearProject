@@ -228,7 +228,6 @@ void evaluateRawCircuit(struct RawCircuit *inputCircuit)
 {
 	int i, gateID;
 
-
 	for(i = 0; i < inputCircuit -> numGates; i ++)
 	{
 		gateID = inputCircuit -> execOrder[i];

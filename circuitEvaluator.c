@@ -12,7 +12,8 @@ randctx *globalIsaacContext;
 
 
 
-void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename, int builder)
+void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char *inputFilename,
+				int protocol, int builder)
 {
 	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
@@ -31,20 +32,30 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
+
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		// runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		if(0 == protocol)
+			runExecutor_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		else if(1 == protocol)
+			runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		else if(2 == protocol)
+			runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		else if(3 == protocol)
+			runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 	}
 	else
-	{
+	{		
 		printf("Running Builder.\n");
+
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
-		// runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		// runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		// runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		if(0 == protocol)
+			runBuilder_LP_2010_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		else if(1 == protocol)
+			runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		else if(2 == protocol)
+			runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);		
+		else if(3 == protocol)
+			runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 	}
 
 	c_1 = clock();
@@ -65,12 +76,13 @@ int main(int argc, char *argv[])
 
 	// elgamal_commit_main();
 	// testHKE(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
-	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
+	runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]), atoi(argv[6]));
 	// testCircuitComp(argv[1]);
 	// test_local_OT_NP(atoi(argv[5]));
 	// testVSS();
 	// test_ZKPoK_ECC();
 	// test_ZKPoK_ECC_1Of2();
+	// testRawCheckCircuits();
 
 	return 0;
 }

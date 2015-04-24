@@ -5,7 +5,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int writePort = atoi(portNumStr), readPort = writePort + 1;
 
 	struct Circuit **circuitsArray;
-	struct RawCircuit *rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+	struct RawCircuit *rawCheckCircuit;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
 	const int lengthDelta = 40;
 
@@ -29,6 +29,9 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
 	mpz_t **aList, **aListCheck;
 
+
+	//rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
 
 	initRandGen();
 	state = seedRandGen();
@@ -152,13 +155,14 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 
 	// Generate the builder's inputs to the circuit the builder shall build.
-	aListCheck = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
-	NP_consistentInputsCheck = computeNaorPinkasInputs(cTilde, aListCheck, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
+	// aListCheck = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
+	// NP_consistentInputsCheck = computeNaorPinkasInputs(cTilde, aListCheck, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
 
 
 	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 												startOfInputChain, delta, lengthDelta,
-												NP_consistentInputsCheck, aListCheck, C, cTilde,
+												// NP_consistentInputsCheck, aListCheck,
+												C, cTilde,
 												stat_SecParam, state, ctx);
 
 	commBufferLen = 0;
@@ -231,13 +235,14 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
 
-
 	params = initBrainpool_256_Curve();
 
 	printf("Connected to builder.\n");
 
 	state = seedRandGen();
+	
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);

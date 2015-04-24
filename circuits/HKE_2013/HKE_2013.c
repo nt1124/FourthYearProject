@@ -56,6 +56,8 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 		}
 	}
 
+
+	// Okay, we're not setting the input wires of the real circuit?
 	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
@@ -63,9 +65,9 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
 
-		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
+		// temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		freeTempGarbleCircuit(tempGarbleCircuit);
+		// freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;
@@ -92,14 +94,21 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, NaorPinkasInputs_Partner, commBuffer, J_SetOwn, numCircuits,
+	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, NaorPinkasInputs_Partner,
+														commBuffer, J_SetOwn, numCircuits,
 														circuitsArray_Partner[0] -> numInputsBuilder, &tempOffset);
 	free(commBuffer);
 
+	printf("Checkpoint D\n");
+	fflush(stdout);
 
 
 	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, NaorPinkasInputs_Partner, partnerReveals,
 											params, J_SetOwn, numCircuits / 2, numCircuits, partyID);
+
+	printf("Checkpoint G\n");
+	fflush(stdout);
+
 	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_setPartner, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
 	
 	printf("\nValid Commitment : %d\n", validCommitments);

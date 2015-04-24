@@ -232,7 +232,7 @@ void testVSS()
 	mpz_init(secret);
 	mpz_urandomm(secret, *state, group -> q);
 
-	scheme = VSS_Share(secret, 5, 10, *state, group);
+	scheme = VSS_Share(secret, 9, 10, *state, group);
 
 
 	for(i = 0; i < 10; i ++)
