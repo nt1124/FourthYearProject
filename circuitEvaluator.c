@@ -40,8 +40,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runExecutor_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		else if(2 == protocol)
 			runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		// else if(3 == protocol)
-			// runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		else if(3 == protocol)
+			runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 	}
 	else
 	{		
@@ -54,8 +54,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runBuilder_L_2013_CnC_OT(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		else if(2 == protocol)
 			runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);		
-		// else if(3 == protocol)
-			// runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		else if(3 == protocol)
+			runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 	}
 
 	c_1 = clock();

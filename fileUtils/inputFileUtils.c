@@ -77,14 +77,14 @@ void setCircuitsInputs_Values(struct idAndValue *start, struct Circuit *inputCir
 	struct idAndValue *current = start -> next;
 	struct wire *outputWire;
 
-	printf("------------\n\n");
+	// printf("------------\n\n");
 	while(NULL != current)
 	{
 		outputWire = inputCircuit -> gates[current -> id] -> outputWire;
 		// outputWire -> wireOwner = ownerFlag;
 		outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePerm & 0x01);
 		
-		printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePermedValue));
+		// printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePermedValue));
 		current = current -> next;
 	}
 	// printf("\n");

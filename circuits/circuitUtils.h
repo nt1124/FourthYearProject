@@ -42,7 +42,7 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 #include "L_2013/L_S2C_CnC_OT.h"
 #include "HKE_2013/HKE_2013.h"
 
-// #include "L_2013_HKE/L_2013_HKE.h"
+#include "L_2013_HKE/L_2013_HKE.h"
 
 
 

@@ -1,15 +1,10 @@
-
-
-
-struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
-													struct idAndValue *startOfInputChain, unsigned char *delta, int lengthDelta,
-													struct OT_NP_Receiver_Query **queries_Own,
-													struct eccPoint *C, struct eccPoint *cTilde,
-													int checkStatSecParam, gmp_randstate_t *state, randctx *ctx)
+void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+								struct idAndValue *startOfInputChain, unsigned char *delta, int lengthDelta,
+								struct OT_NP_Receiver_Query **queries_Own, struct eccPoint *C,
+								struct eccPoint *cTilde, int checkStatSecParam, gmp_randstate_t *state, randctx *ctx)
 {
 	struct Circuit **circuitsArray_Own, **circuitsArray_Partner;
 	struct eccParams *params;
-	struct secCompBuilderOutput *returnStruct;
 
 	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct builderInputCommitStruct *commitStruct, *partnersCommitStruct;
@@ -49,8 +44,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 
 	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, checkStatSecParam, *state, groupOwn);
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NP_consistentInputs, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, partyID);
+	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, cTilde, NP_consistentInputs, outputStruct_Own, params,
+											circuitCTXs, checkStatSecParam, partyID);
 
 
 	for(i = 0; i < checkStatSecParam; i++)
@@ -59,7 +54,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	}
 	circuitsArray_Partner = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 
-	printf("\n-------+++++++++++------\n");
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
@@ -118,12 +112,12 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, checkStatSecParam / 2, checkStatSecParam);
 
 
-	commBuffer = jSetRevealSerialise(NP_consistentInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
+	commBuffer = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NP_consistentInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
 									rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnerReveals = jSetRevealDeserialise(commBuffer, J_setOwn, rawInputCircuit -> numInputs_P2, rawInputCircuit -> numOutputs, checkStatSecParam);
+	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBuffer, J_setOwn, rawInputCircuit -> numInputs_P2, rawInputCircuit -> numOutputs, checkStatSecParam);
 	free(commBuffer);
 
 
@@ -133,25 +127,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 	  							J_setOwn, checkStatSecParam, partyID);
-
-
-	int index, j;
-	for(i = 0; i < checkStatSecParam; i ++)
-	{
-		if(0x00 == J_setOwn[i])
-		{
-			for(j = 0; j < rawInputCircuit -> numInputs; j ++)
-			{
-				printf("(%d, %d) - ", i, j);
-				for(index = 0; index < 16; index ++)
-				{
-					printf("%02X", circuitsArray_Partner[i] -> gates[j] -> outputWire -> wireOutputKey[index]);
-				}
-				printf("\n");
-				fflush(stdout);
-			}
-		}
-	}
 
 
 	printf("\nEvaluating Circuits ");
@@ -167,9 +142,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 	printf("\n");
 
 
-	printMajorityOutputAsBinary(circuitsArray_Partner, checkStatSecParam, J_setOwn);
-
-	/*
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_setOwn, &commBufferLen, partyID);
 
@@ -179,13 +151,6 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 		printf("%X", binaryOutput[i]);
 	}
 	printf("\n");
-	*/
-
-	/*
-	returnStruct = getSecCompReturnStruct_L_2013_B(public_inputs, builderInputs, J_set, J_setSize);
-	*/
-
-	return returnStruct;
 }
 
 

@@ -1,11 +1,11 @@
-struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
+unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
 														unsigned char *deltaPrime, int lengthDelta,
 														struct eccPoint **queries_Partner,
 														struct eccPoint *C, struct eccPoint *cTilde,
 														int checkStatSecParam, gmp_randstate_t *state, randctx *ctx)
 {
 	struct Circuit **circuitsArray_Partner, **circuitsArray_Own;
-	struct idAndValue *startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, 0);
+	struct idAndValue *startOfInputChain;// = convertArrayToChain(deltaPrime, lengthDelta, 0);
 	struct jSetRevealHKE *partnerReveals;
 	struct secCompExecutorOutput *returnStruct;
 
@@ -115,6 +115,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 		inputBit = 0x01;
 	}
 
+	startOfInputChain = convertArrayToChain(&inputBit, 1, rawInputCircuit -> numInputs_P1);
 	for(i = 0; i < checkStatSecParam; i++)
 	{
 		tempWire = circuitsArray_Own[i] -> gates[rawInputCircuit -> numInputs_P1] -> outputWire;
@@ -133,40 +134,13 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	// J_setOwn = generateJ_Set(stat_SecParam);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
 
-	/*
-	int j, h;
-	for(i = 0; i < checkStatSecParam; i ++)
-	{
-		if(0x00 == J_setPartner[i])
-		{
-			for(j = 0; j < rawInputCircuit -> numInputs; j ++)
-			{
-				printf("(%d, %d) 0 - ", i, j);
-				for(h = 0; h < 16; h ++)
-				{
-					printf("%02X", circuitsArray_Own[i] -> gates[j] -> outputWire -> outputGarbleKeys -> key0[h]);
-				}
-				printf("\n");
-				printf("(%d, %d) 1 - ", i, j);
-				for(h = 0; h < 16; h ++)
-				{
-					printf("%02X", circuitsArray_Own[i] -> gates[j] -> outputWire -> outputGarbleKeys -> key1[h]);
-				}
-				printf("\n");
-			}
-		}
-	}
-	*/
-
-
-
 	// Having exchanged J_sets the parties now reveal information needed to open the check circuits.
-	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, &inputBit, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P2,
+	commBuffer = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, &inputBit, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P2,
 									rawInputCircuit -> numOutputs, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnerReveals = jSetRevealDeserialise(commBuffer, J_setOwn, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, checkStatSecParam);
+	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBuffer, J_setOwn, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs, checkStatSecParam);
 	free(commBuffer);
 
 
@@ -191,9 +165,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	}
 	printf("\n");
 
-	printMajorityOutputAsBinary(circuitsArray_Partner, checkStatSecParam, J_setOwn);
-
-	/*
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_setOwn, &commBufferLen, partyID);
 
@@ -205,10 +176,9 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	printf("\n");
 
 
-	/*
 	if(inputBit == 0)
 	{
-		output = NULL;
+		binaryOutput = NULL;
 	}
 
 	for(i = 0; i < checkStatSecParam; i ++)
@@ -216,9 +186,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 		freeCircuitStruct(circuitsArray_Partner[i], 0);
 	}
 
-	returnStruct = getSecCompReturnStruct_L_2013_E(pubInputGroup, builderInputs, J_set, J_setSize, output);
-	*/
-
-	return returnStruct;
+	return binaryOutput;
 }
 

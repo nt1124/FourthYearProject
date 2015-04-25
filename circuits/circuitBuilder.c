@@ -191,7 +191,7 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	circuitBuffer = serialiseCircuit(inputCircuit, &circuitLength);
 
 	// How big is buffer we're going to be sending, then calloc space.
-	bufferLength = circuitLength + (6 * sizeof(int)) + (inputCircuit -> numGates * sizeof(int));
+	bufferLength = circuitLength + (7 * sizeof(int)) + (inputCircuit -> numGates * sizeof(int));
 	bufferToSend = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
 
 
@@ -201,8 +201,9 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	memcpy(bufferToSend + 2 * sizeof(int), &(inputCircuit -> numOutputs), sizeof(int));
 	memcpy(bufferToSend + 3 * sizeof(int), &(inputCircuit -> numInputsBuilder), sizeof(int));
 	memcpy(bufferToSend + 4 * sizeof(int), &(inputCircuit -> numInputsExecutor), sizeof(int));
-	memcpy(bufferToSend + 5 * sizeof(int), &(inputCircuit -> securityParam), sizeof(int));
-	bufferOffset = 6 * sizeof(int);
+	memcpy(bufferToSend + 5 * sizeof(int), &(inputCircuit -> builderInputOffset), sizeof(int));
+	memcpy(bufferToSend + 6 * sizeof(int), &(inputCircuit -> securityParam), sizeof(int));
+	bufferOffset = 7 * sizeof(int);
 
 	// Copy across the ExecOrder into the bufferToSend.
 	memcpy(bufferToSend + bufferOffset, inputCircuit -> execOrder, inputCircuit -> numGates * sizeof(int));

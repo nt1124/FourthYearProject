@@ -20,7 +20,6 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 
 				G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 				invG_a1 = invertPoint(G_a1, params);
-				// invG_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);
 				clearECC_Point(invG_a1);
@@ -46,7 +45,6 @@ unsigned char ***getAllInputKeysSymm(struct Circuit **circuitsArray, int numCirc
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 	numKeysToStore = circuitsArray[0] -> numInputsExecutor * numCircuits;
-	printf("::: %d\n", numInputsBuilder * partyID);
 
 
 	allKeys[0] = (unsigned char **) calloc(numKeysToStore, sizeof(unsigned char *));
@@ -108,7 +106,6 @@ void setBuildersInputsNaorPinkas(struct Circuit **circuitsArray_Partner, struct 
 	numInputsBuilder = circuitsArray_Partner[0] -> numInputsBuilder;
 	builderOffset = rawInputCircuit -> numInputs_P1 * partyID;
 
-	printf("%d %d\n", numInputsBuilder, builderOffset);
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -136,6 +133,7 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 	unsigned char *outputBuffer;
 	int i, j, k, tempOffset = 0;
 	int aListLen = 0, sharesLen = 0, seedLengths = (numCircuits / 2) * 256 * sizeof(ub4);
+	int builderOffset = circuitsArray_Own[0] -> builderInputOffset;
 
 	(*outputLength) = 0;
 
@@ -206,7 +204,6 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 		}
 	}
 
-
 	for(j = 0; j < numCircuits; j ++)
 	{
 		if(0x00 == jSet[j])
@@ -223,7 +220,7 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 					serialise_ECC_Point(NaorPinkasInputs[j][2*i + 1], outputBuffer, &tempOffset);
 				}
 
-				tempWire = circuitsArray_Own[j] -> gates[i] -> outputWire;
+				tempWire = circuitsArray_Own[j] -> gates[i + builderOffset] -> outputWire;
 				outputBuffer[tempOffset] = (currentItem -> value) ^ (tempWire -> wirePerm & 0x01);
 
 				currentItem = currentItem -> next;
@@ -242,6 +239,7 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 	struct jSetRevealHKE *output = (struct jSetRevealHKE *) calloc(1, sizeof(struct jSetRevealHKE));
 	mpz_t *tempMPZ;
 	int i, j, k, tempOffset = 0;
+	int builderOffset = circuitsArray_Partner[0] -> builderInputOffset;
 
 
 	output -> aListRevealed = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
@@ -301,7 +299,7 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 			for(i = 0; i < numInputs; i ++)
 			{
 				output -> builderInputsEval[j][i] = deserialise_ECC_Point(inputBuffer, &tempOffset);
-				circuitsArray_Partner[j] -> gates[i] -> outputWire -> wirePermedValue = inputBuffer[tempOffset];
+				circuitsArray_Partner[j] -> gates[i + builderOffset] -> outputWire -> wirePermedValue = inputBuffer[tempOffset];
 				tempOffset ++;
 			}
 		}

@@ -15,7 +15,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	clock_t int_c_0, int_c_1;
 
 	gmp_randstate_t *state;
-	struct secCompBuilderOutput *SC_ReturnStruct;
 	struct eccParams *params;
 
 	struct eccPoint **builderInputs, ***NP_consistentInputs, ***NP_consistentInputsCheck, *C, *cTilde;
@@ -158,11 +157,11 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	// NP_consistentInputsCheck = computeNaorPinkasInputs(cTilde, aListCheck, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
 
 
-	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
-												startOfInputChain, delta, lengthDelta,
-												queries_Own,
-												C, cTilde,
-												stat_SecParam, state, ctx);
+	SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
+								startOfInputChain, delta, lengthDelta,
+								queries_Own,
+								C, cTilde,
+								stat_SecParam, state, ctx);
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -210,7 +209,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	struct jSetReveal_L_2013_HKE *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	struct secCompExecutorOutput *SC_ReturnStruct;
 
 	struct builderInputCommitStruct *partnersCommitStruct;
 	struct eccPoint **builderInputs, ***NaorPinkasInputs, *C, *cTilde, **queries_Partner;
@@ -218,6 +216,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	unsigned char *commBuffer, ***bLists, ***outputHashTable;
 	unsigned char *J_set, *deltaPrime, *permedInputs;
+	unsigned char *cheatDetectOutput;
 
 	gmp_randstate_t *state;
 
@@ -329,7 +328,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	// deltaPrime = (unsigned char *) calloc(16, sizeof(unsigned char));
-	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
+	cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
 													lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
 
 	int_t_0 = timestamp();
@@ -387,14 +386,14 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
 
-	if(1 || NULL == SC_ReturnStruct -> output)
+	if(1 || NULL == cheatDetectOutput)
 	{
 		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
 	}
 	else
 	{
 		setRawCircuitsInputs_Hardcode(startOfInputChain, rawInputCircuit -> gates);
-		setRawCircuitsInputs_Hardcode(SC_ReturnStruct -> output, 0, rawInputCircuit -> numInputs_P1, rawInputCircuit -> gates);
+		setRawCircuitsInputs_Hardcode(cheatDetectOutput, 0, rawInputCircuit -> numInputs_P1, rawInputCircuit -> gates);
 		evaluateRawCircuit(rawInputCircuit);
 		printOutputHexString_Raw(rawInputCircuit);
 	}
