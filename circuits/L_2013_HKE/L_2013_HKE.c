@@ -76,7 +76,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
-	// queries_Partner = NaorPinkas_OT_Exchange_Queries(writeSocket, readSocket, rawInputCircuit -> numInputs_P1, queries_Own);
 
 	delta = generateRandBytes(16, 16);
 
@@ -161,7 +160,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	SC_ReturnStruct = SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 												startOfInputChain, delta, lengthDelta,
-												// NP_consistentInputsCheck, aListCheck,
+												queries_Own,
 												C, cTilde,
 												stat_SecParam, state, ctx);
 
@@ -193,6 +192,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 }
+
 
 
 
@@ -242,7 +242,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	state = seedRandGen();
 	
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
-	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+
 
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
@@ -251,6 +251,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	queries_Partner = deserialiseQueries(commBuffer, rawInputCircuit -> numInputs_P1);
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -327,8 +328,9 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
+	// deltaPrime = (unsigned char *) calloc(16, sizeof(unsigned char));
 	SC_ReturnStruct = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
-													lengthDelta, C, cTilde, stat_SecParam, state, ctx);
+													lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

@@ -11,6 +11,9 @@ unsigned char *getOutputAsBinary(struct Circuit *inputCircuit, int *binaryLength
 
 	for(i = inputCircuit -> numGates - inputCircuit -> numOutputs; i < inputCircuit -> numGates; i ++)
 	{
+		// printf("~~~ %d\n", i);
+		// fflush(stdout);
+
 		tempBit = inputCircuit -> gates[i] -> outputWire -> wirePermedValue;
 		binaryOutput[j++] = tempBit ^ (0x01 & inputCircuit -> gates[i] -> outputWire -> wirePerm);
 	}
@@ -123,6 +126,8 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 			if(curLength != circuitsArray[0] -> numOutputs)
 			{
 				printf("Circuits have differing number of outputs.");
+				fflush(stdout);
+
 				free(outputBitCounts[0]);
 				free(outputBitCounts[1]);
 				free(outputBitCounts);
@@ -137,6 +142,7 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 			free(curBinaryStr);
 		}
 	}
+
 
 	curBinaryStr = (unsigned char*) calloc(circuitsArray[0] -> numOutputs, sizeof(unsigned char));
 

@@ -36,6 +36,37 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 }
 
 
+struct Circuit **buildAll_HKE_Circuits_Alt(struct RawCircuit *rawInputCircuit,
+										struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
+										struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
+										randctx **circuitCTXs,
+										int numCircuits, int partyID)
+{
+	struct Circuit **circuitsArray_Own = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit*));
+	struct idAndValue *start;
+	mpz_t *outputKeysLocals;
+	int i, j;
+
+
+	#pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
+	for(j = 0; j < numCircuits; j++)
+	{
+		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
+		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
+
+		for(i = 0; i < 2 * rawInputCircuit -> numOutputs; i ++)
+		{
+			mpz_clear(outputKeysLocals[i]);
+		}
+		free(outputKeysLocals);
+	}
+
+
+	return circuitsArray_Own;
+}
+
+
+
 int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCircuit *rawInputCircuit,
 							struct eccPoint ***NaorPinkasInputs, struct jSetRevealHKE *revealStruct, struct eccParams *params,
 							unsigned char *J_set, int J_setSize, int numCircuits, int partyID_Own)
@@ -100,15 +131,10 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 														circuitsArray_Partner[0] -> numInputsBuilder, &tempOffset);
 	free(commBuffer);
 
-	printf("Checkpoint D\n");
-	fflush(stdout);
-
 
 	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, NaorPinkasInputs_Partner, partnerReveals,
 											params, J_SetOwn, numCircuits / 2, numCircuits, partyID);
 
-	printf("Checkpoint G\n");
-	fflush(stdout);
 
 	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_SetOwn, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
 	
@@ -134,7 +160,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	clock_t int_c_0, int_c_1;
 
 	unsigned char *commBuffer, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
-	unsigned char **secureEqualityInputs, *hexOutputs;
+	unsigned char **secureEqualityInputs, *binaryOutput;
 	struct secureEqualityCommitments *secEqualityCommits_Own, *secEqualityCommits_Partner;
 	struct eccParams *params;
 
@@ -296,12 +322,12 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
-	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
+	commBuffer = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
 									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnerReveals = jSetRevealDeserialise(commBuffer, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
+	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBuffer, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
 	free(commBuffer);
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
@@ -313,7 +339,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nInitial J-Set checks");
 
-	setBuildersInputsNaorPinkas(circuitsArray_Partner, partnerReveals -> builderInputsEval,
+	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_SetOwn, numCircuits, partyID);
 
 	if(0 == partyID)
@@ -347,7 +373,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		{
 			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
 		}
-		// printOutputHexString(circuitsArray_Partner[i]);
 	}
 
 	printMajorityOutputAsBinary(circuitsArray_Partner, numCircuits, J_SetOwn);
@@ -355,14 +380,14 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	// printSecrets(outputStruct_Own, rawInputCircuit -> numOutputs);
 
-	hexOutputs = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, numCircuits, J_SetOwn, &commBufferLen, partyID);
 
 
 	printf("Candidate Output binary : ");
 	for(i = 0; i < commBufferLen; i ++)
 	{
-		printf("%X", hexOutputs[i]);
+		printf("%X", binaryOutput[i]);
 	}
 	printf("\n");
 

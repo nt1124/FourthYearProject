@@ -4,6 +4,8 @@ import sys
 
 if 5 != len(sys.argv):
     print "Not enough arguments."
+    print "IP Port PartyID circuitName"
+    exit()
 
 
 numTests = 10
@@ -30,7 +32,9 @@ else:
 # print circuitFile
 # print baseInputFile
 
-# os.system("ls ../ > temp.txt")
+
+#os.chdir('..')
+os.system("ls")
 
 
 

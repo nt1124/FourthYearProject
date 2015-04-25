@@ -41,6 +41,7 @@ typedef struct jSetRevealHKE
 
 	struct eccPoint ***builderInputsEval;
 	mpz_t **logarithms;
+	unsigned char *builderInputBits;
 } jSetRevealHKE;
 
 

@@ -77,13 +77,14 @@ void setCircuitsInputs_Values(struct idAndValue *start, struct Circuit *inputCir
 	struct idAndValue *current = start -> next;
 	struct wire *outputWire;
 
+	printf("------------\n\n");
 	while(NULL != current)
 	{
 		outputWire = inputCircuit -> gates[current -> id] -> outputWire;
-		outputWire -> wireOwner = ownerFlag;
+		// outputWire -> wireOwner = ownerFlag;
 		outputWire -> wirePermedValue = (current -> value) ^ (outputWire -> wirePerm & 0x01);
 		
-		// printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePerm));
+		printf("%02d - %X\n", current -> id, (0x01 & outputWire -> wirePermedValue));
 		current = current -> next;
 	}
 	// printf("\n");
@@ -98,7 +99,7 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 	while(NULL != current)
 	{
 		outputWire = inputCircuit -> gates[current -> id] -> outputWire;
-		outputWire -> wireOwner = ownerFlag;
+		// outputWire -> wireOwner = ownerFlag;
 
 		if( 0x01 == current -> value )
 		{
@@ -116,6 +117,7 @@ void setCircuitsInputs_Hardcode(struct idAndValue *start, struct Circuit *inputC
 	}
 
 }
+
 
 
 unsigned char *convertChainIntoArray(struct idAndValue *startOfInputChain, int lengthOfChain)

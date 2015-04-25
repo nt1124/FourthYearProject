@@ -1,59 +1,6 @@
-int secretInputsToCheckCircuits_HKE(struct Circuit **circuitsArray, struct RawCircuit *rawInputCircuit,
-									struct public_builderPRS_Keys *public_inputs,
-									mpz_t *secret_J_set, ub4 **circuitSeeds, struct eccParams *params,
-									unsigned char *J_set, int J_setSize, int stat_SecParam)
-{
-	struct Circuit *tempGarbleCircuit;
-	struct wire *tempWire;
-	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
-	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
-	struct eccPoint ***consistentInputs;
-
-	for(j = 0; j < stat_SecParam; j ++)
-	{
-		if(0x01 == J_set[j])
-		{
-			tempCTX[k] = (randctx*) calloc(1, sizeof(randctx));
-			setIsaacContextFromSeed(tempCTX[k], circuitSeeds[j]);
-			idList[k] = j;
-			k ++;
-		}
-	}
-
-	consistentInputs = getAllConsistentInputsAsPoints(secret_J_set, public_inputs -> public_keyPairs, params, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
-
-
-	#pragma omp parallel for default(shared) private(i, j, k, tempWire, tempGarbleCircuit) reduction(|:temp) 
-	for(j = 0; j < J_setSize; j ++)
-	{
-		k = idList[j];
-
-
-		for(i = 0; i < rawInputCircuit -> numInputs_P1; i ++)
-		{
-			tempWire = circuitsArray[k] -> gates[i] -> outputWire;
-			tempWire -> outputGarbleKeys = (struct bitsGarbleKeys*) calloc(1, sizeof(struct bitsGarbleKeys));
-
-			tempWire -> outputGarbleKeys -> key0 = hashECC_Point(consistentInputs[k][2 * i], 16);
-			tempWire -> outputGarbleKeys -> key1 = hashECC_Point(consistentInputs[k][2 * i + 1], 16);
-		}
-
-		/* tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, secret_J_set[k], public_inputs, k, params);
-		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, builderInputs[k], outputKeysLocals, params, 1);
-
-		temp |= compareCircuit(rawInputCircuit, circuitsArray[k], tempGarbleCircuit);
-
-		freeTempGarbleCircuit(tempGarbleCircuit);
-		*/
-	}
-
-
-	return temp;
-}
-
-
 struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit,
 														unsigned char *deltaPrime, int lengthDelta,
+														struct eccPoint **queries_Partner,
 														struct eccPoint *C, struct eccPoint *cTilde,
 														int checkStatSecParam, gmp_randstate_t *state, randctx *ctx)
 {
@@ -66,6 +13,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct DDH_Group *groupOwn, *groupPartner;
 	struct eccParams *params;
+	struct wire *tempWire;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(checkStatSecParam, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(checkStatSecParam, sizeof(randctx*));
@@ -73,7 +21,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	mpz_t **aList;
 
 	unsigned char *commBuffer, *J_setOwn, *J_setPartner;
-	unsigned char **OT_Outputs, *output, *delta, inputBit = 0x00;
+	unsigned char **OT_Outputs, *binaryOutput, *delta, inputBit = 0x00, ***OT_Inputs;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0, bufferOffset = 0;
 	int jSetChecks = 0, partyID = 0;
 
@@ -81,6 +29,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	clock_t int_c_0, int_c_1;
 
 
+	// Let's go grab some randomness.
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
@@ -101,12 +50,14 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Prep for building Own Circuits");
+
+
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NaorPinkasInputs, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, partyID);
+	// Build the circuits HKE
+	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, cTilde, NaorPinkasInputs, outputStruct_Own, params,
+											circuitCTXs, checkStatSecParam, partyID);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -142,14 +93,19 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	sendDDH_Group(writeSocket, readSocket, groupOwn);
 	groupPartner = receiveDDH_Group(writeSocket, readSocket);
 
-	// OT_Inputs
+
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
-	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
+	deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
 	J_setOwn = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
 										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
+
+	OT_Inputs = getAllInputKeysSymm(circuitsArray_Own, checkStatSecParam, partyID);
+
+
+	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, circuitsArray_Own[0] -> numInputsExecutor, OT_Inputs, state, checkStatSecParam, queries_Partner, params, C);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray_Partner, rawInputCircuit -> numInputs_P1, checkStatSecParam);
@@ -159,8 +115,15 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 		inputBit = 0x01;
 	}
 
+	for(i = 0; i < checkStatSecParam; i++)
+	{
+		tempWire = circuitsArray_Own[i] -> gates[rawInputCircuit -> numInputs_P1] -> outputWire;
+		tempWire -> wirePermedValue = inputBit ^ (tempWire -> wirePerm & 0x01);
+	}
+
 	setDeltaXOR_onCircuitInputs(circuitsArray_Partner, OT_Outputs, inputBit, delta, deltaPrime, J_setOwn,
 								rawInputCircuit -> numInputs_P1, lengthDelta, checkStatSecParam);
+
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
@@ -169,6 +132,33 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	// Don't need to generate own J_set, has already been done in the subOT stage.
 	// J_setOwn = generateJ_Set(stat_SecParam);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
+
+	/*
+	int j, h;
+	for(i = 0; i < checkStatSecParam; i ++)
+	{
+		if(0x00 == J_setPartner[i])
+		{
+			for(j = 0; j < rawInputCircuit -> numInputs; j ++)
+			{
+				printf("(%d, %d) 0 - ", i, j);
+				for(h = 0; h < 16; h ++)
+				{
+					printf("%02X", circuitsArray_Own[i] -> gates[j] -> outputWire -> outputGarbleKeys -> key0[h]);
+				}
+				printf("\n");
+				printf("(%d, %d) 1 - ", i, j);
+				for(h = 0; h < 16; h ++)
+				{
+					printf("%02X", circuitsArray_Own[i] -> gates[j] -> outputWire -> outputGarbleKeys -> key1[h]);
+				}
+				printf("\n");
+			}
+		}
+	}
+	*/
+
+
 
 	// Having exchanged J_sets the parties now reveal information needed to open the check circuits.
 	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, &inputBit, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P2,
@@ -185,7 +175,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								&inputBit, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 0);
 
-	setBuildersInputsNaorPinkas(circuitsArray_Partner, partnerReveals -> builderInputsEval,
+	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_setOwn, checkStatSecParam, partyID);
 
 
@@ -201,8 +191,19 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	}
 	printf("\n");
 
+	printMajorityOutputAsBinary(circuitsArray_Partner, checkStatSecParam, J_setOwn);
 
-	// output = getMajorityOutput(circuitsArray_Partner, checkStatSecParam, J_set);
+	/*
+	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_setOwn, &commBufferLen, partyID);
+
+	printf("Candidate Output binary : ");
+	for(i = 0; i < commBufferLen; i ++)
+	{
+		printf("%X", binaryOutput[i]);
+	}
+	printf("\n");
+
 
 	/*
 	if(inputBit == 0)

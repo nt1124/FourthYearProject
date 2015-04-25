@@ -149,7 +149,6 @@ unsigned char **NaorPinkas_OT_Receiver_Transfer(int writeSocket, int readSocket,
 			k = i * numCircuits + j;
 
 			outputBytes[k] = OT_NP_Output_Xb(C, transfers_R[k] -> a, queries_R[i] -> k, transfers_R[k] -> c_0, transfers_R[k] -> c_1, sigmaBit, 16, params);
-
 		}
 	}
 

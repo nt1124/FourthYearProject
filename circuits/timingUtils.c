@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 
-const int OUTPUT_TIMINGS = 1;
+const int OUTPUT_TIMINGS = 0;
 
 long int raw_timespecDiff(struct timespec *timeStart, struct timespec *timeEnd)
 {
