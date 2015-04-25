@@ -38,10 +38,11 @@
 \contentsline {section}{\numberline {4.2}Lindell 2013}{22}{section.4.2}
 \contentsline {subsubsection}{Secure Computation to detect cheating}{22}{section*.26}
 \contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{23}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}Advantages of symmetrical cut-and-choose}{23}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.1}Consistency of party's inputs}{23}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Advantages of symmetrical cut-and-choose}{24}{subsection.4.3.2}
 \contentsline {section}{\numberline {4.4}Merging Lindell 2013 and HKE 2013}{24}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}Problems to address}{24}{subsection.4.4.1}
-\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{24}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.1}Problems to address}{25}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{25}{subsection.4.4.2}
 \contentsline {chapter}{\numberline {5}Implementation Details}{26}{chapter.5}
 \contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{26}{section.5.1}
 \contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{26}{subsection.5.1.1}

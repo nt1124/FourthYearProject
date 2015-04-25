@@ -96,6 +96,31 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char *
 }
 
 
+void setBuildersInputsNaorPinkas(struct Circuit **circuitsArray_Partner, struct eccPoint ***builderInputsEval,
+								unsigned char *J_set, int numCircuits, int partyID)
+{
+	int i, j, iOffset, gateIndex, numInputsBuilder, builderOffset;
+	struct wire *tempWire;
+	unsigned char value;
+
+
+	numInputsBuilder = circuitsArray_Partner[0] -> numInputsBuilder;
+	builderOffset = numInputsBuilder * partyID;
+
+	for(j = 0; j < numCircuits; j ++)
+	{
+		if(0x00 == J_set[j])
+		{
+			for(i = 0; i < numInputsBuilder; i ++)
+			{
+				tempWire = circuitsArray_Partner[j] -> gates[i + builderOffset] -> outputWire;
+				tempWire -> wireOutputKey = hashECC_Point(builderInputsEval[j][i], 16);
+			}
+		}
+	}
+}
+
+
 
 unsigned char *jSetRevealSerialise(struct eccPoint ***NaorPinkasInputs, mpz_t **aList, unsigned char *inputBitsOwn,
 								struct HKE_Output_Struct_Builder *outputStruct, ub4 **circuitSeeds,
@@ -208,10 +233,12 @@ struct jSetRevealHKE *jSetRevealDeserialise(unsigned char *inputBuffer, unsigned
 	output -> revealedSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 	output -> builderInputsEval = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
 
-
 	for(i = 0; i < numCircuits; i ++)
 	{
-		output -> outputWireShares[i] = (mpz_t *) calloc(2 * numOutputs, sizeof(mpz_t));
+		if(0x01 == jSet[i])
+		{
+			output -> outputWireShares[i] = (mpz_t *) calloc(2 * numOutputs, sizeof(mpz_t));
+		}
 	}
 
 	for(j = 0; j < numCircuits; j ++)

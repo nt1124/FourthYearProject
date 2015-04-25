@@ -20,7 +20,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 	unsigned char *commBuffer, *J_setOwn, *J_setPartner, ***OT_Inputs, *deltaExpanded, *inputBitsOwn;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, bufferOffset = 0;
-	int jSetChecks;
+	int jSetChecks, partyID = 1;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -46,9 +46,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 
 	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, checkStatSecParam, *state, groupOwn);
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NP_consistentInputs, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, 1);
+											circuitCTXs, circuitSeeds, checkStatSecParam, partyID);
 
-	printf("%d - %d - %d\n", circuitsArray_Own[0] -> numInputsBuilder, circuitsArray_Own[0] -> numInputsExecutor, circuitsArray_Own[0] -> builderInputOffset);
 
 	for(i = 0; i < checkStatSecParam; i++)
 	{
@@ -117,6 +116,21 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder_HKE(int writeSocket, int r
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
 
+	setBuildersInputsNaorPinkas(circuitsArray_Partner, partnerReveals -> builderInputsEval,
+								J_setOwn, checkStatSecParam, partyID);
+	
+
+	printf("\nEvaluating Circuits ");
+	for(i = 0; i < checkStatSecParam; i ++)
+	{
+		if(0x00 == J_setOwn[i])
+		{
+			printf("%d, ", i);
+			fflush(stdout);
+			runCircuitExec( circuitsArray_Partner[i], writeSocket, readSocket );
+		}
+	}
+	printf("\n");
 	/*
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 										J_set, J_setSize, startOfInputChain, 

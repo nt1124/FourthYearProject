@@ -75,7 +75,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	unsigned char *commBuffer, *J_setOwn, *J_setPartner;
 	unsigned char **OT_Outputs, *output, *delta, inputBit = 0x00;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0, bufferOffset = 0;
-	int jSetChecks = 0;
+	int jSetChecks = 0, partyID = 0;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -106,7 +106,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 
 
 	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, cTilde, NaorPinkasInputs, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, checkStatSecParam, 0);
+											circuitCTXs, circuitSeeds, checkStatSecParam, partyID);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -166,9 +166,11 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
 
+	// Don't need to generate own J_set, has already been done in the subOT stage.
 	// J_setOwn = generateJ_Set(stat_SecParam);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_setOwn, stat_SecParam / 2, stat_SecParam);
 
+	// Having exchanged J_sets the parties now reveal information needed to open the check circuits.
 	commBuffer = jSetRevealSerialise(NaorPinkasInputs, aList, &inputBit, outputStruct_Own, circuitSeeds, J_setPartner, rawInputCircuit -> numInputs_P2,
 									rawInputCircuit -> numOutputs, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
@@ -178,21 +180,19 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	free(commBuffer);
 
 
+	// Having received all that they need to verify check circuits, they now verifiy them.
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								&inputBit, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 0);
-	
-	printf("%d - %d - %d\n", circuitsArray_Own[0] -> numInputsBuilder, circuitsArray_Own[0] -> numInputsExecutor, circuitsArray_Own[0] -> builderInputOffset);
 
-	/*
-	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray_Partner,
-					pubInputGroup -> public_inputs, pubInputGroup -> params);
+	setBuildersInputsNaorPinkas(circuitsArray_Partner, partnerReveals -> builderInputsEval,
+								J_setOwn, checkStatSecParam, partyID);
 
 
 	printf("\nEvaluating Circuits ");
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
-		if(0x00 == J_set[i])
+		if(0x00 == J_setOwn[i])
 		{
 			printf("%d, ", i);
 			fflush(stdout);
@@ -202,7 +202,9 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor_HKE(int writeSocket, int
 	printf("\n");
 
 
-	output = getMajorityOutput(circuitsArray_Partner, checkStatSecParam, J_set);
+	// output = getMajorityOutput(circuitsArray_Partner, checkStatSecParam, J_set);
+
+	/*
 	if(inputBit == 0)
 	{
 		output = NULL;

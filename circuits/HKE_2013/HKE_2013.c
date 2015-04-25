@@ -27,7 +27,8 @@ struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struc
 	for(j = 0; j < numCircuits; j++)
 	{
 		start = startOfInputChain;
-		setCircuitsInputs_Hardcode(start, circuitsArray_Own[j], 0xFF);
+		// setCircuitsInputs_Hardcode(start, circuitsArray_Own[j], 0xFF);
+		setCircuitsInputs_Values(start, circuitsArray_Own[j], 0xFF);
 	}
 
 
@@ -109,7 +110,7 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 	printf("Checkpoint G\n");
 	fflush(stdout);
 
-	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_setPartner, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
+	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_SetOwn, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
 	
 	printf("\nValid Commitment : %d\n", validCommitments);
 	printf("Circuits correct : %d\n", circuitsCorrect);
@@ -312,6 +313,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nInitial J-Set checks");
 
+	setBuildersInputsNaorPinkas(circuitsArray_Partner, partnerReveals -> builderInputsEval,
+								J_SetOwn, numCircuits, partyID);
 
 	if(0 == partyID)
 	{

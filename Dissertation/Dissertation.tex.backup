@@ -554,6 +554,25 @@
 
 				The probability of a malicious adversary successfully cheating is stated as $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $\sim 2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
 				
+			\subsection{Consistency of party's inputs}
+				The Lindell-Pinkas approach for ensuring inputs from parties are consistent involves expensive zero knowledge proofs. Furthermore, in the symmetric paradigm this approach is problematic as the $P_1$ (resp. $P_2$) needs to know that $P_2$ ($P_1$) gave consistent inputs to both the circuits $P_2$ ($P_1$) created and the circuits $P_1$ ($P_2$) created. Furthermore, this must be accomplished without leaking any knowledge of the either party's input bits to the other.\\
+
+				The solution to this problem presented by Huang et al. is an elegant one, based on the form of the queries sent by the receiver in the Naor-Pinkas OT and the `hardness' of the Discrete Logarithm problem.\\
+
+				Clearly $P_2$ will need to engage in an OT with $P_1$ to get its inputs for the circuits $P_1$ has sent to it. Recall in a Naor-Pinkas OT both parties generate a $C$ in the group at random, and send this to their partner. Each party then refers to the $C$ received from its partner as $\tilde C$. Then the query sent by $P_2$ for its $i^{th}$ input bit will be of the form,
+
+				$$
+				v_i = \bigg\{
+					\begin{matrix}
+						g^{k_i}, & x_i = 0\\
+						\tilde C / g^{k_i}, & x_i = 1
+					\end{matrix}
+					\textnormal{  where } k_i \textnormal{ is the key for } P_1 \textnormal{'s } i^{th} \textnormal{ input bit.}
+				$$
+
+				Huang et al. propose that 
+
+
 			\subsection{Advantages of symmetrical cut-and-choose}
 				As the protocol is symmetrical, both parties will be working symmetrically reducing wall clock delays caused by one party having more work to do leaving the other party idle, so depending on how this works out in practise this could mean an improvement in wall clock time of around $3$ times quicker.\\
 
@@ -584,10 +603,26 @@
 			\subsection{Consistency of Builder's inputs}
 				Recall in the Lindell-Pinkas / Lindell protocols consistency of the builder's inputs can be assured by the use of a `base key' for each bit value on each input wire. By using a common starting point and then adding in some randomness for each circuit the Builder creates keys that are still indistinguishable to the Executor. They can then run a Zero Knowledge proof that the keys used by the Builder are an Extended Diffie-Hellman Tuple based on the same `base key'.\\
 
-				Clearly we could extend this to be used for the Builder's inputs to the Builder's sub-computation circuits. However, I see no way for this to be extended to the builder's inputs to the Executor's sub-computation circuits. Fundamentally the problem is that the Zero Knowledge Proof proves that,
+				Clearly we could extend this to be used for the Builder's inputs to the Builder's sub-computation circuits. However, I see no way for this to be extended to the builder's inputs to the Executor's sub-computation circuits. Fundamentally the Zero Knowledge Proof proves that,
 				
 				$$\forall j (g, g^{r_j}, g^{a_i^0}, k_{i,j}) \in DH \textnormal{ OR } \forall j (g, g^{r_j}, g^{a_i^1}, k_{i,j}) \in DH$$
-			
+				
+				This causes serious problems because both parties need to know $k_{i,j}$, and as the Executor generated $k_{i,j}$ if the Builder tells the Executor which one to use for the proof then the Executor learns the Builder's input bit. Whilst there are probably ways to alter the Zero Knowledge Proof to account for this I propose a simpler and more efficient solution by using the HKE approach to consistency.\\
+
+				Clearly the Builder will need to engage in an OT with the Executor to get its inputs for the Executor's circuits. If we use a Naor-Pinkas OT the Builder's queries (representing a commitment to its input to the Executor's circuits) will be of the form,
+
+				$$v_i = \bigg\{	\begin{matrix}
+							g^k, & x_k = 0\\
+							C / g^k, & x_k = 1
+						\end{matrix}$$
+
+				, in the HKE protocol the party building a circuit generates their input keys to be of the form.\\
+
+
+				$$v_i = \bigg\{	\begin{matrix}
+							g^{a_0^i}, & x_k = 0\\
+							C / g^{a_1^i}, & x_k = 1
+						\end{matrix}$$
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		\section*{Purpose of Implementation}
