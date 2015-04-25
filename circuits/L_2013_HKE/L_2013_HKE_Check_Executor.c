@@ -23,7 +23,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	unsigned char *commBuffer, *J_setOwn, *J_setPartner;
 	unsigned char **OT_Outputs, *binaryOutput, *delta, inputBit = 0x00, ***OT_Inputs;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0, circuitsChecked = 0, bufferOffset = 0;
-	int jSetChecks = 0, partyID = 0;
+	int jSetChecks = 0, logChecks = 0, partyID = 0;
 
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
@@ -175,6 +175,13 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	}
 	printf("\n");
 
+
+	bufferOffset = 0;
+	commBufferLen = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	logChecks |= Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner,
+									params, J_setOwn, checkStatSecParam, rawInputCircuit -> numInputs_P1,
+									&bufferOffset);
 
 	if(inputBit == 0)
 	{

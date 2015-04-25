@@ -220,7 +220,7 @@ void full_CnC_OT_Mod_Sender_ECC(int writeSocket, int readSocket, int numInputsEx
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	ZKPoK_Ext_DH_TupleVerifierAll(writeSocket, readSocket, stat_SecParam,
+	verified |= ZKPoK_Ext_DH_TupleVerifierAll(writeSocket, readSocket, stat_SecParam,
 								params_S -> params -> g, params_S -> crs -> g_1,
 								checkTildes -> h_tildeList,
 								params_S -> params, state);

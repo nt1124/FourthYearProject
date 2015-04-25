@@ -6,6 +6,7 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 	int i, j, index;
 
 
+	#pragma omp parallel for default(shared) private(i, j, index, G_a1, invG_a1)
 	for(i = 0; i < numCircuits; i ++)
 	{
 
@@ -438,7 +439,7 @@ int Step5_CheckLogarithms(unsigned char *inputBuffer, struct eccPoint ***builder
 						struct eccParams *params, unsigned char *J_setOwn, int numCircuits, int numInputs, int *bufferOffset)
 {
 	struct eccPoint *invH, *vOverH, *gPow;
-	mpz_t *tempMPZ;
+	mpz_t *tempMPZ, **logList = (mpz_t **) calloc(numCircuits, sizeof(mpz_t*));
 	int i, j, k, logarithmsChecked = 0, tempOffset = *bufferOffset;
 
 
@@ -446,18 +447,36 @@ int Step5_CheckLogarithms(unsigned char *inputBuffer, struct eccPoint ***builder
 	{
 		if(0x00 == J_setOwn[i])
 		{
+			logList[i] = (mpz_t*) calloc(numInputs, sizeof(mpz_t));
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempMPZ = deserialiseMPZ(inputBuffer, &tempOffset);
-
-				invH = invertPoint(queries_Partner[j], params);
-				vOverH = groupOp(builderInputsEval[i][j], invH, params);
-				gPow = windowedScalarPoint(*tempMPZ, params -> g, params);
-
-				logarithmsChecked |= eccPointsEqual(vOverH, gPow);
+				mpz_init_set(logList[i][j], *tempMPZ);
+				mpz_clear(*tempMPZ);
+				free(tempMPZ);
 			}
 		}
 	}
+
+	// #pragma omp parallel for default(shared) private(i, j, k) reduction(|:logarithmsChecked) 
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_setOwn[i])
+		{
+			for(j = 0; j < numInputs; j ++)
+			{
+				invH = invertPoint(queries_Partner[j], params);
+				vOverH = groupOp(builderInputsEval[i][j], invH, params);
+				gPow = windowedScalarPoint(logList[i][j], params -> g, params);
+
+				logarithmsChecked |= eccPointsEqual(vOverH, gPow);
+				mpz_clear(logList[i][j]);
+			}
+			free(logList[i]);
+		}
+	}
+
+	free(logList);
 
 
 	return logarithmsChecked;

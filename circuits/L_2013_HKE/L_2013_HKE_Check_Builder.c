@@ -126,7 +126,7 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 								inputBitsOwn, J_setOwn, J_setPartner, checkStatSecParam, groupPartner, params, 1);
 
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
-	  							J_setOwn, checkStatSecParam, partyID);
+								J_setOwn, checkStatSecParam, partyID);
 
 
 	printf("\nEvaluating Circuits ");
@@ -142,15 +142,15 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 	printf("\n");
 
 
-	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
-										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_setOwn, &commBufferLen, partyID);
+	HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+							partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam,
+							J_setOwn, &commBufferLen, partyID);
 
-	printf("Candidate Output binary : ");
-	for(i = 0; i < commBufferLen; i ++)
-	{
-		printf("%X", binaryOutput[i]);
-	}
-	printf("\n");
+
+	commBuffer = Step5_CalculateLogarithms(NP_consistentInputs, aList, queries_Own, params, inputBitsOwn,
+										J_setPartner, checkStatSecParam, rawInputCircuit -> numInputs_P1, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
 }
 
 

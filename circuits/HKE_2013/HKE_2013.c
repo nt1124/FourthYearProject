@@ -89,7 +89,8 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	}
 
 
-	// Okay, we're not setting the input wires of the real circuit?
+	// Having got all the seeds, now construct our own version of the given circuits, then compare our
+	// versions to the version give by the other party.
 	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
