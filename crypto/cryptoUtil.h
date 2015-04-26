@@ -13,10 +13,11 @@
 
 #include "EllipticCurves/ecc.h"
 
+struct eccPoint **gPreComputes;
 
 #include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple_1OutOf1.c"
 
-#include "OT/otToy.c"
+// #include "OT/otToy.c"
 #include "OT/otPVW/otPVW_DDH.h"
 #include "OT/otPVW_ECC/otPVW_ECC.h"
 #include "OT/otLP_CnC/ot_LP_CnC.h"

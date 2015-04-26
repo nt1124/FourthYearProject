@@ -15,7 +15,8 @@ struct commit_batch_params *generate_commit_params(int securityParam, gmp_randst
 	toReturn -> params = initBrainpool_256_Curve();
 
 	mpz_urandomm(a, state, toReturn -> params -> n);
-	toReturn -> h = windowedScalarPoint(a, toReturn -> params -> g, toReturn -> params);
+	// toReturn -> h = windowedScalarPoint(a, toReturn -> params -> g, toReturn -> params);
+	toReturn -> h = fixedPointMultiplication(gPreComputes, a, toReturn -> params);
 
 	return toReturn;
 }
@@ -48,11 +49,11 @@ void create_commit_box_key(struct commit_batch_params *params, unsigned char *to
 	mpz_init(*x);
 
 	convertBytesToMPZ(x, toCommit, toCommitLen);
-	g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
+	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
 
 	mpz_urandomm(r, state, params -> params -> n);
 
-	c -> u = windowedScalarPoint(r, params -> params -> g, params -> params);
+	c -> u = fixedPointMultiplication(gPreComputes, r, params -> params);
 	c -> v = windowedScalarPoint(r, params -> h, params -> params);
 	groupOp_PlusEqual(c -> v, g_x, params -> params);
 
@@ -102,10 +103,11 @@ unsigned char *single_decommit_elgamal_R(struct commit_batch_params *params, str
 	mpz_init(*x);
 
 	convertBytesToMPZ(x, k -> x, msgLength);
-	g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
+	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
+	// g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
 
 
-	u_test = windowedScalarPoint(k -> r, params -> params -> g, params -> params);
+	u_test = fixedPointMultiplication(gPreComputes, k -> r, params -> params);
 	v_test = windowedScalarPoint(k -> r, params -> h, params -> params);
 	groupOp_PlusEqual(v_test, g_x, params -> params);
 
@@ -133,10 +135,10 @@ int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elg
 	mpz_init(*x);
 
 	convertBytesToMPZ(x, xBytes, msgLength);
-	g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
+	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
 
 
-	u_test = windowedScalarPoint(r, params -> params -> g, params -> params);
+	u_test = fixedPointMultiplication(gPreComputes, r, params -> params);
 	v_test = windowedScalarPoint(r, params -> h, params -> params);
 	groupOp_PlusEqual(v_test, g_x, params -> params);
 

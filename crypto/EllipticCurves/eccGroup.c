@@ -191,15 +191,15 @@ struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
 		// R = P
 		return copyECC_Point(P);
 	}
-	else if(0 != mpz_cmp_ui(P -> y, 0))
-	{
-		// R = P * P
-		return doubleGroupOp(P, params);
-	}
-	else
+	else if(0 == mpz_cmp_ui(P -> y, 0))
 	{
 		// R = (@, @)
 		return init_Identity_ECC_Point();	
+	}
+	else
+	{
+		// R = P * P
+		return doubleGroupOp(P, params);
 	}
 
 
@@ -527,6 +527,49 @@ struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize,
 	for(i = windowSize / 2 + 1; i < windowSize; i ++)
 	{
 		output[i] = groupOp(output[i-1], base, params);
+	}
+
+
+	return output;
+}
+
+
+
+struct eccPoint **fixedBasePreComputes(struct eccPoint *base, struct eccParams *params)
+{
+	struct eccPoint **outputs;
+	int i, bitSize = mpz_sizeinbase(params -> n, 2);
+
+	outputs = (struct eccPoint **) calloc(bitSize + 1, sizeof(struct eccPoint *));
+
+	outputs[0] = init_Identity_ECC_Point();
+	outputs[1] = copyECC_Point(base);
+	for(i = 2; i <= bitSize; i ++)
+	{
+		outputs[i] = doublePoint(outputs[i - 1], params);
+	}
+
+
+	return outputs;
+}
+
+
+struct eccPoint *fixedPointMultiplication(struct eccPoint **precomputes, mpz_t exponent, struct eccParams *params)
+{
+	struct eccPoint *output = init_Identity_ECC_Point();
+	int i, bitSize = mpz_sizeinbase(params -> n, 2);
+	mpz_t moddedExp;
+
+
+	mpz_init(moddedExp);
+	mpz_mod(moddedExp, exponent, params -> n);
+
+	for(i = 1; i <= bitSize; i ++)
+	{
+		if( 1 == mpz_tstbit(moddedExp, i - 1) )
+		{
+			groupOp_PlusEqual(output, precomputes[i], params);
+		}
 	}
 
 

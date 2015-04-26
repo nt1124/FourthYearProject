@@ -6,6 +6,7 @@ struct u_v_Pair_ECC *randomiseDDH_ECC(struct ECC_PK *pk, struct eccParams *param
 	mpz_t tempPowS, tempPowT;
 	mpz_t temp;
 
+	printf(">>>>>>.\n");
 
 	mpz_init(s);
 	mpz_init(t);

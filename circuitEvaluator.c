@@ -28,6 +28,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	c_0 = clock();
 	timestamp_0 = timestamp();
 
+	gPreComputes = fixedBasePreComputes(params -> g, params);
 
 	if(0 == builder)
 	{
@@ -70,7 +71,10 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	else
 	{
 		printf("Running tests.\n");
+		
 		benchmarkECC_Exponentiation();
+		// benchmarkECC_Doubling();
+		// benchmarkECC_GroupOp();
 	}
 
 	c_1 = clock();

@@ -161,13 +161,13 @@ struct public_builderPRS_Keys *computePublicInputs(struct secret_builderPRS_Keys
 
 	for(i = 0; i < secret_inputs -> numKeyPairs; i ++)
 	{
-		public_inputs -> public_keyPairs[i][0] = windowedScalarPoint(secret_inputs -> secret_keyPairs[i][0], params -> g, params);
-		public_inputs -> public_keyPairs[i][1] = windowedScalarPoint(secret_inputs -> secret_keyPairs[i][1], params -> g, params);
+		public_inputs -> public_keyPairs[i][0] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_keyPairs[i][0], params);
+		public_inputs -> public_keyPairs[i][1] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_keyPairs[i][1], params);
 	}
 
 	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
 	{
-		public_inputs -> public_circuitKeys[i] = windowedScalarPoint(secret_inputs -> secret_circuitKeys[i], params -> g, params);
+		public_inputs -> public_circuitKeys[i] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_circuitKeys[i], params);
 	}
 
 	return public_inputs;

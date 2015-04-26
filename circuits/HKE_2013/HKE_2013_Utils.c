@@ -2,7 +2,7 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 												struct eccParams *params, unsigned char *J_set)
 {
 	struct eccPoint ***output = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
-	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1, *G_a1;
+	struct eccPoint *invG_a1, *G_a1;
 	int i, j, index;
 
 
@@ -17,9 +17,11 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 
 			for(j = 0; j < numInputs; j ++)
 			{
-				output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+				// output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+				output[i][index] = fixedPointMultiplication(gPreComputes, aLists[i][index], params);
 
-				G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+				// G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+				G_a1 = fixedPointMultiplication(gPreComputes, aLists[i][index + 1], params);
 				invG_a1 = invertPoint(G_a1, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);

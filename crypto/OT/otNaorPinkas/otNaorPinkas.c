@@ -10,7 +10,7 @@ struct eccPoint *setup_OT_NP_Sender(struct eccParams *params, gmp_randstate_t st
 		mpz_urandomm(y, state, params -> n);
 	} while(0 == mpz_cmp_ui(y, 0));
 
-	C = windowedScalarPoint(y, params -> g, params);
+	C = fixedPointMultiplication(gPreComputes, y, params);
 
 	mpz_clear(y);
 
@@ -30,7 +30,7 @@ struct OT_NP_Receiver_Query *OT_NP_query(struct eccPoint *C, unsigned char input
 	} while(0 == mpz_cmp_ui(query -> k, 0));
 
 
-	g_k = windowedScalarPoint(query -> k, params -> g, params);
+	g_k = fixedPointMultiplication(gPreComputes, query -> k, params);
 
 	if(0x00 == inputBit)
 	{
@@ -104,7 +104,8 @@ struct OT_NP_Sender_Transfer *OT_NP_Transfer(struct eccPoint *C, struct eccPoint
 		mpz_urandomm(r, state, params -> n);
 	} while(0 == mpz_cmp_ui(r, 0));
 
-	transferOutput -> a = windowedScalarPoint(r, params -> g, params);
+	// transferOutput -> a = windowedScalarPoint(r, params -> g, params);
+	transferOutput -> a = fixedPointMultiplication(gPreComputes, r, params);
 	h_r = windowedScalarPoint(r, h, params);
 	
 	transferOutput -> c_0 = OT_NP_enc_0(h_r, x_0, 16, params);

@@ -17,6 +17,7 @@ typedef struct idAndValue
 #include "../crypto/cryptoUtil.h"
 #include "gateOrWire.h"
 
+// struct eccPoint **gPreComputes;
 
 
 #include "../fileUtils/inputFileUtils.h"

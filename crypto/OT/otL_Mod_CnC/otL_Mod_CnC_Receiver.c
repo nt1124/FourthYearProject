@@ -38,7 +38,9 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Receiver(int stat_SecParam,	int comp_Sec
 		mpz_urandomm(params -> y, state, params -> params -> n);
 	} while( 0 == mpz_cmp_ui( params -> y, 0) );
 
-	params -> crs -> g_1 = windowedScalarPoint(params -> y, params -> params -> g, params -> params);
+
+	params -> crs -> g_1 = fixedPointMultiplication(gPreComputes, params -> y, params -> params);
+	// params -> crs -> g_1 = windowedScalarPoint(params -> y, params -> params -> g, params -> params);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{	
@@ -47,7 +49,9 @@ struct params_CnC_ECC *setup_CnC_OT_Mod_Receiver(int stat_SecParam,	int comp_Sec
 			mpz_urandomm(alpha, state, params -> params -> n);
 		} while( 0 == mpz_cmp_ui( alpha, 0) );
 
-		params -> crs -> h_0_List[i] = windowedScalarPoint(alpha, params -> params -> g, params -> params);
+
+		params -> crs -> h_0_List[i] = fixedPointMultiplication(gPreComputes, alpha, params -> params);
+		// params -> crs -> h_0_List[i] = windowedScalarPoint(alpha, params -> params -> g, params -> params);
 
 		// Note that everyone gets a witness...this might not be good.
 		// Insert Legal aid for all joke here.

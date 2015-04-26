@@ -9,9 +9,6 @@ mpz_t *getOutputKeys(struct HKE_Output_Struct_Builder *outputStructs, int numInp
 		mpz_init_set(outputKeys[index + 0], outputStructs -> scheme0Array[i] -> shares[j]);
 		mpz_init_set(outputKeys[index + 1], outputStructs -> scheme1Array[i] -> shares[j]);
 
-		// gmp_printf("%d - %d - 0 - %Zd\n", j, i, outputKeys[index + 0]);
-		// gmp_printf("%d - %d - 1 - %Zd\n", j, i, outputKeys[index + 1]);
-
 		index += 2;
 	}
 
@@ -236,7 +233,7 @@ struct Circuit *readInCircuit_FromRaw_HKE_2013(randctx *ctx, struct RawCircuit *
 struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, int numInputs, int numCircuits, struct eccParams *params)
 {
 	struct eccPoint ***output = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
-	struct eccPoint **preComputes = preComputePoints(params -> g, 512, params), *invG_a1, *G_a1;
+	struct eccPoint *invG_a1, *G_a1;
 	int i, j, index;
 
 
@@ -248,9 +245,9 @@ struct eccPoint ***computeNaorPinkasInputs(struct eccPoint *C, mpz_t **aLists, i
 
 		for(j = 0; j < numInputs; j ++)
 		{
-			output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
+			output[i][index] = fixedPointMultiplication(gPreComputes, aLists[i][index], params);
 
-			G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
+			G_a1 = fixedPointMultiplication(gPreComputes, aLists[i][index + 1], params);
 			invG_a1 = invertPoint(G_a1, params);
 
 			output[i][index + 1] = groupOp(C, invG_a1, params);

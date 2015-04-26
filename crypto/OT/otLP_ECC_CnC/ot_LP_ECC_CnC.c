@@ -10,7 +10,7 @@ struct otKeyPair_ECC *keyGen_CnC_OT_ECC(struct params_CnC_ECC *params, unsigned 
 	
 	if(0x00 == sigmaBit)
 	{
-		keyPair -> pk -> g = windowedScalarPoint(keyPair -> sk, params -> params -> g, params -> params);
+		keyPair -> pk -> g = fixedPointMultiplication(gPreComputes, keyPair -> sk, params -> params);
 		keyPair -> pk -> h = windowedScalarPoint(keyPair -> sk, params -> crs -> h_0_List[j], params -> params);
 	}
 	else if(0x01 == sigmaBit)
@@ -85,8 +85,6 @@ mpz_t *CnC_OT_Dec_ECC(struct u_v_Pair_ECC *CT, struct params_CnC_ECC *params, mp
 // mpz_t *ECC_CnC_OT_Dec_Alt(struct u_v_Pair *CT, struct params_CnC *params, PVM_OT_SK *sk, unsigned char sigmaBit)
 mpz_t *CnC_OT_Dec_ECC_Alt(struct u_v_Pair_ECC *CT, struct params_CnC_ECC *params, mpz_t sk, unsigned char sigmaBit)
 {
-	//mpz_t *M_Prime = decDDH_Alt(sk, params -> y, params -> group, CT, sigmaBit);
-	
 	mpz_t *M_Prime = (mpz_t*) calloc(1, sizeof(mpz_t));	
 	struct eccPoint *M_Point = ECC_Dec_Alt(sk, params -> y, CT, params -> params, sigmaBit);
 	
@@ -108,14 +106,13 @@ struct params_CnC_ECC *setup_CnC_OT_Receiver_ECC(int stat_SecParam, unsigned cha
 
 
 	params -> crs -> J_set = J_set;
-	// generateJ_Set(stat_SecParam);
 
 	do
 	{
 		mpz_urandomm(params -> y, state, params -> params -> n);
 	} while( 0 == mpz_cmp_ui( params -> y, 0) );
 
-	params -> crs -> g_1 = windowedScalarPoint(params -> y, params -> params -> g, params -> params);
+	params -> crs -> g_1 = fixedPointMultiplication(gPreComputes, params -> y, params -> params);
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{	
@@ -124,7 +121,7 @@ struct params_CnC_ECC *setup_CnC_OT_Receiver_ECC(int stat_SecParam, unsigned cha
 			mpz_urandomm(alpha, state, params -> params -> n);
 		} while( 0 == mpz_cmp_ui( alpha, 0) );
 
-		params -> crs -> h_0_List[i] = windowedScalarPoint(alpha, params -> params -> g, params -> params);
+		params -> crs -> h_0_List[i] = fixedPointMultiplication(gPreComputes, alpha, params -> params);
 
 		mpz_set(params -> crs -> alphas_List[i], alpha);
 
