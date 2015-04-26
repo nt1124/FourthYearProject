@@ -458,7 +458,7 @@ int Step5_CheckLogarithms(unsigned char *inputBuffer, struct eccPoint ***builder
 		}
 	}
 
-	// #pragma omp parallel for default(shared) private(i, j, k) reduction(|:logarithmsChecked) 
+	#pragma omp parallel for default(shared) private(i, j, invH, vOverH, gPow) reduction(|:logarithmsChecked) 
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_setOwn[i])

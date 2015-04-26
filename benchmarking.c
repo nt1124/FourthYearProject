@@ -1,13 +1,90 @@
-void benchmarkCommunications()
+const int numBlocks = 1000;
+const int blockSize = 100000;
+
+
+void benchmarkRawCommSender(char *portNumStr)
 {
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
+
+	struct sockaddr_in destWrite, destRead;
+	int writeSocket, readSocket, mainWriteSock, mainReadSock;
+	int writePort = atoi(portNumStr), readPort = writePort + 1;
+
+	randctx *isaacCTX;
+	unsigned char **inputs;
+	int i, j;
+
+	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
+	getIsaacContext(isaacCTX);
+
+	inputs = (unsigned char **) calloc(numBlocks, sizeof(unsigned char *));
+	for(i = 0; i < numBlocks; i ++)
+	{
+		inputs[i] = generateIsaacRandBytes(isaacCTX, blockSize, blockSize);
+	}
+
+	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
+	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
+
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+	for(i = 0; i < numBlocks; i ++)
+	{
+		sendBoth(writeSocket, inputs[i], blockSize);
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nSending %d blocks of size %d\n", numBlocks, blockSize);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	close_server_socket(writeSocket, mainWriteSock);
+	close_server_socket(readSocket, mainReadSock);
+}
+
+
+void benchmarkRawCommReceiver(char *ipAddress, char *portNumStr)
+{
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
+
+	struct sockaddr_in serv_addr_write, serv_addr_read;
+	int writeSocket, readSocket;
+	int readPort = atoi(portNumStr), writePort = readPort + 1;
+
 	randctx *isaacCTX;
 	unsigned char *commBuffer;
-	int commBufferLen;
+	int commBufferLen, i, j;
 
 	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(isaacCTX);
 
 
+	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
+	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
+
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+	for(i = 0; i < numBlocks; i ++)
+	{
+		commBuffer = receiveBoth(readSocket, commBufferLen);
+		free(commBuffer);
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nReceiving %d blocks of size %d\n", numBlocks, blockSize);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	close_client_socket(readSocket);
+	close_client_socket(writeSocket);
 }
 
 

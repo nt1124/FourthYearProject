@@ -42,6 +42,10 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		else if(3 == protocol)
 			runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
+		else if(4 == protocol)
+		{
+			benchmarkRawCommReceiver(ipAddress, portNumStr);
+		}
 	}
 	else
 	{		
@@ -56,6 +60,10 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);		
 		else if(3 == protocol)
 			runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
+		else if(4 == protocol)
+		{
+			benchmarkRawCommSender(portNumStr);
+		}
 	}
 
 	c_1 = clock();
@@ -91,8 +99,6 @@ int main(int argc, char *argv[])
 
 
 // elgamal_commit_main();
-// runLocally(circuitFilepath, argv[2], argv[3]);
-// runProtocol(argv[1], argv[2], argv[3], argv[4], atoi(argv[5]));
 // testRunZeroedInput(circuitFilepath);
 // testRawCircuits(argv[1], argv[2], argv[3]);
 // test_ZKPoK();

@@ -28,6 +28,7 @@ unsigned char *generateRandBytes(int randBytes, int outLen)
 }
 
 
+// Generates a uchar array that is outLen long where the first randBytes many are set randomly.
 unsigned char *generateIsaacRandBytes(randctx *ctx, int randBytes, int outLen)
 {
 	unsigned char *outputBytes = (unsigned char*) calloc(outLen, sizeof(unsigned char));
