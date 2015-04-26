@@ -570,7 +570,9 @@
 					\textnormal{,  where } k_i \textnormal{ is the key for } P_1 \textnormal{'s } i^{th} \textnormal{ input bit.}
 				$$
 
-				Huang et al. propose that when building their circuits each party make their input keys be of the form
+				These queries are used for Naor-Pinkas OTs for all the circuit built by $P_1$ and as such $P_2$ obtains consistent input keys from the OT stage. Effectively the queries commit a party to its input bit string.\\
+
+				This deals with ensuring each party uses consistent keys for the circuits it executes, next we ensure those keys are further consistent with the ones given to the party's partner for executing the circuits it built. Huang et al. propose that when building their circuits each party make their input keys be of the form
 				
 				$$
 				\begin{matrix}
@@ -946,7 +948,7 @@
 
 			\section{Elliptic Curve Group Operations}
 
-				We benchmark point addition, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
+				We benchmark point addition, point doubling, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
 
 			\section{Oblivious Transfer}
 				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged).
@@ -961,9 +963,43 @@
 
 					.
 
+			\section{Circuit Building}
+				Circuit building can be an expensive operation.
+
 			\section{Circuit Evaluation}
 
 				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for all the circuit we shall be testing.
+
+		\chapter{Implementation guide}
+			This chapter deals with how to build and use the implementation provided. Furthermore it gives a short summary on each source code file and what its purpose is. If you are the Bristol markers the implementation source code was submitted on SAFE in a zip file. Else you can download the source code from github. The project can be found at \url{https://github.com/nt1124/FourthYearProject}.\\
+			
+			Unless otherwise stated I assume you are in the root directory of the source code (FourthYearProject). I have tested the implementation on Ubuntu (both 14.04 and 12.04), I give no guarantees for other operating systems.
+
+			\section{Building}
+				\subsection{Dependencies}
+					You will require the following to compile and run our code.
+
+					\begin{itemize}
+						\item \texttt{g++}, used to compile the code.
+						\item GNU Multi-Precision Arithmetic Library, can be installed using the command \texttt{`sudo apt-get install libgmp-dev'}
+						\item OpenMP, this is optional but its absence will have a serious impact on performance.
+						\item AES-NI, again this is optional but preferred for performance.
+					\end{itemize}
+
+				\subsection{Compilation}
+					Compilation can be performed with the command
+					\begin{center}
+						\texttt{g++ circuitEvaluator.c -O3 -fopenmp -ffast-math -maes -lgmp -lrt}
+					\end{center}
+
+					This will produce an executable called \texttt{a.out}. If you do not have OpenMP or AES-NI you can still compile by removing the \texttt{-fopen-mp} or \texttt{-maes} falgs respectively.
+
+
+			\section{Running}
+				.
+
+			\section{Source Code files list}
+				.
 
 	\end{appendices}
 

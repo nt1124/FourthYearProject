@@ -5,7 +5,7 @@
 
 
 #include "circuits/circuitUtils.h"
-#include "benchmarking.c"
+#include "Benchmarking/benchmarking.h"
 
 randctx *globalIsaacContext;
 
@@ -44,10 +44,11 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		else if(4 == protocol)
 		{
-			benchmarkRawCommReceiver(ipAddress, portNumStr);
+			// benchmarkRawCommReceiver(ipAddress, portNumStr);
+			benchmark_ECC_PointReceiver(ipAddress, portNumStr);
 		}
 	}
-	else
+	else if(1 == builder)
 	{		
 		printf("Running Builder.\n");
 
@@ -62,8 +63,14 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		else if(4 == protocol)
 		{
-			benchmarkRawCommSender(portNumStr);
+			// benchmarkRawCommSender(portNumStr);
+			benchmark_ECC_PointSender(portNumStr);
 		}
+	}
+	else
+	{
+		printf("Running tests.\n");
+		benchmarkECC_Exponentiation();
 	}
 
 	c_1 = clock();
