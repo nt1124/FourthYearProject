@@ -17,14 +17,13 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 
 			for(j = 0; j < numInputs; j ++)
 			{
-				// output[i][index] = windowedScalarFixedPoint(aLists[i][index], params -> g, preComputes, 9, params);
 				output[i][index] = fixedPointMultiplication(gPreComputes, aLists[i][index], params);
 
-				// G_a1 = windowedScalarFixedPoint(aLists[i][index + 1], params -> g, preComputes, 9, params);
 				G_a1 = fixedPointMultiplication(gPreComputes, aLists[i][index + 1], params);
 				invG_a1 = invertPoint(G_a1, params);
 
 				output[i][index + 1] = groupOp(C, invG_a1, params);
+				clearECC_Point(G_a1);
 				clearECC_Point(invG_a1);
 
 				index += 2;
@@ -469,7 +468,7 @@ int Step5_CheckLogarithms(unsigned char *inputBuffer, struct eccPoint ***builder
 			{
 				invH = invertPoint(queries_Partner[j], params);
 				vOverH = groupOp(builderInputsEval[i][j], invH, params);
-				gPow = windowedScalarPoint(logList[i][j], params -> g, params);
+				gPow = fixedPointMultiplication(gPreComputes, logList[i][j], params);
 
 				logarithmsChecked |= eccPointsEqual(vOverH, gPow);
 				mpz_clear(logList[i][j]);

@@ -172,7 +172,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
 	struct secCompExecutorOutput *SC_ReturnStruct;
-	unsigned char *J_set, *deltaPrime, *permedInputs;
+	unsigned char *J_set, *deltaPrime, *permedInputs, **OT_Outputs;
 
 	gmp_randstate_t *state;
 
@@ -226,8 +226,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	state = seedRandGen();
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
-
+	// J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsBuilder,
+											circuitsArray[0] -> numInputsExecutor, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,

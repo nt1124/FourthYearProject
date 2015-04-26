@@ -410,7 +410,6 @@ struct eccParams *initBrainpool_256_Curve()
 }
 
 
-
 // Precomputes the power for Windowed scalar multi
 struct eccPoint **preComputePoints(struct eccPoint *base, int windowSize, struct eccParams *params)
 {
@@ -477,7 +476,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 
 
 
-
+/*
 // Window Exponentation. Raise base to the power of exponent all modulo modularZ,
 // store result in result.
 struct eccPoint *windowedScalarFixedPoint(mpz_t exponent, struct eccPoint *P,
@@ -508,7 +507,7 @@ struct eccPoint *windowedScalarFixedPoint(mpz_t exponent, struct eccPoint *P,
 
 	return Q;
 }
-
+*/
 
 struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize, struct eccParams *params)
 {

@@ -4,5 +4,6 @@
 
 #include "benchmarkingComms.c"
 #include "benchmarkingECC.c"
+#include "benchmarkingOTs.c"
 
 #endif

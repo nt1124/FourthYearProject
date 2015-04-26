@@ -260,8 +260,6 @@ int secretInputsToCheckCircuits(struct Circuit **circuitsArray, struct RawCircui
 	
 			tempWire -> outputGarbleKeys -> key0 = hashECC_Point(consistentInputs[k][2 * i], 16);
 			tempWire -> outputGarbleKeys -> key1 = hashECC_Point(consistentInputs[k][2 * i + 1], 16);
-			// tempWire -> outputGarbleKeys -> key0 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x00);
-			// tempWire -> outputGarbleKeys -> key1 = compute_Key_b_Input_i_Circuit_j(secret_J_set[k], public_inputs, params, i, 0x01);
 		}
 
 		tempGarbleCircuit = readInCircuit_FromRaw_Seeded_ConsistentInput(tempCTX[j], rawInputCircuit, consistentInputs[k], k, params);

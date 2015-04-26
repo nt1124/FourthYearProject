@@ -46,7 +46,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		else if(4 == protocol)
 		{
 			// benchmarkRawCommReceiver(ipAddress, portNumStr);
-			benchmark_ECC_PointReceiver(ipAddress, portNumStr);
+			// benchmark_ECC_PointReceiver(ipAddress, portNumStr);
+			benchmark_OT_LP_CnC_Receiver(ipAddress, portNumStr);
 		}
 	}
 	else if(1 == builder)
@@ -65,7 +66,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 		else if(4 == protocol)
 		{
 			// benchmarkRawCommSender(portNumStr);
-			benchmark_ECC_PointSender(portNumStr);
+			// benchmark_ECC_PointSender(portNumStr);
+			benchmark_OT_LP_CnC_Sender(portNumStr);
 		}
 	}
 	else

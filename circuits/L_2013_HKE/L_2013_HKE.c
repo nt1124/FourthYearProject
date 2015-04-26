@@ -214,7 +214,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	struct eccPoint **builderInputs, ***NaorPinkasInputs, *C, *cTilde, **queries_Partner;
 	struct eccParams *params;
 
-	unsigned char *commBuffer, ***bLists, ***outputHashTable;
+	unsigned char *commBuffer, ***bLists, ***outputHashTable, **OT_Outputs;
 	unsigned char *J_set, *deltaPrime, *permedInputs;
 	unsigned char *cheatDetectOutput;
 
@@ -289,7 +289,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_0 = clock();
 
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+	// J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
+	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsBuilder,
+											circuitsArray[0] -> numInputsExecutor, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

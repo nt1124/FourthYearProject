@@ -31,7 +31,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	state = seedRandGen();
 
 	numCircuits += numCircuits % 2;
-	printf("+++ %d\n", numCircuits);
+
 
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
@@ -158,7 +158,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 
 	numCircuits += numCircuits % 2;
-	printf("+++ %d\n", numCircuits);
+
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);

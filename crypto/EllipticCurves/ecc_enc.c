@@ -6,7 +6,7 @@ struct u_v_Pair_ECC *randomiseDDH_ECC(struct ECC_PK *pk, struct eccParams *param
 	mpz_t tempPowS, tempPowT;
 	mpz_t temp;
 
-	printf(">>>>>>.\n");
+	// printf(">>>>>>.\n");
 
 	mpz_init(s);
 	mpz_init(t);
@@ -160,18 +160,6 @@ void testECC_Utils()
 
 	mpz_urandomm(SK, *state, params -> n);
 
-
-	timestamp_0 = timestamp();
-	c_0 = clock();
-	preComputes = preComputePoints(params -> g, 512, params);
-	for(i = 0; i < 2000; i ++)
-	{
-		PK = windowedScalarFixedPoint(SK, params -> g, preComputes, 9, params);
-	}
-	c_1 = clock();
-	timestamp_1 = timestamp();
-	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Fixed Test 10");
-	printPoint(PK);
 
 
 	timestamp_0 = timestamp();

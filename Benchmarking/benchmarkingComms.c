@@ -113,16 +113,16 @@ void benchmark_ECC_PointSender(char *portNumStr)
 	initRandGen();
 	state = seedRandGen();
 	params = initBrainpool_256_Curve();
+	struct eccPoint **localPreComputes = fixedBasePreComputes(params -> g, params);
 
 
-	preComputes = preComputePoints(params -> g, 512, params);
 
 
 	inputPoints = (struct eccPoint **) calloc(numBlocks, sizeof(struct eccPoint *));
 	for(i = 0; i < numBlocks; i ++)
 	{
 		mpz_urandomm(tempExp, *state, params -> n);
-		inputPoints[i] = windowedScalarFixedPoint(tempExp, params -> g, preComputes, 9, params);
+		inputPoints[i] = fixedPointMultiplication(localPreComputes, tempExp, params);
 	}
 
 

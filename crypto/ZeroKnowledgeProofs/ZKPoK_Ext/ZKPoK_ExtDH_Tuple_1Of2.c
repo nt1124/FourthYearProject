@@ -39,7 +39,8 @@ struct alphaAndA_Struct *proverSetupCommitment_ECC_1Of2(struct eccParams *params
 	mpz_init(alphaAndA -> a);
 
 	mpz_urandomm(alphaAndA -> a, state, params -> n);
-	alphaAndA -> alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	// alphaAndA -> alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	alphaAndA -> alpha = fixedPointMultiplication(gPreComputes, alphaAndA -> a, params);
 
 	return alphaAndA;
 }
@@ -55,7 +56,8 @@ struct verifierCommitment_ECC *verifierSetupCommitment_ECC_1Of2(struct eccParams
 	mpz_urandomm(commitment_box -> t, state, params -> n);
 	mpz_urandomm(commitment_box -> c, state, params -> n);
 
-	temp1 = windowedScalarPoint(commitment_box -> c, params -> g, params);
+	// temp1 = windowedScalarPoint(commitment_box -> c, params -> g, params);
+	temp1 = fixedPointMultiplication(gPreComputes, commitment_box -> c, params);
 	temp2 = windowedScalarPoint(commitment_box -> t, alpha, params);
 
 	commitment_box -> C_commit = groupOp(temp1, temp2, params);
@@ -273,7 +275,8 @@ int verifierChecks_ECC_1Of2(struct eccParams *params,
 	B_check = (struct eccPoint*) calloc(1, sizeof(struct eccPoint));
 
 
-	alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	// alpha = windowedScalarPoint(alphaAndA -> a, params -> g, params);
+	alpha = fixedPointMultiplication(gPreComputes, alphaAndA -> a, params);
 	alphaCheck = eccPointsEqual(alpha, alphaAndA -> alpha);
 
 

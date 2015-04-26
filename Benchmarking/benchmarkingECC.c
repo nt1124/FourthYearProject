@@ -13,7 +13,6 @@ void benchmarkECC_Exponentiation()
 	clock_t c_0, c_1;
 
 
-
 	params = initBrainpool_256_Curve();
 
 	expList = (mpz_t *) calloc(numExps, sizeof(mpz_t));
@@ -25,21 +24,6 @@ void benchmarkECC_Exponentiation()
 
 
 	printf("Number of Exponentiations = %d\n", numExps);
-
-
-	timestamp_0 = timestamp();
-	c_0 = clock();
-
-	preComputes = preComputePoints(params -> g, 512, params);
-
-	for(i = 0; i < numExps; i ++)
-	{
-		PK = windowedScalarFixedPoint(expList[i], params -> g, preComputes, 9, params);
-	}
-
-	c_1 = clock();
-	timestamp_1 = timestamp();
-	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Fixed Point Exponentiation Test");
 
 
 	timestamp_0 = timestamp();
