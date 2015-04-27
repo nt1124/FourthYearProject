@@ -29,8 +29,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	mpz_t **aList, **aListCheck;
 
 
-	//rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
-	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	//rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
 
 	initRandGen();
 	state = seedRandGen();
@@ -156,9 +156,14 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	// aListCheck = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
 	// NP_consistentInputsCheck = computeNaorPinkasInputs(cTilde, aListCheck, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
 
-
+	/*
 	SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
 								startOfInputChain, delta, lengthDelta,
+								queries_Own, C, cTilde,
+								stat_SecParam, state, ctx);
+	*/
+	SC_DetectCheatingBuilder_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
+								startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
 								queries_Own,
 								C, cTilde,
 								stat_SecParam, state, ctx);
@@ -239,8 +244,9 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	printf("Connected to builder.\n");
 
 	state = seedRandGen();
-	
-	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+
+	//rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 
 	C = setup_OT_NP_Sender(params, *state);
@@ -333,8 +339,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	// deltaPrime = (unsigned char *) calloc(16, sizeof(unsigned char));
-	cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
-													lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+	// cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
+	// 												lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+	cheatDetectOutput = SC_DetectCheatingExecutor_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
+													rawInputCircuit -> numInputs_P1, deltaPrime, lengthDelta,
+													queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

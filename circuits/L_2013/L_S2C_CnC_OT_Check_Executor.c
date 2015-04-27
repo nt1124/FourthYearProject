@@ -74,6 +74,20 @@ unsigned char *expandDeltaPrim(struct Circuit **circuitsArray, unsigned char *J_
 }
 
 
+unsigned char *expandBitString(unsigned char *inputString, int lengthOutput)
+{
+	unsigned char *expandedString = (unsigned char *) calloc(lengthOutput, sizeof(unsigned char));
+	int i;
+
+	for(i = 0; i < lengthOutput; i ++)
+	{
+		expandedString[i] = getBitFromCharArray(inputString, i);
+	}
+
+	return expandedString;
+}
+
+
 unsigned char *deserialiseK0sAndDelta(unsigned char *commBuffer, struct Circuit **circuitsArray, int numInputsB, int checkStatSecParam)
 {
 	struct wire *tempWire;

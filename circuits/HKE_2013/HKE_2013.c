@@ -91,16 +91,21 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 	// Having got all the seeds, now construct our own version of the given circuits, then compare our
 	// versions to the version give by the other party.
-	#pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
+	// #pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
 
-		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k], revealStruct -> outputWireShares[k], params, partyID_Partner);
+		printf("Okay dokie %d\n", j);
+
+		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k],
+														revealStruct -> outputWireShares[k], params, partyID_Partner);
+
+		printf("Hmm %d\n", j);
 
 		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		freeTempGarbleCircuit(tempGarbleCircuit);
+		// freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;
@@ -122,10 +127,10 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 
 	NaorPinkasInputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder, numCircuits, params, J_SetOwn);
 
-
 	commBuffer = decommitToCheckCircuitInputs_Builder(commitStruct, inputBitsOwn, J_setPartner, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, NaorPinkasInputs_Partner,
 														commBuffer, J_SetOwn, numCircuits,
@@ -137,8 +142,9 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 											params, J_SetOwn, numCircuits / 2, numCircuits, partyID);
 
 
-	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_SetOwn, numCircuits, rawInputCircuit -> numOutputs, groupPartner);
-	
+	outputsVerified = verifyRevealedOutputs(outputStruct_Partner, partnerReveals, J_SetOwn, numCircuits,
+											rawInputCircuit -> numOutputs, groupPartner);
+
 	printf("\nValid Commitment : %d\n", validCommitments);
 	printf("Circuits correct : %d\n", circuitsCorrect);
 	printf("Outputs verified : %d\n", outputsVerified);
