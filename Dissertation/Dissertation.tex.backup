@@ -48,9 +48,12 @@
 	\chapter*{Prelude}
 		\section*{Executive Summary}
 			\subsubsection*{Abstract}
-			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
+			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparison. We also give and implement a novel variant combining two of the aforementioned protocols.
+			  Several of these protocols have not be implemented until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
 
 			  In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.\\
+
+			  [RESULTS SUMMARY HERE]
 
 			\subsubsection*{Summary of Achievements}
 				\begin{itemize}
@@ -951,9 +954,7 @@
 				We benchmark point addition, point doubling, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
 
 			\section{Oblivious Transfer}
-				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged).
-
-				\subsection{PVW Oblivious Transfer}
+				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged). We vary the inputs relating to the number of input pairs and the number circuits.
 
 				\subsection{Cut and Choose Oblivious Transfer}
 
@@ -964,11 +965,12 @@
 					.
 
 			\section{Circuit Building}
-				Circuit building can be an expensive operation.
+
+				Circuit building can be an expensive operation, furthermore as we take the re-building approach to circuit correctness checking it is carried out for each check circuit. We do not include preliminary operations (e.g. generating consistent inputs for circuits).
 
 			\section{Circuit Evaluation}
 
-				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for all the circuit we shall be testing.
+				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for each binary circuit we shall be testing. Additionally we demonstrate the difference that AES-NI makes and the Free-XOR optimisations. 
 
 		\chapter{Implementation guide}
 			This chapter deals with how to build and use the implementation provided. Furthermore it gives a short summary on each source code file and what its purpose is. If you are the Bristol markers the implementation source code was submitted on SAFE in a zip file. Else you can download the source code from github. The project can be found at \url{https://github.com/nt1124/FourthYearProject}.\\
@@ -980,18 +982,26 @@
 					You will require the following to compile and run our code.
 
 					\begin{itemize}
-						\item g$++$, used to compile the code.
-						\item GNU Multi-Precision Arithmetic Library, can be installed using the command \emph{`sudo apt-get install libgmp-dev'}
+						\item \texttt{g++}, used to compile the code.
+						\item GNU Multi-Precision Arithmetic Library, can be installed using the command \texttt{`sudo apt-get install libgmp-dev'}
+						\item rt-library, used for wall clock timings.
 						\item OpenMP, this is optional but its absence will have a serious impact on performance.
 						\item AES-NI, again this is optional but preferred for performance.
 					\end{itemize}
 
-				
+				\subsection{Compilation}
+					Compilation can be performed with the command
+					\begin{center}
+						\texttt{g++ circuitEvaluator.c -O3 -fopenmp -ffast-math -maes -lgmp -lrt}
+					\end{center}
+
+					This will produce an executable called \texttt{a.out}, the output file can be changed inthe usual manner. If you do not have OpenMP or AES-NI you can still compile by removing the \texttt{-fopen-mp} or \texttt{-maes} flags respectively.
+
 
 			\section{Running}
 				.
 
-			\section{Source Code files list}
+			\section{Source Code Documentation}
 				.
 
 	\end{appendices}

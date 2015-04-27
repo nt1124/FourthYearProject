@@ -19,11 +19,11 @@ ipAddress = sys.argv[1]
 portNum = sys.argv[2]
 partyID = sys.argv[3]
 circuitFile = "./circuitFiles/" + sys.argv[4] + ".rtl.circuit"
-baseInputFile = "./inputs/" + sys.argv[4]
+baseInputFile = "./inputs/RandomTestInputs/" + sys.argv[4]
 baseOutputFile = "./TestResults/Output_" + partyID + "_" + protocolNames[protocolNum] + "_"
 
 
-if 1 == partyID:
+if '1' == partyID:
 	baseInputFile = baseInputFile + ".builder.input."
 else:
 	baseInputFile = baseInputFile + ".executor.input."
@@ -31,7 +31,6 @@ else:
 
 
 os.chdir('..')
-os.system("ls")
 
 
 
@@ -40,4 +39,5 @@ for i in range(0, numTests):
 	outputFile = baseOutputFile + str(i)
 	command = "./a.out " + circuitFile + " " + ipAddress + " " + portNum + " " + inputFile + " " + str(partyID) + " > " + outputFile 
 
+	# os.system(command)
 	print command

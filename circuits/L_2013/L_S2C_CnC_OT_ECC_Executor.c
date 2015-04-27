@@ -147,7 +147,7 @@ unsigned char *full_CnC_OT_Mod_Receiver_ECC(int writeSocket, int readSocket, str
 
 
 
-unsigned char *full_CnC_OT_Mod_Receiver_ECC_Alt(int writeSocket, int readSocket, unsigned char ***OT_Outputs, int numInputsBuilder, int numInputsExecutor,
+unsigned char *full_CnC_OT_Mod_Receiver_ECC_Alt(int writeSocket, int readSocket, unsigned char ***OT_Outputs, int numInputsExecutor,
 											gmp_randstate_t *state, struct idAndValue *startOfInputChain, unsigned char *permedInputs,
 											int stat_SecParam, int comp_SecParam)
 {

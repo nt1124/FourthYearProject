@@ -6,7 +6,7 @@ void benchmarkECC_Exponentiation()
 	struct eccParams *params;
 	gmp_randstate_t *state = seedRandGen();
 	int i;
-	const int numExps = 1000;
+	const int numExps = 5000;
 
 
 	struct timespec timestamp_0, timestamp_1;
@@ -55,6 +55,7 @@ void benchmarkECC_Exponentiation()
 	c_1 = clock();
 	timestamp_1 = timestamp();
 	printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "New Fixed Point Exponentiation Test");
+	printf("Note: Fixed point exp timings includes time to perform precomputes\n");
 }
 
 

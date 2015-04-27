@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <omp.h>
 
 
 #include "circuits/circuitUtils.h"
@@ -30,6 +31,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 
 	gPreComputes = fixedBasePreComputes(params -> g, params);
 
+	// printf("Threads = %d\n\n", omp_get_num_threads());
+
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
@@ -43,11 +46,14 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runP1_HKE_2013(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
 		else if(3 == protocol)
 			runExecutor_L_2013_HKE(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
-		else if(4 == protocol)
+		else if(4 <= protocol)
 		{
+			benchmark(rawInputCircuit, ipAddress, portNumStr, protocol, builder);
 			// benchmarkRawCommReceiver(ipAddress, portNumStr);
 			// benchmark_ECC_PointReceiver(ipAddress, portNumStr);
-			benchmark_OT_LP_CnC_Receiver(ipAddress, portNumStr);
+			// benchmark_OT_LP_CnC_Receiver(ipAddress, portNumStr);
+			// benchmark_OT_L_CnC_Mod_Receiver(ipAddress, portNumStr);
+			// benchmark_Symm_OT_NP_Receiver(ipAddress, portNumStr);
 		}
 	}
 	else if(1 == builder)
@@ -63,18 +69,20 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 			runP2_HKE_2013(rawInputCircuit, startOfInputChain, ipAddress, portNumStr, globalIsaacContext);		
 		else if(3 == protocol)
 			runBuilder_L_2013_HKE(rawInputCircuit, startOfInputChain, portNumStr, globalIsaacContext);
-		else if(4 == protocol)
+		else if(4 <= protocol)
 		{
+			benchmark(rawInputCircuit, ipAddress, portNumStr, protocol, builder);
 			// benchmarkRawCommSender(portNumStr);
 			// benchmark_ECC_PointSender(portNumStr);
-			benchmark_OT_LP_CnC_Sender(portNumStr);
+			// benchmark_OT_LP_CnC_Sender(portNumStr);
+			// benchmark_OT_L_CnC_Mod_Sender(portNumStr);
+			// benchmark_Symm_OT_NP_Sender(portNumStr);
 		}
 	}
 	else
 	{
-		printf("Running tests.\n");
-		
-		benchmarkECC_Exponentiation();
+		benchmark(rawInputCircuit, ipAddress, portNumStr, protocol, builder);
+		// benchmarkECC_Exponentiation();
 		// benchmarkECC_Doubling();
 		// benchmarkECC_GroupOp();
 	}

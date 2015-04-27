@@ -2,16 +2,16 @@
 \contentsline {chapter}{\numberline {2}Background to Secure Multiparty Computation}{8}{chapter.2}
 \contentsline {section}{\numberline {2.1}Security Properties}{8}{section.2.1}
 \contentsline {section}{\numberline {2.2}Security levels}{8}{section.2.2}
-\contentsline {subsection}{\numberline {2.2.1}Semi-honest Adversary}{8}{subsection.2.2.1}
+\contentsline {subsection}{\numberline {2.2.1}Semi-honest Adversary}{9}{subsection.2.2.1}
 \contentsline {subsubsection}{Example}{9}{section*.9}
 \contentsline {subsection}{\numberline {2.2.2}Malicious Adversary}{9}{subsection.2.2.2}
 \contentsline {subsubsection}{Example}{9}{section*.10}
 \contentsline {subsection}{\numberline {2.2.3}Covert Adversary}{9}{subsection.2.2.3}
-\contentsline {subsubsection}{Example}{9}{section*.11}
+\contentsline {subsubsection}{Example}{10}{section*.11}
 \contentsline {section}{\numberline {2.3}Applications of SMC}{10}{section.2.3}
 \contentsline {subsection}{\numberline {2.3.1}Secret Auctions - Danish Beets}{10}{subsection.2.3.1}
 \contentsline {subsection}{\numberline {2.3.2}Distributed secrets}{10}{subsection.2.3.2}
-\contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{10}{subsection.2.3.3}
+\contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{11}{subsection.2.3.3}
 \contentsline {chapter}{\numberline {3}Technical Background}{12}{chapter.3}
 \contentsline {section}{\numberline {3.1}Oblivious Transfer}{12}{section.3.1}
 \contentsline {subsection}{\numberline {3.1.1}Naor-Pinkas Oblivious Transfer}{12}{subsection.3.1.1}
@@ -65,10 +65,9 @@
 \contentsline {section}{\numberline {A.1}Communications}{35}{section.1.A.1}
 \contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{35}{section.1.A.2}
 \contentsline {section}{\numberline {A.3}Oblivious Transfer}{35}{section.1.A.3}
-\contentsline {subsection}{\numberline {A.3.1}PVW Oblivious Transfer}{35}{subsection.1.A.3.1}
-\contentsline {subsection}{\numberline {A.3.2}Cut and Choose Oblivious Transfer}{35}{subsection.1.A.3.2}
-\contentsline {subsection}{\numberline {A.3.3}Modified Cut and Choose Oblivious Transfer}{35}{subsection.1.A.3.3}
-\contentsline {subsection}{\numberline {A.3.4}Naor Pinkas Oblivious Transfer}{35}{subsection.1.A.3.4}
+\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{35}{subsection.1.A.3.1}
+\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{35}{subsection.1.A.3.2}
+\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{35}{subsection.1.A.3.3}
 \contentsline {section}{\numberline {A.4}Circuit Building}{35}{section.1.A.4}
 \contentsline {section}{\numberline {A.5}Circuit Evaluation}{36}{section.1.A.5}
 \contentsline {chapter}{\numberline {B}Implementation guide}{37}{Appendix.1.B}
@@ -76,4 +75,4 @@
 \contentsline {subsection}{\numberline {B.1.1}Dependencies}{37}{subsection.1.B.1.1}
 \contentsline {subsection}{\numberline {B.1.2}Compilation}{37}{subsection.1.B.1.2}
 \contentsline {section}{\numberline {B.2}Running}{37}{section.1.B.2}
-\contentsline {section}{\numberline {B.3}Source Code files list}{37}{section.1.B.3}
+\contentsline {section}{\numberline {B.3}Source Code Documentation}{37}{section.1.B.3}

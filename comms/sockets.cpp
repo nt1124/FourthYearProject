@@ -221,6 +221,7 @@ void sendBoth(int socket, octet *msg, int len)
         error("Send error - 1 ");
     }
 
+    byteSendCount += (sizeof(int) + len);
     // get_ack(socket);
 }
 
@@ -231,6 +232,8 @@ unsigned char *receiveBoth(int socket, int& len)
     len = receiveInt(socket);
     unsigned char *msg = (unsigned char*) calloc(len, sizeof(unsigned char));
 
+    byteReceivedCount += (sizeof(int) + len);
+
     while (len - i > 0)
     {
         j = recv(socket, msg + i, len - i, 0);
@@ -240,6 +243,8 @@ unsigned char *receiveBoth(int socket, int& len)
         }
         i = i + j;
     }
+
+
 
     // send_ack(socket);
     return msg;
@@ -376,4 +381,58 @@ int get_ack(int socket)
     }
 
     return 0;
+}
+
+
+
+
+//  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+//  ++++----FUNCTIONS BELOW HERE ARE FOR MEASURING THE BYTES RECEIVED AND SENT----++++
+//  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+void printBytesSent()
+{
+    printf("Bytes Sent = %llu\n", byteSendCount);
+    fflush(stdout);
+}
+
+
+void printBytesReceived()
+{
+    printf("Bytes Received = %llu\n", byteReceivedCount);
+    fflush(stdout);
+}
+
+
+void zeroSentCounter()
+{
+    byteSendCount = 0;
+}
+
+void zeroReceivedCounter()
+{
+    byteReceivedCount = 0;
+}
+
+void setSentCounter(long long unsigned int newCount)
+{
+    byteSendCount = newCount;
+}
+
+void setReceivedCounter(long long unsigned int newCount)
+{
+    byteReceivedCount = newCount;
+}
+
+
+long long unsigned int getSentCounter()
+{
+    return byteSendCount;
+}
+
+long long unsigned int getReceivedCounter()
+{
+    return byteReceivedCount;
 }

@@ -23,7 +23,8 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 	for(j = 0; j < numCircuits; j++)
 	{
 		start = startOfInputChain;
-		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
+		// setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
+		setCircuitsInputs_Values(start, circuitsArray[j], 0xFF);
 	}
 
 

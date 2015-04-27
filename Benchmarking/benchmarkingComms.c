@@ -1,5 +1,5 @@
-const int numBlocks = 1000;
-const int blockSize = 100000;
+int numBlocks = 1000;
+int blockSize = 100000;
 
 
 void benchmarkRawCommSender(char *portNumStr)
@@ -14,6 +14,9 @@ void benchmarkRawCommSender(char *portNumStr)
 	randctx *isaacCTX;
 	unsigned char **inputs;
 	int i;
+
+	int numBlocks = 1000, blockSize = 100000;
+
 
 	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(isaacCTX);
@@ -44,6 +47,9 @@ void benchmarkRawCommSender(char *portNumStr)
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
+
+	// printBytesSent();
+	// printBytesReceived();
 }
 
 
@@ -59,6 +65,9 @@ void benchmarkRawCommReceiver(char *ipAddress, char *portNumStr)
 	randctx *isaacCTX;
 	unsigned char *commBuffer;
 	int commBufferLen, i, j;
+
+	int numBlocks = 1000, blockSize = 100000;
+
 
 	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(isaacCTX);
@@ -85,6 +94,9 @@ void benchmarkRawCommReceiver(char *ipAddress, char *portNumStr)
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
+
+	// printBytesSent();
+	// printBytesReceived();
 }
 
 
@@ -108,6 +120,8 @@ void benchmark_ECC_PointSender(char *portNumStr)
 	mpz_t tempExp;
 	int i, commBufferLen;
 
+	int numBlocks = 100, numPointPerBlock = 100;
+
 
 	mpz_init(tempExp);
 	initRandGen();
@@ -118,8 +132,8 @@ void benchmark_ECC_PointSender(char *portNumStr)
 
 
 
-	inputPoints = (struct eccPoint **) calloc(numBlocks, sizeof(struct eccPoint *));
-	for(i = 0; i < numBlocks; i ++)
+	inputPoints = (struct eccPoint **) calloc(numPointPerBlock * 100, sizeof(struct eccPoint *));
+	for(i = 0; i < numPointPerBlock * 100; i ++)
 	{
 		mpz_urandomm(tempExp, *state, params -> n);
 		inputPoints[i] = fixedPointMultiplication(localPreComputes, tempExp, params);
@@ -135,7 +149,7 @@ void benchmark_ECC_PointSender(char *portNumStr)
 	for(i = 0; i < numBlocks; i ++)
 	{
 		commBufferLen = 0;
-		commBuffer = serialise_ECC_Point_Array(inputPoints, numBlocks, &commBufferLen);
+		commBuffer = serialise_ECC_Point_Array(inputPoints, numPointPerBlock, &commBufferLen);
 		sendBoth(writeSocket, commBuffer, commBufferLen);
 		free(commBuffer);
 	}
@@ -143,7 +157,7 @@ void benchmark_ECC_PointSender(char *portNumStr)
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nSending %d blocks of %d points\n", numBlocks, numBlocks);
+	printf("\nSending %d blocks of %d points\n", numBlocks, numPointPerBlock);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
@@ -166,6 +180,8 @@ void benchmark_ECC_PointReceiver(char *ipAddress, char *portNumStr)
 	unsigned char *commBuffer;
 	int commBufferLen, bufferOffset = 0, arrayLen = 0, i;
 
+	int numBlocks = 100, numPointPerBlock = 100;
+
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
@@ -185,7 +201,7 @@ void benchmark_ECC_PointReceiver(char *ipAddress, char *portNumStr)
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nReceiving %d blocks of %d points\n", numBlocks, numBlocks);
+	printf("\nReceiving %d blocks of %d points\n", numBlocks, numPointPerBlock);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
