@@ -370,9 +370,9 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	concated_P1_Queries = concatQueriesExecutor(queries_Partner, length_X_Input,
 											deltaPartnerQueries, lengthDelta);
 
-	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, circuitsArray_Own[0] -> numInputsExecutor, OT_Inputs,
+	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, length_X_Input + lengthDelta, OT_Inputs,
 								state, checkStatSecParam, concated_P1_Queries, params, C);
-	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor,
+	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, lengthDelta,
 												deltaPrime, state, checkStatSecParam, deltaPrimeQueries, params, cTilde);
 
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, checkStatSecParam, partyID);

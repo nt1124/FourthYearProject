@@ -70,16 +70,17 @@ unsigned char ***getAllInputKeysSymm(struct Circuit **circuitsArray, int numCirc
 }
 
 
-void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char **output, int numCircuits, int partyID)
+void setInputsFromNaorPinkas(struct Circuit **circuitsArray, unsigned char **output, int numCircuits, int partyID)
 {
 	int i, j, iOffset, gateIndex, numInputsBuilder, numInputsExecutor;
 	struct wire *tempWire;
 	unsigned char value;
 
 
-	numInputsBuilder = circuitsArray_Own[0] -> numInputsBuilder;
-	numInputsExecutor = circuitsArray_Own[0] -> numInputsExecutor;
+	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
+	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 
+	printf("%d %d\n", numInputsBuilder, numInputsExecutor);
 
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
@@ -88,7 +89,7 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray_Own, unsigned char *
 
 		for(j = 0; j < numCircuits; j ++)
 		{
-			tempWire = circuitsArray_Own[j] -> gates[gateIndex] -> outputWire;
+			tempWire = circuitsArray[j] -> gates[gateIndex] -> outputWire;
 			tempWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
 			memcpy(tempWire -> wireOutputKey, output[iOffset + j], 16);
 		}

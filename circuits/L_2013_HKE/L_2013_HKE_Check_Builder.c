@@ -316,7 +316,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, circuitsArray_Own[0] -> numInputsExecutor, OT_Inputs,
 								state, checkStatSecParam, queries_Partner, params, C);
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor,
-												inputBitsOwn, state, checkStatSecParam, concated_P1_Queries, params, cTilde);
+												concatInput, state, checkStatSecParam, concated_P1_Queries, params, cTilde);
 
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, checkStatSecParam, partyID);
 

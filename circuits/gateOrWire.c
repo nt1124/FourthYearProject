@@ -155,8 +155,8 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - j - 1];
 		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
 
-		printf(">>> %d %d %02X\n", curGate -> G_ID, tempIndex, tempBit);
-		fflush(stdout);
+		// printf(">>> %d %d %02X\n", curGate -> G_ID, tempIndex, tempBit);
+		// fflush(stdout);
 
 		// Get the next bit of the outputIndex.
 		outputIndex = (outputIndex << 1) + tempBit;
@@ -176,8 +176,8 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	// Get the decrypted permutated wire value.
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
-	printf("%d - %02X\n", curGate -> G_ID, toReturn[16]);
-	fflush(stdout);
+	// printf("%d - %02X\n", curGate -> G_ID, toReturn[16]);
+	// fflush(stdout);
 	
 	// Housekeeping.
 	for(j = 0; j < numInputs; j ++)
