@@ -55,8 +55,8 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -72,17 +72,17 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-
 
 	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
 	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, state, numCircuits, 1024);
 
+
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, numCircuits, &J_setSize, circuitSeeds);
+
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -199,7 +199,6 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, numCircuits, 1024);
 
 	setInputsFromCharArray(circuitsArray, output, numCircuits);
-
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

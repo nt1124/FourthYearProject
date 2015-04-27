@@ -82,6 +82,7 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	gatesList = initialiseAllInputs_Raw(outputCircuit -> numGates, outputCircuit -> numInputs_P1,
 										outputCircuit -> numInputs_P2, &execOrder);
 
+
 	execIndex = outputCircuit -> numInputs;
 	tempIndex = execIndex;
 
@@ -89,9 +90,12 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	inputIDs[0] = inputX_Size;
 	inputIDs[1] = outputCircuit -> numInputs_P1;
 
+
 	for(i = 0; i < bitsToCheck; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'N');
+
+		// printf("V ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 		if( NULL != tempGateOrWire )
 		{
@@ -112,17 +116,17 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	*(gatesList + gateIndex) = tempGateOrWire;
 	*(execOrder + execIndex) = gateIndex;
 
-	printf("A ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
+	// printf("Z ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 	inputIDs[0] = execIndex;
 	inputIDs[1] = tempIndex + 2;
 	execIndex ++;
 
 
-
 	for(i = 0; i < bitsToCheck - 2; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
+		// printf("A ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 		if( NULL != tempGateOrWire )
 		{
@@ -136,13 +140,13 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 		}
 	}
 
-	printf("B ~~~ %d\n", execIndex);
 
 	inputIDs[0] = 0;
 	inputIDs[1] = execIndex - 1;
 	for(i = 0; i < inputX_Size; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
+		// printf("B ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 		if( NULL != tempGateOrWire )
 		{
@@ -155,7 +159,7 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 		}
 	}
 
-	printf("C ~~~ %d\n", execIndex);
+	// printf("C ~~~ %d\n", outputCircuit -> numGates);
 
 	for(i = 0; i < outputCircuit -> numOutputs; i ++)
 	{
@@ -208,7 +212,7 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt_Alt(int inputX_Size, int bits
 
 	for(i = 0; i < bitsToCheck; i ++)
 	{
-		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'N');
+		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'X');
 		tempInputID = execIndex;
 
 		if( NULL != tempGateOrWire )
@@ -222,7 +226,7 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt_Alt(int inputX_Size, int bits
 			execIndex ++;
 		}
 
-		tempInputID = execIndex;
+		// tempInputID = execIndex;
 		tempGateOrWire = processGate_Raw(execIndex, 1, &tempInputID, 'I');
 
 		if( NULL != tempGateOrWire )
@@ -313,19 +317,23 @@ void testRawCheckCircuits()
 	int i, outputLength = 0;
 
 	circuitTime = createRawCheckCircuit_No_OT_Opt(128, 40);
-	circuitTimeAlt = createRawCheckCircuit_No_OT_Opt_Alt(128, 40);
+	// circuitTimeAlt = createRawCheckCircuit_No_OT_Opt_Alt(128, 40);
 
 	circuitTime -> gates[0] -> outputValue = 1;
 	circuitTime -> gates[1] -> outputValue = 1;
 	circuitTime -> gates[2] -> outputValue = 1;
 	circuitTime -> gates[3] -> outputValue = 1;
 
-	circuitTime -> gates[100] -> outputValue = 0;
-	circuitTime -> gates[121] -> outputValue = 1;
+	circuitTime -> gates[80] -> outputValue = 1;
+	circuitTime -> gates[81] -> outputValue = 1;
+	circuitTime -> gates[82] -> outputValue = 1;
+	circuitTime -> gates[83] -> outputValue = 1;
+
 
 	circuitTime -> gates[129] -> outputValue = 1;
 	circuitTime -> gates[169] -> outputValue = 1;
 
+	/*
 	circuitTimeAlt -> gates[0] -> outputValue = 1;
 	circuitTimeAlt -> gates[1] -> outputValue = 1;
 	circuitTimeAlt -> gates[2] -> outputValue = 1;
@@ -336,6 +344,7 @@ void testRawCheckCircuits()
 
 	circuitTimeAlt -> gates[129] -> outputValue = 1;
 	circuitTimeAlt -> gates[169] -> outputValue = 1;
+	*/
 
 	evaluateRawCircuit(circuitTime);
 
@@ -347,6 +356,7 @@ void testRawCheckCircuits()
 	}
 	printf("\n");
 
+	/*
 	evaluateRawCircuit(circuitTimeAlt);
 
 	temp = getOutputAsHex_Raw(circuitTimeAlt, &outputLength);
@@ -356,6 +366,7 @@ void testRawCheckCircuits()
 		printf("%02X", temp[i]);
 	}
 	printf("\n");
+	*/
 }
 
 

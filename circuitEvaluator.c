@@ -22,6 +22,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	struct idAndValue *startOfInputChain = readInputDetailsFile_Alt(inputFilename);
 	struct eccParams *params = initBrainpool_256_Curve();
 
+	// rawInputCircuit = createRawCheckCircuit_No_OT_Opt(32, 40);
 
 	globalIsaacContext = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(globalIsaacContext);
@@ -31,11 +32,12 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 
 	gPreComputes = fixedBasePreComputes(params -> g, params);
 
-	// printf("Threads = %d\n\n", omp_get_num_threads());
 
 	if(0 == builder)
 	{
 		printf("Running Executor.\n");
+		// unsigned char *temp = (unsigned char *) calloc(40, sizeof(unsigned char));
+		// startOfInputChain = convertArrayToChain(temp, 40, 72);
 
 		// runExecutor_SH(startOfInputChain, ipAddress, portNumStr, globalIsaacContext);
 		if(0 == protocol)
@@ -59,6 +61,8 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	else if(1 == builder)
 	{		
 		printf("Running Builder.\n");
+		// unsigned char *temp = (unsigned char *) calloc(72, sizeof(unsigned char));
+		// startOfInputChain = convertArrayToChain(temp, 72, 0);
 
 		// runBuilder_SH(circuitFilepath, startOfInputChain, portNumStr, globalIsaacContext);
 		if(0 == protocol)

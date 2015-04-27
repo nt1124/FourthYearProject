@@ -150,12 +150,13 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	// For the all the input bits 
 	for(j = 0; j < numInputs; j ++)
 	{
-		// printf(">>> %d  %d\n", curGate -> G_ID, curGate -> gatePayload -> inputIDs[j]);
-		// fflush(stdout);
 
 		// Get the index of the j^th input wire, then get that wires permutated output value.
 		tempIndex = curGate -> gatePayload -> inputIDs[numInputs - j - 1];
 		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
+
+		printf(">>> %d %d %02X\n", curGate -> G_ID, tempIndex, tempBit);
+		fflush(stdout);
 
 		// Get the next bit of the outputIndex.
 		outputIndex = (outputIndex << 1) + tempBit;
@@ -164,7 +165,6 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 		keyList[j] = (unsigned char*) calloc(16, sizeof(unsigned char));
 		memcpy(keyList[j], inputCircuit[tempIndex] -> outputWire -> wireOutputKey, 16);
 	}
-
 	// printf(">> 0 %03d + %02X\n", curGate -> G_ID, tempBit);
 
 	// Get the row of the output table indexed by the values of our input wires.
@@ -176,6 +176,8 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 
 	// Get the decrypted permutated wire value.
 	curGate -> outputWire -> wirePermedValue = toReturn[16];
+	printf("%d - %02X\n", curGate -> G_ID, toReturn[16]);
+	fflush(stdout);
 	
 	// Housekeeping.
 	for(j = 0; j < numInputs; j ++)
@@ -223,8 +225,6 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	unsigned char temp;
 
 
-
-
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) || 0x02 == curGate -> outputWire -> wireMask )
 	{
 		// printf(">> 0 %03d\n", curGate -> G_ID);
@@ -232,9 +232,9 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 	}
 	else
 	{
-		decryptGate(curGate, inputCircuit);
+		// decryptGate(curGate, inputCircuit);
 		// printf(">> 1 %03d\n", curGate -> G_ID);
-		// freeXOR_Gate(curGate, inputCircuit);
+		freeXOR_Gate(curGate, inputCircuit);
 	}
 }
 
@@ -344,7 +344,7 @@ struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char 
 unsigned char getPermutation()
 {
 	unsigned char *toOutputPointer = generateRandBytes(1, 1);
-	unsigned char toReturn = *toOutputPointer;
+	unsigned char toReturn = (*toOutputPointer) & 0x01;
 	free(toOutputPointer);
 
 	return toReturn;
@@ -355,7 +355,7 @@ unsigned char getPermutation()
 unsigned char getIsaacPermutation(randctx *ctx)
 {
 	unsigned char *toOutputPointer = generateIsaacRandBytes(ctx, 1, 1);
-	unsigned char toReturn = *toOutputPointer;
+	unsigned char toReturn = (*toOutputPointer) & 0x01;
 	free(toOutputPointer);
 
 	return toReturn;

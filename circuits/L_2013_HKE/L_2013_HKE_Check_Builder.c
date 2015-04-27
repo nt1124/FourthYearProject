@@ -257,6 +257,8 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 											circuitCTXs, checkStatSecParam, partyID);
 
 	deltaExpanded = expandBitString(delta, lengthDelta);
+
+
 	curItem = convertArrayToChain(delta, lengthDelta, length_X_Input);
 	concatInputChains(startOfInputChain, curItem);
 	concatInput = concatInputStrings(inputBitsOwn, length_X_Input,
@@ -267,7 +269,6 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 	}
 	circuitsArray_Partner = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
-
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
@@ -317,7 +318,6 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor,
 												inputBitsOwn, state, checkStatSecParam, concated_P1_Queries, params, cTilde);
 
-
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, checkStatSecParam, partyID);
 
 	int_c_1 = clock();
@@ -350,6 +350,30 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 								J_SetOwn, checkStatSecParam, partyID);
 
 
+	int j, h;
+	for(i = 0; i < length_X_Input + 2 * lengthDelta; i ++)
+	{
+		for(j = 0; j < checkStatSecParam; j ++)
+		{
+			if(0x00 == J_SetPartner[j])
+			{
+				printf("(%d, %d) 0 %d = ", i, j, circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePerm);
+				for(h = 0; h < 16; h ++)
+				{
+					printf("%02X", circuitsArray_Own[j] -> gates[i] -> outputWire -> outputGarbleKeys -> key0[h]);
+				}
+				printf("\n");
+				printf("(%d, %d) 1 %d = ", i, j, circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePerm);
+				for(h = 0; h < 16; h ++)
+				{
+					printf("%02X", circuitsArray_Own[j] -> gates[i] -> outputWire -> outputGarbleKeys -> key1[h]);
+				}
+				printf("\n");
+			}
+		}
+	}
+
+
 	printf("\nEvaluating Circuits ");
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
@@ -363,6 +387,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	printf("\n");
 
 
+	/*
 	HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 							partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam,
 							J_SetOwn, &commBufferLen, partyID);
@@ -372,6 +397,8 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 										J_SetPartner, checkStatSecParam, rawInputCircuit -> numInputs_P1, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+
+	*/
 }
 
 

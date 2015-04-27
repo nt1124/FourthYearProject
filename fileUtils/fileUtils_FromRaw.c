@@ -240,7 +240,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInput(randctx *ctx, struct RawCi
 
 	outputCircuit -> checkFlag = 0x00;
 	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 
@@ -292,7 +292,7 @@ struct Circuit *readInCircuit_FromRaw_ConsistentInputOutput(randctx *ctx, struct
 
 	outputCircuit -> checkFlag = 0x00;
 	outputCircuit -> numInputsBuilder = rawInputCircuit -> numInputs_P1;
-	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P1;
+	outputCircuit -> numInputsExecutor = rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numInputs = rawInputCircuit -> numInputs_P1 + rawInputCircuit -> numInputs_P2;
 	outputCircuit -> numOutputs = rawInputCircuit -> numOutputs;
 

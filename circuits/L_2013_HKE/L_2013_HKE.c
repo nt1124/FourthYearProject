@@ -29,8 +29,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	mpz_t **aList, **aListCheck;
 
 
-	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
-	//rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	initRandGen();
 	state = seedRandGen();
@@ -162,6 +162,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 								queries_Own, C, cTilde,
 								stat_SecParam, state, ctx);
 	*/
+	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
 	SC_DetectCheatingBuilder_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
 								startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
 								queries_Own,
@@ -245,8 +246,8 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	state = seedRandGen();
 
-	//rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
-	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 
 	C = setup_OT_NP_Sender(params, *state);

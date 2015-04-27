@@ -450,7 +450,7 @@
 
 				Over the years many improvements have been made to the original Yao Garbled Circuits to make them quicker to evaluate. One of these improvements is called the Free XOR technique and at it's most simple level it reduces the cost of evaluating an XOR gate in the garbled circuit to virtually nil. This is why one of the key measures of a binary circuits optimisation for Yao Garbling is the number of non-XOR gates.\\
 
-				This is done by introducing a relationship between the 0-key($k_0$) and 1-key($k_1$) for each wire. In particular an $R$ is chosen at random for each Yao Garbled Circuit and then whilst $k_0$ is generated randomly as usual we take $k_1 := k_0 \oplus R$.
+				This is done by introducing a relationship between the 0-key($k_0$) and 1-key($k_1$) for each wire. In particular an $R$ is chosen at random for each Yao Garbled Circuit and then whilst $k_0$ is generated randomly as usual we take $k_1 := k_0 \oplus R$. Then take any .
 
 		\subsection{Security of Yao Garbled Circuits} \label{sub:YaoSecurity}
 			A naive implementation of a protocol using Yao Garbled Circuits provides only Semi-honest security. For a formal proof of Semi-honest security see \cite{ProofOfYaoSecurity}, we shall briefly give an intuitive explanation of why naive Yao Garbled Circuits are not secure in the presence of Malicious or Covert adversaries.\\

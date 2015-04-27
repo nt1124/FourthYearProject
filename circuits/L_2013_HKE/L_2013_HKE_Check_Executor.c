@@ -308,17 +308,32 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Building Own Circuits");
 
 
-
 	circuitsArray_Partner = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
+		setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
 	}
 	for(i = 0; i < checkStatSecParam; i++)
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
-		setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
 	}
+
+	/*
+	printf("@@@\n");
+	fflush(stdout);
+
+	for(i = 0; i < circuitsArray_Own[0] -> numInputs; i ++)
+	{
+		circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
+		memcpy(circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey, circuitsArray_Own[0] -> gates[i] -> outputWire -> outputGarbleKeys -> key0, 16);
+		circuitsArray_Own[0] -> gates[i] -> outputWire -> wirePermedValue = 0x01 & circuitsArray_Own[0] -> gates[i] -> outputWire -> wirePerm;
+	}
+
+	runCircuitExec( circuitsArray_Own[0], writeSocket, readSocket );
+	*/
+
+
 
 	// Each party now commits to their input values.
 	commBufferLen = 0;
@@ -392,15 +407,14 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_SetOwn, checkStatSecParam, partyID);
 
-
 	int j, h;
-	for(i = length_X_Input; i < length_X_Input + lengthDelta; i ++)
+	for(i = 0; i < length_X_Input + lengthDelta * 2; i ++)
 	{
 		for(j = 0; j < checkStatSecParam; j ++)
 		{
 			if(0x00 == J_SetOwn[j])
 			{
-				printf("(%d, %d)  =  ", i, j);
+				printf("(%d, %d)  %d  = ", i, j,  circuitsArray_Partner[j] -> gates[i] -> outputWire -> wirePermedValue);
 				for(h = 0; h < 16; h ++)
 				{
 					printf("%02X", circuitsArray_Partner[j] -> gates[i] -> outputWire -> wireOutputKey[h]);
@@ -423,6 +437,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	}
 	printf("\n");
 
+	/*
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_SetOwn, &commBufferLen, partyID);
 
@@ -440,7 +455,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	logChecks |= Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner,
 									params, J_SetOwn, checkStatSecParam, rawInputCircuit -> numInputs_P1,
 									&bufferOffset);
-
+	*/
 
 	if(inputBit == 0)
 	{

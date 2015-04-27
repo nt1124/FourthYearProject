@@ -48,15 +48,19 @@
 	\chapter*{Prelude}
 		\section*{Executive Summary}
 			\subsubsection*{Abstract}
-			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparing their performance across a range of computations. Until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising.\\
+			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparison. We also give and implement a novel variant combining two of the aforementioned protocols.\\
+
+			  For several of these protocols our implementation is, to the best of our knowledge, the first. As such until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising and deserving of further research.\\
 
 			  In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.\\
+
+			  [RESULTS SUMMARY HERE]
 
 			\subsubsection*{Summary of Achievements}
 				\begin{itemize}
 					\item We implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of our knowledge these are the first implementations of these protocols.
 					\item We implemented the protocol described in \cite{Katz_Symm_CnC_2013}. Huang et al. have produced an implementation in Java this cannot be fairly compared to my C implementations of the other protocols. Furthermore they only performed preliminary experiments, we provide more extensive results.
-					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013}.
+					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013} and modifying .
 					\item We have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
 				\end{itemize}
 
@@ -80,8 +84,6 @@
 	% CONTENTS.
 	\tableofcontents
 
-
-	% NOTATION SECTION
 	
 	\chapter{Introduction}
 		Secure multi-party computation(SMC) is a long standing problem in Cryptography. We have a set of parties who wish to cooperate to compute some function on inputs distributed across the parties. However, these parties distrust one another and do not wish their inputs to reveal their inputs to the other parties. Using SMC we can perform the desired computation without any party ever knowing the other's inputs.\\
@@ -96,9 +98,9 @@
 		Our contributions are as follows,
 
 		\begin{itemize}
-			\item To the best of our knowledge we provide the first implementations of the protocols of \cite{LindellAndPinkas2011} and \cite{Lindell_CnC_2013}.% and \cite{Katz_Symm_CnC_2013}.
-			\item We also provide an implementation of the protocol from \cite{Katz_Symm_CnC_2013}.
-			\item We put forward and implement a modification of \cite{Lindell_CnC_2013} using our implementation of \cite{Katz_Symm_CnC_2013} for the sub-computation rather than \cite{LindellAndPinkas2011} as originally proposed.
+			\item To the best of our knowledge we provide the first implementations of the protocols of \cite{LindellAndPinkas2011} and \cite{Lindell_CnC_2013}.
+			\item We also provide an implementation of the protocol described in \cite{Katz_Symm_CnC_2013}.
+			\item We put forward and implement a modification of \cite{Lindell_CnC_2013} using our implementation of \cite{Katz_Symm_CnC_2013} for the sub-computation rather than \cite{LindellAndPinkas2011} as originally proposed. Further we informally argue this modification maintains security.
 			\item We measure the performance of each protocol on several of the classic SMC benchmark computations and give analysis of the results.
 		\end{itemize}
 
@@ -118,13 +120,14 @@
 
 			In this sense we define the goal of an adversary to compromise any one of these properties.\\
 
-			We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party via secure channels. This trusted party then computes the value of the function and returns the output to the parties.\\
+			We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party via secure channels. This trusted party then computes the value of the function and returns the output to the relevant parties.\\
 
-			Informally we say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve than the ideal model. More formally a protocol is secure if it 
+			Informally we say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve against the ideal model.\\
 
-			It is worth noting that some functions inherently leak information about the inputs of the other parties. For example in a two party addition both parties can easily recover the other's input after the computation has been run by subtracting their own input from the result. In these cases SMC is not at fault.\\
+			It is worth noting that some functions inherently leak information about the inputs of the other parties. For example in a two-party addition both parties can easily recover the other party's input after the computation has been run by subtracting their own input from the result. In these cases SMC is not at fault so we do not concern ourselves greatly with this scenario.\\
 
 			% Alice-Bob-Trevor could go here.
+			Occasionally a fourth property is proposed, namely \emph{fairness}. Informally this means if one party gets their output then all parties get their output. However, generally this is omitted due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
 
 		\section{Security levels}\label{sub:SecurityLevels}
 			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the capability of the adversary.
@@ -134,11 +137,11 @@
 
 				\subsubsection{Example}
 
-				{At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.}\\
+				At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.\\
 
-				{So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.}\\
+				So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.\\
 				
-				{In this case undetected cheating could lead to the parties committing to a project they do not have the expertises to complete, this is clearly not in the interests of the parties so it is reasonable to assume that both parties will act honestly.}\\
+				In this case undetected cheating could lead to the parties committing to a project they do not have the expertises to complete, this is clearly not in the interests of the parties so it is reasonable to assume that both parties will act honestly.\\
 
 				
 
@@ -146,9 +149,9 @@
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
 
 				\subsubsection{Example}
-					{Security in the presence of malicious adversaries is much sought after, and is useful in many more scenarios. Suppose a pair of persons wish to compute the intersection of sets they each hold but only wish to reveal those elements in both sets, keeping the rest secret.}\\
+					Security in the presence of malicious adversaries is much sought after, and is useful in many more scenarios. Suppose a pair of persons wish to compute the intersection of sets they each hold but only wish to reveal those elements in both sets, keeping the rest secret.\\
 
-					{A malicious adversary might wish to reveal all of the elements in the other party's set. If the adversary can rig the condition in the computation checking whether an element is in both sets they can get all elements returned. Clearly in this case the adversary has something to gain and so we cannot count on the adversary being honest.}\\
+					A malicious adversary might wish to reveal all of the elements in the other party's set. If the adversary can rig the condition in the computation checking whether an element is in both sets they can get all elements returned. Clearly in this case the adversary has something to gain and so we cannot count on the adversary being honest.\\
 
 
 			\subsection{Covert Adversary}
@@ -158,7 +161,7 @@
 
 				\subsubsection{Example} 
 
-					{This model can be thought of as a compromise between practicality and malicious security and is usually appropriate when there are tangible consequences to a party being caught cheating. For example consider a consortium of companies who wish to cooperate in some way that benefits participents and that if one is caught cheating in the computations they are publically expelled from the consortium.\\}
+					{This model can be thought of as a compromise between practicality and malicious security and is usually appropriate when there are tangible consequences to a party being caught cheating. For example consider a consortium of companies who wish to cooperate in some way that benefits participants and that if one is caught cheating in the computations they are publicly expelled from the consortium.\\}
 
 					{In this case then a sufficiently high deterrent probability mean the chance of being caught is so high that the risk of being caught outweighs the benefits to be gained by cheating.}
 
@@ -179,7 +182,9 @@
 				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
 			\subsection{PROCEED - Computation on encrypted data} \label{sub2:PROCEED_DARPA}
-				Recently US Defence Advanced Research Projects Agency (DARPA) ended a programme called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.
+				Recently US Defence Advanced Research Projects Agency (DARPA) ended a programme called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.\\
+
+				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that 
 
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME
 
@@ -846,6 +851,12 @@
 			Springer LNCS 5628, pages 325-343,
 			2009.
 
+		\bibitem{DARPAPROceed}
+			DARPA.
+			\emph{PROCEED Program webpage}.
+			\url{http://www.darpa.mil/Our_Work/I2O/Programs/PROgramming_Computation_on_EncryptEd_Data_%28PROCEED%29.aspx}
+
+			
 		\bibitem{SMC_Is_Practical}
 			B. Pinkas, T. Schneider, N. P. Smart and S. C. Williams.
 			\emph{Secure Two-Party Computation is Practical},
@@ -951,9 +962,7 @@
 				We benchmark point addition, point doubling, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
 
 			\section{Oblivious Transfer}
-				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged).
-
-				\subsection{PVW Oblivious Transfer}
+				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged). We vary the inputs relating to the number of input pairs and the number circuits.
 
 				\subsection{Cut and Choose Oblivious Transfer}
 
@@ -964,11 +973,12 @@
 					.
 
 			\section{Circuit Building}
-				Circuit building can be an expensive operation.
+
+				Circuit building can be an expensive operation, furthermore as we take the re-building approach to circuit correctness checking it is carried out for each check circuit. We do not include preliminary operations (e.g. generating consistent inputs for circuits).
 
 			\section{Circuit Evaluation}
 
-				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for all the circuit we shall be testing.
+				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for each binary circuit we shall be testing. Additionally we demonstrate the difference that AES-NI makes and the Free-XOR optimisations. 
 
 		\chapter{Implementation guide}
 			This chapter deals with how to build and use the implementation provided. Furthermore it gives a short summary on each source code file and what its purpose is. If you are the Bristol markers the implementation source code was submitted on SAFE in a zip file. Else you can download the source code from github. The project can be found at \url{https://github.com/nt1124/FourthYearProject}.\\
@@ -982,6 +992,7 @@
 					\begin{itemize}
 						\item \texttt{g++}, used to compile the code.
 						\item GNU Multi-Precision Arithmetic Library, can be installed using the command \texttt{`sudo apt-get install libgmp-dev'}
+						\item rt-library, used for wall clock timings.
 						\item OpenMP, this is optional but its absence will have a serious impact on performance.
 						\item AES-NI, again this is optional but preferred for performance.
 					\end{itemize}
@@ -992,13 +1003,13 @@
 						\texttt{g++ circuitEvaluator.c -O3 -fopenmp -ffast-math -maes -lgmp -lrt}
 					\end{center}
 
-					This will produce an executable called \texttt{a.out}. If you do not have OpenMP or AES-NI you can still compile by removing the \texttt{-fopen-mp} or \texttt{-maes} falgs respectively.
+					This will produce an executable called \texttt{a.out}, the output file can be changed inthe usual manner. If you do not have OpenMP or AES-NI you can still compile by removing the \texttt{-fopen-mp} or \texttt{-maes} flags respectively.
 
 
 			\section{Running}
 				.
 
-			\section{Source Code files list}
+			\section{Source Code Documentation}
 				.
 
 	\end{appendices}

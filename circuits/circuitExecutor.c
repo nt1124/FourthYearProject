@@ -256,7 +256,7 @@ void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSock
 
 		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
 		{
-			// printf(">>> %d\n", gateID);
+			// printf(">>> %d ", gateID);
 			// fflush(stdout);
 
 			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
