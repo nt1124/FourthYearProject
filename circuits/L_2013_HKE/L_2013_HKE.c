@@ -339,7 +339,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	// deltaPrime = (unsigned char *) calloc(16, sizeof(unsigned char));
+	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
 	// cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
 	// 												lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
 	cheatDetectOutput = SC_DetectCheatingExecutor_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,

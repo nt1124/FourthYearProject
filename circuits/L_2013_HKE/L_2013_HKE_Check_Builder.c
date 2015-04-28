@@ -245,7 +245,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	groupOwn = get_128_Bit_Group(*state);
 
 	curItem = startOfInputChain;
-	inputBitsOwn = convertChainIntoArray(curItem, rawInputCircuit -> numInputs_P1);
+	inputBitsOwn = convertChainIntoArray(curItem, length_X_Input);
 
 
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, checkStatSecParam, *state, params);
@@ -257,15 +257,24 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 											circuitCTXs, checkStatSecParam, partyID);
 
 	deltaExpanded = expandBitString(delta, lengthDelta);
-
-
-	curItem = convertArrayToChain(delta, lengthDelta, length_X_Input);
-	concatInputChains(startOfInputChain, curItem);
 	concatInput = concatInputStrings(inputBitsOwn, length_X_Input,
 								deltaExpanded, lengthDelta);
+	startOfInputChain = convertArrayToChain(concatInput, length_X_Input + lengthDelta, 0);
+
+	/*
+	i = 0;
+	curItem = startOfInputChain -> next;
+	while(curItem != NULL)
+	{
+		printf("%d - %d\n", curItem -> id, curItem -> value);
+		curItem = curItem -> next;
+		i ++;
+	}
+	*/
 
 	for(i = 0; i < checkStatSecParam; i++)
 	{
+		// setCircuitsInputs_Values(startOfInputChain, circuitsArray_Own[i], 0xFF);
 		sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
 	}
 	circuitsArray_Partner = (struct Circuit **) calloc(checkStatSecParam, sizeof(struct Circuit*));
@@ -273,6 +282,21 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	{
 		circuitsArray_Partner[i] = receiveFullCircuit(writeSocket, readSocket);
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
+	}
+
+	for(i = 0; i < length_X_Input + lengthDelta; i ++)
+	{
+		circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
+		if(0x00 == concatInput[i])
+			memcpy(circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey, circuitsArray_Own[0] -> gates[i] -> outputWire -> outputGarbleKeys -> key0, 16);
+		else
+			memcpy(circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey, circuitsArray_Own[0] -> gates[i] -> outputWire -> outputGarbleKeys -> key1, 16);
+	}
+	for(; i < length_X_Input + 2 * lengthDelta; i ++)
+	{
+		circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey = (unsigned char *) calloc(16, sizeof(unsigned char));
+		memcpy(circuitsArray_Own[0] -> gates[i] -> outputWire -> wireOutputKey, circuitsArray_Own[0] -> gates[i] -> outputWire -> outputGarbleKeys -> key0, 16);
+		circuitsArray_Own[0] -> gates[i] -> outputWire -> wirePermedValue = 0x01 & circuitsArray_Own[0] -> gates[i] -> outputWire -> wirePerm;
 	}
 
 	// Each party now commits to their input values.
@@ -351,18 +375,20 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 
 
 	int j, h;
+	/*
 	for(i = 0; i < length_X_Input + 2 * lengthDelta; i ++)
 	{
 		for(j = 0; j < checkStatSecParam; j ++)
 		{
 			if(0x00 == J_SetPartner[j])
 			{
-				printf("(%d, %d) 0 %d = ", i, j, circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePerm);
+				printf("(%d, %d) %d = ", i, j, circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePermedValue);
 				for(h = 0; h < 16; h ++)
 				{
-					printf("%02X", circuitsArray_Own[j] -> gates[i] -> outputWire -> outputGarbleKeys -> key0[h]);
+					printf("%02X", circuitsArray_Own[j] -> gates[i] -> outputWire -> wireOutputKey[h]);
 				}
 				printf("\n");
+				/*
 				printf("(%d, %d) 1 %d = ", i, j, circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePerm);
 				for(h = 0; h < 16; h ++)
 				{
@@ -370,6 +396,21 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 				}
 				printf("\n");
 			}
+		}
+	}
+	*/
+
+	for(j = 0; j < checkStatSecParam; j ++)
+	{
+		if(0x00 == J_SetOwn[j])
+		{
+			printf("%d = ", j);
+
+			for(i = 0; i < length_X_Input + lengthDelta * 2; i ++)
+			{
+				printf("%d", circuitsArray_Own[j] -> gates[i] -> outputWire -> wirePermedValue);
+			}
+			printf("\n");
 		}
 	}
 

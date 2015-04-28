@@ -96,16 +96,12 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	{
 		k = idList[j];
 
-		printf("Okay dokie %d\n", j);
-
 		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k],
 														revealStruct -> outputWireShares[k], params, partyID_Partner);
 
-		printf("Hmm %d\n", j);
-
 		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		// freeTempGarbleCircuit(tempGarbleCircuit);
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	return temp;

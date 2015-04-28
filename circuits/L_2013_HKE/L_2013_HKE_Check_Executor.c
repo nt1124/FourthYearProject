@@ -407,22 +407,24 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_SetOwn, checkStatSecParam, partyID);
 
+	/*
 	int j, h;
-	for(i = 0; i < length_X_Input + lengthDelta * 2; i ++)
+	for(j = 0; j < checkStatSecParam; j ++)
 	{
-		for(j = 0; j < checkStatSecParam; j ++)
+		if(0x00 == J_SetOwn[j])
 		{
-			if(0x00 == J_SetOwn[j])
+			for(i = 0; i < length_X_Input + lengthDelta * 2; i ++)
 			{
-				printf("(%d, %d)  %d  = ", i, j,  circuitsArray_Partner[j] -> gates[i] -> outputWire -> wirePermedValue);
+				printf("(%d, %d) %d = ", i, j,  circuitsArray_Partner[j] -> gates[i] -> outputWire -> wirePermedValue);
 				for(h = 0; h < 16; h ++)
 				{
 					printf("%02X", circuitsArray_Partner[j] -> gates[i] -> outputWire -> wireOutputKey[h]);
 				}
-				printf("\n");
 			}
+			printf("\n");
 		}
 	}
+	*/
 
 
 	printf("\nEvaluating Circuits ");

@@ -34,7 +34,6 @@ unsigned char *getDeltaPrimeCompressed(struct Circuit **circuitsArray, unsigned 
 		zeroCircuitWire = circuitsArray[firstJ] -> gates[i + iOffset] -> outputWire;
 		for(j = firstJ + 1; j < stat_SecParams; j ++)
 		{
-
 			if( 0x00 == J_set[j])
 			{
 				iCircuitWire = circuitsArray[j] -> gates[i + iOffset] -> outputWire;
