@@ -1,0 +1,64 @@
+Running Executor.
+Partner has connected to us.
+
+Circuit building preparation complete
+CPU time  : 5.366618
+Wall time : 6.296265
+
+Circuit building complete
+CPU time  : 5.784662
+Wall time : 6.378295
+
+Circuits exchanged
+CPU time  : 0.614617
+Wall time : 1.050856
+
+Exchanging Secret scheme params.
+CPU time  : 0.002759
+Wall time : 0.002799
+::: Bytes Sent = 16873
+::: Bytes Received = 16809
+
+
+OT
+CPU time  : 24.937346
+Wall time : 28.799952
+::: Bytes Sent = 63112
+::: Bytes Received = 63112
+
+
+Commitments made.
+CPU time  : 22.332455
+Wall time : 25.674151
+::: Bytes Sent = 149806
+::: Bytes Received = 149806
+
+
+J set exchange.
+CPU time  : 0.000135
+Wall time : 0.000145
+::: Bytes Sent = 8
+::: Bytes Received = 8
+
+
+Valid Commitment : 0
+Circuits correct : 0
+Outputs verified : 0
+
+
+Initial J-Set checks
+CPU time  : 22.593734
+Wall time : 24.043179
+::: Bytes Sent = 78088
+::: Bytes Received = 78088
+
+Logarithm Checks : 0
+
+
+
+Logarithm Checks
+CPU time  : 1.338595
+Wall time : 3.053308
+::: Bytes Sent = 9220
+::: Bytes Received = 9220
+

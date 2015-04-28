@@ -127,8 +127,7 @@ void builder_side_OT(int writeSocket, int readSocket, struct decParams *params, 
 
 	outputBuffer = serialise_U_V_Pair_Array(c_i_array, numInputs * 2, &outputOffset);
 
-	sendInt(writeSocket, outputOffset);
-	send(writeSocket, outputBuffer, outputOffset);
+	sendBoth(writeSocket, outputBuffer, outputOffset);
 }
 
 
@@ -168,8 +167,7 @@ void sendGate(struct gateOrWire *inputGW, int writeSocket, int readSocket)
 	unsigned char *buffer, *lengthBuffer = (unsigned char*) calloc(4, sizeof(unsigned char));
 	int bufferLength, j;
 
-	sendInt(writeSocket, bufferLength);
-	send(writeSocket, buffer, bufferLength);
+	sendBoth(writeSocket, buffer, bufferLength);
 	free(buffer);
 
 }
@@ -181,10 +179,6 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	unsigned char *bufferToSend, *circuitBuffer;
 	int i, bufferLength, bufferOffset;
 	int circuitLength = 0; 
-
-	// struct timespec timestamp_0 = timestamp(), timestamp_1;
-	// clock_t c_0, c_1;
-	// c_0 = clock();
 
 
 	// Serialise the circuit.
@@ -213,13 +207,8 @@ void sendCircuit(int writeSocket, int readSocket, struct Circuit *inputCircuit)
 	memcpy(bufferToSend + bufferOffset, circuitBuffer, circuitLength);
 
 	// Send the buffer we've compiled.
-	sendInt(writeSocket, bufferLength);
-	send(writeSocket, bufferToSend, bufferLength);
+	sendBoth(writeSocket, bufferToSend, bufferLength);
 
-	// c_1 = clock();
-	// timestamp_1 = timestamp();
-
-	// printTiming(&timestamp_0, &timestamp_1, c_0, c_1, "Circuit Sending");
 
 	free(bufferToSend);
 	free(circuitBuffer);

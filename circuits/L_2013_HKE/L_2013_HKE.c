@@ -107,7 +107,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuits prep/building done. Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits prep/building done. Circuits");
 	printAndZeroBothCounters();
 
 
@@ -121,7 +121,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCommitted to inputs");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Committed to inputs");
 	printAndZeroBothCounters();
 
 
@@ -147,7 +147,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nDecommit to J_set.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to J_set.");
 	printAndZeroBothCounters();
 
 
@@ -162,7 +162,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full Sub-Computation.");
 	printAndZeroBothCounters();
 
 
@@ -176,7 +176,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nDecommit to B List");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to B List");
 	printAndZeroBothCounters();
 
 
@@ -189,7 +189,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nMain Logarithm Checks");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Main Logarithm Checks");
 	printAndZeroBothCounters();
 
 
@@ -198,7 +198,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	freeRawCircuit(rawInputCircuit);
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	free_idAndValueChain(startOfInputChain);
 
@@ -209,6 +209,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
+
+	printBothTotalCounters();
 }
 
 
@@ -283,6 +285,15 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	}
 
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits and auxiliary stuff.");
+	printAndZeroBothCounters();
+
+
+	int_c_0 = clock();
+	int_t_0 = timestamp();
+
 	// Executor receives the Hashed b Lists
 	commBufferLen = 0;
 	bufferOffset = 0;
@@ -299,7 +310,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits and auxiliary stuff.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving commitments.");
 	printAndZeroBothCounters();
 
 
@@ -312,8 +323,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_0 = clock();
 
 	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	// J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
-
 	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsExecutor,
 											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
@@ -352,7 +361,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nEvaluating all circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Evaluating all circuits");
 	printAndZeroBothCounters();
 
 
@@ -366,7 +375,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full Sub-Computation");
 	printAndZeroBothCounters();
 
 
@@ -383,7 +392,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nVerifying B Lists");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Verifying B Lists");
 	printAndZeroBothCounters();
 
 
@@ -400,7 +409,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nChecking Circuits Correct");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Checking Circuits Correct");
 	printAndZeroBothCounters();
 
 
@@ -419,13 +428,13 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nMain Logarithms.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Main Logarithms.");
 	printAndZeroBothCounters();
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 
 	if(NULL == cheatDetectOutput)
@@ -450,4 +459,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	}
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
+
+	printBothTotalCounters();
 }

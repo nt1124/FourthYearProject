@@ -536,15 +536,15 @@
 					
 					The parties then perform a Secure Computation to detect cheating (here on in, the Sub-computation) where the Builder inputs $x$ (it's original input to the main computation) and the Executor inputs $b$. The Secure Computation returns $x$ to the Executor if it's input $b$ indicates it knows both $b_i^0$ and $b_i^1$ for some $i$, otherwise it returns garbage.\\
 
-					Clearly we need to be sure that the Builder inputs the same $x$ to the Sub-computation as the main computation. This can be done by using the same trick as in the Lindell-Pinkas 2010 protocol.\\
+					Clearly we need to be sure that the Builder inputs the same $x$ to the Sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.l\\
 
 					Lindell suggests using the Lindell-Pinkas protocol for this secure computation and gives several iterations of optimisations for the circuit to compute the function. We shall take these optimisations in one bound, for the full history of optimisation see Lindell's paper.\\
 
-					Firstly let the builder choose $\{b_i^0, b_i^1\}$ and some $\delta \in \{0, 1\}^{128}$ such that $b_i^0 \oplus b_i^1 = \delta$ for all $i$. We can then check if they Executor knows $\delta$ in rather than checking to see if they know $b_i^0$ and $b_i^1$, given only one of the pair the Executor gains no knowledge of $\delta$. The executor's input to the sub-computation is then $\delta$.\\
+					First let the builder choose $\{b_i^0, b_i^1\}$ and some $\delta \in \{0, 1\}^{128}$ such that $b_i^0 \oplus b_i^1 = \delta$ for all $i$. We can then check if they Executor knows $\delta$ in rather than checking to see if they know $b_i^0$ and $b_i^1$, given only one of the pair the Executor gains no knowledge of $\delta$. The executor's input to the sub-computation is then $\delta'$.\\
 
-					Secondly, as we are aiming for statistical security of $S$ we only need to check $S$ many bits of the $\delta$ the Executor inputs.\\
+					Secondly, as we are aiming for statistical security of $2^{-S}$ we only need to check $S$ many bits of the $\delta$, reducing the number of inputs and so the number of OTs required.\\
 
-					Thirdly, we can \\
+					Thirdly, we can eliminate completely the comparison between $\delta$ and $\delta'$ with an elegant use of the OTs we were already going to have to perform. Suppose that we reduce the Executor's input to a single bit, indicating knowledge of $\delta$.\\
 
 		\section{Huang, Katz and Evans 2013}
 			\subsection*{Overview}
@@ -630,11 +630,11 @@
 
 					We shall in fact give an attack that could be used here that would leak the value of one bit of the Builder's input. As such we are forced to `roll back' to the previous level of optimisation.
 
-					\item The output of the sub-computation must be concealed from the Builder, else the Builder might be able to tell if the Executor got inconsistent results from the main computation circuits. This would open the door to what is effectively a Selective Failure attack.\\
+					\item The output of the sub-computation must be concealed from the Builder, else the Builder might be able to tell whether the Executor received inconsistent results from the main computation circuits. This would open the door to what is effectively a selective failure attack.\\
 
 					We have not implemented a solution to this problem as such it is left open. Our instinct tells us that one could extend the circuit to take a second string from the Executor of the same size as the output and to XOR this additional input with the output.\\
 					
-					This would mean the Builder only learns the XORed result of the circuit but the Executor could use his auxiliary input to recover the true output. As in the scenario where we care about the output being hidden from the Builder the Executor can be assumed to be \\
+					This would mean the Builder only learns the XORed result of the circuit but the Executor could use his auxiliary input to recover the true output. As in the scenario where we care about the output being hidden from the Builder we can assume the Executor is honest. In this case the outputs from the Executor's circuits will be consistent and the Builder will only see one output and so gains no depth for the key.\\
 				\end{enumerate}
 
 
@@ -652,10 +652,20 @@
 				The Builder obtains his inputs for the sub-computation circuits sent by the Executor by Naor-Pinkas Oblivious Transfer as is usual in the HKE protocol. Then the Builder can prove the consistency of his input to all three sets of circuits using knowledge of logarithm trick used in the HKE protocol.
 
 			\subsection{Ensuring consistency of Executor's inputs}
-				In the final optimisation suggested in \cite{Lindell_CnC_2013} the sub-circuit is reduced so that the Executor only inputs a single bit, indicating knowledge of $\delta$. The 1-value key for this wire is then obtained in a series of cut-and-choose OTs. This approach cannot be used when we are using a symmetric 
+				\subsubsection{An attack on the OT optimisation}
+					In the final optimisation suggested in \cite{Lindell_CnC_2013} the sub-circuit is reduced so that the Executor only inputs a single bit, indicating knowledge of $\delta$. The 0-value key for this wire is given freely to the Executor. The Executor then obtains the 1-value in a series of cut-and-choose OTs where the Executor only learns the value by.\\
+
+					This approach cannot be used when we are using a symmetric paradigm for the sub-computation because the Builder cannot verify that the consistency of the Executor's inputs beyond each circuit set. Suppose then that the Builder is honest the Executor therefore has not obtained $\delta$. Then his input to the circuits created by the Builder will have to be $0$. However, no such restriction exists on his input to the circuit he created.\\
+
+					Therefore the circuits evaluated by the Builder will output $X$ (where $X$ is his input to the main computation). The circuits evaluated by the Executor will output $00...0$. So when it comes to the Secure Equality testing the parties will abort on the first bit where $X$ is $1$, leaking information about the Builder's input to the computation.\\
+
+				\subsubsection{Rolling Back}
+					The reason the aforementioned attack exists is the fact that the Builder takes 
 
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
+		We do not have the space to go into depth about our implementation, however we shall touch on some of the high points.
+
 		\section*{Purpose of Implementation}
 			It should be made abundantly clear that the implementation provided is not intended for real world use with actual confidentiality on the line, instead it is for the purposes of comparing the performance of the protocols under consideration.\\
 
@@ -689,7 +699,9 @@
 
 			Throughout unless otherwise stated we have worked in Elliptic Curve groups, in particular on the curve \emph{brainpoolP256r1} specified in \cite{BrainpoolSpecifications}. This is a $256$-bit curve and as such provides $128$-bits of security. I suggest \cite{ECC_Primer} as a high-level primer on ECC and \cite{ECC_RFC_6090} for a more technically detailed introduction.\\
 
-			Elliptic curves groups are preferable over Schnorr groups for cryptographic puposes, they require smaller keys for the same level of security reducing the required size of the group. This is particularly desirable as it reduces the size of the number we are dealing with. This point is illustrated in the Figure \ref{fig:NSA_ECC_Table}.\\
+			For a quick reference on some of the algorithms we use for operations I warily suggest \cite{Wiki_ECC}, primarily for the virtue of clear pseudo-code. For obvious reasons do not rely to much on this source.\\
+
+			Elliptic curves groups are preferable over Schnorr groups for cryptographic purposes. They require smaller keys for the same level of security reducing the required size of the group. This is particularly desirable as it reduces the size of the number we are dealing with making computations quicker without sacrificing security. This point is illustrated in the Figure \ref{fig:NSA_ECC_Table}.\\
 
 			\begin{figure}[!htb]
 				\begin{tabular}{| c | c | c |}
@@ -713,7 +725,9 @@
 				\caption{A table showing the key sizes needed to achieve levels of security in both the traditional RSA/Diffie-Hellman groups and in Elliptic Curve groups. Taken from \cite{NSA_CaseForECC}. \label{fig:NSA_ECC_Table}}
 			\end{figure}
 
-			Elliptic Curve Groups are usually represented in Additive notation, differing from the usual Multiplicative notation used for groups in cryptography. We define a curve of the form $y^2 = x^3 + a\cdot x + b$ modulo some prime $q$, call this curve $C$. Say $n$ is the number of bits required to represent $q$, then we say this is an $n$-bit curve.\\
+			Elliptic Curve Groups are usually represented in Additive notation, differing from the usual Multiplicative notation used for groups in cryptography. This means when we add points together where we would usually multiple elements and apply scalar multiplication to a point where we would raise an element to the power of a scalar.\\
+
+			We define a curve of the form $y^2 = x^3 + a\cdot x + b$ modulo some prime $q$, call this curve $C$. Say $n$ is the number of bits required to represent $q$, then we say this is an $n$-bit curve.\\
 
 			We then need to define the group by the set of elements and the group operation. The set of elements is simply defined as,
 
@@ -721,7 +735,8 @@
 
 			We will use the most intuitive representation of points on elliptic curves, namely just the $(x, y)$ coordinates. We denote the identity in the group to be $(@, @)$ and the inverse of an element $(x, y)$ is simply $x, -y)$.\\
 
-			This representation is sometimes called the \emph{Affine} representation, other representations exist and mostly exit as their operations reduce the number of modular inversions required for each group operation.\\
+			This representation is sometimes called the \emph{Affine} representation, other representations exist and mostly exit as their operations reduce the number of modular inversions required for each group operation. Due to the speed of modular inversions in GMP we saw barely any performance improvement when trying Homomorphic coordinates and so have opted to stick with the simpler Affine representation.\\
+
 
 			\begin{mdframed}
 				\begin{algorithm}[H]
@@ -746,6 +761,18 @@
 					\caption{The group operation of the group of point on an Elliptic Curve defined by $y^2 = x^3 + a \cdot x + b$ in Affine Representation. \label{Algo:ECC_GroupOp}}
 				\end{algorithm}
 			\end{mdframed}
+
+			\subsection{Elliptic Curve point scalar multiplication}
+				As we noted above scalar multiplication of points is equivalent to Diffie-Hellman group exponentiations. As such we use scalar multiplication very often.\\
+
+				Take a point $P$ and an integer $n$, consider $n \cdot P$, whilst we could compute this by $\sum_{i = 1}^{n}P$ this would require $n$ many additions. Where $n$ can be very big (say $256$-bits as in our group) this will require a stupendous number of group operations.\\
+
+				 Many of the same tricks that can be applied to integer exponentiation also work here. For example the square-multiply trick (though here it is double-add). Many of these tricks depend on taking advantage of thinking of the binary form of the exponent and using doubling.\\
+
+				 For standard point multiplication we have implemented the Windowed approach. Take a point $P$ and a scalar $n$. This method pre-computes a number of multiplications of P, namely $\{0 \cdot P, 1 \cdot  P, ..., 2^{w-1} \cdot P\}$ where $w$ is the size of the windows in bits.\\
+
+				the exponent is then divided into windows.
+
 
 		\section{Verifiable Secret Sharing and Multi-precision Polynomials}
 
@@ -943,6 +970,11 @@
 		\bibitem{NSA_CaseForECC}
 			NSA. \emph{The Case for Elliptic Curve Cryptography}, January 2009,
 			\url{https://www.nsa.gov/business/programs/elliptic_curve.shtml}.
+			
+		\bibitem{Wiki_ECC}
+			Wikipedia (various authors),
+			Elliptic curve point multiplication,
+			\url{http://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication}
 			
 		\bibitem{ISAAC_Implementation}
 			Bob Jenkins. \emph{ISAAC: a fast cryptographic random number generator},

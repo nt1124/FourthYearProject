@@ -2,41 +2,41 @@ Running Builder.
 Partner has connected to us.
 
 Circuit building preparation complete
-CPU time  : 0.390000
-Wall time : 0.405468
+CPU time  : 1.396583
+Wall time : 1.551857
 
 Circuit building complete
-CPU time  : 0.020000
-Wall time : 0.015665
+CPU time  : 0.061775
+Wall time : 0.062227
 
 Circuits exchanged
-CPU time  : 0.000000
-Wall time : 0.032261
+CPU time  : 0.013211
+Wall time : 0.033203
 
 Exchanging Secret scheme params.
-CPU time  : 0.000000
-Wall time : 0.001396
-::: Bytes Sent = 4409
-::: Bytes Received = 4457
+CPU time  : 0.001180
+Wall time : 0.003931
+::: Bytes Sent = 4457
+::: Bytes Received = 4437
 
 
 OT
-CPU time  : 1.590000
-Wall time : 1.616734
+CPU time  : 6.269749
+Wall time : 8.498587
 ::: Bytes Sent = 15784
 ::: Bytes Received = 15784
 
 
 Commitments made.
-CPU time  : 1.440000
-Wall time : 1.484666
+CPU time  : 5.562353
+Wall time : 7.175950
 ::: Bytes Sent = 37678
 ::: Bytes Received = 37678
 
 
 J set exchange.
-CPU time  : 0.000000
-Wall time : 0.000739
+CPU time  : 0.000578
+Wall time : 0.000676
 ::: Bytes Sent = 8
 ::: Bytes Received = 8
 
@@ -47,8 +47,8 @@ Outputs verified : 0
 
 
 Initial J-Set checks
-CPU time  : 1.330000
-Wall time : 1.328944
+CPU time  : 4.856221
+Wall time : 5.631881
 ::: Bytes Sent = 21144
 ::: Bytes Received = 21144
 
@@ -57,8 +57,8 @@ Logarithm Checks : 0
 
 
 Logarithm Checks
-CPU time  : 0.100000
-Wall time : 0.061556
+CPU time  : 0.243579
+Wall time : 0.236837
 ::: Bytes Sent = 2308
 ::: Bytes Received = 2308
 
@@ -66,8 +66,8 @@ verified = 0
 
 
 Output determination
-CPU time  : 0.860000
-Wall time : 0.916040
+CPU time  : 2.897813
+Wall time : 3.739839
 ::: Bytes Sent = 13630
 ::: Bytes Received = 13630
 
@@ -75,9 +75,9 @@ Candidate Output binary : 110101110110000011101011010011100
 
 
 Total time without connection setup
-CPU time  : 5.730000
-Wall time : 5.865182
+CPU time  : 21.311955
+Wall time : 26.947288
 
 Total Time (Includes connection open/closing)
-CPU time  :     5.730000
-Wall time :     5.870812
+CPU time  :     21.345246
+Wall time :     26.987034

@@ -160,6 +160,7 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor,
 												concatInput, state, checkStatSecParam, concated_P1_Queries, params, cTilde);
 
+	sendBoth(writeSocket, deltaExpanded, lengthDelta);
 
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, checkStatSecParam, partyID);
 

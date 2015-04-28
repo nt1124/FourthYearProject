@@ -49,9 +49,9 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	printf("Executor has connected to us.\n");
 
+
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-
 
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
@@ -69,12 +69,6 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, bLists[0], bLists[1],
 													params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit Input Prep and Building");
-	fflush(stdout);
-
 
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
@@ -89,6 +83,12 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Input Prep, Building and Commitment");
+	fflush(stdout);
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -99,6 +99,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -123,6 +124,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to J_Sets secrets");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -135,12 +137,21 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full cheating detection sub-computation");
+	printAndZeroBothCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sending bLists");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -153,13 +164,15 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
+	printAndZeroBothCounters();
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
 	freeRawCircuit(rawInputCircuit);
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	free_idAndValueChain(startOfInputChain);
 
@@ -170,6 +183,8 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
+
+	printBothTotalCounters();
 }
 
 
@@ -231,6 +246,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Circuits + Hash tables + Public inputs");
+	printAndZeroBothCounters();
 
 
 	// Input our own bit values.
@@ -252,6 +268,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -274,6 +291,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to and receive check circuit secrets.");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -293,13 +312,21 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\n\nEvaluating all circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Evaluating all circuits");
+	printAndZeroBothCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	SC_ReturnStruct = SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
 	 											deltaPrime, lengthDelta, 3 * stat_SecParam, state );
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full sub-computation");
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -314,7 +341,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nVerifying B Lists");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Verifying B Lists");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -330,7 +358,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nChecking Circuits Correct");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Checking Circuits Correct");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -343,7 +372,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilder Inputs consistency checked");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Builder Inputs consistency checked");
+	printAndZeroBothCounters();
 
 	clearPublicInputsWithGroup(pubInputGroup);
 
@@ -358,12 +388,12 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	if(1 || NULL == SC_ReturnStruct -> output)
+	if(NULL == SC_ReturnStruct -> output)
 	{
 		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
 	}
@@ -383,4 +413,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	}
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
+
+	printBothTotalCounters();
 }

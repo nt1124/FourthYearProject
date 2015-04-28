@@ -331,9 +331,9 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 	int bufferLength, bufferOffset = 7 * sizeof(int);
 
 
-	bufferLength = receiveInt(readSocket);
-	receivedBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
-	receive(readSocket, receivedBuffer, bufferLength);
+	// bufferLength = receiveInt(readSocket);
+	// receivedBuffer = (unsigned char*) calloc(bufferLength, sizeof(unsigned char));
+	receivedBuffer = receiveBoth(readSocket, bufferLength);
 
 
 	memcpy(&(inputCircuit -> numGates), receivedBuffer, sizeof(int));
@@ -356,47 +356,3 @@ struct Circuit *receiveFullCircuit(int writeSocket, int readSocket)
 
 	return inputCircuit;
 }
-
-
-/*
-void sendOwnInputs(int writeSocket, int readSocket, struct idAndValue *start, int numInputs, int numCircuits, unsigned char *J_setPartner)
-{
-	struct idAndValue *current = start -> next;
-	unsigned char *commBuffer;
-	int length, tempOffset = 0, tempInt;
-
-
-	length = (numInputs * sizeof(int)) + numInputs * numCircuits * sizeof(unsigned char);
-	commBuffer = (unsigned char *) calloc(numCircuits, sizeof(unsigned char));
-
-
-	while(NULL != current)
-	{
-		tempInt = current -> id
-		memcpy(commBuffer + tempOffset, &tempInt, sizeof(int));
-		tempOffset += sizeof(int);
-	}
-
-
-	for(i = 0; i < numCircuits; i ++)
-	{
-		if(0x00 == J_setPartner[i])
-		{
-			current = start -> next;
-			while(NULL != current)
-			{
-				commBuffer[] = current -> value;
-
-				current = current -> next;
-			}
-		}
-		else
-		{
-			tempOffset += (numInputs * sizeof(unsigned char));
-		}
-	}
-
-	sendBoth(writeSocket, commBuffer, length);
-	free(commBuffer);
-}
-*/

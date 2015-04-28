@@ -467,3 +467,16 @@ void printAndZeroBothCounters()
 
     byteReceivedCount = 0;
 }
+
+
+
+void printBothTotalCounters()
+{
+    printf("\n::: Total Bytes Sent = %llu\n", totalSendCount);
+    fflush(stdout);
+
+    printf("::: Total Bytes Received = %llu\n\n", totalReceivedCount);
+    fflush(stdout);
+
+
+}

@@ -59,7 +59,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	mpz_t **aList;
 
 	unsigned char *commBuffer, *J_SetOwn, *J_SetPartner, *deltaPrimeExpanded;
-	unsigned char **OT_Outputs, *binaryOutput, *delta, inputBit = 0x00, ***OT_Inputs;
+	unsigned char **OT_Outputs, *binaryOutput, *deltaFromPartner, equalityBit = 0x00, ***OT_Inputs;
 	int commBufferLen = 0, i, j, k, J_setSize = 0, arrayLen = 0, circuitsChecked = 0, bufferOffset = 0;
 	int jSetChecks = 0, logChecks = 0, partyID = 0;
 
@@ -158,6 +158,12 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 												deltaPrime, state, checkStatSecParam, deltaPrimeQueries, params, cTilde);
 
 
+	deltaFromPartner = receiveBoth(readSocket, commBufferLen);
+	if(0 == memcmp(deltaFromPartner, deltaPrime, lengthDelta))
+	{
+		equalityBit = 0x01;
+	}
+
 	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, checkStatSecParam, partyID);
 
 	int_c_1 = clock();
@@ -228,7 +234,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	free(commBuffer);
 
 
-	if(inputBit == 0)
+	if(equalityBit == 0)
 	{
 		binaryOutput = NULL;
 	}

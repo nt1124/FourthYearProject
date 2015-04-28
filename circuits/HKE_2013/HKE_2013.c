@@ -362,7 +362,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nInitial J-Set checks");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Initial J-Set checks");
 	printAndZeroBothCounters();
 
 
@@ -400,7 +400,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nLogarithm Checks");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Logarithm Checks");
 	printAndZeroBothCounters();
 
 	for(i = 0; i < numCircuits; i ++)
@@ -420,7 +420,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nOutput determination");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Output determination");
 	printAndZeroBothCounters();
 
 
@@ -434,7 +434,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	/*
 	for(i = 0; i < numCircuits; i ++)
@@ -466,6 +466,8 @@ void runP1_HKE_2013(struct RawCircuit *rawInputCircuit, struct idAndValue *start
 
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
+
+	printBothTotalCounters();
 }
 
 
@@ -491,6 +493,8 @@ void runP2_HKE_2013(struct RawCircuit *rawInputCircuit, struct idAndValue *start
 
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
+
+	printBothTotalCounters();
 }
 
 

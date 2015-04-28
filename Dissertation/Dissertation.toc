@@ -44,14 +44,17 @@
 \contentsline {section}{\numberline {4.4}Merging Lindell 2013 and HKE 2013}{25}{section.4.4}
 \contentsline {subsection}{\numberline {4.4.1}Problems to address}{25}{subsection.4.4.1}
 \contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{26}{subsection.4.4.2}
-\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{26}{subsection.4.4.3}
+\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{27}{subsection.4.4.3}
+\contentsline {subsubsection}{An attack on the OT optimisation}{27}{section*.28}
+\contentsline {subsubsection}{Rolling Back}{27}{section*.29}
 \contentsline {chapter}{\numberline {5}Implementation Details}{28}{chapter.5}
 \contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{28}{section.5.1}
 \contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{28}{subsection.5.1.1}
 \contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{29}{subsection.5.1.2}
 \contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{29}{section.5.2}
-\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{30}{section.5.3}
-\contentsline {subsection}{\numberline {5.3.1}Multi-precision polynomials}{30}{subsection.5.3.1}
+\contentsline {subsection}{\numberline {5.2.1}Elliptic Curve point scalar multiplication}{30}{subsection.5.2.1}
+\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{31}{section.5.3}
+\contentsline {subsection}{\numberline {5.3.1}Multi-precision polynomials}{31}{subsection.5.3.1}
 \contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{31}{section.5.4}
 \contentsline {subsection}{\numberline {5.4.1}Other - AES, SHA-2}{31}{subsection.5.4.1}
 \contentsline {chapter}{\numberline {6}Experiments}{32}{chapter.6}

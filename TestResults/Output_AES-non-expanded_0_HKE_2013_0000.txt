@@ -2,41 +2,41 @@ Running Executor.
 Partner has connected to us.
 
 Circuit building preparation complete
-CPU time  : 1.640000
-Wall time : 1.633356
+CPU time  : 5.404872
+Wall time : 5.418811
 
 Circuit building complete
-CPU time  : 1.420000
-Wall time : 1.439845
+CPU time  : 5.805125
+Wall time : 5.823753
 
 Circuits exchanged
-CPU time  : 0.220000
-Wall time : 0.356271
+CPU time  : 0.604968
+Wall time : 0.944300
 
 Exchanging Secret scheme params.
-CPU time  : 0.000000
-Wall time : 0.000987
-::: Bytes Sent = 16865
-::: Bytes Received = 16921
+CPU time  : 0.002708
+Wall time : 0.002714
+::: Bytes Sent = 16869
+::: Bytes Received = 16841
 
 
 OT
-CPU time  : 10.790000
-Wall time : 10.760847
+CPU time  : 25.026705
+Wall time : 26.513861
 ::: Bytes Sent = 63112
 ::: Bytes Received = 63112
 
 
 Commitments made.
-CPU time  : 6.030000
-Wall time : 6.092012
+CPU time  : 21.779342
+Wall time : 23.130615
 ::: Bytes Sent = 149806
 ::: Bytes Received = 149806
 
 
 J set exchange.
-CPU time  : 0.000000
-Wall time : 0.002247
+CPU time  : 0.000292
+Wall time : 0.002831
 ::: Bytes Sent = 8
 ::: Bytes Received = 8
 
@@ -47,8 +47,8 @@ Outputs verified : 0
 
 
 Initial J-Set checks
-CPU time  : 5.600000
-Wall time : 5.615350
+CPU time  : 22.296499
+Wall time : 24.610166
 ::: Bytes Sent = 78088
 ::: Bytes Received = 78088
 
@@ -57,8 +57,8 @@ Logarithm Checks : 0
 
 
 Logarithm Checks
-CPU time  : 0.320000
-Wall time : 0.639205
+CPU time  : 1.305228
+Wall time : 2.225490
 ::: Bytes Sent = 9220
 ::: Bytes Received = 9220
 
@@ -66,8 +66,8 @@ verified = 0
 
 
 Output determination
-CPU time  : 4.820000
-Wall time : 4.860967
+CPU time  : 10.757965
+Wall time : 10.788997
 ::: Bytes Sent = 52010
 ::: Bytes Received = 52010
 
@@ -75,9 +75,9 @@ Candidate Output binary : 101010001101100111011000100100111011000010110001110100
 
 
 Total time without connection setup
-CPU time  : 30.890000
-Wall time : 31.448139
+CPU time  : 93.257498
+Wall time : 99.739059
 
 Total Time (Includes connection open/closing)
-CPU time  :     30.900000
-Wall time :     31.474730
+CPU time  :     93.307109
+Wall time :     99.812424

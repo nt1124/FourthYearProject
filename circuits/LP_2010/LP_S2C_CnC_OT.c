@@ -46,14 +46,15 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
 
-	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
-	public_inputs = computePublicInputs(secret_inputs, params);
 
 	printf("Executor has connected to us.\n");
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
+
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
 
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
@@ -68,7 +69,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit prep, building and sending.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit prep, building and sending.");
 	printAndZeroBothCounters();
 
 
@@ -125,7 +126,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	freeRawCircuit(rawInputCircuit);
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	free_idAndValueChain(startOfInputChain);
 
@@ -136,6 +137,8 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
+
+	printBothTotalCounters();
 }
 
 
@@ -195,7 +198,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nReceived Circuits etc.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Circuits etc.");
 	printAndZeroBothCounters();
 
 
@@ -213,6 +216,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -278,25 +282,26 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Cirucit Evaluation");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Evaluation");
+	printAndZeroBothCounters();
 
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
 
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
-	// printMajorityOutputAsHex(circuitsArray, numCircuits, J_set);
 	printMajorityOutputAsBinary(circuitsArray, numCircuits, J_set);
 
 	// testAES_FromRandom();
-
 
 	for(i = 0; i < numCircuits; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
+
+	printBothTotalCounters();
 }
