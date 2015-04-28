@@ -1,0 +1,46 @@
+Running Builder.
+Partner has connected to us.
+Circuit building preparation complete
+CPU time  : 1.407841
+Wall time : 1.416541
+
+Circuit building complete
+CPU time  : 0.063707
+Wall time : 0.063788
+
+Circuits exchanged
+CPU time  : 0.010124
+Wall time : 0.006096
+
+OT
+CPU time  : 6.133348
+Wall time : 6.703283
+
+Commitments made
+CPU time  : 5.532610
+Wall time : 6.736518
+
+32 32
+
+Valid Commitment : 0
+Circuits correct : 0
+Outputs verified : 0
+
+Initial J-Set checks
+CPU time  : 4.925386
+Wall time : 5.451409
+
+Logarithm Checks : 0
+
+ Majority output binary : 011000111111101111011001111000100
+verified = 0
+Candidate Output binary : 011000111111101111011001111000100
+
+Total time without connection setup
+CPU time  : 21.233693
+Wall time : 25.043748
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     21.267362
+Wall time :     25.077501

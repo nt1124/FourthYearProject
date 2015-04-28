@@ -345,6 +345,10 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_SetOwn, numCircuits, partyID);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+
 	if(0 == partyID)
 	{
 		bufferOffset = 0;
@@ -370,6 +374,10 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		free(commBuffer);
 	}
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nLogarithm Checks");
+
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_SetOwn[i])
@@ -381,10 +389,15 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printMajorityOutputAsBinary(circuitsArray_Partner, numCircuits, J_SetOwn);
 
 
-	// printSecrets(outputStruct_Own, rawInputCircuit -> numOutputs);
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, numCircuits, J_SetOwn, &commBufferLen, partyID);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nOutput determination");
 
 
 	printf("Candidate Output binary : ");

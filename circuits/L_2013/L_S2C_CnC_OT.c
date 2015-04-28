@@ -39,13 +39,6 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
 	}
 
-	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
-	public_inputs = computePublicInputs(secret_inputs, params);
-	delta = generateRandBytes(16, 16);
-
-	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
-	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
@@ -60,6 +53,14 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_0 = clock();
 
 
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
+	delta = generateRandBytes(16, 16);
+
+	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
+	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
@@ -71,7 +72,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilding/Inputting all Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit Input Prep and Building");
 	fflush(stdout);
 
 
@@ -95,12 +96,16 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
 	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
 
-	// At this point receive from the Executor the proof of the J-set. Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, circuitSeeds);
-
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// At this point receive from the Executor the proof of the J-set. Then provide the relevant r_j's.
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, stat_SecParam, &J_setSize, circuitSeeds);
 
 
 	builderInputs = computeBuilderInputs(public_inputs, secret_inputs,
@@ -115,10 +120,22 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	checkSecretInputs = generateSecretsCheckComp(rawInputCircuit -> numInputs_P1, 3 * stat_SecParam,
 												secret_inputs, params, *state);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to J_Sets secrets");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	SC_ReturnStruct = SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
 											startOfInputChain, delta, lengthDelta,
 	 										checkSecretInputs, 3 * stat_SecParam, state);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full cheating detection sub-computation");
+
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -213,9 +230,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Circuits + Hash tables + Public inputs");
 
 
+	// Input our own bit values.
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
@@ -231,14 +249,17 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
 
-	// Here we do the decommit...
-	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
-							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
-
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// Here we do the decommit...
+	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
+							pubInputGroup -> params, J_set, &J_setSize, stat_SecParam);
 
 	commBufferLen = 0;
 	bufferOffset = 0;
@@ -249,6 +270,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to and receive check circuit secrets.");
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

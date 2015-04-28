@@ -23,40 +23,41 @@
 \BOOKMARK [1][-]{section.4.2}{Lindell 2013}{chapter.4}% 23
 \BOOKMARK [1][-]{section.4.3}{Huang, Katz and Evans 2013}{chapter.4}% 24
 \BOOKMARK [2][-]{subsection.4.3.1}{Consistency of party's inputs}{section.4.3}% 25
-\BOOKMARK [2][-]{subsection.4.3.2}{Advantages of symmetrical cut-and-choose}{section.4.3}% 26
-\BOOKMARK [1][-]{section.4.4}{Merging Lindell 2013 and HKE 2013}{chapter.4}% 27
-\BOOKMARK [2][-]{subsection.4.4.1}{Problems to address}{section.4.4}% 28
-\BOOKMARK [2][-]{subsection.4.4.2}{Consistency of Builder's inputs}{section.4.4}% 29
-\BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 30
-\BOOKMARK [1][-]{section.5.1}{Yao Garbled Circuits implementation}{chapter.5}% 31
-\BOOKMARK [2][-]{subsection.5.1.1}{Tillich-Smart Circuit Files}{section.5.1}% 32
-\BOOKMARK [2][-]{subsection.5.1.2}{Creating binary circuits}{section.5.1}% 33
-\BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 34
-\BOOKMARK [1][-]{section.5.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{chapter.5}% 35
-\BOOKMARK [2][-]{subsection.5.3.1}{Multi-precision polynomials}{section.5.3}% 36
-\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 37
-\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 38
-\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 39
-\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 40
-\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 41
-\BOOKMARK [1][-]{section.6.3}{Results}{chapter.6}% 42
-\BOOKMARK [2][-]{subsection.6.3.1}{32-bit addition}{section.6.3}% 43
-\BOOKMARK [2][-]{subsection.6.3.2}{32-bit multiplication}{section.6.3}% 44
-\BOOKMARK [2][-]{subsection.6.3.3}{AES encryption}{section.6.3}% 45
-\BOOKMARK [2][-]{subsection.6.3.4}{SHA-256 Hashing}{section.6.3}% 46
-\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 47
-\BOOKMARK [0][-]{Appendix.1.A}{Benchmarking components}{}% 48
-\BOOKMARK [1][-]{section.1.A.1}{Communications}{Appendix.1.A}% 49
-\BOOKMARK [1][-]{section.1.A.2}{Elliptic Curve Group Operations}{Appendix.1.A}% 50
-\BOOKMARK [1][-]{section.1.A.3}{Oblivious Transfer}{Appendix.1.A}% 51
-\BOOKMARK [2][-]{subsection.1.A.3.1}{Cut and Choose Oblivious Transfer}{section.1.A.3}% 52
-\BOOKMARK [2][-]{subsection.1.A.3.2}{Modified Cut and Choose Oblivious Transfer}{section.1.A.3}% 53
-\BOOKMARK [2][-]{subsection.1.A.3.3}{Naor Pinkas Oblivious Transfer}{section.1.A.3}% 54
-\BOOKMARK [1][-]{section.1.A.4}{Circuit Building}{Appendix.1.A}% 55
-\BOOKMARK [1][-]{section.1.A.5}{Circuit Evaluation}{Appendix.1.A}% 56
-\BOOKMARK [0][-]{Appendix.1.B}{Implementation guide}{}% 57
-\BOOKMARK [1][-]{section.1.B.1}{Building}{Appendix.1.B}% 58
-\BOOKMARK [2][-]{subsection.1.B.1.1}{Dependencies}{section.1.B.1}% 59
-\BOOKMARK [2][-]{subsection.1.B.1.2}{Compilation}{section.1.B.1}% 60
-\BOOKMARK [1][-]{section.1.B.2}{Running}{Appendix.1.B}% 61
-\BOOKMARK [1][-]{section.1.B.3}{Source Code Documentation}{Appendix.1.B}% 62
+\BOOKMARK [2][-]{subsection.4.3.2}{Output determination}{section.4.3}% 26
+\BOOKMARK [2][-]{subsection.4.3.3}{Advantages of symmetrical cut-and-choose}{section.4.3}% 27
+\BOOKMARK [1][-]{section.4.4}{Merging Lindell 2013 and HKE 2013}{chapter.4}% 28
+\BOOKMARK [2][-]{subsection.4.4.1}{Problems to address}{section.4.4}% 29
+\BOOKMARK [2][-]{subsection.4.4.2}{Consistency of Builder's inputs}{section.4.4}% 30
+\BOOKMARK [0][-]{chapter.5}{Implementation Details}{}% 31
+\BOOKMARK [1][-]{section.5.1}{Yao Garbled Circuits implementation}{chapter.5}% 32
+\BOOKMARK [2][-]{subsection.5.1.1}{Tillich-Smart Circuit Files}{section.5.1}% 33
+\BOOKMARK [2][-]{subsection.5.1.2}{Creating binary circuits}{section.5.1}% 34
+\BOOKMARK [1][-]{section.5.2}{Elliptic Curve implementation}{chapter.5}% 35
+\BOOKMARK [1][-]{section.5.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{chapter.5}% 36
+\BOOKMARK [2][-]{subsection.5.3.1}{Multi-precision polynomials}{section.5.3}% 37
+\BOOKMARK [1][-]{section.5.4}{Peikert, Vaikuntanathan and Waters OT}{chapter.5}% 38
+\BOOKMARK [2][-]{subsection.5.4.1}{Other - AES, SHA-2}{section.5.4}% 39
+\BOOKMARK [0][-]{chapter.6}{Experiments}{}% 40
+\BOOKMARK [1][-]{section.6.1}{Measurement metrics}{chapter.6}% 41
+\BOOKMARK [1][-]{section.6.2}{Testing Environment}{chapter.6}% 42
+\BOOKMARK [1][-]{section.6.3}{Results}{chapter.6}% 43
+\BOOKMARK [2][-]{subsection.6.3.1}{32-bit addition}{section.6.3}% 44
+\BOOKMARK [2][-]{subsection.6.3.2}{32-bit multiplication}{section.6.3}% 45
+\BOOKMARK [2][-]{subsection.6.3.3}{AES encryption}{section.6.3}% 46
+\BOOKMARK [2][-]{subsection.6.3.4}{SHA-256 Hashing}{section.6.3}% 47
+\BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 48
+\BOOKMARK [0][-]{Appendix.1.A}{Benchmarking components}{}% 49
+\BOOKMARK [1][-]{section.1.A.1}{Communications}{Appendix.1.A}% 50
+\BOOKMARK [1][-]{section.1.A.2}{Elliptic Curve Group Operations}{Appendix.1.A}% 51
+\BOOKMARK [1][-]{section.1.A.3}{Oblivious Transfer}{Appendix.1.A}% 52
+\BOOKMARK [2][-]{subsection.1.A.3.1}{Cut and Choose Oblivious Transfer}{section.1.A.3}% 53
+\BOOKMARK [2][-]{subsection.1.A.3.2}{Modified Cut and Choose Oblivious Transfer}{section.1.A.3}% 54
+\BOOKMARK [2][-]{subsection.1.A.3.3}{Naor Pinkas Oblivious Transfer}{section.1.A.3}% 55
+\BOOKMARK [1][-]{section.1.A.4}{Circuit Building}{Appendix.1.A}% 56
+\BOOKMARK [1][-]{section.1.A.5}{Circuit Evaluation}{Appendix.1.A}% 57
+\BOOKMARK [0][-]{Appendix.1.B}{Implementation guide}{}% 58
+\BOOKMARK [1][-]{section.1.B.1}{Building}{Appendix.1.B}% 59
+\BOOKMARK [2][-]{subsection.1.B.1.1}{Dependencies}{section.1.B.1}% 60
+\BOOKMARK [2][-]{subsection.1.B.1.2}{Compilation}{section.1.B.1}% 61
+\BOOKMARK [1][-]{section.1.B.2}{Running}{Appendix.1.B}% 62
+\BOOKMARK [1][-]{section.1.B.3}{Source Code Documentation}{Appendix.1.B}% 63

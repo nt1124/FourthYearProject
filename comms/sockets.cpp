@@ -436,3 +436,32 @@ long long unsigned int getReceivedCounter()
 {
     return byteReceivedCount;
 }
+
+
+void printAndZeroSentCounter()
+{
+    printf("::: Bytes Sent = %llu\n", byteSendCount);
+    fflush(stdout);
+    byteSendCount = 0;
+}
+
+void printAndZeroReceivedCounter()
+{
+    printf("::: Bytes Received = %llu\n", byteReceivedCount);
+    fflush(stdout);
+
+    byteReceivedCount = 0;
+}
+
+
+void printAndZeroBothCounters()
+{
+    printf("::: Bytes Sent = %llu\n", byteSendCount);
+    fflush(stdout);
+    byteSendCount = 0;
+
+    printf("::: Bytes Received = %llu\n\n", byteReceivedCount);
+    fflush(stdout);
+
+    byteReceivedCount = 0;
+}

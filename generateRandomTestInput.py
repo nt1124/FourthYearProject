@@ -1,16 +1,18 @@
+# python generateRandomTestInput.py 100 32 32 adder_32bit
+
 import random
 import sys
 
 
-if 4 != len(sys.argv):
-    print "Not enough arguments."
+if 5 != len(sys.argv):
+    print "Wrong number of arguments."
     exit()
 
 
-numToGen = 2
-numInputs_P1 = int(sys.argv[1])
-numInputs_P2 = int(sys.argv[2])
-circuitName = sys.argv[3]
+numToGen = int(sys.argv[1])
+numInputs_P1 = int(sys.argv[2])
+numInputs_P2 = int(sys.argv[3])
+circuitName = sys.argv[4]
 
 
 for i in range(0, numToGen):

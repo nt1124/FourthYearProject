@@ -33,10 +33,6 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	numCircuits += numCircuits % 2;
 
 
-	params = initBrainpool_256_Curve();
-	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
-	public_inputs = computePublicInputs(secret_inputs, params);
-
 	for(i = 0; i < numCircuits; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
@@ -50,6 +46,10 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	ext_t_0 = timestamp();
 	ext_c_0 = clock();
 
+	params = initBrainpool_256_Curve();
+	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
+	public_inputs = computePublicInputs(secret_inputs, params);
+
 	printf("Executor has connected to us.\n");
 
 	int_t_0 = timestamp();
@@ -61,7 +61,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilding/Inputting all Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit prep and building");
 	fflush(stdout);
 
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
@@ -81,13 +81,16 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	// At this point receive from the Executor the proof of the J-set.
 	// Then provide the relevant r_j's.
-	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, numCircuits, &J_setSize, circuitSeeds);
-
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, numCircuits, &J_setSize, circuitSeeds);
 
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 								J_set, J_setSize, startOfInputChain, 
@@ -97,6 +100,9 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Builder Cut and choose - Correctness etc.");
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -204,6 +210,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	// Here we do the decommit...
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
@@ -225,6 +233,9 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Executor Cut and choose - Correctness etc");
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -242,6 +253,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	printf("Consistency Check = %d\n", consistency);
 
+	int_c_0 = clock();
+	int_t_0 = timestamp();
 
 	printf("Evaluating Circuits ");
 	for(i = 0; i < numCircuits; i ++)
@@ -255,6 +268,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	}
 	freeRawCircuit(rawInputCircuit);
 	printf("\n");
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Cirucit Evaluation");
+
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();

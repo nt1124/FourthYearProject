@@ -95,8 +95,6 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'N');
 
-		// printf("V ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
-
 		if( NULL != tempGateOrWire )
 		{
 			gateIndex = tempGateOrWire -> G_ID;
@@ -116,7 +114,6 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	*(gatesList + gateIndex) = tempGateOrWire;
 	*(execOrder + execIndex) = gateIndex;
 
-	// printf("Z ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 	inputIDs[0] = execIndex;
 	inputIDs[1] = tempIndex + 2;
@@ -126,7 +123,6 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	for(i = 0; i < bitsToCheck - 2; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
-		// printf("A ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 		if( NULL != tempGateOrWire )
 		{
@@ -146,7 +142,6 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 	for(i = 0; i < inputX_Size; i ++)
 	{
 		tempGateOrWire = processGate_Raw(execIndex, 2, inputIDs, 'A');
-		// printf("B ~~~ %d %d %d\n", execIndex, inputIDs[0], inputIDs[1]);
 
 		if( NULL != tempGateOrWire )
 		{
@@ -158,8 +153,6 @@ struct RawCircuit *createRawCheckCircuit_No_OT_Opt(int inputX_Size, int bitsToCh
 			execIndex ++;
 		}
 	}
-
-	// printf("C ~~~ %d\n", outputCircuit -> numGates);
 
 	for(i = 0; i < outputCircuit -> numOutputs; i ++)
 	{

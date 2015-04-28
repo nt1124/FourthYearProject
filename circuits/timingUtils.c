@@ -33,7 +33,7 @@ void printTiming(struct timespec *t_0, struct timespec *t_1,
 	{
 		printf("%s\n", headerStr);
         printf("CPU time  : %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-        printf("Wall time : %lf\n\n", seconds_timespecDiff(t_0, t_1));
+        printf("Wall time : %lf\n", seconds_timespecDiff(t_0, t_1));
 	}
 }
 

@@ -17,7 +17,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	gmp_randstate_t *state;
 	struct eccParams *params;
 
-	struct eccPoint **builderInputs, ***NP_consistentInputs, ***NP_consistentInputsCheck, *C, *cTilde;
+	struct eccPoint **builderInputs, ***NP_consistentInputs, *C, *cTilde;
 	struct builderInputCommitStruct *commitStruct;
 	struct OT_NP_Receiver_Query **queries_Own;
 
@@ -26,7 +26,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
-	mpz_t **aList, **aListCheck;
+	mpz_t **aList;
 
 
 	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
@@ -81,17 +81,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
 	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
 
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit build prelims complete");
-	fflush(stdout);
-
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
@@ -113,6 +102,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
+	printAndZeroBothCounters();
 
 	// Builder sends the Hashed b Lists
 	commBufferLen = 0;
@@ -132,7 +122,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCommitted to inputs");
-	fflush(stdout);
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -144,6 +134,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+	printAndZeroBothCounters();
 
 
 	// Get the J-set proof from the Executor, then revealed all needed to build the J-set circuits, and the builder's
@@ -152,22 +143,20 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 											aList, inputBitsOwn, stat_SecParam, &J_setSize, circuitSeeds);
 
 
-	// Generate the builder's inputs to the circuit the builder shall build.
-	// aListCheck = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
-	// NP_consistentInputsCheck = computeNaorPinkasInputs(cTilde, aListCheck, rawInputCircuit -> numInputs_P1, stat_SecParam, params);
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
-	/*
+	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
 	SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
-								startOfInputChain, delta, lengthDelta,
+								startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
 								queries_Own, C, cTilde,
 								stat_SecParam, state, ctx);
-	*/
-	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
-	SC_DetectCheatingBuilder_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
-								startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
-								queries_Own,
-								C, cTilde,
-								stat_SecParam, state, ctx);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation");
+	printAndZeroBothCounters();
+
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
@@ -285,6 +274,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits");
+	printAndZeroBothCounters();
 
 
 	for(i = 0; i < stat_SecParam; i ++)
@@ -306,6 +296,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+	printAndZeroBothCounters();
 
 
 	// Here we do the decommit...Getting the information we need for proving consistency later, and the
@@ -336,15 +327,21 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nEvaluating all circuits");
+	printAndZeroBothCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
-	// cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit, deltaPrime,
-	// 												lengthDelta, queries_Partner, C, cTilde, stat_SecParam, state, ctx);
-	cheatDetectOutput = SC_DetectCheatingExecutor_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
+	cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit,
 													rawInputCircuit -> numInputs_P1, deltaPrime, lengthDelta,
 													queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -361,10 +358,11 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nVerifying B Lists");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-
 
 	circuitsChecked = L_2013_HKE_performCircuitChecks(circuitsArray, rawInputCircuit,
 													C, secretsRevealed,
@@ -377,6 +375,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nChecking Circuits Correct");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -395,6 +394,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilder Inputs consistency checked");
+	printAndZeroBothCounters();
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -402,7 +402,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "\nTotal time without connection setup");
 
 
-	if(1 || NULL == cheatDetectOutput)
+	if(NULL == cheatDetectOutput)
 	{
 		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
 	}

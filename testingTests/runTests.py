@@ -4,40 +4,47 @@ import os
 import sys
 
 
-if 5 != len(sys.argv):
+
+def runTests(ipAddress, portNum, partyID, circuitName):
+	circuitFile = "./circuitFiles/" + circuitName + ".rtl.circuit"
+	baseInputFile = "./inputs/RandomTestInputs/" + circuitName
+	baseOutputFile = "./TestResults/Output_" + partyID + "_" + protocolNames[protocolNum] + "_"
+
+
+	if '1' == partyID:
+		baseInputFile = baseInputFile + ".builder.input."
+	else:
+		baseInputFile = baseInputFile + ".executor.input."
+
+	os.chdir('..')
+
+	for i in range(0, numTests):
+		outputNumber = str(i).zfill(4)
+		inputFile = baseInputFile + str(i)
+		outputFile = baseOutputFile + outputNumber
+		command = "./a.out " + circuitFile + " " + ipAddress + " " + portNum + " " + inputFile + " " + str(protocolNum) + " " + str(partyID) + " > " + outputFile 
+
+		#os.system(command)
+		print command
+
+
+
+if 4 != len(sys.argv):
     print "Not enough arguments."
-    print "IP Port PartyID circuitName"
+    print "IP Port PartyID"
     exit()
 
 
-numTests = 10
+numTests = 3
 protocolNames = ["LP_2010", "L_2013", "HKE_2013", "CHIMERA_2013"]
+circuitNamesList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 protocolNum = 2
 
 
 ipAddress = sys.argv[1]
 portNum = sys.argv[2]
 partyID = sys.argv[3]
-circuitFile = "./circuitFiles/" + sys.argv[4] + ".rtl.circuit"
-baseInputFile = "./inputs/RandomTestInputs/" + sys.argv[4]
-baseOutputFile = "./TestResults/Output_" + partyID + "_" + protocolNames[protocolNum] + "_"
 
 
-if '1' == partyID:
-	baseInputFile = baseInputFile + ".builder.input."
-else:
-	baseInputFile = baseInputFile + ".executor.input."
-
-
-
-os.chdir('..')
-
-
-
-for i in range(0, numTests):
-	inputFile = baseInputFile + str(i)
-	outputFile = baseOutputFile + str(i)
-	command = "./a.out " + circuitFile + " " + ipAddress + " " + portNum + " " + inputFile + " " + str(partyID) + " > " + outputFile 
-
-	# os.system(command)
-	print command
+for i in range(0, len(circuitNamesList)):
+	runTests(ipAddress, portNum, partyID, circuitNamesList[i])
