@@ -22,6 +22,9 @@ def runTests(ipAddress, portNum, partyID, circuitName):
 		outputFile = baseOutputFile + outputNumber + ".txt"
 		command = "./a.out " + circuitFile + " " + ipAddress + " " + portNum + " " + inputFile + " " + str(protocolNum) + " " + str(partyID) + " > " + outputFile 
 
+
+		open(outputFile, 'w').close()
+
 		print command
 		os.system(command)
 		print "Done"

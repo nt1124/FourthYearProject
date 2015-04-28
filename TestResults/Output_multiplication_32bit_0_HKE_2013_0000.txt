@@ -2,41 +2,41 @@ Running Executor.
 Partner has connected to us.
 
 Circuit building preparation complete
-CPU time  : 0.360000
-Wall time : 0.416155
+CPU time  : 0.880000
+Wall time : 0.928154
 
 Circuit building complete
-CPU time  : 0.410000
-Wall time : 0.393096
+CPU time  : 0.460000
+Wall time : 0.447630
 
 Circuits exchanged
-CPU time  : 0.060000
-Wall time : 0.333499
+CPU time  : 0.080000
+Wall time : 0.094471
 
 Exchanging Secret scheme params.
 CPU time  : 0.000000
-Wall time : 0.000662
-::: Bytes Sent = 8477
-::: Bytes Received = 8473
+Wall time : 0.000438
+::: Bytes Sent = 8509
+::: Bytes Received = 8505
 
 
 OT
-CPU time  : 1.670000
-Wall time : 1.664632
+CPU time  : 3.140000
+Wall time : 3.353540
 ::: Bytes Sent = 15784
 ::: Bytes Received = 15784
 
 
 Commitments made.
-CPU time  : 1.420000
-Wall time : 1.464615
+CPU time  : 3.550000
+Wall time : 3.587393
 ::: Bytes Sent = 37678
 ::: Bytes Received = 37678
 
 
 J set exchange.
 CPU time  : 0.000000
-Wall time : 0.001579
+Wall time : 0.000037
 ::: Bytes Sent = 8
 ::: Bytes Received = 8
 
@@ -47,8 +47,8 @@ Outputs verified : 0
 
 
 Initial J-Set checks
-CPU time  : 1.470000
-Wall time : 1.501639
+CPU time  : 2.370000
+Wall time : 2.395385
 ::: Bytes Sent = 23624
 ::: Bytes Received = 23624
 
@@ -57,8 +57,8 @@ Logarithm Checks : 0
 
 
 Logarithm Checks
-CPU time  : 0.090000
-Wall time : 0.142852
+CPU time  : 0.120000
+Wall time : 0.222813
 ::: Bytes Sent = 2308
 ::: Bytes Received = 2308
 
@@ -66,8 +66,8 @@ verified = 0
 
 
 Output determination
-CPU time  : 1.560000
-Wall time : 1.600166
+CPU time  : 1.770000
+Wall time : 1.767039
 ::: Bytes Sent = 26154
 ::: Bytes Received = 26154
 
@@ -75,9 +75,9 @@ Candidate Output binary : 110000001010001011010100011001101111001111110001110111
 
 
 Total time without connection setup
-CPU time  : 7.080000
-Wall time : 7.561964
+CPU time  : 12.450000
+Wall time : 12.877747
 
 Total Time (Includes connection open/closing)
-CPU time  :     7.080000
-Wall time :     7.571173
+CPU time  :     12.460000
+Wall time :     13.105807
