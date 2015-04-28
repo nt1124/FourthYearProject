@@ -57,13 +57,6 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit prep and building");
-	fflush(stdout);
-
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 
@@ -71,6 +64,13 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	{
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuit prep, building and sending.");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -85,6 +85,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -103,6 +104,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Builder Cut and choose - Correctness etc.");
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -116,6 +118,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
+	printAndZeroBothCounters();
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
@@ -192,7 +195,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nReceived Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nReceived Circuits etc.");
+	printAndZeroBothCounters();
 
 
 
@@ -236,6 +240,8 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Executor Cut and choose - Correctness etc");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -250,6 +256,7 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Proving consistency");
+	printAndZeroBothCounters();
 
 	printf("Consistency Check = %d\n", consistency);
 

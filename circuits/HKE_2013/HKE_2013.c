@@ -272,17 +272,28 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits exchanged");
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	// Send the public commitments for the Verified Secret Sharing Scheme and exchange groups.
 	outputStruct_Partner = exchangePublicBoxesOfSchemes(writeSocket, readSocket, outputStruct_Own, rawInputCircuit -> numOutputs, numCircuits);
 	sendDDH_Group(writeSocket, readSocket, groupOwn);
 	groupPartner = receiveDDH_Group(writeSocket, readSocket);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Exchanging Secret scheme params.");
+	printAndZeroBothCounters();
+
 	// Having received the circuits we now have the OT.
 	// Note we do this after the circuits have been built and sent.
-	inputBitsOwn = convertChainIntoArray(startOfInputChain, circuitsArray_Own[0] -> numInputsBuilder);
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
+
+	inputBitsOwn = convertChainIntoArray(startOfInputChain, circuitsArray_Own[0] -> numInputsBuilder);
 
 	// Perform all the Oblivious Transfer stuff.
 	queries_Own = NaorPinkas_OT_Produce_Queries(circuitsArray_Partner[0] -> numInputsExecutor, inputBitsOwn, state, params, cTilde);
@@ -291,9 +302,12 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	NaorPinkas_OT_Sender_Transfer(writeSocket, readSocket, circuitsArray_Own[0] -> numInputsExecutor, OT_Inputs, state, numCircuits, queries_Partner, params, C);
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, circuitsArray_Partner[0] -> numInputsExecutor, inputBitsOwn, state, numCircuits, queries_Own, params, cTilde);
 
+	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, numCircuits, partyID);
+
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -312,13 +326,22 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Commitments made");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Commitments made.");
+	printAndZeroBothCounters();
 
 
-	setInputsFromNaorPinkas(circuitsArray_Partner, OT_Outputs, numCircuits, partyID);
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	J_SetOwn = generateJ_Set(numCircuits);
 	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_SetOwn, numCircuits / 2, numCircuits);
+
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "J set exchange.");
+	printAndZeroBothCounters();
+
 
 
 	int_t_0 = timestamp();
@@ -337,10 +360,11 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_SetOwn, J_setPartner, numCircuits, groupPartner, params, partyID);
 
-
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nInitial J-Set checks");
+	printAndZeroBothCounters();
+
 
 	setBuildersInputsNaorPinkas(circuitsArray_Partner, rawInputCircuit, partnerReveals -> builderInputsEval,
 								J_SetOwn, numCircuits, partyID);
@@ -377,6 +401,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nLogarithm Checks");
+	printAndZeroBothCounters();
 
 	for(i = 0; i < numCircuits; i ++)
 	{
@@ -385,8 +410,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
 		}
 	}
-
-	printMajorityOutputAsBinary(circuitsArray_Partner, numCircuits, J_SetOwn);
 
 
 	int_t_0 = timestamp();
@@ -398,6 +421,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nOutput determination");
+	printAndZeroBothCounters();
 
 
 	printf("Candidate Output binary : ");

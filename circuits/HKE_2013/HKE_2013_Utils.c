@@ -80,8 +80,6 @@ void setInputsFromNaorPinkas(struct Circuit **circuitsArray, unsigned char **out
 	numInputsBuilder = circuitsArray[0] -> numInputsBuilder;
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 
-	printf("%d %d\n", numInputsBuilder, numInputsExecutor);
-
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		iOffset = numCircuits * i;

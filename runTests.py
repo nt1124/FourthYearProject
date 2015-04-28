@@ -1,5 +1,3 @@
-# python runTests.py 127.0.0.1 6789 1 adder_32bit
-
 import os
 import sys
 
@@ -8,7 +6,7 @@ import sys
 def runTests(ipAddress, portNum, partyID, circuitName):
 	circuitFile = "./circuitFiles/" + circuitName + ".rtl.circuit"
 	baseInputFile = "./inputs/RandomTestInputs/" + circuitName
-	baseOutputFile = "./TestResults/Output_" + partyID + "_" + protocolNames[protocolNum] + "_"
+	baseOutputFile = "./TestResults/Output_" + circuitName + "_" + partyID + "_" + protocolNames[protocolNum] + "_"
 
 
 	if '1' == partyID:
@@ -16,16 +14,17 @@ def runTests(ipAddress, portNum, partyID, circuitName):
 	else:
 		baseInputFile = baseInputFile + ".executor.input."
 
-	os.chdir('..')
+	# os.chdir('..')
 
 	for i in range(0, numTests):
 		outputNumber = str(i).zfill(4)
 		inputFile = baseInputFile + str(i)
-		outputFile = baseOutputFile + outputNumber
+		outputFile = baseOutputFile + outputNumber + ".txt"
 		command = "./a.out " + circuitFile + " " + ipAddress + " " + portNum + " " + inputFile + " " + str(protocolNum) + " " + str(partyID) + " > " + outputFile 
 
-		#os.system(command)
 		print command
+		os.system(command)
+		print "Done"
 
 
 
@@ -48,3 +47,8 @@ partyID = sys.argv[3]
 
 for i in range(0, len(circuitNamesList)):
 	runTests(ipAddress, portNum, partyID, circuitNamesList[i])
+
+
+
+# python runTests.py 127.0.0.1 6789 1
+

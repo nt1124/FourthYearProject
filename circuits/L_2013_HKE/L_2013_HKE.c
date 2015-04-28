@@ -108,9 +108,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_t_1 = timestamp();
 
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuits prep/building done. Circuits");
-	fflush(stdout);
-
 	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -138,10 +137,18 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	printAndZeroBothCounters();
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	// Get the J-set proof from the Executor, then revealed all needed to build the J-set circuits, and the builder's
 	// inputs for the non-J-set circuits.
 	J_set = builder_decommitToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, NP_consistentInputs,
 											aList, inputBitsOwn, stat_SecParam, &J_setSize, circuitSeeds);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nDecommit to J_set.");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -155,19 +162,35 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nFull Sub-Computation.");
 	printAndZeroBothCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(bLists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nDecommit to B List");
+	printAndZeroBothCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	commBuffer = Step5_CalculateLogarithms(NP_consistentInputs, aList, queries_Own, params, inputBitsOwn, J_set, stat_SecParam, rawInputCircuit -> numInputs_P1, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nMain Logarithm Checks");
+	printAndZeroBothCounters();
 
 
 	ext_c_1 = clock();
@@ -187,6 +210,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 }
+
 
 
 
@@ -236,9 +260,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	state = seedRandGen();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
 	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
-
 
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
@@ -249,8 +276,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	queries_Partner = deserialiseQueries(commBuffer, rawInputCircuit -> numInputs_P1);
 
 
-	int_t_0 = timestamp();
-	int_c_0 = clock();
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
@@ -274,7 +299,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiving Circuits and auxiliary stuff.");
 	printAndZeroBothCounters();
 
 
@@ -394,7 +419,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilder Inputs consistency checked");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nMain Logarithms.");
 	printAndZeroBothCounters();
 
 	ext_c_1 = clock();
