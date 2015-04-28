@@ -222,6 +222,7 @@ void sendBoth(int socket, octet *msg, int len)
     }
 
     byteSendCount += (sizeof(int) + len);
+    totalSendCount += (sizeof(int) + len);
     // get_ack(socket);
 }
 
@@ -233,6 +234,7 @@ unsigned char *receiveBoth(int socket, int& len)
     unsigned char *msg = (unsigned char*) calloc(len, sizeof(unsigned char));
 
     byteReceivedCount += (sizeof(int) + len);
+    totalReceivedCount += (sizeof(int) + len);
 
     while (len - i > 0)
     {

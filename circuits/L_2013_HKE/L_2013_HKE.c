@@ -90,11 +90,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	circuitsArray =  buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
 									params, circuitCTXs, stat_SecParam);
 
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nBuilding/Inputting all Circuits");
-	fflush(stdout);
 
 
 	for(i = 0; i < stat_SecParam; i++)
@@ -102,14 +97,20 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
-	printAndZeroBothCounters();
-
 	// Builder sends the Hashed b Lists
 	commBufferLen = 0;
 	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "\nCircuits prep/building done. Circuits");
+	fflush(stdout);
+
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

@@ -5,6 +5,9 @@
 long long unsigned int byteSendCount = 0;
 long long unsigned int byteReceivedCount = 0;
 
+long long unsigned int totalSendCount = 0;
+long long unsigned int totalReceivedCount = 0;
+
 #include "data.h"
 
 #include <errno.h>      /* Errors */

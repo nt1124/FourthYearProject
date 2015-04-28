@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  28 APR 2015 15:20
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  28 APR 2015 17:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1105,7 +1105,7 @@ Underfull \hbox (badness 10000) in paragraph at lines 31--31
 
  []
 
-<bristolunilogo.png, id=257, 452.892pt x 452.82462pt>
+<bristolunilogo.png, id=261, 452.892pt x 452.82462pt>
 File: bristolunilogo.png Graphic file (type png)
  <use bristolunilogo.png>
 Package pdftex.def Info: bristolunilogo.png used on input line 31.
@@ -1701,12 +1701,12 @@ Underfull \hbox (badness 10000) in paragraph at lines 604--605
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 609--610
+Underfull \hbox (badness 10000) in paragraph at lines 606--607
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 615--616
+Underfull \hbox (badness 10000) in paragraph at lines 611--612
 
  []
 
@@ -1716,103 +1716,138 @@ Underfull \hbox (badness 10000) in paragraph at lines 617--618
  []
 
 
+Underfull \hbox (badness 10000) in paragraph at lines 619--620
+
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 629--630
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 636--637
+[25]
+Underfull \hbox (badness 10000) in paragraph at lines 633--634
 
  []
 
-[25]
+
+Underfull \hbox (badness 10000) in paragraph at lines 635--636
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 637--638
+
+ []
+
+
 Underfull \hbox (badness 10000) in paragraph at lines 642--643
 
  []
 
+
+Underfull \hbox (badness 10000) in paragraph at lines 648--649
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 650--651
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 655--656
+
+ []
+
 [26]
+Underfull \hbox (badness 10000) in paragraph at lines 657--658
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 659--660
+
+ []
+
+[27]
 Chapter 5.
 
-Underfull \hbox (badness 10000) in paragraph at lines 661--662
+Underfull \hbox (badness 10000) in paragraph at lines 666--667
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 663--664
+Underfull \hbox (badness 10000) in paragraph at lines 668--669
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 674--675
+Underfull \hbox (badness 10000) in paragraph at lines 679--680
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 676--677
+Underfull \hbox (badness 10000) in paragraph at lines 681--682
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 678--679
-
- []
-
-[27
-
-]
 Underfull \hbox (badness 10000) in paragraph at lines 683--684
 
  []
 
+[28
 
-Underfull \hbox (badness 10000) in paragraph at lines 685--686
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 691--692
+]
+Underfull \hbox (badness 10000) in paragraph at lines 688--689
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 693--694
+Underfull \hbox (badness 10000) in paragraph at lines 690--691
 
  []
 
 
-Overfull \hbox (13.24185pt too wide) in paragraph at lines 696--713
+Underfull \hbox (badness 10000) in paragraph at lines 696--697
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 698--699
+
+ []
+
+
+Overfull \hbox (13.24185pt too wide) in paragraph at lines 701--718
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 717--718
+Underfull \hbox (badness 10000) in paragraph at lines 722--723
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 723--724
+Underfull \hbox (badness 10000) in paragraph at lines 728--729
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 725--726
+Underfull \hbox (badness 10000) in paragraph at lines 730--731
 
  []
 
-[28]
-Package mdframed Info: mdframed works in twoside mode on input line 728.
+[29]
+Package mdframed Info: mdframed works in twoside mode on input line 733.
 
-Underfull \hbox (badness 10000) in paragraph at lines 753--754
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 755--756
+Underfull \hbox (badness 10000) in paragraph at lines 758--759
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 757--758
+Underfull \hbox (badness 10000) in paragraph at lines 760--761
 
  []
 
@@ -1822,19 +1857,19 @@ Underfull \hbox (badness 10000) in paragraph at lines 762--763
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 764--765
+Underfull \hbox (badness 10000) in paragraph at lines 767--768
 
  []
 
-[29] [30]
+
+Underfull \hbox (badness 10000) in paragraph at lines 769--770
+
+ []
+
+[30] [31]
 Chapter 6.
 
-Underfull \hbox (badness 10000) in paragraph at lines 790--791
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 798--799
+Underfull \hbox (badness 10000) in paragraph at lines 795--796
 
  []
 
@@ -1843,86 +1878,91 @@ Underfull \hbox (badness 10000) in paragraph at lines 803--804
 
  []
 
-[31
+
+Underfull \hbox (badness 10000) in paragraph at lines 808--809
+
+ []
+
+[32
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 817--818
+Underfull \hbox (badness 10000) in paragraph at lines 822--823
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 819--820
+Underfull \hbox (badness 10000) in paragraph at lines 824--825
 
  []
 
-[32]
+[33]
 Chapter 7.
-[33
+[34
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 870--873
+Underfull \hbox (badness 10000) in paragraph at lines 875--878
 \OT1/cmtt/m/n/10.95 Programs / PROgramming _ Computation _ on _ EncryptEd _ Dat
 a _ %28PROCEED % 29 .
  []
 
-[34
+[35
 
 ]
-Underfull \hbox (badness 3209) in paragraph at lines 928--932
+Underfull \hbox (badness 3209) in paragraph at lines 933--937
 []\OT1/cmr/m/n/10.95 N. Sul-li-van, \OT1/cmr/m/it/10.95 A (rel-a-tively easy to
  un-der-stand) primer on el-lip-tic curve
  []
 
 
-Underfull \hbox (badness 4120) in paragraph at lines 928--932
+Underfull \hbox (badness 4120) in paragraph at lines 933--937
 \OT1/cmr/m/it/10.95 cryp-tog-ra-phy\OT1/cmr/m/n/10.95 , Oc-to-ber 2013, []$\OT1
 /cmtt/m/n/10.95 http : / / arstechnica . com / security / 2013 / 10 /
  []
 
 
-Overfull \hbox (19.8932pt too wide) in paragraph at lines 928--932
+Overfull \hbox (19.8932pt too wide) in paragraph at lines 933--937
 \OT1/cmtt/m/n/10.95 a-[]relatively-[]easy-[]to-[]understand-[]primer-[]on-[]ell
 iptic-[]curve-[]cryptography/$[]\OT1/cmr/m/n/10.95 . 
  []
 
-[35]
+[36]
 Appendix A.
 
-Underfull \hbox (badness 10000) in paragraph at lines 962--963
+Underfull \hbox (badness 10000) in paragraph at lines 967--968
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 964--965
+Underfull \hbox (badness 10000) in paragraph at lines 969--970
 
  []
 
-[36
+[37
 
-] [37]
+] [38]
 Appendix B.
 
-Underfull \hbox (badness 10000) in paragraph at lines 999--1000
+Underfull \hbox (badness 10000) in paragraph at lines 1004--1005
 
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1032.
-[38
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1037.
+[39
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1032.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1037.
  (./Dissertation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1032.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1032.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1037.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1037.
 
 Package rerunfilecheck Info: File `Dissertation.out' has not changed.
-(rerunfilecheck)             Checksum: A95D944B45B3B310044F101F08E39640;4599.
+(rerunfilecheck)             Checksum: E982F685109F0A1D8955D986DD39A485;4694.
  ) 
 Here is how much of TeX's memory you used:
- 18370 strings out of 495028
- 305807 string characters out of 6181497
- 528308 words of memory out of 5000000
- 21091 multiletter control sequences out of 15000+600000
+ 18374 strings out of 495028
+ 305869 string characters out of 6181497
+ 527372 words of memory out of 5000000
+ 21093 multiletter control sequences out of 15000+600000
  12540 words of font info for 46 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  45i,26n,51p,10447b,556s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -1941,10 +1981,10 @@ amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Dissertation.pdf (38 pages, 415117 bytes).
+Output written on Dissertation.pdf (39 pages, 418358 bytes).
 PDF statistics:
- 750 PDF objects out of 1000 (max. 8388607)
- 684 compressed objects within 7 object streams
- 170 named destinations out of 1000 (max. 500000)
- 510 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 761 PDF objects out of 1000 (max. 8388607)
+ 694 compressed objects within 7 object streams
+ 172 named destinations out of 1000 (max. 500000)
+ 518 words of extra memory for PDF output out of 10000 (max. 10000000)
 

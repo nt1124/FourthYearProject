@@ -356,8 +356,7 @@ struct bitsGarbleKeys *genFreeXORPair(struct gateOrWire *curGate, unsigned char 
 unsigned char getPermutation()
 {
 	unsigned char *toOutputPointer = generateRandBytes(1, 1);
-	// unsigned char toReturn = (*toOutputPointer) & 0x01;
-	unsigned char toReturn = (*toOutputPointer) & 0x00;
+	unsigned char toReturn = (*toOutputPointer) & 0x01;
 	free(toOutputPointer);
 
 	return toReturn;
@@ -368,8 +367,7 @@ unsigned char getPermutation()
 unsigned char getIsaacPermutation(randctx *ctx)
 {
 	unsigned char *toOutputPointer = generateIsaacRandBytes(ctx, 1, 1);
-	// unsigned char toReturn = (*toOutputPointer) & 0x01;
-	unsigned char toReturn = (*toOutputPointer) & 0x00;
+	unsigned char toReturn = (*toOutputPointer) & 0x01;
 	free(toOutputPointer);
 
 	return toReturn;
