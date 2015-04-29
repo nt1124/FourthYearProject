@@ -67,7 +67,7 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 	struct OT_NP_Receiver_Query **deltaQueries, **concated_P1_Queries;
 	struct eccPoint **queries_Partner;
 
-	unsigned char *commBuffer, *J_SetOwn, *J_SetPartner, ***OT_Inputs, **OT_Outputs;
+	unsigned char *commBuffer, *J_SetOwn, *J_SetPartner, **J_setPair, ***OT_Inputs, **OT_Outputs;
 	unsigned char *deltaExpanded, *inputBitsOwn, *binaryOutput, *concatInput;
 	int commBufferLen = 0, i, j, k, J_setSize = 0, arrayLen = 0, bufferOffset = 0;
 	int jSetChecks = 0, logChecks = 0, partyID = 1;
@@ -168,8 +168,11 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
 
-	J_SetOwn = generateJ_Set(checkStatSecParam);
-	J_SetPartner = getPartnerJ_Set(writeSocket, readSocket, J_SetOwn, checkStatSecParam / 2, checkStatSecParam);
+
+	randctx *tempCTX = getRandCtxByCoinToss(writeSocket, readSocket, ctx, state, partyID);
+	J_setPair = getJ_Set(tempCTX, partyID, checkStatSecParam);
+	J_SetOwn = J_setPair[0];
+	J_SetPartner = J_setPair[1];
 
 
 	commBuffer = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NP_consistentInputs, aList,

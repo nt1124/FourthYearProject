@@ -4,10 +4,8 @@
 	2) Both parties commit to their bit strings to the other.
 	3) Both parties check to make sure their inputs are not the same.
 		If this is the case redo.
-	4) 
-
-
-	BUT, for now we will just SEND a J-set.
+	4) Both parties decommit to their bit strings.
+	5) Parties XOR the inputs and use the result to Seed a random number generator.
 */
 
 

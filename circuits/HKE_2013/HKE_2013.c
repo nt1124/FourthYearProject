@@ -398,7 +398,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		printf("Logarithm Checks : %d\n\n", logChecks);
 
 		bufferOffset = 0;
-		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
+		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner,
+												numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
 		sendBoth(writeSocket, commBuffer, commBufferLen);
 		free(commBuffer);
 	}
@@ -408,13 +409,19 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Logarithm Checks");
 	printAndZeroBothCounters();
 
+
+	printf("\nEvaluating Circuits ");
+	fflush(stdout);
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_SetOwn[i])
 		{
+			printf("%d, ", i);
+			fflush(stdout);
 			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
 		}
 	}
+	printf("\n");
 
 
 	int_t_0 = timestamp();

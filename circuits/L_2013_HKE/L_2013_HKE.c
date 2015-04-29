@@ -30,7 +30,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 
 	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
-	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	initRandGen();
 	state = seedRandGen();
@@ -60,7 +59,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	params = initBrainpool_256_Curve();
 
-
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
@@ -69,13 +67,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	inputBitsOwn = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
 
-	commBufferLen = 0;
-	queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
-	commBuffer = serialiseQueries(queries_Own, rawInputCircuit -> numInputs_P1, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-
-
 	delta = generateRandBytes(16, 16);
 
 	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
@@ -83,14 +74,32 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		Xj_checkValues[i] = generateRandBytes(16, 16);		
+		Xj_checkValues[i] = generateRandBytes(16, 16);
 	}
 
 
-	circuitsArray =  buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
-									params, circuitCTXs, stat_SecParam);
+	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
+													params, circuitCTXs, stat_SecParam);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
+	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, rawInputCircuit -> numInputs_P2, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
+	printAndZeroBothCounters();
+
+
+
+	commBufferLen = 0;
+	queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
+	commBuffer = serialiseQueries(queries_Own, rawInputCircuit -> numInputs_P1, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
 
 	for(i = 0; i < stat_SecParam; i++)
 	{
@@ -124,18 +133,18 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Committed to inputs");
 	printAndZeroBothCounters();
 
-
+	/*
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
 	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
-	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
+	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, rawInputCircuit -> numInputs_P2, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 	printAndZeroBothCounters();
-
+	*/
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -262,22 +271,21 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	state = seedRandGen();
 
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
 	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
-	// rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Alt(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 
+	permedInputs = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P2);
+	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, rawInputCircuit -> numInputs_P2,
+											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	commBufferLen = 0;
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	queries_Partner = deserialiseQueries(commBuffer, rawInputCircuit -> numInputs_P1);
-
-
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
@@ -322,9 +330,10 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsExecutor,
-											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
+	// J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, rawInputCircuit -> numInputs_P2,
+	// 										state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
 
 

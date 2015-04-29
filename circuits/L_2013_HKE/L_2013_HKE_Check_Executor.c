@@ -1,13 +1,3 @@
-// -----------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------
-// -----------------------------------------------------------------------------------------------
-
-
-
-
 struct eccPoint **concatQueriesExecutor(struct eccPoint **xInputQuries, int inputSize,
 										struct eccPoint **deltaQueries, int lengthDelta)
 {
@@ -54,11 +44,11 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	struct eccPoint **concated_P1_Queries, **deltaPartnerQueries;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(checkStatSecParam, sizeof(ub4*));
-	randctx **circuitCTXs = (randctx **) calloc(checkStatSecParam, sizeof(randctx*));
+	randctx **circuitCTXs = (randctx **) calloc(checkStatSecParam, sizeof(randctx*)), *tempCTX;
 	struct eccPoint ***NP_consistentInputs;
 	mpz_t **aList;
 
-	unsigned char *commBuffer, *J_SetOwn, *J_SetPartner, *deltaPrimeExpanded;
+	unsigned char *commBuffer, *J_SetOwn, *J_SetPartner, *deltaPrimeExpanded, **J_setPair;
 	unsigned char **OT_Outputs, *binaryOutput, *deltaFromPartner, equalityBit = 0x00, ***OT_Inputs;
 	int commBufferLen = 0, i, j, k, J_setSize = 0, arrayLen = 0, circuitsChecked = 0, bufferOffset = 0;
 	int jSetChecks = 0, logChecks = 0, partyID = 0;
@@ -171,8 +161,10 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
 
 
-	J_SetOwn = generateJ_Set(checkStatSecParam);
-	J_SetPartner = getPartnerJ_Set(writeSocket, readSocket, J_SetOwn, checkStatSecParam / 2, checkStatSecParam);
+	tempCTX = getRandCtxByCoinToss(writeSocket, readSocket, ctx, state, partyID);
+	J_setPair = getJ_Set(tempCTX, partyID, checkStatSecParam);
+	J_SetOwn = J_setPair[0];
+	J_SetPartner = J_setPair[1];
 
 
 	// Having exchanged J_sets the parties now reveal information needed to open the check circuits.
