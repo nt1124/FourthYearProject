@@ -35,3 +35,38 @@ unsigned char *getPartnerJ_Set(int writeSocket, int readSocket, unsigned char *o
 
 	return partnerJ_Set;
 }
+
+
+
+randctx *getRandCtxByCoinToss(int writeSocket, int readSocket, randctx *ownCTX, gmp_randstate_t *state, int partyID)
+{
+	struct commit_batch_params *ownParams, *partnerParams;
+	struct elgamal_commit_box *ownC_Box, *partnerC_Box;
+	struct elgamal_commit_key *ownK_Box, *partnerK_Box;
+
+	ub4 *XOR_seed = (ub4 *) calloc(256, sizeof(ub4));
+	randctx *ctx = (randctx *) calloc(1, sizeof(randctx *));
+	unsigned char *ownSeedBytes, *partnerSeedBytes, *commBufferWrite, *commBufferRead;
+	int i, commBufferWriteLen, commBufferReadLen;
+
+
+	ownSeedBytes = generateIsaacRandBytes(ownCTX, 256 *sizeof(ub4), 256 * sizeof(ub4));
+
+	ownParams = generate_commit_params(1024, *state);
+	commBufferWrite = serialise_commit_batch_params(ownParams, &commBufferWriteLen);
+	if(0 == partyID)
+	{
+		sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+	}
+
+	ownC_Box = init_commit_box();
+	ownK_Box = init_commit_key();
+
+	setIsaacContextFromSeed(ctx, XOR_seed);
+
+	return ctx;
+}
+
+
+
+

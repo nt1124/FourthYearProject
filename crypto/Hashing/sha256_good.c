@@ -1,8 +1,7 @@
-// This code was orginally written by {NAME HERE}.
+// This code was orginally written by Brad Conte.
 // Very slightly modified by me for use in my project.
-// Used under such and such licence.
-// My contribution was minimal.
-// Enough grovelling?
+// Brad Conte has published this code into the public domain.
+// Obtained from http://bradconte.com/files/projects/code/sha256.c
 
 
 #include <stdio.h> 

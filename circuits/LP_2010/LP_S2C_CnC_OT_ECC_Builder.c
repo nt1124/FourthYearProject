@@ -15,18 +15,8 @@ struct Circuit **buildAllCircuits(struct RawCircuit *rawInputCircuit, struct idA
 	#pragma omp parallel for default(shared) private(j) schedule(auto)
 	for(j = 0; j < numCircuits; j++)
 	{
-		// circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, secret_inputs -> secret_circuitKeys[j], public_inputs, j, params);
 		circuitsArray[j] = readInCircuit_FromRaw_Seeded_ConsistentInput(circuitCTXs[j], rawInputCircuit, consistentInputs[j], j, params);
 	}
-
- 
-	for(j = 0; j < numCircuits; j++)
-	{
-		start = startOfInputChain;
-		// setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
-		setCircuitsInputs_Values(start, circuitsArray[j], 0xFF);
-	}
-
 
 	return circuitsArray;
 }
@@ -268,5 +258,40 @@ void proveConsistencyEvaluationKeys_Builder(int writeSocket, int readSocket, uns
 		lambda_Index += k;
 		curValue = curValue -> next;
 	}
+}
 
+
+unsigned char *serialiseBuilderInputBits(struct Circuit **circuitsArray, unsigned char *inputArray, int inputLength,
+										unsigned char *J_set, int numCircuits, int *outputLength)
+{
+	struct wire *tempWire;
+	unsigned char *outputBuffer;
+	int i, j, bufferIndex = 0;
+
+
+	(*outputLength) = 0;
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_set[i])
+		{
+			(*outputLength) += inputLength;
+		}
+	}
+
+	outputBuffer = (unsigned char *) calloc((*outputLength), sizeof(unsigned char));
+	for(j = 0; j < inputLength; j ++)
+	{
+		for(i = 0; i < numCircuits; i ++)
+		{
+			if(0x00 == J_set[i])
+			{
+				tempWire = circuitsArray[i] -> gates[j] -> outputWire;
+				outputBuffer[bufferIndex] = inputArray[j] ^ (tempWire -> wirePerm & 0x01);
+
+				bufferIndex ++;
+			}
+		}
+	}
+
+	return outputBuffer;
 }

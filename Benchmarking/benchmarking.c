@@ -35,10 +35,15 @@ void benchmark(struct RawCircuit *rawInputCircuit, char *ipAddress, char *portNu
 	}
 	else if(2 == partyID)
 	{
-		printf("Running Exponentiation Tests.\n");
-		
-		benchmarkECC_Exponentiation();
-		benchmarkECC_Doubling();
-		benchmarkECC_GroupOp();
+		if(4 == testID)
+			benchmarkECC_Exponentiation();
+		else if(5 == testID)
+			benchmarkECC_Doubling();
+		else if(6 == testID)
+			benchmarkECC_GroupOp();
+		else if(7 == testID)
+			benchmark_LP_2010_CircuitBuilding(rawInputCircuit);
+		else if(8 == testID)
+			benchmark_L_2013_CircuitBuilding(rawInputCircuit);
 	}
 }

@@ -191,8 +191,41 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	struct timespec int_t_0, int_t_1;
 	clock_t int_c_0, int_c_1;
 
+	struct params_CnC_ECC *OT_params_R;
+	struct otKeyPair_ECC **OT_keyPairs_R;
 
+	
 	params = initBrainpool_256_Curve();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
+	OT_params_R = OT_CnC_Receiver_Setup_Params(lengthDelta, state, deltaPrime,
+											checkStatSecParam, 1024);
+	OT_keyPairs_R = OT_CnC_Receiver_Produce_Queries(OT_params_R, lengthDelta,
+													state, deltaPrime, checkStatSecParam);
+	J_set = OT_params_R -> crs -> J_set;
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver Prep");
+
+	receiveInt(readSocket);
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	OT_CnC_Receiver_Send_Queries(writeSocket, readSocket, OT_params_R, OT_keyPairs_R, lengthDelta,
+								state, deltaPrime, checkStatSecParam);
+	OT_Outputs = OT_CnC_Receiver_Transfer(writeSocket, readSocket, OT_params_R, OT_keyPairs_R,
+									lengthDelta, state, deltaPrime, checkStatSecParam);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver Transfer");
+
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
 	for(i = 0; i < checkStatSecParam; i ++)
@@ -206,9 +239,6 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_c_0 = clock();
 
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
-	// deltaPrime = (unsigned char *) calloc(128, sizeof(unsigned char));
-	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, lengthDelta,
-										state, deltaPrime, &OT_Outputs, checkStatSecParam, 1024);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	delta = deserialiseK0sAndDelta(commBuffer, circuitsArray, rawInputCircuit -> numInputs_P1, checkStatSecParam);
@@ -223,7 +253,7 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 								rawInputCircuit -> numInputs_P1, lengthDelta, checkStatSecParam);
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Get Delta and k_0s.");
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -246,8 +276,10 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
 	free(commBuffer);
 
-	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	setBuilderInputs(builderInputs, commBuffer, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
+	free(commBuffer);
 
 
 	printf("\nEvaluating Circuits ");

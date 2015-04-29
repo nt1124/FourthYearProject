@@ -22,13 +22,6 @@ struct Circuit **buildAllCircuitsConsistentOutput(struct RawCircuit *rawInputCir
 	}
 
 
-	for(j = 0; j < numCircuits; j++)
-	{
-		start = startOfInputChain;
-		setCircuitsInputs_Hardcode(start, circuitsArray[j], 0xFF);
-	}
-
-
 	return circuitsArray;
 }
 

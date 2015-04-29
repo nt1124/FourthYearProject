@@ -74,6 +74,9 @@ void benchmark_OT_LP_CnC_Receiver(char *ipAddress, char *portNumStr)
 	gmp_randstate_t *state;
 	randctx *isaacCTX;
 
+	struct params_CnC_ECC *OT_params_R;
+	struct otKeyPair_ECC **OT_keyPairs_R;
+
 	unsigned char **OT_Outputs, *permedInputs;
 	int i;
 	const int numIterations = 10, numX = 128, numY = 10;
@@ -97,7 +100,19 @@ void benchmark_OT_LP_CnC_Receiver(char *ipAddress, char *portNumStr)
 	for(i = 0; i < numIterations; i ++)
 	{
 		printf(">>> %d\n", i);
-		full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, numX, state, permedInputs, &OT_Outputs, numY, 1024);
+	
+		OT_params_R = OT_CnC_Receiver_Setup_Params(numX, state, permedInputs,
+										numY, 1024);
+		OT_keyPairs_R = OT_CnC_Receiver_Produce_Queries(OT_params_R, numX,
+														state, permedInputs, numY);
+		OT_CnC_Receiver_Send_Queries(writeSocket, readSocket, OT_params_R, OT_keyPairs_R, numX,
+									state, permedInputs, numY);
+
+		OT_CnC_Receiver_Transfer(writeSocket, readSocket, OT_params_R, OT_keyPairs_R,
+								numX, state, permedInputs, numY);
+
+
+		// full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, numX, state, permedInputs, &OT_Outputs, numY, 1024);
 	}
 
 	c_1 = clock();

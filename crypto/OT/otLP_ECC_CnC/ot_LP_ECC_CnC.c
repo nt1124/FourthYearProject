@@ -342,9 +342,6 @@ void test_local_CnC_OT_ECC()
 	{
 		CnC_OT_Output_One_Receiver_ECC(c_i_Array_R[u_v_index], c_i_Array_R[u_v_index + 1], keyPairs_R[i], params_R, sigmaBit, i, &tempChars_0, &tempChars_1);
 
-		// tempChars_0 = CnC_OT_Output_One_Receiver_0_ECC(c_i_Array_R[u_v_index + 0], sigmaBit, keyPairs_R[i], params_R, i);
-		// tempChars_1 = CnC_OT_Output_One_Receiver_1_ECC(c_i_Array_R[u_v_index + 1], sigmaBit, keyPairs_R[i], params_R, i);
-
 		outputBytes[i][0] = tempChars_0;
 		outputBytes[i][1] = tempChars_1;
 		u_v_index += 2;

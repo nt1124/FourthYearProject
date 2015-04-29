@@ -23,7 +23,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	struct eccPoint **builderInputs;
 	int arrayLen;
-	unsigned char *commBuffer, *J_set, ***OT_Inputs, tempByte;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs, *inputArray, tempByte;
 	int commBufferLen = 0;
 
 
@@ -56,7 +56,35 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
-	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+	inputArray = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
+	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params,
+									secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit prep and building.");
+	printAndZeroBothCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+
+	// This is Int sending is NOT needed, but it lets me sync up the start of the
+	// Sender OT and Receiver Transfers.
+	sendInt(writeSocket, 7);
+
+	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, rawInputCircuit -> numInputs_P2, OT_Inputs, state, numCircuits, 1024);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sender OT.");
+	printAndZeroBothCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
@@ -68,25 +96,9 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit prep, building and sending.");
 	printAndZeroBothCounters();
 
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	OT_Inputs = getAllInputKeys(circuitsArray, numCircuits);
-	full_CnC_OT_Sender_ECC(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, OT_Inputs, state, numCircuits, 1024);
-
-
-	// At this point receive from the Executor the proof of the J-set.
-	// Then provide the relevant r_j's.
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
-	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -94,11 +106,18 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, numCircuits, &J_setSize, circuitSeeds);
 
+	// Compute and send the input keys repsenting the Builder's input for the evaluation circuits.
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 								J_set, J_setSize, startOfInputChain, 
 								params, &arrayLen);
 
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	// Serialise and send the permuted input bits for the Builder's inputs on the evaluation circuits.
+	commBuffer = serialiseBuilderInputBits(circuitsArray, inputArray, rawInputCircuit -> numInputs_P1,
+										J_set, numCircuits, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
@@ -156,12 +175,14 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	struct Circuit **circuitsArray = (struct Circuit**) calloc(numCircuits, sizeof(struct Circuit*));
 	struct revealedCheckSecrets *secretsRevealed;
 	struct publicInputsWithGroup *pubInputGroup;
-	unsigned char *J_set, **output, *permedInputs;
+	struct eccPoint **builderInputs;
+
+	unsigned char *J_set, **output, *permedInputs, *commBuffer;
 
 	gmp_randstate_t *state;
 
-	struct eccPoint **builderInputs;
-	unsigned char *commBuffer;
+	struct params_CnC_ECC *OT_params_R;
+	struct otKeyPair_ECC **OT_keyPairs_R;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -169,8 +190,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	clock_t int_c_0, int_c_1;
 
 
-	numCircuits += numCircuits % 2;
+	// Make sure we have an even number of circuits.
+	numCircuits += (numCircuits % 2);
 
+	state = seedRandGen();
+	permedInputs = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P2);
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
@@ -179,6 +203,36 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	ext_c_0 = clock();
 
 	printf("Connected to builder.\n");
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	OT_params_R = OT_CnC_Receiver_Setup_Params(rawInputCircuit -> numInputs_P2, state, permedInputs,
+											numCircuits, 1024);
+	OT_keyPairs_R = OT_CnC_Receiver_Produce_Queries(OT_params_R, rawInputCircuit -> numInputs_P2,
+													state, permedInputs, numCircuits);
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiver OT prep.");
+	printAndZeroBothCounters();
+
+	J_set = OT_params_R -> crs -> J_set;
+
+	receiveInt(readSocket);
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	OT_CnC_Receiver_Send_Queries(writeSocket, readSocket, OT_params_R, OT_keyPairs_R, rawInputCircuit -> numInputs_P2,
+								state, permedInputs, numCircuits);
+
+	output = OT_CnC_Receiver_Transfer(writeSocket, readSocket, OT_params_R, OT_keyPairs_R,
+									rawInputCircuit -> numInputs_P2, state, permedInputs, numCircuits);
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Receiver OT Transfer.");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -198,25 +252,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Circuits etc.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Circuits + public commitments etc.");
 	printAndZeroBothCounters();
 
-
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	state = seedRandGen();
-	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-
-	J_set = full_CnC_OT_Receiver_ECC_Alt(writeSocket, readSocket, circuitsArray[0] -> numInputsExecutor, state, permedInputs, &output, numCircuits, 1024);
 
 	setInputsFromCharArray(circuitsArray, output, numCircuits);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
-	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -238,8 +278,11 @@ void runExecutor_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAnd
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
 	free(commBuffer);
 
-	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+
+	setBuilderInputs(builderInputs, commBuffer, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
+	free(commBuffer);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

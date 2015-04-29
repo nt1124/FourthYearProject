@@ -31,24 +31,24 @@ def runTests(ipAddress, portNum, partyID, protocolNum, circuitName, f):
 		f.write(command)
 		f.write('\n')
 
-	f.write('echo Finished ' + circuitName + '\n\n')
+	f.write('echo Finished ' + circuitName + '\n\n\n')
 
 
 
 
-if 3 != len(sys.argv):
+if 4 != len(sys.argv):
     print "Not enough arguments."
     print "IP Port PartyID"
     exit()
 
 
-numTests = 5
 protocolNames = ["LP_2010", "L_2013", "HKE_2013", "CHIMERA_2013"]
 circuitNamesList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 
 
 ipAddress = sys.argv[1]
 portNum = int(sys.argv[2])
+numTests = int(sys.argv[3])
 
 for partyID in range(0, 2):
 	for protocolNum in range(0, len(protocolNames)):
@@ -68,5 +68,10 @@ for partyID in range(0, 2):
 		os.chmod(scriptName, 0744)
 
 
-# python runTests.py 127.0.0.1 6789 1
+# ++++++++++++++++++++++++++++++++++++++++++++++++
+# LOCAL   : python runTests.py 127.0.0.1 6789 5
+# DIFFIE  : python runTests.py 192.168.0.2 6789 100
+# HELLMAN : python runTests.py 192.168.0.1 6789 100
+# ++++++++++++++++++++++++++++++++++++++++++++++++
+
 

@@ -1,45 +1,29 @@
-unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int numInputsExecutor,
-											gmp_randstate_t *state, unsigned char *permedInputs,
-											unsigned char ***output, int stat_SecParam, int comp_SecParam)
+struct params_CnC_ECC *OT_CnC_Receiver_Setup_Params(int numInputsExecutor, gmp_randstate_t *state, unsigned char *permedInputs,
+													int stat_SecParam, int comp_SecParam)
 {
 	struct params_CnC_ECC *params_R;
-	struct otKeyPair_ECC **keyPairs_R;
-	struct u_v_Pair_ECC **c_i_Array_R;
+	unsigned char *J_set;
 
-	struct wire *tempWire;
-
-	unsigned char *commBuffer, value, *tempChars_0, *tempChars_1, *J_set;
-	int bufferLength = 0, i, j, iOffset = 0;
-	int totalOTs = numInputsExecutor * stat_SecParam;
-	int u_v_index = 0;
-	int k;
-
-	struct timespec int_t_0, int_t_1;
-	clock_t int_c_0, int_c_1;
-
-
-	numInputsExecutor = numInputsExecutor;
-	*output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
 
 	J_set = generateJ_Set(stat_SecParam);
 	params_R = setup_CnC_OT_Receiver_ECC(stat_SecParam, J_set, comp_SecParam, *state);
-	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
-	sendBoth(writeSocket, commBuffer, bufferLength);
-	free(commBuffer);
+	
+	return params_R;	
+}
 
 
-
-	// Prove that we did indeed select s/2 many to open.
-	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,
-					params_R -> params -> g, params_R -> crs -> g_1,
-					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
-					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
+struct otKeyPair_ECC **OT_CnC_Receiver_Produce_Queries(struct params_CnC_ECC *params_R, int numInputsExecutor, gmp_randstate_t *state,
+													unsigned char *permedInputs, int stat_SecParam)
+{
+	struct otKeyPair_ECC **keyPairs_R;
+	unsigned char value;
+	int i, j, iOffset;
+	int totalOTs = numInputsExecutor * stat_SecParam;
 
 
 	keyPairs_R = (struct otKeyPair_ECC **) calloc(totalOTs, sizeof(struct otKeyPair_ECC*));
 
-
-	#pragma omp parallel for private(i, j, iOffset, value, tempWire)
+	#pragma omp parallel for private(i, j, iOffset, value)
 	for(i = 0; i < numInputsExecutor; i ++)
 	{
 		iOffset = stat_SecParam * i;
@@ -52,11 +36,46 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 		}
 	}
 
+	return keyPairs_R;
+}
+
+void OT_CnC_Receiver_Send_Queries(int writeSocket, int readSocket,
+								struct params_CnC_ECC *params_R, struct otKeyPair_ECC **keyPairs_R, 
+								int numInputsExecutor, gmp_randstate_t *state, unsigned char *permedInputs,
+								int stat_SecParam)
+{
+	unsigned char *commBuffer;
+	int bufferLength = 0, totalOTs = numInputsExecutor * stat_SecParam;
+
+
+	commBuffer = serialiseParams_CnC_ECC(params_R, &bufferLength);
+	sendBoth(writeSocket, commBuffer, bufferLength);
+	free(commBuffer);
+
+	// Prove that we did indeed select s/2 many to open.
+	ZKPoK_Prover_ECC(writeSocket, readSocket, params_R -> params, params_R -> crs -> stat_SecParam,
+					params_R -> params -> g, params_R -> crs -> g_1,
+					params_R -> crs -> h_0_List, params_R -> crs -> h_1_List,
+					params_R -> crs ->  alphas_List, params_R -> crs ->  J_set, state);
+
 
 	bufferLength = 0;
 	commBuffer = serialise_PKs_otKeyPair_ECC_Array(keyPairs_R, totalOTs, &bufferLength);
 	sendBoth(writeSocket, commBuffer, bufferLength);
 	free(commBuffer);
+}
+
+
+unsigned char **OT_CnC_Receiver_Transfer(int writeSocket, int readSocket, struct params_CnC_ECC *params_R,
+										struct otKeyPair_ECC **keyPairs_R, int numInputsExecutor, gmp_randstate_t *state,
+										unsigned char *permedInputs, int stat_SecParam)
+{
+	struct u_v_Pair_ECC **c_i_Array_R;
+	struct wire *tempWire;
+
+	unsigned char **output, *commBuffer, value;
+	int i, j, iOffset, totalOTs = numInputsExecutor * stat_SecParam;
+	int bufferLength = 0, u_v_index = 0, k;
 
 
 	bufferLength = 0;
@@ -64,6 +83,8 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 	c_i_Array_R = deserialise_U_V_Pair_Array_ECC(commBuffer, totalOTs * 2);
 	free(commBuffer);
 
+
+	output = (unsigned char **) calloc(2 * totalOTs, sizeof(unsigned char *));
 
 	#pragma omp parallel for private(i, j, iOffset, u_v_index, value, tempWire)
 	for(i = 0; i < numInputsExecutor; i ++)
@@ -75,8 +96,8 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 
 		for(j = 0; j < stat_SecParam; j ++)
 		{
-			(*output)[u_v_index + 0] = CnC_OT_Output_One_Receiver_0_ECC(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
-			(*output)[u_v_index + 1] = CnC_OT_Output_One_Receiver_1_ECC(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
+			output[u_v_index + 0] = CnC_OT_Output_One_Receiver_0_ECC(c_i_Array_R[u_v_index + 0], value, keyPairs_R[iOffset + j], params_R, j);
+			output[u_v_index + 1] = CnC_OT_Output_One_Receiver_1_ECC(c_i_Array_R[u_v_index + 1], value, keyPairs_R[iOffset + j], params_R, j);
 
 			u_v_index += 2;
 		}
@@ -99,7 +120,7 @@ unsigned char *full_CnC_OT_Receiver_ECC_Alt(int writeSocket, int readSocket, int
 		free(c_i_Array_R[i]);
 	}
 
-	return params_R -> crs -> J_set;
+	return output;
 }
 
 
@@ -296,6 +317,30 @@ void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *J_set, int
 }
 
 
+void setBuilderInputs(struct eccPoint **builderInputs, unsigned char *builderInputBits,
+					unsigned char *J_set, int J_setSize, struct Circuit **circuitsArray,
+					struct public_builderPRS_Keys *public_inputs, struct eccParams *params)
+{
+	const int numInputs = public_inputs -> numKeyPairs;
+	const int numEvalCircuits = public_inputs -> stat_SecParam;
+	int i, j, k = 0;
+
+
+	for(i = 0; i < numInputs; i ++)
+	{
+		for(j = 0; j < numEvalCircuits; j ++)
+		{
+			if(0x00 == J_set[j])
+			{
+				circuitsArray[j] -> gates[i] -> outputWire -> wireOutputKey = hashECC_Point(builderInputs[k], 16);
+				circuitsArray[j] -> gates[i] -> outputWire -> wirePermedValue = builderInputBits[k];
+				k ++;
+			}
+		}
+	}
+}
+
+
 
 int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 										unsigned char *J_set, int J_setSize,
@@ -353,3 +398,5 @@ int proveConsistencyEvaluationKeys_Exec(int writeSocket, int readSocket,
 
 	return verified;
 }
+
+

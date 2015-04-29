@@ -614,9 +614,9 @@
 
 
 		\section{Merging Lindell 2013 and HKE 2013}
-			In the Lindell 2013 protocol the Sub-computation is carried out using the Lindell-Pinkas 2010 protocol. This raises the question, given the HKE protocol requires less circuits to achieve the same level of statistical security as Lindell-Pinkas, can we alter the sub-computation to use HKE?\\
+			In the Lindell 2013 protocol the Sub-computation is carried out using the Lindell-Pinkas 2010 protocol. This raises the question, given the HKE protocol requires fewer circuits to achieve the same level of statistical security as Lindell-Pinkas, can we alter the sub-computation to use HKE?\\
 
-			This is a very simple concept, though we must be careful of a few subtle problems that do not present themselves on first glance, indeed the solutions to these require us to modify the behaviour of the protocol outside the sub-computation.\\
+			This is very simple conceptually, but we must be careful of a few subtle problems, indeed the solutions to these require us to modify the behaviour of the protocol outside the sub-computation.\\
 
 			At this point it should be noted that while I will argue \emph{informally} that my merging of Lindell 2013 and HKE I give no formal proof, as such this should not be used seriously till such a formal proof exists.
 
@@ -649,7 +649,9 @@
 
 				Suppose the Builder's inputs to the main circuit are produced so to be in the same form as given in Subsection \ref{sub:HKE_Consistency}. Furthermore the Builder's inputs to the sub-computation circuits he builds are also of this form. Both sets of inputs use the same $\tilde C$.\\
 
-				The Builder obtains his inputs for the sub-computation circuits sent by the Executor by Naor-Pinkas Oblivious Transfer as is usual in the HKE protocol. Then the Builder can prove the consistency of his input to all three sets of circuits using knowledge of logarithm trick used in the HKE protocol.
+				The Builder obtains his inputs for the sub-computation circuits sent by the Executor by Naor-Pinkas Oblivious Transfer as is usual in the HKE protocol. Then the Builder can prove the consistency of his input to all three sets of circuits using knowledge of logarithm trick used in the HKE protocol.\\
+
+				Whilst changing the consistency checks is a side-effect of the other changes it also gives significant performance improvements. Two main reasons for these appear to be the HKE approach using many more fixed-base point multiplications which are significantly faster, and the removal of the expensive Zero Knowledge Proofs.\\
 
 			\subsection{Ensuring consistency of Executor's inputs}
 				\subsubsection{An attack on the OT optimisation}
@@ -771,7 +773,7 @@
 
 				 Many of the same tricks that can be applied to integer exponentiation also work here. For example the square-multiply trick (though here it is double-add). Many of these tricks depend on taking advantage of thinking of the binary form of the exponent and using doubling.\\
 
-				 For standard point multiplication we have implemented the Windowed approach. Take a point $P$ and a scalar $n$. This method pre-computes a number of multiplications of P, namely $\{0 \cdot P, 1 \cdot  P, ..., 2^{w-1} \cdot P\}$ where $w$ is the size of the windows in bits.\\
+				 For standard point multiplication we have implemented the Windowed approach. Take a point $P$ and a scalar $n$. This method pre-computes a number of multiplications of P, namely $\{0P, 1P, ..., (2^{w} - 1)P\}$ where $w$ is the size of the windows in bits.\\
 
 				the exponent is then divided into windows.
 
@@ -782,6 +784,8 @@
 
 			A Secret Sharing Scheme is a way of obscuring a secret whilst distributing shares to a set of parties such that only certain combinations of shares will be able to reconstruct the secret. So consider perhaps a bank vault which requires at least $3$ out of $10$ keys. Here the secret is the vault opening, the shares are the keys and the parties are the bank employees holding the keys. In general we speak of a $t$-out-of-$n$ scheme, where there are $n$ shares and $t$ of them are required to reveal the secret.\\
 
+			For a fairly comprehensive overview of Secret Sharing I suggest pages 349-360 of \cite{NigelCryptoBook}.\\
+
 			We have implemented Shamir's Secret Scheme (Shamir's) and its extension the Feldman's Scheme. Shamir's scheme is based on how many points are needed to uniquely define a polynomial curve.\\
 
 			Consider a polynomial $K$ of degree $n$ over the finite field $\mathbb{F}_q$. Then we can denote this polynomial as $K = \sum_{i=0}^{n} a_i \cdot x ^ i$. Any such polynomial of degree $n$ can be uniquely defined given $n+1$ (or more) points on the curve, given $n$ or fewer points we gain no information about the polynomial.
@@ -791,14 +795,26 @@
 				
 				While several libraries exist with support for Multi-precision polynomials these are not commonly installed and given the ease of using GMP it was much simpler to implement Multi-Precision polynomials ourselves.\\
 
-				We will not dwell on the details of this as this was quite trivial and is tangential. Suffice to say we have a structure for polynomials in a field, this structure contains a degree and a set of coefficients. We then coded functions to perform addition, multiplication and evaluation. With functions complete we were ready to attempt Shamir Secret Sharing.
-			
+				We will not dwell on the details of this as this was quite trivial and is tangential. Suffice to say we have a structure for polynomials in a field, this structure contains a degree and a set of coefficients. We then coded functions to perform addition, multiplication and evaluation.
+
+			\subsection{Shamir Secret Sharing}
+				Shamir secret sharing was first proposed in \cite{ShamirSecretSharing} and gives a way to implement a Secret sharing scheme. The scheme consists of two algorithms, \texttt{Share} and \texttt{Recover}. We assume that each algorithm takes the field over which we work as an implicit input ($\mathbb{F}$).\\
+
+				\texttt{Share} takes a secret $a \in \mathbb{F}$ and a pair of integers $t$ and $n$ such that $t \leq n$. It returns a set of $n$ shares (also elements in the field) such that $t + 1$ many are needed to recover the secret $a$. Note that the shares are indexed in the order they are output by \texttt{Share}.\\
+
+				More concretely, to share a secret $a$ we generate a polynomial $F(X) = a + f_1 \cdot X + f_2 \cdot X^2 + ... +  + f_t \cdot X ^ t$. We then output $\{c_i = F(i)\}$ as the shares, note then that $F(0) = a$. The polynomial is \emph{not} known to the parties.\\
+
+				\texttt{Recover} takes a set of $\tilde m$ shares $\{c_i\}$ where $i$ indicates the index of the share. \texttt{Recover} returns a $ \tilde a \in \mathbb{F}$. If $t \leq \tilde m$ and the $c_i$ are all valid shares then $\tilde a = a$.\\
+
+				If we have $t + 1$ or more valid shares of the secret then we can reconstruct the polynomial $F$ by Lagrange interpolation. We will not dwell on the details of Lagrange interpolation.\\
+
+			\subsection{Verifiable Secret Sharing}
+
+				A Verifiable Secret Sharing (VSS) scheme is an extension to `vanilla' secret sharing schemes where any party can check whether an input is a valid share to a secret. This additional property is very important for the protocol described in \cite{Katz_Symm_CnC_2013}.\\
+
+				We have implemented the Feldman VSS scheme which is an extension of the Shamir scheme. The basic concept is that the sharing step also publishes a public commitment to the shares to all parties. Then using the candidate share, the index of the  candidate share and the commitments any party can verify whether the candidate share is a valid share of the secret.
 
 		\section{Peikert, Vaikuntanathan and Waters OT}
-
-			.
-
-		\subsection{Other - AES, SHA-2}
 
 			.
 
@@ -950,7 +966,8 @@
 			Naor and B. Pinkas, \emph{Efficient Oblivious Transfer Protocols}, Proceedings of SODA 2001 (SIAM Symposium on Discrete Algorithms), 2001.
 
 		\bibitem{NigelCircuits}
-			Bristol Cryptography Group. \emph{Circuits of Basic Functions Suitable For MPC and FHE}.  \url{http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/}. 
+			Bristol Cryptography Group,
+			\emph{Circuits of Basic Functions Suitable For MPC and FHE}.  \url{http://www.cs.bris.ac.uk/Research/CryptographySecurity/MPC/}. 
 
 		\bibitem{ECC_Primer}
 			N. Sullivan,
@@ -970,14 +987,28 @@
 			download/Domain-parameters.pdf}.
 
 		\bibitem{NSA_CaseForECC}
-			NSA. \emph{The Case for Elliptic Curve Cryptography}, January 2009,
+			NSA,
+			\emph{The Case for Elliptic Curve Cryptography},
+			January 2009,
 			\url{https://www.nsa.gov/business/programs/elliptic_curve.shtml}.
-			
+
 		\bibitem{Wiki_ECC}
 			Wikipedia (various authors),
-			Elliptic curve point multiplication,
+			\emph{Elliptic curve point multiplication},
 			\url{http://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication}
-			
+
+		\bibitem{NigelCryptoBook}
+			N. P. Smart,
+			Cryptography, An Introduction : Third Edition,
+			\url{https://www.cs.bris.ac.uk/~nigel/Crypto_Book/}
+		
+		\bibitem{ShamirSecretSharing}
+			A. Shamir,
+			\emph{How to Share a Secret}.
+			In the Communications of the ACM,
+			22(11):612–613,
+			1979.
+
 		\bibitem{ISAAC_Implementation}
 			Bob Jenkins. \emph{ISAAC: a fast cryptographic random number generator},
 			\url{http://burtleburtle.net/bob/rand/isaacafa.html}.

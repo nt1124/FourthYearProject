@@ -105,7 +105,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	struct eccPoint **builderInputs;
 	struct secCompBuilderOutput *returnStruct;
 
-	unsigned char *commBuffer, *J_set, ***OT_Inputs, *deltaExpanded;
+	unsigned char *commBuffer, *J_set, ***OT_Inputs, *deltaExpanded, *inputArray;
 	int commBufferLen = 0, i, J_setSize = 0, arrayLen = 0;
 
 	struct timespec int_t_0, int_t_1;
@@ -121,10 +121,35 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
 	}
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	inputArray = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
+	
 	params = initBrainpool_256_Curve();
 	public_inputs = computePublicInputs(secret_inputs, params);
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, checkStatSecParam, params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Building circuits.");
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
+	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
+	sendInt(writeSocket, 7);
+	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
+	 					OT_Inputs, state, checkStatSecParam, 1024);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 	for(i = 0; i < checkStatSecParam; i++)
@@ -132,33 +157,38 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
 	}
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sending Commitments and Circuits.");
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
-	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
-
-	OT_Inputs = getCheckCircuitOT_Inputs(circuitsArray, delta, checkStatSecParam, lengthDelta);
-
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	full_CnC_OT_Sender_ECC(writeSocket, readSocket, lengthDelta,
-						OT_Inputs, state, checkStatSecParam, 1024);
 
 	commBuffer = getK0_AndDelta(circuitsArray, delta, rawInputCircuit -> numInputs_P1, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Send Delta and k_0s");
 
 
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, checkStatSecParam, &J_setSize, circuitSeeds);
 
+
+	// Compute and send the input keys repsenting the Builder's input for the evaluation circuits.
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
 										J_set, J_setSize, startOfInputChain, 
 										params, &arrayLen);
 
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	// Serialise and send the permuted input bits for the Builder's inputs on the evaluation circuits.
+	commBuffer = serialiseBuilderInputBits(circuitsArray, inputArray, rawInputCircuit -> numInputs_P1,
+										J_set, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 

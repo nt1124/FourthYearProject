@@ -22,7 +22,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	struct eccPoint **builderInputs, ***consistentInputs;
 	unsigned char *commBuffer, *J_set, ***bLists, ***hashedB_Lists, *delta;
-	unsigned char **Xj_checkValues, ***OT_Inputs;
+	unsigned char **Xj_checkValues, ***OT_Inputs, *inputArray;
 
 	ub4 **circuitSeeds = (ub4 **) calloc(stat_SecParam, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(stat_SecParam, sizeof(randctx*));
@@ -33,6 +33,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	Xj_checkValues = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
 
+	inputArray = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
@@ -114,6 +115,12 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 								params, &arrayLen);
 
 	commBuffer = serialise_ECC_Point_Array(builderInputs, arrayLen, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	// Serialise and send the permuted input bits for the Builder's inputs on the evaluation circuits.
+	commBuffer = serialiseBuilderInputBits(circuitsArray, inputArray, rawInputCircuit -> numInputs_P1,
+										J_set, stat_SecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
@@ -228,6 +235,9 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	rawCheckCircuit = createRawCheckCircuit(rawInputCircuit -> numInputs_P1);
 
+	state = seedRandGen();
+	permedInputs = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P2);
+
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
@@ -258,9 +268,6 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	state = seedRandGen();
-	permedInputs = getPermedInputValuesExecutor(circuitsArray);
-	// J_set = full_CnC_OT_Mod_Receiver_ECC(writeSocket, readSocket, circuitsArray, state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsExecutor,
 											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
@@ -284,9 +291,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &bufferOffset);
 	free(commBuffer);
 
-
-	setBuilderInputs(builderInputs, J_set, J_setSize, circuitsArray,
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	setBuilderInputs(builderInputs, commBuffer, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
+	free(commBuffer);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -319,6 +327,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	// Perform the cheating detection function.
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	SC_ReturnStruct = SC_DetectCheatingExecutor(writeSocket, readSocket, rawCheckCircuit,
 	 											deltaPrime, lengthDelta, 3 * stat_SecParam, state );

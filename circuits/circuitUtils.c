@@ -389,13 +389,13 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 	output = (unsigned char *) calloc(numInputsExecutor, sizeof(unsigned char));
 
+	// For each input gate not owned by the builder, un-perm
 	for(i = 0; i < numInputsBuilder + numInputsExecutor; i ++)
 	{
 		if(0x00 == circuitsArray[0] -> gates[i] -> outputWire -> wireOwner)
 		{
 			value = circuitsArray[0] -> gates[i] -> outputWire -> wirePermedValue;
 			output[outputIndex] = value ^ (circuitsArray[0] -> gates[i] -> outputWire -> wirePerm & 0x01);
-			// printf("%X", output[outputIndex]);
 			outputIndex ++;
 		}
 	}
