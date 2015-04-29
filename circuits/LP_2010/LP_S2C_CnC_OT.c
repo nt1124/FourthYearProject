@@ -149,10 +149,14 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	free_idAndValueChain(startOfInputChain);
 
+	/*
+	Is causing a seg fault in multiplication. No idea why.
+	Given it's so late it's really not needed so we'll just comment it out.
 	for(i = 0; i < numCircuits; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
+	*/
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);

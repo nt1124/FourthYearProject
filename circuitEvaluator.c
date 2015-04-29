@@ -95,6 +95,7 @@ void runProtocol(char *circuitFilepath, char *ipAddress, char *portNumStr, char 
 	timestamp_1 = timestamp();
 
 	printf("\nTotal Time (Includes connection open/closing)\n");
+	fflush(stdout);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 }
