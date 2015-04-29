@@ -162,7 +162,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	clock_t ext_c_0, ext_c_1;
 	clock_t int_c_0, int_c_1;
 
-	unsigned char *commBuffer, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
+	unsigned char *commBuffer, **J_setPair, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
 	unsigned char **secureEqualityInputs, *binaryOutput;
 	struct secureEqualityCommitments *secEqualityCommits_Own, *secEqualityCommits_Partner;
 	struct eccParams *params;
@@ -271,6 +271,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits exchanged");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -333,8 +334,12 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-	J_SetOwn = generateJ_Set(numCircuits);
-	J_setPartner = getPartnerJ_Set(writeSocket, readSocket, J_SetOwn, numCircuits / 2, numCircuits);
+
+	randctx *tempCTX;
+	tempCTX = getRandCtxByCoinToss(writeSocket, readSocket, ctx, state, partyID);
+	J_setPair = getJ_Set(tempCTX, partyID, numCircuits);
+	J_SetOwn = J_setPair[0];
+	J_setPartner = J_setPair[1];
 
 
 	int_c_1 = clock();

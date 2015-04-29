@@ -56,6 +56,17 @@ unsigned int generateRandUint()
 }
 
 
+unsigned int generateRandUint(randctx *ctx)
+{
+	unsigned char *asBytes = generateIsaacRandBytes(ctx, 4, 4);
+	unsigned int asUint = 0;
+
+	memcpy(&asUint, asBytes, sizeof(unsigned int));
+
+	return asUint;
+}
+
+
 unsigned int *generateRandUintList(int numToGen)
 {
 	unsigned int *toReturn = (unsigned int*) calloc(numToGen, sizeof(unsigned int));
@@ -70,5 +81,22 @@ unsigned int *generateRandUintList(int numToGen)
 }
 
 
+unsigned char *generateJ_Set_ISAAC(randctx *ctx, int jSetLength)
+{
+	unsigned char *J_set = (unsigned char *) calloc(jSetLength, sizeof(int));
+	int i = 0, tempInt;
+
+	while(i < (jSetLength / 2) )
+	{
+		tempInt = generateRandUint(ctx) % jSetLength;
+		if(0x00 == J_set[tempInt])
+		{
+			J_set[tempInt] = 0x01;
+			i ++;
+		}
+	}
+
+	return J_set;
+}
 
 #endif

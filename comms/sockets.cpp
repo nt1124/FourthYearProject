@@ -386,6 +386,28 @@ int get_ack(int socket)
 }
 
 
+// This function is an addition of mine.
+unsigned char *sendReceiveExchange(int writeSocket, int readSocket, unsigned char *commBufferWrite,
+                                int commBufferWriteLen, int *commBufferReadLen, int partyID)
+{
+    unsigned char *commBufferRead;
+    int localBufferLen = 0;
+
+    if(0 == partyID)
+    {
+        sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+        commBufferRead = receiveBoth(readSocket, localBufferLen);
+    }
+    else if(1 == partyID)
+    {
+        commBufferRead = receiveBoth(readSocket, localBufferLen);
+        sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+    }
+
+    *commBufferReadLen = localBufferLen;
+
+    return commBufferRead;
+}
 
 
 //  ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

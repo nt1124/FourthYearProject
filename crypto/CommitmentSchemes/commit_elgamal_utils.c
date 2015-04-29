@@ -47,6 +47,16 @@ struct commit_batch_params *deserialise_commit_batch_params(unsigned char *input
 }
 
 
+int sizeOf_C_Box_Serial(struct elgamal_commit_box *c)
+{
+	int totalLength = 0;
+
+	totalLength += ( sizeOfSerial_ECCPoint(c -> u) + sizeOfSerial_ECCPoint(c -> v) );
+
+	return totalLength;
+}
+
+
 int sizeOf_C_Box_Array(struct elgamal_commit_box **c, int numC_Boxes)
 {
 	int i, totalLength = 0;
@@ -58,6 +68,18 @@ int sizeOf_C_Box_Array(struct elgamal_commit_box **c, int numC_Boxes)
 
 	return totalLength;
 }
+
+
+int sizeOf_K_Box_Serial(struct elgamal_commit_key *k, int msgLength)
+{
+	int totalLength = sizeof(int);
+
+	totalLength += sizeof(mp_limb_t) * mpz_size(k -> r);
+	totalLength += msgLength;
+
+	return totalLength;
+}
+
 
 
 int sizeOf_K_Box_Array(struct elgamal_commit_key **k, int msgLength, int numK_Boxes)

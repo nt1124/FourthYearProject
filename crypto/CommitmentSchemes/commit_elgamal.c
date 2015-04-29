@@ -43,12 +43,13 @@ void create_commit_box_key(struct commit_batch_params *params, unsigned char *to
 {
 	struct eccPoint *g_x;
 	mpz_t r, *x = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *xHashed = sha256_full(toCommit, toCommitLen);
 
 
 	mpz_init(r);
 	mpz_init(*x);
 
-	convertBytesToMPZ(x, toCommit, toCommitLen);
+	convertBytesToMPZ(x, xHashed, 32);
 	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
 
 	mpz_urandomm(r, state, params -> params -> n);
@@ -98,13 +99,13 @@ unsigned char *single_decommit_elgamal_R(struct commit_batch_params *params, str
 	struct eccPoint *u_test, *v_test, *g_x;
 	int validPointTest = 0;
 	mpz_t *x = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *xHashed = sha256_full(k -> x, msgLength);
 
 
 	mpz_init(*x);
 
-	convertBytesToMPZ(x, k -> x, msgLength);
+	convertBytesToMPZ(x, xHashed, 32);
 	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
-	// g_x = windowedScalarPoint(*x, params -> params -> g, params -> params);
 
 
 	u_test = fixedPointMultiplication(gPreComputes, k -> r, params -> params);
@@ -130,11 +131,12 @@ int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elg
 	struct eccPoint *u_test, *v_test, *g_x;
 	int validPointTest = 0;
 	mpz_t *x = (mpz_t*) calloc(1, sizeof(mpz_t));
+	unsigned char *xHashed = sha256_full(xBytes, msgLength);
 
 
 	mpz_init(*x);
 
-	convertBytesToMPZ(x, xBytes, msgLength);
+	convertBytesToMPZ(x, xHashed, 32);
 	g_x = fixedPointMultiplication(gPreComputes, *x, params -> params);
 
 
@@ -154,8 +156,6 @@ int single_decommit_raw_elgamal_R(struct commit_batch_params *params, struct elg
 
 	return 0;
 }
-
-
 
 
 
