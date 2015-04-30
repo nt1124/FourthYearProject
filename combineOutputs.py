@@ -6,7 +6,6 @@ import numpy
 
 
 def getMeasurementFromString(inputStr):
-	#outputStr = inputStr.split("")
 	return float(re.split(':|=',inputStr)[-1])
 
 
@@ -56,7 +55,7 @@ Bytes_Received_Dict = defaultdict(list)
 
 for i in range(0, numTests):
 	outputNumber = str(i).zfill(4)
-	OutputFile = "../TestResultsBackup/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
+	OutputFile = "./TestResults/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
 
 	fileAsArray = getFileAsStringArray(OutputFile)
 	

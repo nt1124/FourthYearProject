@@ -1,6 +1,6 @@
 
 
-struct Fq_poly **getLagrangeFactorsDivProduct(mpz_t divFactorProduct,int n, int *delta_i, unsigned int i, mpz_t q)
+struct Fq_poly **getLagrangeFactorsDivProduct(mpz_t divFactorProduct, int n, int *delta_i, unsigned int i, mpz_t q)
 {
 	struct Fq_poly **factors = (struct Fq_poly **) calloc(n, sizeof(struct Fq_poly *));
 	mpz_t *inputArray = (mpz_t *) calloc(2, sizeof(mpz_t));
@@ -60,7 +60,6 @@ struct Fq_poly *generateLagrangePoly(int n, int *delta_i, unsigned int i, mpz_t 
 	{
 		intermediates[0] = mulPolys(factors[0], factors[1], q);
 
-
 		for(j = 1; j < n - 1; j ++)
 		{
 			intermediates[j] = mulPolys(intermediates[j - 1], factors[j + 1], q);
@@ -73,8 +72,8 @@ struct Fq_poly *generateLagrangePoly(int n, int *delta_i, unsigned int i, mpz_t 
 
 	mpz_invert(divFactorInv, divFactor, q);
 
-
 	output = scalarMulti(intermediates[n - 2], divFactorInv, q);
+
 
 	return output;
 }
@@ -95,6 +94,8 @@ struct Fq_poly **generateAllLagrangePolys(int length, int *delta_i, mpz_t q)
 
 	return lagrangePolys;
 }
+
+
 
 
 // Length = t?

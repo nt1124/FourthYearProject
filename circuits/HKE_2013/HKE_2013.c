@@ -148,8 +148,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	initRandGen();
 	state = seedRandGenFromISAAC(ctx);
-	// groupOwn = get_128_Bit_Group(*state);
-	groupOwn = getSchnorrGroup(1024, *state);
+	groupOwn = get_128_Bit_Group(*state);
+	// groupOwn = getSchnorrGroup(1024, *state);
 	params = initBrainpool_256_Curve();
 
 	for(i = 0; i < numCircuits; i ++)

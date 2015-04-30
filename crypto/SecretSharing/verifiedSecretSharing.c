@@ -1,3 +1,47 @@
+mpz_t *getRecombinationVector(mpz_t *shares, int numShares, int index, struct DDH_Group *group)
+{
+	mpz_t *vector, *secret, tempMPZ, top, bottom, bottomInv;
+	int i, j;
+
+	mpz_init(tempMPZ);
+	mpz_init(top);
+	mpz_init(bottom);
+	mpz_init(bottomInv);
+
+	vector = (mpz_t *) calloc(numShares, sizeof(mpz_t));
+	secret = (mpz_t *) calloc(1, sizeof(mpz_t));
+
+	for(i = 0; i < numShares; i ++)
+	{
+		mpz_set_ui(tempMPZ, 1);
+		mpz_init(vector[i]);
+
+		for(j = 0; j < numShares; j ++)
+		{
+			if(i != j)
+			{
+				mpz_ui_sub(top, 0, shares[j]);
+				mpz_sub(bottom, shares[i], shares[j]);
+				mpz_invert(bottomInv, bottom, group -> p);
+				mpz_mul(bottom, top, bottomInv);
+
+				mpz_mod(top, bottom, group -> p);
+				mpz_mul(tempMPZ, vector[i], top);
+			}
+		}
+
+		mpz_mod(vector[i], tempMPZ, group -> p);
+	}
+
+	mpz_clear(tempMPZ);
+	mpz_clear(top);
+	mpz_clear(bottom);
+	mpz_clear(bottomInv);
+
+}
+
+
+
 struct pubVSS_Box *init_VSS_PublicBox(int t, int n)
 {
 	struct pubVSS_Box *pub = (struct pubVSS_Box *) calloc(1, sizeof(struct pubVSS_Box));
@@ -125,12 +169,24 @@ struct sharingScheme *VSS_Share_Backwards(int t, int n, gmp_randstate_t state, s
 		indices[i] = i + 1;
 	}
 
-	scheme -> poly = getPolyFromCodewords(scheme -> shares, indices, t + 1, group -> q);
+	scheme -> poly = getPolyFromCodewords(scheme -> shares, indices, t, group -> q);
 	scheme -> pub = init_VSS_PublicBoxWithCoeffs(t, n, scheme -> poly, group);
 
 	mpz_init_set_ui(secret_index, 0);
 	tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
 	mpz_init_set(scheme -> secret, *tempMPZ);
+
+	printPoly(scheme -> poly);
+	gmp_printf("%Zd\n\n", scheme -> secret);
+
+
+	for(i = 0 ; i < n; i ++)
+	{
+		mpz_set_ui(secret_index, i + 1);
+		tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
+		printf("%d >>> %d\n", i, mpz_cmp(scheme -> shares[i], *tempMPZ));
+	}
+
 
 	mpz_clear(twoPow256);
 	mpz_clear(*tempMPZ);

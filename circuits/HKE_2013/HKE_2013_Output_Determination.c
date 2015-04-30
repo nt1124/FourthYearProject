@@ -135,19 +135,29 @@ unsigned char **getSecureEqualityTestInputs(struct HKE_Output_Struct_Builder *ou
 	unsigned char **secureEqualityInputs = (unsigned char **) calloc(2 * numOutputs, sizeof(unsigned char *));
 	unsigned char *ownSecretChars, *partnerSecretChars;
 	int i, j = 0, ownLength, partnerLength, h;
+	int k;
 
 	for(i = 0; i < numOutputs; i ++)
 	{
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme0Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][0], &partnerLength);
-		secureEqualityInputs[j] = XOR_StringsWithMinLen(ownSecretChars, partnerSecretChars, ownLength, partnerLength, 128);
-		// XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+
+		// ownSecretChars = convertMPZToBytesFixedLen(outputStruct_Own -> scheme0Array[i] -> secret, 16);
+		// partnerSecretChars = convertMPZToBytesFixedLen(potentialSecrets[i][0], 16);
+
+		// secureEqualityInputs[j] = XOR_TwoStrings(ownSecretChars, partnerSecretChars, 16);
+		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
 		j ++;
+
 
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme1Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][1], &partnerLength);
-		secureEqualityInputs[j] = XOR_StringsWithMinLen(ownSecretChars, partnerSecretChars, ownLength, partnerLength, 128);
-		// XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+
+		// ownSecretChars = convertMPZToBytesFixedLen(outputStruct_Own -> scheme1Array[i] -> secret, 16);
+		// partnerSecretChars = convertMPZToBytesFixedLen(potentialSecrets[i][1], 16);
+
+		// secureEqualityInputs[j] = XOR_TwoStrings(ownSecretChars, partnerSecretChars, 16);
+		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
 		j ++;
 	}
 
@@ -174,12 +184,12 @@ struct secureEqualityCommitments *commitForEqualityTest(unsigned char **secureEq
 	{
 		outputStruct -> c_boxes_0[i] = init_commit_box();
 		outputStruct -> c_boxes_1[i] = init_commit_box();
-			
+
 		outputStruct -> k_boxes_0[i] = init_commit_key();
 		outputStruct -> k_boxes_1[i] = init_commit_key();
 
-		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 128, *state, outputStruct -> c_boxes_0[i], outputStruct -> k_boxes_0[i]);
-		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 128, *state, outputStruct -> c_boxes_1[i], outputStruct -> k_boxes_1[i]);
+		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 16, *state, outputStruct -> c_boxes_0[i], outputStruct -> k_boxes_0[i]);
+		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 16, *state, outputStruct -> c_boxes_1[i], outputStruct -> k_boxes_1[i]);
 	}
 
 
@@ -328,7 +338,7 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 
 		if(0 != test0 || 0 != test1)
 		{
-			printf("NOOOOO\n");
+			printf("NOOOOO A\n");
 			return NULL;
 		}
 		else if(0 == memcmp(x0, secureEqualityInputs[j], xLen0))
@@ -343,7 +353,7 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 		}
 		else
 		{
-			printf("NOOOOO\n");
+			printf("NOOOOO B\n");
 			return NULL;
 		}
 
