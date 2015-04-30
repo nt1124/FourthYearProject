@@ -107,7 +107,6 @@ void benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
 
 
-
 	for(i = 0; i < numCircuits; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
@@ -133,6 +132,97 @@ void benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 	{
 		circuitsArray[i] = readInCircuit_FromRaw_Seeded_ConsistentInputOutput(circuitCTXs[i], rawInputCircuit, consistentInputs[i],
 																			bLists[0], bLists[1], i, params);
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nL_2013 Building %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+}
+
+
+
+
+void benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
+{
+	struct timespec timestamp_0, timestamp_1;
+	clock_t c_0, c_1;
+
+	struct Circuit **circuitsArray;
+	struct eccPoint ***NaorPinkasInputs, *cTilde;
+	struct eccParams *params;
+	mpz_t **aList, *outputKeysLocals;
+
+	struct HKE_Output_Struct_Builder *outputStruct_Own;
+	struct DDH_Group *groupOwn;
+
+	gmp_randstate_t *state;
+
+	int numCircuits = 16, numOwnInputs, i, j;
+	int partyID = 0;
+	
+	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
+	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
+
+
+	circuitsArray = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit*));
+
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+
+	initRandGen();
+	state = seedRandGen();
+	params = initBrainpool_256_Curve();
+	groupOwn = get_128_Bit_Group(*state);
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
+		circuitSeeds[i] = getIsaacContext(circuitCTXs[i]);
+	}
+
+	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, numCircuits, *state, groupOwn);
+	// We cheat here and ignore getting a cTilde from a partner. Just assume it's passed in.
+	cTilde = setup_OT_NP_Sender(params, *state);
+
+	if(0 == partyID)
+	{
+		numOwnInputs = rawInputCircuit -> numInputs_P2;
+	}
+	else
+	{
+		numOwnInputs = rawInputCircuit -> numInputs_P1;
+	}
+
+	aList = getNaorPinkasInputs(numOwnInputs, numCircuits, *state, params);
+	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, numOwnInputs, numCircuits, params);
+
+	// Build the circuits that you own.
+	// circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
+	// 										circuitCTXs, circuitSeeds, numCircuits, partyID);
+
+	printf("\nL_2013 input generation for %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+
+	c_0 = clock();
+	timestamp_0 = timestamp();
+
+	#pragma omp parallel for default(shared) private(i, j, outputKeysLocals) schedule(auto)
+	for(i = 0; i < numCircuits; i ++)
+	{
+		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, i);
+		circuitsArray[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[i], rawInputCircuit, NaorPinkasInputs[i], outputKeysLocals, params, partyID);
+
+		for(j = 0; j < 2 * rawInputCircuit -> numOutputs; j ++)
+		{
+			mpz_clear(outputKeysLocals[j]);
+		}
+		free(outputKeysLocals);
 	}
 
 	c_1 = clock();

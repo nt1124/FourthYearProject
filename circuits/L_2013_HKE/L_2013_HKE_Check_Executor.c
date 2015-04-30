@@ -86,7 +86,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 
 	startOfInputChain = convertArrayToChain(deltaPrime, lengthDelta, rawInputCircuit -> numInputs_P1);
 	// Build the circuits HKE
-	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, cTilde, NP_consistentInputs, outputStruct_Own, params,
+	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, NP_consistentInputs, outputStruct_Own, params,
 											circuitCTXs, checkStatSecParam, partyID);
 
 	int_c_1 = clock();

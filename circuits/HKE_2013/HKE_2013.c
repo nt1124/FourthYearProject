@@ -1,43 +1,4 @@
-struct Circuit **buildAll_HKE_Circuits(struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain,
-									struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
-									struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
-									randctx **circuitCTXs, ub4 **circuitSeeds,
-									int numCircuits, int partyID)
-{
-	struct Circuit **circuitsArray_Own = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit*));
-	struct idAndValue *start;
-	mpz_t *outputKeysLocals;
-	int i, j;
-
-
-	#pragma omp parallel for private(i, j, outputKeysLocals) schedule(auto)
-	for(j = 0; j < numCircuits; j++)
-	{
-		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, j);
-		circuitsArray_Own[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[j], rawInputCircuit, NaorPinkasInputs[j], outputKeysLocals, params, partyID);
-
-		for(i = 0; i < 2 * rawInputCircuit -> numOutputs; i ++)
-		{
-			mpz_clear(outputKeysLocals[i]);
-		}
-		free(outputKeysLocals);
-	}
-
-
-	for(j = 0; j < numCircuits; j++)
-	{
-		start = startOfInputChain;
-		// setCircuitsInputs_Hardcode(start, circuitsArray_Own[j], 0xFF);
-		setCircuitsInputs_Values(start, circuitsArray_Own[j], 0xFF);
-	}
-
-
-	return circuitsArray_Own;
-}
-
-
-struct Circuit **buildAll_HKE_Circuits_Alt(struct RawCircuit *rawInputCircuit,
-										struct eccPoint *C, struct eccPoint ***NaorPinkasInputs,
+struct Circuit **buildAll_HKE_Circuits_Alt(struct RawCircuit *rawInputCircuit, struct eccPoint ***NaorPinkasInputs,
 										struct HKE_Output_Struct_Builder *outputStruct_Own, struct eccParams *params,
 										randctx **circuitCTXs,
 										int numCircuits, int partyID)
@@ -229,8 +190,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 	// Build the circuits that you own.
-	circuitsArray_Own = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
-											circuitCTXs, circuitSeeds, numCircuits, partyID);
+	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, NaorPinkasInputs, outputStruct_Own, params,
+											circuitCTXs, numCircuits, partyID);
 
 	circuitsArray_Partner = (struct Circuit **) calloc(numCircuits, sizeof(struct Circuit *));
 	
@@ -249,6 +210,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		for(i = 0; i < numCircuits; i++)
 		{
 			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
+			// setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
 		}
 		for(i = 0; i < numCircuits; i ++)
 		{
@@ -266,6 +228,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		for(i = 0; i < numCircuits; i++)
 		{
 			sendCircuit(writeSocket, readSocket, circuitsArray_Own[i]);
+			// setCircuitsInputs_Values(startOfInputChain, circuitsArray_Partner[i], 0xFF);
 		}
 	}
 

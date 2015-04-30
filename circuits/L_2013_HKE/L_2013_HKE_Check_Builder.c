@@ -97,7 +97,7 @@ void SC_DetectCheatingBuilder_HKE(int writeSocket, int readSocket, struct RawCir
 
 
 	outputStruct_Own = getOutputSecretsAndScheme(rawInputCircuit -> numOutputs, checkStatSecParam, *state, groupOwn);
-	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, cTilde, NP_consistentInputs, outputStruct_Own, params,
+	circuitsArray_Own = buildAll_HKE_Circuits_Alt(rawInputCircuit, NP_consistentInputs, outputStruct_Own, params,
 											circuitCTXs, checkStatSecParam, partyID);
 
 	deltaExpanded = expandBitString(delta, lengthDelta);
