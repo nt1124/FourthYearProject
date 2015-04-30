@@ -1,3 +1,4 @@
+/*
 mpz_t *getRecombinationVector(mpz_t *shares, int numShares, int index, struct DDH_Group *group)
 {
 	mpz_t *vector, *secret, tempMPZ, top, bottom, bottomInv;
@@ -37,9 +38,8 @@ mpz_t *getRecombinationVector(mpz_t *shares, int numShares, int index, struct DD
 	mpz_clear(top);
 	mpz_clear(bottom);
 	mpz_clear(bottomInv);
-
 }
-
+*/
 
 
 struct pubVSS_Box *init_VSS_PublicBox(int t, int n)
@@ -149,6 +149,7 @@ struct sharingScheme *VSS_Share(mpz_t secret, int t, int n, gmp_randstate_t stat
 }
 
 
+/*
 // IMPORTANT NOTE : You need t + 1 many shares to uncover the secret.
 struct sharingScheme *VSS_Share_Backwards(int t, int n, gmp_randstate_t state, struct DDH_Group *group)
 {
@@ -176,15 +177,17 @@ struct sharingScheme *VSS_Share_Backwards(int t, int n, gmp_randstate_t state, s
 	tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
 	mpz_init_set(scheme -> secret, *tempMPZ);
 
-	printPoly(scheme -> poly);
-	gmp_printf("%Zd\n\n", scheme -> secret);
-
+	// printPoly(scheme -> poly);
+	// gmp_printf("%Zd\n\n", scheme -> secret);
 
 	for(i = 0 ; i < n; i ++)
 	{
 		mpz_set_ui(secret_index, i + 1);
 		tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
-		printf("%d >>> %d\n", i, mpz_cmp(scheme -> shares[i], *tempMPZ));
+		if(0 != mpz_cmp(scheme -> shares[i], *tempMPZ))
+		{
+			gmp_printf("%d >>> %d \n", i, scheme -> poly -> degree);
+		}
 	}
 
 
@@ -194,7 +197,7 @@ struct sharingScheme *VSS_Share_Backwards(int t, int n, gmp_randstate_t state, s
 
 	return scheme;
 }
-
+*/
 
 
 int VSS_Verify(struct pubVSS_Box *pub, mpz_t shareToVerify, unsigned int index, struct DDH_Group *group)

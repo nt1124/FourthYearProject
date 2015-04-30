@@ -148,8 +148,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	initRandGen();
 	state = seedRandGenFromISAAC(ctx);
+	// Really not happy with this, don't think it provides good enough security.
 	groupOwn = get_128_Bit_Group(*state);
-	// groupOwn = getSchnorrGroup(1024, *state);
 	params = initBrainpool_256_Curve();
 
 	for(i = 0; i < numCircuits; i ++)
@@ -352,34 +352,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	free(commBufferWrite);
 	free(commBufferRead);
 	printf("Logarithm Checks : %d\n\n", logChecks);
-	
-	/*
-	if(0 == partyID)
-	{
-		bufferOffset = 0;
-		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
-		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
 
-		commBufferLen = 0;
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
-		printf("Logarithm Checks : %d\n\n", logChecks);
-	}
-	else
-	{
-		commBufferLen = 0;
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		logChecks = Step5_CheckLogarithms(commBuffer, partnerReveals -> builderInputsEval, queries_Partner, params, J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
-		printf("Logarithm Checks : %d\n\n", logChecks);
-
-		bufferOffset = 0;
-		commBuffer = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner,
-												numCircuits, rawInputCircuit -> numInputs_P2, &commBufferLen);
-		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
-	}
-	*/
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

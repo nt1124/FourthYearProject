@@ -9,6 +9,15 @@ def getMeasurementFromString(inputStr):
 	return float(re.split(':|=',inputStr)[-1])
 
 
+def fileWriteStats(f, listToStat):
+	listMean = numpy.mean(listToStat)
+	listStd = numpy.std(listToStat)
+
+
+	f.write("Mean    : %.2f\n" % listMean)
+	f.write("Std Dev : %.2f\n" % listStd)
+
+
 def printMeanAndStdDev(listToStat):
 	listMean = numpy.mean(listToStat)
 	listStd = numpy.std(listToStat)
@@ -40,8 +49,9 @@ circuitNameList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 protocolNum = 0
 circuitNum = 0
 numTests = 100
-partyID = 1
+partyID = 0
 
+ordering = []
 commTags = ['#', ':']
 infoTags = ['#', ':', '+']
 protocolName = protocolNameList[protocolNum]
@@ -65,6 +75,9 @@ for i in range(0, numTests):
 		line = fileAsArray[j]
 		truncatedLine = line[4:]
 
+		if truncatedLine not in CPU_Dict:
+			ordering.append(truncatedLine)
+
 		CPU_Dict[truncatedLine].append( float(fileAsArray[j + 1][16:]) )
 		Wall_Dict[truncatedLine].append( float(fileAsArray[j + 2][16:]) )
 
@@ -78,17 +91,21 @@ for i in range(0, numTests):
 		j += incrementBy
 
 
-for key in CPU_Dict:
-	print "+++ " + key
+outputFile = "./StatResults/Stats_" + circuitName + "_" + str(partyID) + "_" + protocolName + ".txt"
 
-	printMeanAndStdDev(CPU_Dict[key])
-	printMeanAndStdDev(Wall_Dict[key])
-	printMeanAndStdDev(Bytes_Sent_Dict[key])
-	printMeanAndStdDev(Bytes_Received_Dict[key])
+f = open(outputFile, 'w')
+
+for key in ordering:
+	f.write(key + "\n")
+	f.write("CPU Time\n")
+	fileWriteStats(f, CPU_Dict[key])
+	f.write("\nWall Time\n")
+	fileWriteStats(f, Wall_Dict[key])
+	f.write("\nBytes Sent\n")
+	fileWriteStats(f, Bytes_Sent_Dict[key])
+	f.write("\nBytes Received\n")
+	fileWriteStats(f, Bytes_Received_Dict[key])
+	f.write("\n\n")
 
 
-
-
-
-
-
+f.close()

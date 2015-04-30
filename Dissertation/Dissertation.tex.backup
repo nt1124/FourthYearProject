@@ -6,7 +6,7 @@
                     degree={MEng},
                 % the dissertation    title (which cannot be blank)
                      title={Secure Two Party Computation},
-                % the dissertation subtitle (which can    be blank)
+                % the dissertation subtitle (which can be blank)
                   subtitle={A practical comparison of recent protocols},
                 % the dissertation     type
                       type={Research - GG1K},
@@ -60,7 +60,8 @@
 				\begin{itemize}
 					\item We implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of our knowledge these are the first implementations of these protocols.
 					\item We implemented the protocol described in \cite{Katz_Symm_CnC_2013}. Huang et al. have produced an implementation in Java this cannot be fairly compared to my C implementations of the other protocols. Furthermore they only performed preliminary experiments, we provide more extensive results.
-					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013} and modifying .
+					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013} and making other changes as necessary for this approach to work.
+					\item We have argued informally for the security of the modified protocol.
 					\item We have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
 				\end{itemize}
 
@@ -79,6 +80,8 @@
 			$\mathbb{G} = (G, g, q) \leftarrow \zeta(1^n)$ informally speaking this indicates choosing a group such that the `security' of the group is $n$ bits. We define the group as the tuple $(G, g, q)$ where $G$ is the set of all elements of the group, $g$ is a set that generates $G$ (we deal primarily in Cyclic groups so usually this will be a single element) and finally $q$ which is the order of the group.\\
 
 			$\Vert$ indicates concatenation. $\oplus$ denotes XOR.\\
+			
+			Throughout take $S$ to be a statistical security parameter.\\
 
 	% \mainmatter
 	% CONTENTS.
@@ -127,7 +130,7 @@
 			It is worth noting that some functions inherently leak information about the inputs of the other parties. For example in a two-party addition both parties can easily recover the other party's input after the computation has been run by subtracting their own input from the result. In these cases SMC is not at fault so we do not concern ourselves greatly with this scenario.\\
 
 			% Alice-Bob-Trevor could go here.
-			Occasionally a fourth property is proposed, namely \emph{fairness}. Informally this means if one party gets their output then all parties get their output. However, generally this is omitted due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
+			Occasionally a fourth property is proposed, namely \emph{fairness}. Informally this means if one party gets their output then all parties get their output. However, generally this is ignored due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
 
 		\section{Security levels}\label{sub:SecurityLevels}
 			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the capability of the adversary.
@@ -137,13 +140,13 @@
 
 				\subsubsection{Example}
 
-				At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.\\
+				At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Semi-Honest security is of use when in situations where it is not in the interest of either party to cheat.\\
 
-				So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.\\
+				So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unnecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.\\
 				
 				In this case undetected cheating could lead to the parties committing to a project they do not have the expertises to complete, this is clearly not in the interests of the parties so it is reasonable to assume that both parties will act honestly.\\
 
-				
+
 
 			\subsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
@@ -171,7 +174,7 @@
 			\subsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
 				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
 
-				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times \\
+				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times.\\
 
 				As far as team behind this auction are aware this was the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
@@ -179,19 +182,23 @@
 			\subsection{Distributed secrets} \label{sub2:DistributedSecretApplication}
 				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
-				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
+				In the above scenario we clearly need to store the secret(the seed) somewhere. If we can split the seed across multiple servers and have these servers perform the computation as an SMC problem we can remove the single point of failure and increase the cost to an attacker. As the secret is now distributed an attacker will now have to compromise multiple servers. Such a service is in development by Dyadic Security who provide a technical primer on applying SMC to this problem \cite{DYADIC_MPC_Primer} (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
 			\subsection{PROCEED - Computation on encrypted data} \label{sub2:PROCEED_DARPA}
 				Recently US Defence Advanced Research Projects Agency (DARPA) ended a programme called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.\\
 
-				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that 
+				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that SMC slows the computation by at least 2 orders of magnitude whilst FHE slows it by nearly 10 orders of magnitude \cite{DARPAPROceed}. 
 
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME
 
 	
 	\chapter{Technical Background}
+		Here we detail two of the two main common components of a Yao Garbeld Circuits based system. The Yao Garbled Circuits themselves and Oblivious transfer.
+
 		\section{Oblivious Transfer} \label{sec:OT_Intro}
 			Oblivious Transfers are vitally important for SMC and in particular Yao's Protocol that we shall be looking at later. Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+
+			We shall first talk abstractly about what functionality Oblivious Transfers should have before then giving two concrete examples of how to perform Oblivious Transfer.\\
 
 			Oblivious Transfers were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
 
@@ -235,7 +242,7 @@
 					\centering
 					
 					\textbf{Shared Auxiliary Input}\\
-					$\mathbb{G}$ a group for which the CDH assumption is believed to hold.\\
+					$\mathbb{G}$ a group for which the CDH assumption is believed to hold. $C$, an element of $G$ generated by the Sender.\\
 					\vspace{0.3cm}
 					\begin{minipage}{0.45\textwidth}
 						\centering
@@ -253,7 +260,7 @@
 					\caption{ Formal definition of the functionality of The Naor-Pinkas Oblivious Transfer.\label{fig:NPOT_Functionality}}
 				\end{figure}
 
-				The Naor-Pinkas OT is known to be simulatable against a malicious Sender assuming the CDH holds in the group $\mathbb{G}$. However, it is only known to provide \emph{privacy} against a malicious Receiver, the question of whether it is simulatable against such an adversary is as yet unanswered.
+				The Naor-Pinkas OT is known to be simulatable against a malicious Sender assuming the CDH holds in the group. However, it is only known to provide \emph{privacy} against a malicious Receiver, the question of whether it is simulatable against such an adversary is as yet unanswered.
 
 				\begin{figure}[!htb]
 					\begin{mdframed}
@@ -292,25 +299,25 @@
 
 			% THIS NEED TIDYING UP
 			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
-				{The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
+				The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
 
 				\subsubsection{High level concepts}
-					{The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.}\\
+					The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.\\
 
-					{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}
+					The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.
 
 				\subsubsection{Dual-Mode Encryption}
-					{Peikert-Vaikuntanathan and Water's describe a new abstraction, a Dual-mode cryptosystem. This system requires a setup phase in which the parties produce a public \emph{Common Reference String} and potentially a trapdoor. Peikert et al. state that this trapdoor information is only needed for the security proof as such we will mostly ignore these details.}\\
+					In \cite{PVW_OT_2008} Peikert-Vaikuntanathan and Water's describe a new abstraction, a Dual-mode cryptosystem. This system requires a setup phase in which the parties produce a public \emph{Common Reference String} and potentially a trapdoor. Peikert et al. state that this trapdoor information is only needed for the security proof as such we will mostly ignore these details.\\
 
-					{The setup also chooses one of two modes (\emph{messy} and \emph{decryption}).. Once this setup is complete this cryptosystem is very similar to a normal Public Key system, with one major difference, Peikert et al. introduce the concept of encryption branches.}\\
-					
-					{The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.}\\
+					The setup also chooses one of two modes (\emph{messy} and \emph{decryption}).. Once this setup is complete this cryptosystem is very similar to a normal Public Key system, with one major difference, Peikert et al. introduce the concept of encryption branches.\\
 
-					{Plaintexts can be decrypted if encrypted with $b = \sigma$ (the decryptable branch of $pk$), but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted (we call this the messy branch of $pk$). Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.}\\
+					The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.\\
 
-					{Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.}\\
+					Plaintexts can be decrypted if encrypted with $b = \sigma$ (the decryptable branch of $pk$), but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted (we call this the messy branch of $pk$). Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.\\
 
-					{In Figure \ref{fig:PVW_Abstract_Functions} we more formally define the abstract system and in particular what functions are required.}\\
+					Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.\\
+
+					In Figure \ref{fig:PVW_Abstract_Functions} we more formally define the abstract system and in particular what functions are required.\\
 
 					\begin{figure}[!htb]
 						\begin{mdframed}
@@ -333,14 +340,13 @@
 							\end{itemize}
 						\end{mdframed}
 
-						\caption{The abstract functions the define a Dual-mode cryptosystem. \label{fig:PVW_Abstract_Functions}}
+						\caption{The abstract functions defining a Dual-mode cryptosystem. \label{fig:PVW_Abstract_Functions}}
 					\end{figure}
 
 				\subsubsection{Dual-mode encryption using DDH}
 
 					Having described the abstract form of a Dual-mode cryptosystem we now give a concrete realisation. This realisation requires a group, as usual we define this group as $\mathbb{G} = (G, g, q)$ where $g$ generates $G$ and $|g| = q$. Further we require that the the group is chosen such that we believe the Decisional Diffie-Hellman problem be hard for this group.\\
 
-					%Not sure if we should bother explaining the DDH problem.
 					Before giving concrete definitions of the functions we need a few primitives relating to DDH cryptosystems.\\
 					
 					\paragraph{Randomisation} Take $G$ to be an arbitrary group, we shall use multiplicative notation, such that the group is of order $p$ where $p$ is prime. We then define $DLOG_G(x) = \{ (g, g^x) : g \in G\}$. Put another way $DLOG_G(x)$ is the set of all pairs of elements in $G$ such that the discrete log of the second over the first is $x$.\\
@@ -352,6 +358,7 @@
 
 						\item If $(g, g')\in DLOG_G(x)$ and $(h, h') \in DLOG_G(y)$ for some distinct $x, y \in \mathbb{Z}_p$ then $(u, v)$ is chosen uniformly at random from $G^2$.
 					\end{itemize}
+
 					In particular we define $Randomise(g, h, g', h')$ as follows, choose $s, t \xleftarrow{\$} \mathbb{Z}_p$ independently of one another, then let $u = g^s \cdot h^t$ and $v = (g')^s \cdot (h')^t$.\\
 					A full proof that this instantiation of \emph{Randomise} is given in \cite{PVW_OT_2008}, suffice to say the main idea of the proof is to re-write $h$ as a power of $g$ which we can do as $g$ generates $G$.\\
 					Having defined the function \emph{Randomise} Peikert et al. next defined a simple asymmetric cryptosystem based on it.
@@ -406,14 +413,14 @@
 
 						\caption{The realisation of the Dual-mode cryptosystem based on the DDH cryptosystem defined. \label{fig:PVW_DDH_Concrete_Functions}}
 					\end{figure}
-
-					\paragraph{Trusted Setup} - Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
-
-					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then childs play for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
-					
-					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\%One obvious possible solution might be to require a Zero Knowledge Proof of Knowledge that the 
-
-					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them .
+% 
+% 					\paragraph{Trusted Setup} - Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
+% 
+% 					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then simply for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
+% 					
+% 					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\
+% 
+% 					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them .
 
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
@@ -464,53 +471,55 @@
 			\subsubsection{Concept}
 				Several extensions of Yao's original protocol have been proposed in order to achieve security against Malicious and Covert adversaries. Mostly depending on an approach dubbed ``cut and choose'' which provides statistical security (detects cheating with a certain probability).\\
 
-				This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $s$ many garbled circuits and sends them to the Executor. A subset of these circuits are chosen to be opened for the purpose of checking if they are correct. The remaining circuits are then referred to as Evaluation circuits.\\
+				This relates to the old solution to dividing a cake fairly, one party cuts the cake in two, then the other party chooses a slice. In our case the Builder builds $S$ many garbled circuits and sends them to the Executor. A subset of these circuits are chosen to be opened for the purpose of checking if they are correct. The remaining circuits are then referred to as Evaluation circuits.\\
 
 				If all check-circuits pass then the Executor evaluates the remaining circuits as usual. If the Executor receives differing outputs from the Evaluation Circuits this indicates cheating, furthermore if any check circuits fail during correctness testing this is also taken to indicate cheating.\\
 
-				The number of garbled circuits built ($s$) acts as a security parameter and the probability of detecting cheating is expressed in terms of $s$. For example cheating in the protocol proposed in \cite{Lindell_CnC_2013} goes undetected with probability $2^{-s}$.\\
+				The number of garbled circuits built ($S$) acts as a security parameter and the probability of detecting cheating is expressed in terms of $S$. For example cheating in the protocol proposed in \cite{Lindell_CnC_2013} goes undetected with probability $2^{-s}$.\\
 
 			\subsubsection{Issues}
 				This Cut and Choose seems very simple conceptually, but creates several subtle new problems to be solved.\\
 
-				{Firstly whilst evaluating the many circuits we must now also ensure that both parties' provide the same inputs to each circuit, else they might be able learn many outputs, each revealing something they should not have been able to discover.}\\
+				Firstly whilst evaluating the many circuits we must now also ensure that both parties' provide the same inputs to each circuit, else they might be able learn many outputs, each revealing something they should not have been able to discover.\\
 
 				In \cite{LindellAndPinkas2007} the example is given of computing the inner product of two binary strings, in this situation the Executing party could give many different inputs each with a single bit set to $1$. The output of the circuit would then give the Executor the value of the Builder's input bit corresponding to the high bit in the Executor's input.\\
 
-				Secondly, in order to open the check circuits the Executor needs obtain both keys for each of its input wires for the check circuits without revealing which circuits have been chosen.\\
+				Secondly, in order to open the check circuits the Executor needs obtain both keys for each of its input wires for the check circuits without revealing its input.\\
 
-				{Having obtained its input keys the Executor then prove to the Builder what subset of the circuits it opened as check circuits so that the Builder can provide both keys for each of its input wires allowing for the opening of the whole circuit.}\\
+				% Having obtained its input keys the Executor then prove to the Builder what subset of the circuits it opened as check circuits so that the Builder can provide both keys for each of its input wires allowing for the opening of the whole circuit.\\
 
-				{Thirdly, given all keys for the inputs wires how do we check the correctness of a circuit? The obvious method would be to fully decrypt each gate, checking to make sure it is the correct gate type(e.g. AND gate)}\\
+				Thirdly, given all keys for the inputs wires how do we check the correctness of a circuit? The obvious method would be to fully decrypt each gate, checking to make sure it is the correct gate type(e.g. AND gate).\\
 
 				A simpler alternative though would be for the Builder to seed the randomness used for each circuit differently and then send the seed for each circuit identified as a check circuit. The Executor can then fully re-build each check circuit using this seed and the full inputs sets and check that the resulting circuit is equal to the check circuit.\\
 
 				Fourthly, how should the Executor react to differing outputs from the evaluation circuits? Whilst it is tempting to simply abort immediately this opens the Executor up to an attack referred to as a \emph{selective failure} attack. This is where the Builder crafts one (or more) of the circuits to fail in some way if the Executors input fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information, namely whether the Executor's input satisfies the condition or not.\\
 
-				In the classic protocol the Executor returns the majority output on each output wire. Suppose that we have $s$ many circuits, $t$ of which are selected as check circuits. Then clearly the output will only be corrupted if half of the Evaluation circuits are corrupted. This means that the Builder needs to submit at least $\frac{s - t}{2}$ many corrupted circuits else the bad circuits will certainly be outvoted when it comes to decided the majority output. However, the Builder also requires that none of the corrupted circuits are selected as Check circuits, else their cheating will be detected.
+				In the classic protocol the Executor returns the majority output on each output wire. Suppose that we have $S$ many circuits, $t$ of which are selected as check circuits. Then clearly the output will only be corrupted if half of the Evaluation circuits are corrupted. This means that the Builder needs to submit at least $\frac{S - t}{2}$ many corrupted circuits else the bad circuits will certainly be outvoted when it comes to decided the majority output. However, the Builder also requires that none of the corrupted circuits are selected as Check circuits, else their cheating will be detected.\\
+
+				Finally, this is so trivial to fix it is not so much an issue as a note, the Builder cannot hardcode it's input. Whilst assessing the correctness of the check circuits the Executor is given both keys for each input wire, including those belonging to the Builder. So if the Builder has hardcoded the keys the Executor can tell which key he was given hardcoded and know the Builder's input.
 
 	\chapter{Protocols} \label{sec:Protocols}
-		We now give an overview of each of the protocols we have implemented. This is not intended to be a full blow-by-blow explanation of the protocols, instead we intend on giving the reader a high-level intuition of the key points of each protocol.
+		We now give an overview of each of the protocols we have implemented. This is not intended to be a full blow-by-blow explanation of the protocols, instead we intend on giving the reader a high-level intuition of the key points of each protocol. We will dig a little deeper into a few points of each protocol, particularly where we feel the original papers were not as clear as they could be.
 
 		\section{Lindell and Pinkas 2011}
 			\subsection*{Overview}
 				The protocol proposed in \cite{LindellAndPinkas2011} is a significant improvement on their previous proposal \cite{LindellAndPinkas2007} both in terms of performance and conceptual simplicity.\\
 
-				Firstly this protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311s}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32s}$. Secondly it removes the need for the very large number of commitments entailed in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that vastly inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.
+				Firstly this protocol gives an improved deterrent probability of $\epsilon = 1 - 2^{-0.311 S}$, further the work in \cite{ShelatAndShen} showed how to achieve a slightly improve deterrent probability of $\epsilon = 1 - 2^{-0.32 S}$. Secondly it removes the need for the very large number of commitments entailed in \cite{LindellAndPinkas2007} and thirdly it does not require the preprocessing of the circuit that vastly inflates the number of input wires for the Executor and thus the number of Oblivious transfers needed.
 
 				\subsubsection{Cut and Choose Oblivious Transfer}
-					The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., s]$ during the setup such that $\vert J \vert = \frac{s}{2}$, this set represents a subset of the $s$ circuits to be opened.\\
+					The main new idea in this protocol is a modification of the PVW-OT from \cite{PVW_OT_2008}. We refer to this new OT as the ``Cut and Choose OT''(CnC OT), the Receiver generates a random $J \subset [1, ..., S]$ during the setup such that $\vert J \vert = \frac{S}{2}$, this set represents a subset of the $S$ circuits to be opened.\\
 
-					This set $J$ is then used to generate $s$ many CRSs, each CRS to be used for the OTs to obtain inputs for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal \emph{both} values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
+					This set $J$ is then used to generate $S$ many CRSs, each CRS to be used for the OTs to obtain inputs for a different circuit that the Builder sent. For the $j^{th}$ CRS if $j \in J$ then an OT using this CRS will reveal \emph{both} values input by the sender rather than the usual 1-out-of-2 values, otherwise the usual OT functionality holds.\\
 
-					The Executor can then reveal for which circuit it received all inputs, in doing so it commits to a set of check circuits. The Builder can then reveal all information required to fully decrypt the check circuit, allowing the Executor to test the correctness of each check circuit. The keys representing the Builder's input for each wire for the evaluation circuits are then sent, allowing the Executor to evaluate all the non-check circuits\\
+					The Executor can then reveal for which circuits it received both values for each input wire, in doing so it commits to a set of check circuits. The Builder can then reveal all information required to fully decrypt the check circuit, allowing the Executor to test the correctness of each check circuit. The keys representing the Builder's input for each wire for the evaluation circuits are then sent, allowing the Executor to evaluate all the non-check circuits\\
 
-					A subtle detail that may have passed the reader by is that we require the Executing party be able to prove that only $\frac{s}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}, we will not dwell upon it other than to say it uses a secret sharing scheme.
+					A subtle detail that may have passed the reader by is that we require the Executing party be able to prove that only $\frac{S}{2}$ many of the CRSs allow the recovery of both inputs. This is achieved via a Zero Knowledge Proof detailed in Appendix B of \cite{LindellAndPinkas2011}, we will not dwell upon it other than to say it uses a secret sharing scheme.
 
 				\subsubsection{Consistency of building party's inputs}
-					Lindell and Pinkas present a conceptually elegant method for ensuring the consistency of the builder's inputs. Before building the circuits the builder takes a group $\mathbb{G}$ in which the Discrete Log problem is hard. It then generates $\{a_i^0, a_i^1\}_{i = 1}^{l}$ where $l$ is the number of builder's input wires and $\{r_j\}_{j = 1}^{s}$ where $s$ is the number of circuits.\\
+					Lindell and Pinkas present a conceptually elegant method for ensuring the consistency of the builder's inputs. Before building the circuits the builder takes a group $\mathbb{G}$ in which the Discrete Log problem is hard. It then generates $\{a_i^0, a_i^1\}_{i = 1}^{l}$ where $l$ is the number of builder's input wires and $\{r_j\}_{j = 1}^{S}$ where $S$ is the number of circuits.\\
 
-					The builder then computes $\{g^{a_i^0}, g^{a_i^1}\}_{i = 1}^{l}$ and $\{g^{r_j}\}_{j = 1}^{s}$ and uses $H(g^{a_i^0{^{r_j}}})$
+					The builder then computes $\{g^{a_i^0}, g^{a_i^1}\}_{i = 1}^{l}$ and $\{g^{r_j}\}_{j = 1}^{S}$ and uses $H(g^{a_i^0{^{r_j}}})$
 
 		\section{Lindell 2013}
 			\subsection*{Overview}
@@ -527,10 +536,10 @@
 
 				This modification of the OT requires a series of Zero knowledge proofs. However, as we shall see it also allows a significant reduction in the number of circuits needed and so the number of OTs needed. One of the purposes of our implementation is to find out if this exchange is worth it.\\
 
-				As each circuit is chosen to be a check-circuit with probability $\frac{1}{2}$ this is effectively requiring a malicious adversary to guess at a random element in the set $\{0, 1\}^s$ in order to cheat successfully. Therefore such a builder can only successfully cheat with probability $2^{-s}$. (It is a worth noting here that as at least one circuit needs to be checked and at least one needs to be evaluated that there are really $2^{-s+1}$ sets.\\
+				As each circuit is chosen to be a check-circuit with probability $\frac{1}{2}$ this is effectively requiring a malicious adversary to guess at a random element in the set $\{0, 1\}^s$ in order to cheat successfully. Therefore such a builder can only successfully cheat with probability $2^{-S}$. (It is a worth noting here that as at least one circuit needs to be checked and at least one needs to be evaluated that there are really $2^{-S+1}$ sets.\\
 
 				\subsubsection{Secure Computation to detect cheating}
-					The builder constructs all the circuits so that the keys for output wires are consistent across all circuits, call these consistent output keys $\{b_i^0, b_i^1\}_{i = 1}^{s}$. Further we denote the input of the Builder to the circuit as $x$.\\
+					The builder constructs all the circuits so that the keys for output wires are consistent across all circuits, call these consistent output keys $\{b_i^0, b_i^1\}_{i = 1}^{S}$. Further we denote the input of the Builder to the circuit as $x$.\\
 
 					Then if any of the circuits evaluated by the Executor give different outputs on any output wire (say output wire $i$) the executor will obtain both $b_i^0$ and $b_i^1$, these will then be used as input to the cheating detection. If all circuits produce the same output then the Executor randomly generates this input to the cheating detection.\\
 					
@@ -557,7 +566,7 @@
 
 				If at least one party is honest then this party will provide honest circuits and will only provide the keys required to get one output from these circuits. As such at least one party will have the correct value for every output wire in all their evaluation circuit.\\
 
-				The probability of a malicious adversary successfully cheating is stated as $2^{-s + log(s)}$ where $s$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $\sim 2s$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
+				The probability of a malicious adversary successfully cheating is stated as $2^{-S + log(s)}$ where $S$ is the number of circuits created by \emph{each} party. Note this means that we actually need to create $\sim 2S$ many circuit so this protocol requires a factor of $3/2$ less circuits for the same security level as \cite{LindellAndPinkas2011}.\\
 				
 			\subsection{Consistency of party's inputs} \label{sub:HKE_Consistency}
 				The Lindell-Pinkas approach for ensuring inputs from parties are consistent involves expensive zero knowledge proofs. Furthermore, in the symmetric paradigm this approach is problematic as the $P_1$ (resp. $P_2$) needs to know that $P_2$ ($P_1$) gave consistent inputs to both the circuits $P_2$ ($P_1$) created and the circuits $P_1$ ($P_2$) created. Furthermore, this must be accomplished without leaking any knowledge of the either party's input bits to the other.\\
@@ -651,7 +660,7 @@
 
 				The Builder obtains his inputs for the sub-computation circuits sent by the Executor by Naor-Pinkas Oblivious Transfer as is usual in the HKE protocol. Then the Builder can prove the consistency of his input to all three sets of circuits using knowledge of logarithm trick used in the HKE protocol.\\
 
-				Whilst changing the consistency checks is a side-effect of the other changes it also gives significant 
+				Whilst changing the consistency checks is a side-effect of the other changes it also gives significant performance improvements. Two main reasons for these appear to be the HKE approach using many more fixed-base point multiplications which are significantly faster, and the removal of the expensive Zero Knowledge Proofs.\\
 
 			\subsection{Ensuring consistency of Executor's inputs}
 				\subsubsection{An attack on the OT optimisation}
@@ -798,16 +807,21 @@
 				We will not dwell on the details of this as this was quite trivial and is tangential. Suffice to say we have a structure for polynomials in a field, this structure contains a degree and a set of coefficients. We then coded functions to perform addition, multiplication and evaluation.
 
 			\subsection{Shamir Secret Sharing}
-				Shamir secret sharing consists of two algorithms, \texttt{Share} and \texttt{Recover}, we assume that each algorithm takes the field over which we work as an implicit input ($\mathbb{F}$).\\
+				Shamir secret sharing was first proposed in \cite{ShamirSecretSharing} and gives a way to implement a Secret sharing scheme. The scheme consists of two algorithms, \texttt{Share} and \texttt{Recover}. We assume that each algorithm takes the field over which we work as an implicit input ($\mathbb{F}$).\\
 
 				\texttt{Share} takes a secret $a \in \mathbb{F}$ and a pair of integers $t$ and $n$ such that $t \leq n$. It returns a set of $n$ shares (also elements in the field) such that $t + 1$ many are needed to recover the secret $a$. Note that the shares are indexed in the order they are output by \texttt{Share}.\\
 
-				More concretely, to share a secret $a$ we generate a polynomial $F(X) = a + f_1 \cdot X + f_2 \cdot X^2 + ... +  + f_t \cdot X ^ t$.
+				More concretely, to share a secret $a$ we generate a polynomial $F(X) = a + f_1 \cdot X + f_2 \cdot X^2 + ... +  + f_t \cdot X ^ t$. We then output $\{c_i = F(i)\}$ as the shares, note then that $F(0) = a$. The polynomial is \emph{not} known to the parties.\\
 
 				\texttt{Recover} takes a set of $\tilde m$ shares $\{c_i\}$ where $i$ indicates the index of the share. \texttt{Recover} returns a $ \tilde a \in \mathbb{F}$. If $t \leq \tilde m$ and the $c_i$ are all valid shares then $\tilde a = a$.\\
 
-				
+				If we have $t + 1$ or more valid shares of the secret then we can reconstruct the polynomial $F$ by Lagrange interpolation. We will not dwell on the details of Lagrange interpolation.\\
 
+			\subsection{Verifiable Secret Sharing}
+
+				A Verifiable Secret Sharing (VSS) scheme is an extension to `vanilla' secret sharing schemes where any party can check whether an input is a valid share to a secret. This additional property is very important for the protocol described in \cite{Katz_Symm_CnC_2013}.\\
+
+				We have implemented the Feldman VSS scheme which is an extension of the Shamir scheme. The basic concept is that the sharing step also publishes a public commitment to the shares to all parties. Then using the candidate share, the index of the  candidate share and the commitments any party can verify whether the candidate share is a valid share of the secret.
 
 		\section{Peikert, Vaikuntanathan and Waters OT}
 
@@ -841,7 +855,52 @@
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party.\\
+
+				\subsubsection{Lindell-Pinkas 2010}
+				
+					\renewcommand{\arraystretch}{1.2}
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						& & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\hline
+						\hline
+						Building Circuits & $13.20$ & $12.88$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $82.22$ & $11.73$ & $1,214,877$ & $655,111$ \\
+						\hline
+						Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
+						\hline
+						Open Check Circuits & $3.17$ & $3.18$ & $289,396$ & $2,214$ \\
+						\hline
+						Prove Input Consistency & $6.78$ & $10.80$ & $18,112$ & $79,784$ \\
+						\hline
+					\end{tabular}
+					\vspace{5cm}
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						& & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\hline
+						\hline
+						OT Prep - Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+						\hline
+						OT Transfer - Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+						\hline
+						Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+						\hline
+						Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
+						\hline
+						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
+						\hline
+						Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
+						\hline
+					\end{tabular}
+
+
 
 			\subsection{32-bit multiplication}
 
@@ -904,6 +963,11 @@
 			In Financial Cryptography and Data Security 2009,
 			Springer LNCS 5628, pages 325-343,
 			2009.
+
+		\bibitem{DYADIC_MPC_Primer}
+			DYADIC,
+			MPC Technical Primer,
+			\url{https://www.dyadicsec.com/media/1093/mpc-primer.pdf}
 
 		\bibitem{DARPAPROceed}
 			DARPA.
@@ -982,18 +1046,27 @@
 			download/Domain-parameters.pdf}.
 
 		\bibitem{NSA_CaseForECC}
-			NSA. \emph{The Case for Elliptic Curve Cryptography}, January 2009,
+			NSA,
+			\emph{The Case for Elliptic Curve Cryptography},
+			January 2009,
 			\url{https://www.nsa.gov/business/programs/elliptic_curve.shtml}.
 
 		\bibitem{Wiki_ECC}
 			Wikipedia (various authors),
-			Elliptic curve point multiplication,
+			\emph{Elliptic curve point multiplication},
 			\url{http://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication}
 
 		\bibitem{NigelCryptoBook}
 			N. P. Smart,
 			Cryptography, An Introduction : Third Edition,
 			\url{https://www.cs.bris.ac.uk/~nigel/Crypto_Book/}
+		
+		\bibitem{ShamirSecretSharing}
+			A. Shamir,
+			\emph{How to Share a Secret}.
+			In the Communications of the ACM,
+			22(11):612–613,
+			1979.
 
 		\bibitem{ISAAC_Implementation}
 			Bob Jenkins. \emph{ISAAC: a fast cryptographic random number generator},

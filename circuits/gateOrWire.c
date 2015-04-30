@@ -156,11 +156,8 @@ void decryptGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 		tempBit = inputCircuit[tempIndex] -> outputWire -> wirePermedValue;
 
 		/*
-		for(h = 0; h < 16; h ++)
-		{
-			printf("%02X", inputCircuit[tempIndex] -> outputWire -> wireOutputKey[h]);
-		}
-		printf("\n");
+		printf(">>>> %d\n", tempIndex);
+		fflush(stdout);
 		*/
 
 
@@ -238,7 +235,7 @@ void evaulateGate(struct gateOrWire *curGate, struct gateOrWire **inputCircuit)
 {
 	unsigned char temp;
 
-
+	// printf(">> %d\n", curGate -> G_ID);
 	if( 0xF0 != (0xF0 & curGate -> outputWire -> wireMask) || 0x02 == curGate -> outputWire -> wireMask )
 	{
 		decryptGate(curGate, inputCircuit);

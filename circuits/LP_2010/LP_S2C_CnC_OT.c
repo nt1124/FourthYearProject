@@ -96,7 +96,7 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit prep, building and sending.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit and commitment sending.");
 	printAndZeroBothCounters();
 
 

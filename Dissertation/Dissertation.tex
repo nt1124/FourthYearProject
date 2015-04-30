@@ -855,7 +855,63 @@
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party. 
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party.\\
+
+				\subsubsection{Lindell-Pinkas 2010}
+				
+					\renewcommand{\arraystretch}{1.2}
+					\begin{center}
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						& & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\hline
+						\hline
+						Building Circuits & $13.20$ & $12.88$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $82.22$ & $11.73$ & $1,214,877$ & $655,111$ \\
+						\hline
+						Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
+						\hline
+						Open Check Circuits & $3.17$ & $3.18$ & $289,396$ & $2,214$ \\
+						\hline
+						Prove Input Consistency & $6.78$ & $10.80$ & $18,112$ & $79,784$ \\
+						\hline
+						\hline
+						Total & $105.99$ & $41.02$ & $7,648,076$ & $737,109$ \\
+						\hline
+					\end{tabular}
+
+					\vspace{0.5cm}
+
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						& & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\hline
+						\hline
+						OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+						\hline
+						OT Transfer Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+						\hline
+						Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+						\hline
+						Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
+						\hline
+						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
+						\hline
+						Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
+						\hline
+						\hline
+						Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
+						\hline
+					\end{tabular}
+					\end{center}
+
+
+
 
 			\subsection{32-bit multiplication}
 
