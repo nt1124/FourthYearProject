@@ -117,10 +117,10 @@ struct jSetReveal_L_2013_HKE *executor_ToJ_Set_L_2013_HKE(int writeSocket, int r
 
 
 void setBuilderInputs_L_2013_HKE(struct Circuit **circuitsArray, struct eccPoint ***builderInputsEval,
-								unsigned char *J_Set, int numCircuits, int numInputs)
+								unsigned char *serialInputBits, unsigned char *J_Set, int numCircuits, int numInputs)
 {
 	struct wire *tempWire;
-	int i, j;
+	int i, j, k = 0;
 
 	for(i = 0; i < numCircuits; i ++)
 	{
@@ -130,6 +130,8 @@ void setBuilderInputs_L_2013_HKE(struct Circuit **circuitsArray, struct eccPoint
 			{
 				tempWire = circuitsArray[i] -> gates[j] -> outputWire;
 				tempWire -> wireOutputKey = hashECC_Point(builderInputsEval[i][j], 16);
+				tempWire -> wirePermedValue = serialInputBits[k];
+				k ++;
 			}
 		}
 	}

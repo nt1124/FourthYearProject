@@ -69,9 +69,9 @@ for protocolNum in range(0, len(protocolNames)):
 
 
 # ++++++++++++++++++++++++++++++++++++++++++++++++
-# LOCAL   : python runTests.py 127.0.0.1 5
-# DIFFIE  : python runTests.py 192.168.0.2 100
-# HELLMAN : python runTests.py 192.168.0.1 100
+# LOCAL   : python runTests.py 127.0.0.5 1
+# DIFFIE  : python runTests.py 192.168.0.2 100 1
+# HELLMAN : python runTests.py 192.168.0.1 100 0
 # ++++++++++++++++++++++++++++++++++++++++++++++++
 
 

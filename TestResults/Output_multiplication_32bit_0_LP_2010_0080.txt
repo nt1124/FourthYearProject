@@ -1,0 +1,61 @@
+Running Executor.
+Connected to builder.
+
++++ Receiver OT prep.
++++ CPU time  : 18.049999
++++ Wall time : 2.750967
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
++++ Receiver OT Transfer.
++++ CPU time  : 19.030001
++++ Wall time : 14.208383
+::: Bytes Sent = 655111
+::: Bytes Received = 1214877
+
+
++++ Received Circuits + public commitments etc.
++++ CPU time  : 1.640000
++++ Wall time : 1.751535
+::: Bytes Sent = 0
+::: Bytes Received = 202012291
+
+Circuits Check = 0
+
+
++++ Executor Cut and choose - Correctness etc
++++ CPU time  : 12.840000
++++ Wall time : 7.587187
+::: Bytes Sent = 2214
+::: Bytes Received = 289396
+
+
++++ Proving consistency
++++ CPU time  : 7.770000
++++ Wall time : 7.449445
+::: Bytes Sent = 79784
+::: Bytes Received = 18112
+
+Consistency Check = 0
+Evaluating Circuits 0, 1, 4, 5, 6, 10, 13, 14, 15, 16, 17, 18, 22, 28, 29, 32, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 47, 48, 49, 52, 55, 59, 62, 63, 64, 66, 67, 68, 70, 73, 74, 75, 79, 83, 85, 88, 90, 93, 94, 98, 103, 105, 106, 107, 110, 112, 114, 115, 117, 119, 120, 122, 125, 
+
++++ Circuit Evaluation
++++ CPU time  : 0.870000
++++ Wall time : 0.872047
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
++++ Total time without connection setup
++++ CPU time  : 60.950001
++++ Wall time : 46.238767
+ Majority output binary : 1001111000101001110110101001110110100100110011111010001110101001
+
+### Total Bytes Sent = 737109
+### Total Bytes Received = 203534676
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     61.310001
+Wall time :     46.602243

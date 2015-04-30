@@ -167,3 +167,39 @@ unsigned char *builder_decommitToJ_Set_L_2013_HKE(int writeSocket, int readSocke
 
 	return J_Set;
 }
+
+
+unsigned char *serialiseBuilderInputBits_L_2013_HKE(struct Circuit **circuitsArray, unsigned char *inputArray, int inputLength,
+													unsigned char *J_set, int numCircuits, int *outputLength)
+{
+	struct wire *tempWire;
+	unsigned char *outputBuffer;
+	int i, j, bufferIndex = 0;
+
+
+	(*outputLength) = 0;
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_set[i])
+		{
+			(*outputLength) += inputLength;
+		}
+	}
+
+	outputBuffer = (unsigned char *) calloc((*outputLength), sizeof(unsigned char));
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == J_set[i])
+		{
+			for(j = 0; j < inputLength; j ++)
+			{
+				tempWire = circuitsArray[i] -> gates[j] -> outputWire;
+				outputBuffer[bufferIndex] = inputArray[j] ^ (tempWire -> wirePerm & 0x01);
+
+				bufferIndex ++;
+			}
+		}
+	}
+
+	return outputBuffer;
+}

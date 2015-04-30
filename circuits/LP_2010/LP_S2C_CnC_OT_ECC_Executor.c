@@ -16,6 +16,7 @@ struct otKeyPair_ECC **OT_CnC_Receiver_Produce_Queries(struct params_CnC_ECC *pa
 													unsigned char *permedInputs, int stat_SecParam)
 {
 	struct otKeyPair_ECC **keyPairs_R;
+	// struct otKeyPair_ECC *tempKeyPair;
 	unsigned char value;
 	int i, j, iOffset;
 	int totalOTs = numInputsExecutor * stat_SecParam;
@@ -30,6 +31,7 @@ struct otKeyPair_ECC **OT_CnC_Receiver_Produce_Queries(struct params_CnC_ECC *pa
 
 		value = permedInputs[i];
 
+		// tempKeyPair = CnC_OT_Transfer_One_Receiver_ECC(value, j, params_R, state);
 		for(j = 0; j < stat_SecParam; j ++)
 		{
 			keyPairs_R[iOffset + j] = CnC_OT_Transfer_One_Receiver_ECC(value, j, params_R, state);

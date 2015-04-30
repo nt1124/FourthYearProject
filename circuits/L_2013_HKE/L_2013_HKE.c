@@ -153,6 +153,11 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	// inputs for the non-J-set circuits.
 	J_set = builder_decommitToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, NP_consistentInputs,
 											aList, inputBitsOwn, stat_SecParam, &J_setSize, circuitSeeds);
+	
+	commBuffer = serialiseBuilderInputBits_L_2013_HKE(circuitsArray, inputBitsOwn, rawInputCircuit -> numInputs_P1,
+													J_set, stat_SecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -346,9 +351,10 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	// Here we do the decommit...Getting the information we need for proving consistency later, and the
 	// inputs for the builder's wires in the evaluation circuits.
 	secretsRevealed = executor_ToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, params, J_set, &J_setSize, stat_SecParam);
+	commBuffer = receiveBoth(readSocket, commBufferLen);
 
 
-	setBuilderInputs_L_2013_HKE(circuitsArray, secretsRevealed -> builderInputsEval,
+	setBuilderInputs_L_2013_HKE(circuitsArray, secretsRevealed -> builderInputsEval, commBuffer,
 								J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
 
 	int_t_0 = timestamp();

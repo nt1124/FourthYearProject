@@ -145,6 +145,7 @@
   \ifcsempty{dissertation@subtitle}{}{{\Large \dissertation@subtitle \\}}
                        \vspace{1cm}
                  {\Large \dissertation@author}                       \\
+                 {\Large \dissertation@supervisor}                   \\
 
                        \vspace{1cm}
                 \rule{0.5\textwidth}{0.5pt}

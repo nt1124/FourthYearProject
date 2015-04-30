@@ -14,29 +14,28 @@
 \contentsline {subsection}{\numberline {2.3.3}PROCEED - Computation on encrypted data}{11}{subsection.2.3.3}
 \contentsline {chapter}{\numberline {3}Technical Background}{12}{chapter.3}
 \contentsline {section}{\numberline {3.1}Oblivious Transfer}{12}{section.3.1}
-\contentsline {subsection}{\numberline {3.1.1}Naor-Pinkas Oblivious Transfer}{12}{subsection.3.1.1}
-\contentsline {subsection}{\numberline {3.1.2}Peikert - Vaikuntanathan - Waters Oblivious Transfer}{13}{subsection.3.1.2}
+\contentsline {subsection}{\numberline {3.1.1}Naor-Pinkas Oblivious Transfer}{13}{subsection.3.1.1}
+\contentsline {subsection}{\numberline {3.1.2}Peikert - Vaikuntanathan - Waters Oblivious Transfer}{14}{subsection.3.1.2}
 \contentsline {subsubsection}{High level concepts}{14}{section*.12}
 \contentsline {subsubsection}{Dual-Mode Encryption}{14}{section*.13}
 \contentsline {subsubsection}{Dual-mode encryption using DDH}{14}{section*.14}
 \contentsline {paragraph}{Randomisation}{15}{section*.15}
-\contentsline {paragraph}{DDH-Randomise Cryptosystem}{15}{section*.16}
-\contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{15}{section*.17}
-\contentsline {paragraph}{Trusted Setup}{16}{section*.18}
-\contentsline {section}{\numberline {3.2}Yao's Protocol}{17}{section.3.2}
-\contentsline {subsection}{\numberline {3.2.1}Overview}{17}{subsection.3.2.1}
-\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{17}{subsection.3.2.2}
-\contentsline {subsubsection}{Free XOR Improvement}{18}{section*.19}
+\contentsline {paragraph}{DDH-Randomise Cryptosystem}{16}{section*.16}
+\contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{16}{section*.17}
+\contentsline {section}{\numberline {3.2}Yao's Protocol}{16}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Overview}{16}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{16}{subsection.3.2.2}
+\contentsline {subsubsection}{Free XOR Improvement}{18}{section*.18}
 \contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{18}{subsection.3.2.3}
-\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{19}{subsection.3.2.4}
-\contentsline {subsubsection}{Concept}{19}{section*.20}
-\contentsline {subsubsection}{Issues}{19}{section*.21}
+\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{18}{subsection.3.2.4}
+\contentsline {subsubsection}{Concept}{18}{section*.19}
+\contentsline {subsubsection}{Issues}{19}{section*.20}
 \contentsline {chapter}{\numberline {4}Protocols}{21}{chapter.4}
 \contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{21}{section.4.1}
-\contentsline {subsubsection}{Cut and Choose Oblivious Transfer}{21}{section*.23}
-\contentsline {subsubsection}{Consistency of building party's inputs}{22}{section*.24}
+\contentsline {subsubsection}{Cut and Choose Oblivious Transfer}{21}{section*.22}
+\contentsline {subsubsection}{Consistency of building party's inputs}{22}{section*.23}
 \contentsline {section}{\numberline {4.2}Lindell 2013}{22}{section.4.2}
-\contentsline {subsubsection}{Secure Computation to detect cheating}{22}{section*.26}
+\contentsline {subsubsection}{Secure Computation to detect cheating}{22}{section*.25}
 \contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{23}{section.4.3}
 \contentsline {subsection}{\numberline {4.3.1}Consistency of party's inputs}{23}{subsection.4.3.1}
 \contentsline {subsection}{\numberline {4.3.2}Output determination}{24}{subsection.4.3.2}
@@ -45,8 +44,8 @@
 \contentsline {subsection}{\numberline {4.4.1}Problems to address}{25}{subsection.4.4.1}
 \contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{26}{subsection.4.4.2}
 \contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{27}{subsection.4.4.3}
-\contentsline {subsubsection}{An attack on the OT optimisation}{27}{section*.28}
-\contentsline {subsubsection}{Rolling Back}{27}{section*.29}
+\contentsline {subsubsection}{An attack on the OT optimisation}{27}{section*.27}
+\contentsline {subsubsection}{Rolling Back}{27}{section*.28}
 \contentsline {chapter}{\numberline {5}Implementation Details}{28}{chapter.5}
 \contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{28}{section.5.1}
 \contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{28}{subsection.5.1.1}

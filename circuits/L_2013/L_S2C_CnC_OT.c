@@ -183,10 +183,14 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	free_idAndValueChain(startOfInputChain);
 
+	/*
+	Freeing here is pointless because we're so close to finish when the OS will do it for us.
+
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
+	*/
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);

@@ -1,0 +1,49 @@
+Running Builder.
+Executor has connected to us.
+
++++ Circuit prep and building.
++++ CPU time  : 13.200000
++++ Wall time : 12.883498
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
++++ Sender OT.
++++ CPU time  : 82.260002
++++ Wall time : 11.727837
+::: Bytes Sent = 1214877
+::: Bytes Received = 655111
+
+
++++ Circuit prep, building and sending.
++++ CPU time  : 0.610000
++++ Wall time : 2.469528
+::: Bytes Sent = 6125691
+::: Bytes Received = 0
+
+
++++ Builder Cut and choose - Correctness etc.
++++ CPU time  : 3.170000
++++ Wall time : 3.173540
+::: Bytes Sent = 289396
+::: Bytes Received = 2214
+
+
++++ Proving consistency
++++ CPU time  : 6.770000
++++ Wall time : 10.787733
+::: Bytes Sent = 18120
+::: Bytes Received = 79784
+
+
++++ Total time without connection setup
++++ CPU time  : 106.010002
++++ Wall time : 41.042261
+
+### Total Bytes Sent = 7648084
+### Total Bytes Received = 737109
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     106.059998
+Wall time :     41.096050

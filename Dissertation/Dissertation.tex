@@ -6,7 +6,7 @@
                     degree={MEng},
                 % the dissertation    title (which cannot be blank)
                      title={Secure Two Party Computation},
-                % the dissertation subtitle (which can    be blank)
+                % the dissertation subtitle (which can be blank)
                   subtitle={A practical comparison of recent protocols},
                 % the dissertation     type
                       type={Research - GG1K},
@@ -60,7 +60,8 @@
 				\begin{itemize}
 					\item We implemented the protocols described in \cite{LindellAndPinkas2011, Lindell_CnC_2013}, to the best of our knowledge these are the first implementations of these protocols.
 					\item We implemented the protocol described in \cite{Katz_Symm_CnC_2013}. Huang et al. have produced an implementation in Java this cannot be fairly compared to my C implementations of the other protocols. Furthermore they only performed preliminary experiments, we provide more extensive results.
-					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013} and modifying .
+					\item We experimented with modifying the sub-protocol used for the Secure computation to detect cheating in \cite{Lindell_CnC_2013}, exchanging the use of \cite{LindellAndPinkas2011} for \cite{Katz_Symm_CnC_2013} and making other changes as necessary for this approach to work.
+					\item We have argued informally for the security of the modified protocol.
 					\item We have run practical comparisons of all the implemented protocols on a variety of circuits/computations and provided some analysis of the results.
 				\end{itemize}
 
@@ -79,6 +80,8 @@
 			$\mathbb{G} = (G, g, q) \leftarrow \zeta(1^n)$ informally speaking this indicates choosing a group such that the `security' of the group is $n$ bits. We define the group as the tuple $(G, g, q)$ where $G$ is the set of all elements of the group, $g$ is a set that generates $G$ (we deal primarily in Cyclic groups so usually this will be a single element) and finally $q$ which is the order of the group.\\
 
 			$\Vert$ indicates concatenation. $\oplus$ denotes XOR.\\
+			
+			Throughout take $S$ to be a statistical security parameter.\\
 
 	% \mainmatter
 	% CONTENTS.
@@ -127,7 +130,7 @@
 			It is worth noting that some functions inherently leak information about the inputs of the other parties. For example in a two-party addition both parties can easily recover the other party's input after the computation has been run by subtracting their own input from the result. In these cases SMC is not at fault so we do not concern ourselves greatly with this scenario.\\
 
 			% Alice-Bob-Trevor could go here.
-			Occasionally a fourth property is proposed, namely \emph{fairness}. Informally this means if one party gets their output then all parties get their output. However, generally this is omitted due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
+			Occasionally a fourth property is proposed, namely \emph{fairness}. Informally this means if one party gets their output then all parties get their output. However, generally this is ignored due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
 
 		\section{Security levels}\label{sub:SecurityLevels}
 			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the capability of the adversary.
@@ -137,13 +140,13 @@
 
 				\subsubsection{Example}
 
-				At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Mostly Semi-Honest security can be used in situations where it is not in the interest of either party to cheat.\\
+				At first it can be difficult to think of applications where only Semi-Honest security is required, but such applications do exist. Semi-Honest security is of use when in situations where it is not in the interest of either party to cheat.\\
 
-				So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.\\
+				So take the example of parties who wish to decide whether they should cooperate on a particular project. More concretely maybe two drug companies are considering cooperating in a particular area of research, but first need to establish that they have the combined expertises required. To do this without unnecessarily revealing information about their capabilities to the other company they might run a legally binding Secure Computation.\\
 				
 				In this case undetected cheating could lead to the parties committing to a project they do not have the expertises to complete, this is clearly not in the interests of the parties so it is reasonable to assume that both parties will act honestly.\\
 
-				
+
 
 			\subsection{Malicious Adversary}
 				The Malicious adversary is allowed to employ any polynomial time strategy and is not bounded by the protocol (they can run arbitrary code instead), furthermore the Malicious adversary does not care if it is caught cheating so long as it achieves its goal in the process. This is in some ways analogous to the classic ``active'' adversary.
@@ -171,7 +174,7 @@
 			\subsection{Secret Auctions - Danish Beets} \label{BeetsAuctionApplication}
 				In Denmark a significant number of farmers are contracted to grow sugar beets for Danisco (a Danish bio-products company). Farmers can trade contracts amongst themselves (effectively sub-contracting the production of the beets), bidding for these sub-contracts is done via a ``double auction''.\\
 
-				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times \\
+				Farmers do not wish to expose their bids as this gives information about their financial state to Danisco and so refused to accept Danisco as a trusted auctioneer. Similarly all other parties (e.g. Farmer union) already involved are in some way disqualified. Rather than rely on a completely uninvolved party like an external auction house (an expensive option) the farmers use an SMC-based approached described in \cite{SugarBeets}. Since 2008 this auction has been ran multiple times.\\
 
 				As far as team behind this auction are aware this was the first large scale application of SMC to a real world problem, this application example in particular is important as it is a concrete practical example of SMC being used to solve a problem demonstrating this is not just a Cryptological gimmick.
 
@@ -179,19 +182,23 @@
 			\subsection{Distributed secrets} \label{sub2:DistributedSecretApplication}
 				Consider the growing use of physical tokens in user authentication, e.g. the RSA SecurID. When each SecurID token is activated the seed generated for that token is loaded to the relevant server (RSA Authentication Manager), then when authentication is needed both the server and the token compute `something' using the aforementioned seed. However, this means that in the event of the server being breached and the seed being compromised the physical tokens will need to be replaced. Clearly this is undesirable, being both expensive both in terms of up front clean up costs and reputation.\\
 
-				In the above scenario we clearly need to store the secret(the seed) somewhere, but if we can split the seed across multiple servers and then get the servers to perform the computation as a SMC problem (where each server's input is their share of the secret, the output the value to compare to the token's input) then we can increase the cost to an attacker, as they will now have to compromise multiple servers. Such a service is in development by Dyadic Security (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
+				In the above scenario we clearly need to store the secret(the seed) somewhere. If we can split the seed across multiple servers and have these servers perform the computation as an SMC problem we can remove the single point of failure and increase the cost to an attacker. As the secret is now distributed an attacker will now have to compromise multiple servers. Such a service is in development by Dyadic Security who provide a technical primer on applying SMC to this problem \cite{DYADIC_MPC_Primer} (full disclosure, my supervisor Prof. Nigel Smart is a co-founder of Dyadic).
 
 			\subsection{PROCEED - Computation on encrypted data} \label{sub2:PROCEED_DARPA}
 				Recently US Defence Advanced Research Projects Agency (DARPA) ended a programme called PROCEED. The eventual goal being the ability to efficiently perform computations on encrypted data without knowledge of the data. This could be used by companies such as Google to continue to provide services requiring computation on personal data without intruding on the privacy on their users.\\
 
-				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that 
+				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that SMC slows the computation by at least 2 orders of magnitude whilst FHE slows it by nearly 10 orders of magnitude \cite{DARPAPROceed}. 
 
 				 % MORE DETAILS! SEE IF WE CAN GET THE NAME OF THE SUCCESSOR PROGRAMME FROM NIGEL. ALSO CITE THEIR WEBSITE OR SOME PAPER SUMMING UP THE PROCEED PROGRAMME
 
 	
 	\chapter{Technical Background}
+		Here we detail two of the two main common components of a Yao Garbeld Circuits based system. The Yao Garbled Circuits themselves and Oblivious transfer.
+
 		\section{Oblivious Transfer} \label{sec:OT_Intro}
 			Oblivious Transfers are vitally important for SMC and in particular Yao's Protocol that we shall be looking at later. Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+
+			We shall first talk abstractly about what functionality Oblivious Transfers should have before then giving two concrete examples of how to perform Oblivious Transfer.\\
 
 			Oblivious Transfers were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
 
@@ -235,7 +242,7 @@
 					\centering
 					
 					\textbf{Shared Auxiliary Input}\\
-					$\mathbb{G}$ a group for which the CDH assumption is believed to hold.\\
+					$\mathbb{G}$ a group for which the CDH assumption is believed to hold. $C$, an element of $G$ generated by the Sender.\\
 					\vspace{0.3cm}
 					\begin{minipage}{0.45\textwidth}
 						\centering
@@ -253,7 +260,7 @@
 					\caption{ Formal definition of the functionality of The Naor-Pinkas Oblivious Transfer.\label{fig:NPOT_Functionality}}
 				\end{figure}
 
-				The Naor-Pinkas OT is known to be simulatable against a malicious Sender assuming the CDH holds in the group $\mathbb{G}$. However, it is only known to provide \emph{privacy} against a malicious Receiver, the question of whether it is simulatable against such an adversary is as yet unanswered.
+				The Naor-Pinkas OT is known to be simulatable against a malicious Sender assuming the CDH holds in the group. However, it is only known to provide \emph{privacy} against a malicious Receiver, the question of whether it is simulatable against such an adversary is as yet unanswered.
 
 				\begin{figure}[!htb]
 					\begin{mdframed}
@@ -292,25 +299,25 @@
 
 			% THIS NEED TIDYING UP
 			\subsection{Peikert - Vaikuntanathan - Waters Oblivious Transfer} \label{sub:dualModeCryptoOT}
-				{The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.}\\
+				The basis of the Oblivious transfer protocol we shall be using comes from \cite{PVW_OT_2008}, in particular we shall be using the realisation of the dual-mode cryptosystem based on Decisional Diffie-Hellman problem. Whilst I shall not go into depth on this protocol we shall give a broad overview of the dual-mode cryptosystem.\\
 
 				\subsubsection{High level concepts}
-					{The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.}\\
+					The Peikert-Vaikuntanathan-Waters (PVW) OT has at its core the concept of a messy key. This is a key such that under encryption by this key all information about the plaintext is lost, moreover messy keys are indistinguishable from normal valid (\emph{neat}) keys that do not obliterate the plaintext. It does not take much to see how these could be useful for an Oblivious Transfer scheme.\\
 
-					{The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.}
+					The PVW OT is constructed in such a way we can ensure one of the keys will be a messy key, whilst the other will be a neat key. Furthermore the Receiving party can control which key will be messy and which will be neat, allowing the Receiving party to choose which input to uncover.
 
 				\subsubsection{Dual-Mode Encryption}
-					{Peikert-Vaikuntanathan and Water's describe a new abstraction, a Dual-mode cryptosystem. This system requires a setup phase in which the parties produce a public \emph{Common Reference String} and potentially a trapdoor. Peikert et al. state that this trapdoor information is only needed for the security proof as such we will mostly ignore these details.}\\
+					In \cite{PVW_OT_2008} Peikert-Vaikuntanathan and Water's describe a new abstraction, a Dual-mode cryptosystem. This system requires a setup phase in which the parties produce a public \emph{Common Reference String} and potentially a trapdoor. Peikert et al. state that this trapdoor information is only needed for the security proof as such we will mostly ignore these details.\\
 
-					{The setup also chooses one of two modes (\emph{messy} and \emph{decryption}).. Once this setup is complete this cryptosystem is very similar to a normal Public Key system, with one major difference, Peikert et al. introduce the concept of encryption branches.}\\
-					
-					{The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.}\\
+					The setup also chooses one of two modes (\emph{messy} and \emph{decryption}).. Once this setup is complete this cryptosystem is very similar to a normal Public Key system, with one major difference, Peikert et al. introduce the concept of encryption branches.\\
 
-					{Plaintexts can be decrypted if encrypted with $b = \sigma$ (the decryptable branch of $pk$), but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted (we call this the messy branch of $pk$). Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.}\\
+					The key generation algorithm takes a parameter $\sigma \in \{0, 1\}$, and returns a public/secret key pair. Similarly when encrypting using the public key produced by the key generation one must also specify a $b \in \{0, 1\}$.\\
 
-					{Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.}\\
+					Plaintexts can be decrypted if encrypted with $b = \sigma$ (the decryptable branch of $pk$), but plaintexts encrypted with $b \neq \sigma$ cannot be decrypted (we call this the messy branch of $pk$). Additionally when carrying out an encryption using a public key provided by the other party you cannot tell which branch is decryptable.\\
 
-					{In Figure \ref{fig:PVW_Abstract_Functions} we more formally define the abstract system and in particular what functions are required.}\\
+					Depending on which mode is selected during setup the trapdoor returned allows subversion of one of these properties. If the system is in messy mode the trapdoor allows the encrypting party to distinguish when the branch input to the key generation that produced a public key was. If the system is in decryptable mode the trapdoor allows the decryption of both branches.\\
+
+					In Figure \ref{fig:PVW_Abstract_Functions} we more formally define the abstract system and in particular what functions are required.\\
 
 					\begin{figure}[!htb]
 						\begin{mdframed}
@@ -333,14 +340,13 @@
 							\end{itemize}
 						\end{mdframed}
 
-						\caption{The abstract functions the define a Dual-mode cryptosystem. \label{fig:PVW_Abstract_Functions}}
+						\caption{The abstract functions defining a Dual-mode cryptosystem. \label{fig:PVW_Abstract_Functions}}
 					\end{figure}
 
 				\subsubsection{Dual-mode encryption using DDH}
 
 					Having described the abstract form of a Dual-mode cryptosystem we now give a concrete realisation. This realisation requires a group, as usual we define this group as $\mathbb{G} = (G, g, q)$ where $g$ generates $G$ and $|g| = q$. Further we require that the the group is chosen such that we believe the Decisional Diffie-Hellman problem be hard for this group.\\
 
-					%Not sure if we should bother explaining the DDH problem.
 					Before giving concrete definitions of the functions we need a few primitives relating to DDH cryptosystems.\\
 					
 					\paragraph{Randomisation} Take $G$ to be an arbitrary group, we shall use multiplicative notation, such that the group is of order $p$ where $p$ is prime. We then define $DLOG_G(x) = \{ (g, g^x) : g \in G\}$. Put another way $DLOG_G(x)$ is the set of all pairs of elements in $G$ such that the discrete log of the second over the first is $x$.\\
@@ -406,14 +412,14 @@
 
 						\caption{The realisation of the Dual-mode cryptosystem based on the DDH cryptosystem defined. \label{fig:PVW_DDH_Concrete_Functions}}
 					\end{figure}
-
-					\paragraph{Trusted Setup} - Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
-
-					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then childs play for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
-					
-					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\%One obvious possible solution might be to require a Zero Knowledge Proof of Knowledge that the 
-
-					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them .
+% 
+% 					\paragraph{Trusted Setup} - Peikert et al. state that the OT they provide requires a trusted setup. They claim this is a reasonable assumption and can be achieved using shared randomness, they suggest sunspots. To understand what the problem and why trusted setup is required consider the following case.\\
+% 
+% 					Suppose the Receiving party performs the setup, recall however, that the Sender will not be able to tell if the $crs$ they are given by the Receiver is a Messy $crs$ or a Decryptable $crs$. Therefore it is then simply for the Receiver to produce a Decryptable $crs$ and to keep the trapdoor, allowing the Receiver to decrypt on both branches giving access to all of the Senders inputs.\\
+% 					
+% 					One might hope letting the Sending party perform setup might be better, in fact it is much worse. Clearly the clear logical reverse of the Receiver case is possible, where the Sender performs a Messy setup and as such can then, using the resulting trapdoor values, uncover what values the Receiver is requesting.\\
+% 
+% 					In short, both parties could potentially craft a malicious $crs$ during setup allowing them to subvert the properties of the Dual-mode system, so the solution is to divide the work between the two parties so each provide some of the $crs$ in such a way that neither has enough information to create the trapdoor that is worth anything to them .
 
 
 	\section{Yao's Protocol} \label{sec:Yao_Circuits}
@@ -909,6 +915,11 @@
 			In Financial Cryptography and Data Security 2009,
 			Springer LNCS 5628, pages 325-343,
 			2009.
+
+		\bibitem{DYADIC_MPC_Primer}
+			DYADIC,
+			MPC Technical Primer,
+			\url{https://www.dyadicsec.com/media/1093/mpc-primer.pdf}
 
 		\bibitem{DARPAPROceed}
 			DARPA.

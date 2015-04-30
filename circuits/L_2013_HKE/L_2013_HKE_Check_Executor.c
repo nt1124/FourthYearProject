@@ -205,13 +205,6 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
 										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_SetOwn, &commBufferLen, partyID);
 
-	printf("Candidate Output binary : ");
-	for(i = 0; i < commBufferLen; i ++)
-	{
-		printf("%X", binaryOutput[i]);
-	}
-	printf("\n");
-
 
 	bufferOffset = 0;
 	commBufferLen = 0;
@@ -225,6 +218,13 @@ unsigned char *SC_DetectCheatingExecutor_HKE(int writeSocket, int readSocket, st
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+
+	printf("Sub-Computation Output binary : ");
+	for(i = 0; i < rawInputCircuit -> numOutputs; i ++)
+	{
+		printf("%X", binaryOutput[i]);
+	}
+	printf("\n");
 
 	if(equalityBit == 0)
 	{

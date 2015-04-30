@@ -155,14 +155,15 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *rawInputCircuit, struct idAndValue *startOfInputChain, randctx *ctx, int partyID)
 {
 	struct Circuit **circuitsArray_Own, **circuitsArray_Partner;
-	int i, commBufferLen = 0, J_setSize = 0, j, k;
+	int i, commBufferWriteLen = 0, commBufferReadLen = 0, J_setSize = 0, j, k;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
 	clock_t ext_c_0, ext_c_1;
 	clock_t int_c_0, int_c_1;
 
-	unsigned char *commBuffer, **J_setPair, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
+	unsigned char *commBufferWrite, *commBufferRead;
+	unsigned char **J_setPair, *J_SetOwn, *J_setPartner, *inputBitsOwn, ***OT_Inputs, **OT_Outputs;
 	unsigned char **secureEqualityInputs, *binaryOutput;
 	struct secureEqualityCommitments *secEqualityCommits_Own, *secEqualityCommits_Partner;
 	struct eccParams *params;
@@ -316,14 +317,14 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 	// Each party now commits to their input values.
 	commitStruct = makeCommitmentsBuilder(ctx, circuitsArray_Own, state, numCircuits);
-	commBuffer = serialiseC_Boxes(commitStruct, &tempLength);
-	sendBoth(writeSocket, commBuffer, tempLength);
-	free(commBuffer);
+	commBufferWrite = serialiseC_Boxes(commitStruct, &commBufferWriteLen);
+	sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+	free(commBufferWrite);
 
-	commBufferLen = 0;
+	commBufferReadLen = 0;
 	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnersCommitStruct = deserialiseC_Boxes(commBuffer, state, &bufferOffset);
+	commBufferRead = receiveBoth(readSocket, commBufferReadLen);
+	partnersCommitStruct = deserialiseC_Boxes(commBufferRead, state, &bufferOffset);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -353,13 +354,13 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
-	commBuffer = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
-									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBuffer, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
-	free(commBuffer);
+	commBufferWrite = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
+									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferWriteLen);
+	sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+	free(commBufferWrite);
+	commBufferRead = receiveBoth(readSocket, commBufferReadLen);
+	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBufferRead, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
+	free(commBufferRead);
 
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs,
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
@@ -378,6 +379,17 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
+	bufferOffset = 0;
+	commBufferWrite = Step5_CalculateLogarithms(NaorPinkasInputs, aList, queries_Own, params, inputBitsOwn, J_setPartner, numCircuits, rawInputCircuit -> numInputs_P2, &commBufferWriteLen);
+	commBufferRead = sendReceiveExchange(writeSocket, readSocket, commBufferWrite,
+										commBufferWriteLen, &commBufferReadLen, partyID);
+	logChecks = Step5_CheckLogarithms(commBufferRead, partnerReveals -> builderInputsEval, queries_Partner, params,
+									J_SetOwn, numCircuits, rawInputCircuit -> numInputs_P2, &bufferOffset);
+	free(commBufferWrite);
+	free(commBufferRead);
+	printf("Logarithm Checks : %d\n\n", logChecks);
+	
+	/*
 	if(0 == partyID)
 	{
 		bufferOffset = 0;
@@ -403,6 +415,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 		sendBoth(writeSocket, commBuffer, commBufferLen);
 		free(commBuffer);
 	}
+	*/
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -428,7 +441,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
-										partnerReveals, outputStruct_Own, outputStruct_Partner, numCircuits, J_SetOwn, &commBufferLen, partyID);
+										partnerReveals, outputStruct_Own, outputStruct_Partner, numCircuits, J_SetOwn, &tempLength, partyID);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -437,7 +450,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 
 
 	printf("Candidate Output binary : ");
-	for(i = 0; i < commBufferLen; i ++)
+	for(i = 0; i < tempLength; i ++)
 	{
 		printf("%X", binaryOutput[i]);
 	}
