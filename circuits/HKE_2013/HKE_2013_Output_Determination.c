@@ -140,12 +140,14 @@ unsigned char **getSecureEqualityTestInputs(struct HKE_Output_Struct_Builder *ou
 	{
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme0Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][0], &partnerLength);
-		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+		secureEqualityInputs[j] = XOR_StringsWithMinLen(ownSecretChars, partnerSecretChars, ownLength, partnerLength, 128);
+		// XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
 		j ++;
 
 		ownSecretChars = convertMPZToBytes(outputStruct_Own -> scheme1Array[i] -> secret, &ownLength);
 		partnerSecretChars = convertMPZToBytes(potentialSecrets[i][1], &partnerLength);
-		secureEqualityInputs[j] = XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
+		secureEqualityInputs[j] = XOR_StringsWithMinLen(ownSecretChars, partnerSecretChars, ownLength, partnerLength, 128);
+		// XOR_TwoStringsDiffLength(ownSecretChars, partnerSecretChars, ownLength, partnerLength);
 		j ++;
 	}
 
@@ -176,8 +178,8 @@ struct secureEqualityCommitments *commitForEqualityTest(unsigned char **secureEq
 		outputStruct -> k_boxes_0[i] = init_commit_key();
 		outputStruct -> k_boxes_1[i] = init_commit_key();
 
-		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 16, *state, outputStruct -> c_boxes_0[i], outputStruct -> k_boxes_0[i]);
-		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 16, *state, outputStruct -> c_boxes_1[i], outputStruct -> k_boxes_1[i]);
+		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 128, *state, outputStruct -> c_boxes_0[i], outputStruct -> k_boxes_0[i]);
+		create_commit_box_key(outputStruct -> params, secureEqualityInputs[j ++], 128, *state, outputStruct -> c_boxes_1[i], outputStruct -> k_boxes_1[i]);
 	}
 
 
@@ -242,7 +244,8 @@ struct secureEqualityCommitments *deserialiseC_Boxes_SecEqTest(unsigned char *in
 
 
 
-unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStruct_Own, int numOutputs, int *totalLength)
+unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStruct_Own, int numOutputs,
+									int *totalLength)
 {
 	unsigned char *outputBuffer;
 	int i, j, outputLength = 0, tempLength0, tempLength1, tempOffset = 0;
@@ -265,6 +268,7 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 		serialiseMPZ(commitStruct_Own -> k_boxes_0[i] -> r, outputBuffer, &tempOffset);
 		memcpy(outputBuffer + tempOffset, &(commitStruct_Own -> k_boxes_0[i] -> xLen), sizeof(int));
 		tempOffset += sizeof(int);
+
 		memcpy(outputBuffer + tempOffset, commitStruct_Own -> k_boxes_0[i] -> x, tempLength0);
 		tempOffset += tempLength0;
 
@@ -273,6 +277,7 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 		serialiseMPZ(commitStruct_Own -> k_boxes_1[i] -> r, outputBuffer, &tempOffset);
 		memcpy(outputBuffer + tempOffset, &(commitStruct_Own -> k_boxes_1[i] -> xLen), sizeof(int));
 		tempOffset += sizeof(int);
+
 		memcpy(outputBuffer + tempOffset, commitStruct_Own -> k_boxes_1[i] -> x, tempLength1);
 		tempOffset += tempLength1;
 	}
@@ -285,7 +290,8 @@ unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStr
 
 
 // Next, having sent the decommitment to our partner we receive and process the decommitment our partner gave us! Friends and sharing and stuff!
-unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStruct_Partner, unsigned char **secureEqualityInputs, unsigned char *inputBuffer, int numOutputs, int *bufferOffset)
+unsigned char *decommitOwn_SecEqTest(struct secureEqualityCommitments *commitStruct_Partner, unsigned char **secureEqualityInputs, unsigned char *inputBuffer,
+									int numOutputs, int *bufferOffset)
 {
 	unsigned char *binaryOutput = (unsigned char *) calloc(numOutputs, sizeof(unsigned char)), *x0, *x1;
 	mpz_t *tempMPZ;

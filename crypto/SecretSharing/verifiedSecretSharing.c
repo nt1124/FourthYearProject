@@ -67,7 +67,6 @@ struct Fq_poly *getPolyForScheme(int t, mpz_t secret, gmp_randstate_t state, str
 	toReturn -> degree = t;
 	toReturn -> coeffs = (mpz_t*) calloc(t + 1, sizeof(mpz_t));
 
-
 	mpz_init_set(toReturn -> coeffs[0], secret);
 	for(i = 1; i <= t; i ++)
 	{
@@ -101,6 +100,41 @@ struct sharingScheme *VSS_Share(mpz_t secret, int t, int n, gmp_randstate_t stat
 	}
 
 	mpz_init_set(scheme -> secret, secret);
+
+	return scheme;
+}
+
+
+// IMPORTANT NOTE : You need t + 1 many shares to uncover the secret.
+struct sharingScheme *VSS_Share_Backwards(int t, int n, gmp_randstate_t state, struct DDH_Group *group)
+{
+	struct sharingScheme *scheme = init_VSS_SharingScheme(t, n);
+	mpz_t *shares, *tempMPZ, secret_index, twoPow256;
+	int *indices, i;
+
+
+	shares = (mpz_t *) calloc(n, sizeof(mpz_t));
+	indices = (int *) calloc(n, sizeof(int));
+
+	mpz_init(twoPow256);
+	mpz_ui_pow_ui(twoPow256, 2, 120);
+
+	for(i = 0; i < n; i ++)
+	{
+		mpz_urandomm(scheme -> shares[i], state, twoPow256);
+		indices[i] = i + 1;
+	}
+
+	scheme -> poly = getPolyFromCodewords(scheme -> shares, indices, t + 1, group -> q);
+	scheme -> pub = init_VSS_PublicBoxWithCoeffs(t, n, scheme -> poly, group);
+
+	mpz_init_set_ui(secret_index, 0);
+	tempMPZ = evalutePoly(scheme -> poly, secret_index, group -> q);
+	mpz_init_set(scheme -> secret, *tempMPZ);
+
+	mpz_clear(twoPow256);
+	mpz_clear(*tempMPZ);
+	free(tempMPZ);
 
 	return scheme;
 }

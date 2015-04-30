@@ -307,6 +307,12 @@ struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutputs, int 
 
 	for(i = 0; i < numOutputs; i ++)
 	{
+		output -> scheme0Array[i] = VSS_Share_Backwards(t, numCircuits, state, group);
+		output -> scheme1Array[i] = VSS_Share_Backwards(t, numCircuits, state, group);
+
+		mpz_init_set(output -> s_0Array[i], output -> scheme0Array[i] -> secret);
+		mpz_init_set(output -> s_1Array[i], output -> scheme1Array[i] -> secret);
+		/*
 		mpz_init(output -> s_0Array[i]);
 		mpz_urandomm(output -> s_0Array[i], state, group -> q);
 
@@ -316,12 +322,6 @@ struct HKE_Output_Struct_Builder *getOutputSecretsAndScheme(int numOutputs, int 
 		output -> scheme0Array[i] = VSS_Share(output -> s_0Array[i], t, numCircuits, state, group);
 		output -> scheme1Array[i] = VSS_Share(output -> s_1Array[i], t, numCircuits, state, group);
 
-		/*
-		for(j = 0; j < numCircuits; j ++)
-		{
-			printf("%d - %d - %d\n", i, j, VSS_Verify(output -> scheme0Array[i] -> pub, output -> scheme0Array[i] -> shares[j], j + 1, group));
-			printf("%d - %d - %d\n", i, j, VSS_Verify(output -> scheme0Array[i] -> pub, output -> scheme0Array[i] -> shares[j], j + 1, group));
-		}
 		*/
 	}
 
