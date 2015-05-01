@@ -1,0 +1,88 @@
+Running Executor.
+Partner has connected to us.
+
++++ Circuit building preparation complete
++++ CPU time  : 9.460000
++++ Wall time : 1.227236
+
++++ Circuit building complete
++++ CPU time  : 11.140000
++++ Wall time : 1.436413
+
++++ Circuits exchanged
++++ CPU time  : 1.850000
++++ Wall time : 3.632952
+::: Bytes Sent = 204069197
+::: Bytes Received = 204069197
+
+
++++ Exchanging Secret scheme params.
++++ CPU time  : 0.010000
++++ Wall time : 0.005281
+::: Bytes Sent = 126536
+::: Bytes Received = 126408
+
+
++++ OT
++++ CPU time  : 43.240002
++++ Wall time : 5.518190
+::: Bytes Sent = 546952
+::: Bytes Received = 546952
+
+
++++ Commitments made.
++++ CPU time  : 44.419998
++++ Wall time : 5.592951
+::: Bytes Sent = 1495342
+::: Bytes Received = 1495342
+
+
++++ J set exchange.
++++ CPU time  : 0.080000
++++ Wall time : 0.010548
+::: Bytes Sent = 2532
+::: Bytes Received = 2532
+
+
+Valid Commitment : 0
+Circuits correct : 0
+Outputs verified : 0
+
++++ Initial J-Set checks
++++ CPU time  : 29.889999
++++ Wall time : 25.168084
+::: Bytes Sent = 801288
+::: Bytes Received = 801288
+
+Logarithm Checks : 0
+
+
++++ Logarithm Checks
++++ CPU time  : 2.870000
++++ Wall time : 0.652179
+::: Bytes Sent = 92164
+::: Bytes Received = 92164
+
+
+Evaluating Circuits 4, 5, 6, 9, 11, 14, 16, 17, 19, 22, 25, 26, 27, 28, 29, 31, 33, 36, 38, 39, 
+verified = 0
+
++++ Output determination
++++ CPU time  : 1.600000
++++ Wall time : 1.606936
+::: Bytes Sent = 52010
+::: Bytes Received = 52010
+
+Candidate Output binary : 11100010000101011111110011011001110111101000001011000111000100100111110010100010111100110010111010110101010111100001101000010001
+
++++ Total time without connection setup
++++ CPU time  : 145.740005
++++ Wall time : 45.253384
+
+### Total Bytes Sent = 207186021
+### Total Bytes Received = 207185893
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     145.750000
+Wall time :     45.274587

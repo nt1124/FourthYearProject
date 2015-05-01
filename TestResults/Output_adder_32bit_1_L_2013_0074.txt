@@ -1,0 +1,87 @@
+Running Builder.
+Executor has connected to us.
+
++++ Circuit Input Prep, Building and Commitment
++++ CPU time  : 4.180000
++++ Wall time : 4.006855
+::: Bytes Sent = 1889281
+::: Bytes Received = 0
+
+Verified CnC_OT_Mod setup = 0
+
++++ 
+Setup Tuples
++++ CPU time  : 9.710000
++++ Wall time : 1.248697
+
++++ Parallel ZKPoK
++++ CPU time  : 11.190000
++++ Wall time : 2.979125
+
++++ Transfer OT
++++ CPU time  : 29.260000
++++ Wall time : 3.820509
+>>>>> 0
+
++++ OT - Sender
++++ CPU time  : 42.639999
++++ Wall time : 9.850141
+::: Bytes Sent = 284040
+::: Bytes Received = 135815
+
+
++++ Decommit to J_Sets secrets
++++ CPU time  : 1.100000
++++ Wall time : 1.099626
+::: Bytes Sent = 89624
+::: Bytes Received = 620
+
+
++++ Building circuits.
++++ CPU time  : 12.230000
++++ Wall time : 12.187381
+
++++ subOT - Sender
++++ CPU time  : 94.690002
++++ Wall time : 13.172764
+
++++ Sending Commitments and Circuits.
++++ CPU time  : 0.030000
++++ Wall time : 0.004299
+
++++ Send Delta and k_0s
++++ CPU time  : 0.000000
++++ Wall time : 0.000010
+
++++ Full cheating detection sub-computation
++++ CPU time  : 110.510002
++++ Wall time : 31.075775
+::: Bytes Sent = 2412286
+::: Bytes Received = 746955
+
+
++++ Sending bLists
++++ CPU time  : 0.000000
++++ Wall time : 0.000004
+::: Bytes Sent = 1060
+::: Bytes Received = 0
+
+
++++ Proving consistency
++++ CPU time  : 8.540000
++++ Wall time : 14.213841
+::: Bytes Sent = 18128
+::: Bytes Received = 99368
+
+
++++ Total time without connection setup
++++ CPU time  : 166.970001
++++ Wall time : 60.246359
+
+### Total Bytes Sent = 4694419
+### Total Bytes Received = 982758
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     166.979996
+Wall time :     60.265218

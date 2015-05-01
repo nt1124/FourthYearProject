@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  30 APR 2015 23:57
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  1 MAY 2015 12:53
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -711,6 +711,26 @@ File: color.cfg 2007/01/18 v1.5 color configuration of teTeX/TeXLive
 )
 Package color Info: Driver file: pdftex.def on input line 130.
 )
+(/usr/share/texlive/texmf-dist/tex/latex/booktabs/booktabs.sty
+Package: booktabs 2005/04/14 v1.61803 publication quality tables
+\heavyrulewidth=\dimen146
+\lightrulewidth=\dimen147
+\cmidrulewidth=\dimen148
+\belowrulesep=\dimen149
+\belowbottomsep=\dimen150
+\aboverulesep=\dimen151
+\abovetopsep=\dimen152
+\cmidrulesep=\dimen153
+\cmidrulekern=\dimen154
+\defaultaddspace=\dimen155
+\@cmidla=\count157
+\@cmidlb=\count158
+\@aboverulesep=\dimen156
+\@belowrulesep=\dimen157
+\@thisruleclass=\count159
+\@lastruleclass=\count160
+\@thisrulewidth=\dimen158
+)
 (/usr/share/texlive/texmf-dist/tex/latex/mdframed/mdframed.sty
 Package: mdframed 2013/07/01 1.9b: mdframed
 
@@ -738,18 +758,18 @@ Package: l3seq 2013/12/14 v4623 L3 Sequences and stacks
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3int.sty
 Package: l3int 2013/08/02 v4583 L3 Integers
-\c_max_int=\count157
-\l_tmpa_int=\count158
-\l_tmpb_int=\count159
-\g_tmpa_int=\count160
-\g_tmpb_int=\count161
+\c_max_int=\count161
+\l_tmpa_int=\count162
+\l_tmpb_int=\count163
+\g_tmpa_int=\count164
+\g_tmpb_int=\count165
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3quark.sty
 Package: l3quark 2013/12/14 v4623 L3 Quarks
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3prg.sty
 Package: l3prg 2014/01/04 v4642 L3 Control structures
-\g__prg_map_int=\count162
+\g__prg_map_int=\count166
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3clist.sty
 Package: l3clist 2013/07/28 v4581 L3 Comma separated lists
@@ -765,20 +785,20 @@ Package: l3msg 2013/07/28 v4581 L3 Messages
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3file.sty
 Package: l3file 2013/10/13 v4596 L3 File and I/O operations
-\l_iow_line_count_int=\count163
-\l__iow_target_count_int=\count164
-\l__iow_current_line_int=\count165
-\l__iow_current_word_int=\count166
-\l__iow_current_indentation_int=\count167
+\l_iow_line_count_int=\count167
+\l__iow_target_count_int=\count168
+\l__iow_current_line_int=\count169
+\l__iow_current_word_int=\count170
+\l__iow_current_indentation_int=\count171
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3skip.sty
 Package: l3skip 2013/07/28 v4581 L3 Dimensions and skips
-\c_zero_dim=\dimen146
-\c_max_dim=\dimen147
-\l_tmpa_dim=\dimen148
-\l_tmpb_dim=\dimen149
-\g_tmpa_dim=\dimen150
-\g_tmpb_dim=\dimen151
+\c_zero_dim=\dimen159
+\c_max_dim=\dimen160
+\l_tmpa_dim=\dimen161
+\l_tmpb_dim=\dimen162
+\g_tmpa_dim=\dimen163
+\g_tmpb_dim=\dimen164
 \c_zero_skip=\skip72
 \c_max_skip=\skip73
 \l_tmpa_skip=\skip74
@@ -794,20 +814,20 @@ Package: l3skip 2013/07/28 v4581 L3 Dimensions and skips
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3keys.sty
 Package: l3keys 2013/12/08 v4614 L3 Experimental key-value interfaces
-\g__keyval_level_int=\count168
-\l_keys_choice_int=\count169
+\g__keyval_level_int=\count172
+\l_keys_choice_int=\count173
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3fp.sty
 Package: l3fp 2014/01/04 v4642 L3 Floating points
-\c__fp_leading_shift_int=\count170
-\c__fp_middle_shift_int=\count171
-\c__fp_trailing_shift_int=\count172
-\c__fp_big_leading_shift_int=\count173
-\c__fp_big_middle_shift_int=\count174
-\c__fp_big_trailing_shift_int=\count175
-\c__fp_Bigg_leading_shift_int=\count176
-\c__fp_Bigg_middle_shift_int=\count177
-\c__fp_Bigg_trailing_shift_int=\count178
+\c__fp_leading_shift_int=\count174
+\c__fp_middle_shift_int=\count175
+\c__fp_trailing_shift_int=\count176
+\c__fp_big_leading_shift_int=\count177
+\c__fp_big_middle_shift_int=\count178
+\c__fp_big_trailing_shift_int=\count179
+\c__fp_Bigg_leading_shift_int=\count180
+\c__fp_Bigg_middle_shift_int=\count181
+\c__fp_Bigg_trailing_shift_int=\count182
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3box.sty
 Package: l3box 2013/07/28 v4581 L3 Experimental boxes
@@ -820,13 +840,13 @@ Package: l3box 2013/07/28 v4581 L3 Experimental boxes
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3coffins.sty
 Package: l3coffins 2013/12/14 v4624 L3 Coffin code layer
 \l__coffin_internal_box=\box45
-\l__coffin_internal_dim=\dimen152
-\l__coffin_offset_x_dim=\dimen153
-\l__coffin_offset_y_dim=\dimen154
-\l__coffin_x_dim=\dimen155
-\l__coffin_y_dim=\dimen156
-\l__coffin_x_prime_dim=\dimen157
-\l__coffin_y_prime_dim=\dimen158
+\l__coffin_internal_dim=\dimen165
+\l__coffin_offset_x_dim=\dimen166
+\l__coffin_offset_y_dim=\dimen167
+\l__coffin_x_dim=\dimen168
+\l__coffin_y_dim=\dimen169
+\l__coffin_x_prime_dim=\dimen170
+\l__coffin_y_prime_dim=\dimen171
 \c_empty_coffin=\box46
 \l__coffin_aligned_coffin=\box47
 \l__coffin_aligned_internal_coffin=\box48
@@ -835,43 +855,43 @@ Package: l3coffins 2013/12/14 v4624 L3 Coffin code layer
 \l__coffin_display_coffin=\box51
 \l__coffin_display_coord_coffin=\box52
 \l__coffin_display_pole_coffin=\box53
-\l__coffin_display_offset_dim=\dimen159
-\l__coffin_display_x_dim=\dimen160
-\l__coffin_display_y_dim=\dimen161
+\l__coffin_display_offset_dim=\dimen172
+\l__coffin_display_x_dim=\dimen173
+\l__coffin_display_y_dim=\dimen174
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3color.sty
 Package: l3color 2012/08/29 v4156 L3 Experimental color support
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3luatex.sty
 Package: l3luatex 2013/07/28 v4581 L3 Experimental LuaTeX-specific functions
-\g__cctab_allocate_int=\count179
-\g__cctab_stack_int=\count180
+\g__cctab_allocate_int=\count183
+\g__cctab_stack_int=\count184
 )
 (/usr/share/texlive/texmf-dist/tex/latex/l3kernel/l3candidates.sty
 Package: l3candidates 2014/01/06 v4643 L3 Experimental additions to l3kernel
-\l__box_top_dim=\dimen162
-\l__box_bottom_dim=\dimen163
-\l__box_left_dim=\dimen164
-\l__box_right_dim=\dimen165
-\l__box_top_new_dim=\dimen166
-\l__box_bottom_new_dim=\dimen167
-\l__box_left_new_dim=\dimen168
-\l__box_right_new_dim=\dimen169
+\l__box_top_dim=\dimen175
+\l__box_bottom_dim=\dimen176
+\l__box_left_dim=\dimen177
+\l__box_right_dim=\dimen178
+\l__box_top_new_dim=\dimen179
+\l__box_bottom_new_dim=\dimen180
+\l__box_left_new_dim=\dimen181
+\l__box_right_new_dim=\dimen182
 \l__box_internal_box=\box54
-\l__coffin_bounding_shift_dim=\dimen170
-\l__coffin_left_corner_dim=\dimen171
-\l__coffin_right_corner_dim=\dimen172
-\l__coffin_bottom_corner_dim=\dimen173
-\l__coffin_top_corner_dim=\dimen174
-\l__coffin_scaled_total_height_dim=\dimen175
-\l__coffin_scaled_width_dim=\dimen176
+\l__coffin_bounding_shift_dim=\dimen183
+\l__coffin_left_corner_dim=\dimen184
+\l__coffin_right_corner_dim=\dimen185
+\l__coffin_bottom_corner_dim=\dimen186
+\l__coffin_top_corner_dim=\dimen187
+\l__coffin_scaled_total_height_dim=\dimen188
+\l__coffin_scaled_width_dim=\dimen189
 ))
 Package: xparse 2013/12/31 v4634 L3 Experimental document command parser
-\l__xparse_current_arg_int=\count181
-\l__xparse_m_args_int=\count182
-\l__xparse_mandatory_args_int=\count183
-\l__xparse_processor_int=\count184
-\l__xparse_v_nesting_int=\count185
+\l__xparse_current_arg_int=\count185
+\l__xparse_m_args_int=\count186
+\l__xparse_mandatory_args_int=\count187
+\l__xparse_processor_int=\count188
+\l__xparse_v_nesting_int=\count189
 )
 (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/zref-abspage.sty
 Package: zref-abspage 2012/04/04 v2.24 Module abspage for zref (HO)
@@ -882,14 +902,14 @@ Package zref Info: New property list: main on input line 759.
 Package zref Info: New property: default on input line 760.
 Package zref Info: New property: page on input line 761.
 )
-\c@abspage=\count186
+\c@abspage=\count190
 Package zref Info: New property: abspage on input line 62.
 )
 (/usr/share/texlive/texmf-dist/tex/latex/needspace/needspace.sty
 Package: needspace 2010/09/12 v1.3d reserve vertical space
 )
 \mdf@templength=\skip78
-\c@mdf@globalstyle@cnt=\count187
+\c@mdf@globalstyle@cnt=\count191
 \mdf@skipabove@length=\skip79
 \mdf@skipbelow@length=\skip80
 \mdf@leftmargin@length=\skip81
@@ -965,7 +985,7 @@ File: md-frame-0.mdf 2013/07/01\ 1.9b: md-frame-0
 \mdf@horizontalspaceofbox=\skip142
 \mdfsubtitleheight=\skip143
 \mdfsubsubtitleheight=\skip144
-\c@mdfcountframes=\count188
+\c@mdfcountframes=\count192
 
 ****** mdframed patching \endmdf@trivlist
 
@@ -983,17 +1003,17 @@ File: md-frame-0.mdf 2013/07/01\ 1.9b: md-frame-0
 . Defining document command \mdtheorem with arg. spec. ' O{} m o m o ' on line
 . 701.
 .................................................
-\mdf@envdepth=\count189
-\c@mdf@env@i=\count190
-\c@mdf@env@ii=\count191
-\c@mdf@zref@counter=\count192
+\mdf@envdepth=\count193
+\c@mdf@env@i=\count194
+\c@mdf@env@ii=\count195
+\c@mdf@zref@counter=\count196
 Package zref Info: New property: mdf@pagevalue on input line 895.
 )
 (/usr/share/texlive/texmf-dist/tex/latex/appendix/appendix.sty
 Package: appendix 2009/09/02 v1.2b extra appendix facilities
-\c@@pps=\count193
-\c@@ppsavesec=\count194
-\c@@ppsaveapp=\count195
+\c@@pps=\count197
+\c@@ppsavesec=\count198
+\c@@ppsaveapp=\count199
 )
 (./Dissertation.aux)
 \openout1 = `Dissertation.aux'.
@@ -1015,16 +1035,17 @@ LaTeX Font Info:    ... okay on input line 29.
 
 (/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count196
-\scratchdimen=\dimen177
+\scratchcounter=\count200
+\scratchdimen=\dimen190
 \scratchbox=\box60
-\nofMPsegments=\count197
-\nofMParguments=\count198
+\nofMPsegments=\count201
+Normal \count register pool exhausted, switching to extended pool.
+\nofMParguments=\count277
 \everyMPshowfont=\toks35
-\MPscratchCnt=\count199
-\MPscratchDim=\dimen178
-\MPnumerator=\count200
-\makeMPintoPDFobject=\count201
+\MPscratchCnt=\count278
+\MPscratchDim=\dimen191
+\MPnumerator=\count279
+\makeMPintoPDFobject=\count280
 \everyMPtoPDFconversion=\toks36
 ) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
@@ -1075,8 +1096,7 @@ e
 * \@reversemarginfalse
 * (1in=72.27pt=25.4mm, 1cm=28.453pt)
 
-Normal \count register pool exhausted, switching to extended pool.
-\c@lstlisting=\count277
+\c@lstlisting=\count281
 \AtBeginShipoutBox=\box61
 Package hyperref Info: Link coloring OFF on input line 29.
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
@@ -1085,7 +1105,7 @@ Package: nameref 2012/10/27 v2.43 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count278
+\c@section@level=\count282
 )
 LaTeX Info: Redefining \ref on input line 29.
 LaTeX Info: Redefining \pageref on input line 29.
@@ -1960,108 +1980,156 @@ Underfull \hbox (badness 10000) in paragraph at lines 856--857
 [33
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 858--859
-
- []
-
-
-Overfull \hbox (9.2659pt too wide) in paragraph at lines 864--885
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 865--884
  [] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 897--897
+Underfull \hbox (badness 10000) in paragraph at lines 895--895
 []\OT1/cmr/m/n/10.95 OT Trans-fer Re-
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 899--899
+Underfull \hbox (badness 10000) in paragraph at lines 897--897
 []\OT1/cmr/m/n/10.95 Receiving Cir-cuits
  []
 
 
-Overfull \hbox (9.2659pt too wide) in paragraph at lines 888--911
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 887--908
  [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 926--927
+Underfull \hbox (badness 10000) in paragraph at lines 971--972
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 973--974
 
  []
 
 [34]
-Underfull \hbox (badness 10000) in paragraph at lines 928--929
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 978--997
+ [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1008--1008
+[]\OT1/cmr/m/n/10.95 OT Trans-fer Re-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1010--1010
+[]\OT1/cmr/m/n/10.95 Receiving Cir-cuits
+ []
+
+
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 1000--1021
+ [][] 
+ []
+
+
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 1032--1051
+ [] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1062--1062
+[]\OT1/cmr/m/n/10.95 OT Trans-fer Re-
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1064--1064
+[]\OT1/cmr/m/n/10.95 Receiving Cir-cuits
+ []
+
+
+Overfull \hbox (9.2659pt too wide) in paragraph at lines 1054--1075
+ [][] 
+ []
+
+
+Underfull \vbox (badness 1888) has occurred while \output is active []
+
+ [35]
+Underfull \hbox (badness 10000) in paragraph at lines 1079--1080
 
  []
 
-[35]
+
+Underfull \hbox (badness 10000) in paragraph at lines 1081--1082
+
+ []
+
+[36]
 Chapter 7.
-[36
+[37
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 984--987
+Underfull \hbox (badness 10000) in paragraph at lines 1137--1140
 \OT1/cmtt/m/n/10.95 Programs / PROgramming _ Computation _ on _ EncryptEd _ Dat
 a _ %28PROCEED % 29 .
  []
 
-[37
+[38
 
 ]
-Underfull \hbox (badness 3209) in paragraph at lines 1043--1047
+Underfull \hbox (badness 3209) in paragraph at lines 1196--1200
 []\OT1/cmr/m/n/10.95 N. Sul-li-van, \OT1/cmr/m/it/10.95 A (rel-a-tively easy to
  un-der-stand) primer on el-lip-tic curve
  []
 
 
-Underfull \hbox (badness 4120) in paragraph at lines 1043--1047
+Underfull \hbox (badness 4120) in paragraph at lines 1196--1200
 \OT1/cmr/m/it/10.95 cryp-tog-ra-phy\OT1/cmr/m/n/10.95 , Oc-to-ber 2013, []$\OT1
 /cmtt/m/n/10.95 http : / / arstechnica . com / security / 2013 / 10 /
  []
 
 
-Overfull \hbox (19.8932pt too wide) in paragraph at lines 1043--1047
+Overfull \hbox (19.8932pt too wide) in paragraph at lines 1196--1200
 \OT1/cmtt/m/n/10.95 a-[]relatively-[]easy-[]to-[]understand-[]primer-[]on-[]ell
 iptic-[]curve-[]cryptography/$[]\OT1/cmr/m/n/10.95 . 
  []
 
-[38]
+[39]
 Appendix A.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1096--1097
+Underfull \hbox (badness 10000) in paragraph at lines 1249--1250
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1098--1099
+Underfull \hbox (badness 10000) in paragraph at lines 1251--1252
 
  []
 
-[39
+[40
 
-] [40]
+] [41]
 Appendix B.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1133--1134
+Underfull \hbox (badness 10000) in paragraph at lines 1286--1287
 
  []
 
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1166.
-[41
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1319.
+[42
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1166.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1319.
  (./Dissertation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1166.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1166.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1319.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1319.
 
 Package rerunfilecheck Info: File `Dissertation.out' has not changed.
 (rerunfilecheck)             Checksum: C224B9ADA16E93AABF3D5C79A30F6EC3;4872.
  ) 
 Here is how much of TeX's memory you used:
- 18390 strings out of 495028
- 306119 string characters out of 6181497
- 524528 words of memory out of 5000000
- 21099 multiletter control sequences out of 15000+600000
+ 18453 strings out of 495028
+ 306958 string characters out of 6181497
+ 527616 words of memory out of 5000000
+ 21155 multiletter control sequences out of 15000+600000
  12540 words of font info for 46 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  45i,26n,51p,10447b,556s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -2080,10 +2148,10 @@ amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 hare/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/t
 exlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Dissertation.pdf (41 pages, 429794 bytes).
+Output written on Dissertation.pdf (42 pages, 433433 bytes).
 PDF statistics:
- 802 PDF objects out of 1000 (max. 8388607)
- 732 compressed objects within 8 object streams
- 182 named destinations out of 1000 (max. 500000)
+ 808 PDF objects out of 1000 (max. 8388607)
+ 737 compressed objects within 8 object streams
+ 185 named destinations out of 1000 (max. 500000)
  534 words of extra memory for PDF output out of 10000 (max. 10000000)
 

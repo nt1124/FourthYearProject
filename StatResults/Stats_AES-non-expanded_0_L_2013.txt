@@ -1,0 +1,36 @@
+Received Circuits + Hash tables + Public inputs
+& $0.68$ & $19.13$ & $0$ & $204,095,057$ \\
+
+
+OT - Receiver
+& $138.02$ & $33.38$ & $476,292$ & $1,120,488$ \\
+
+
+Decommit to and receive check circuit secrets.
+& $0.04$ & $4.11$ & $682$ & $231,505$ \\
+
+
+Evaluating all circuits
+& $0.36$ & $0.37$ & $0$ & $0$ \\
+
+
+Full sub-computation
+& $67.86$ & $87.80$ & $746,955$ & $5,018,302$ \\
+
+
+Verifying B Lists
+& $0.03$ & $0.00$ & $0$ & $4,100$ \\
+
+
+Checking Circuits Correct
+& $14.34$ & $8.77$ & $0$ & $0$ \\
+
+
+Builder Inputs consistency checked
+& $34.38$ & $35.28$ & $388,462$ & $72,448$ \\
+
+
+Total time without connection setup
+& $255.84$ & $188.86$ & $1,612,392$ & $210,541,900$ \\
+
+

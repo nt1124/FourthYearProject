@@ -223,6 +223,7 @@ void sendBoth(int socket, octet *msg, int len)
 
     byteSendCount += (sizeof(int) + len);
     totalSendCount += (sizeof(int) + len);
+    subSendCount += (sizeof(int) + len);
     // get_ack(socket);
 }
 
@@ -235,6 +236,7 @@ unsigned char *receiveBoth(int socket, int& len)
 
     byteReceivedCount += (sizeof(int) + len);
     totalReceivedCount += (sizeof(int) + len);
+    subReceivedCount += (sizeof(int) + len);
 
     while (len - i > 0)
     {
@@ -491,14 +493,29 @@ void printAndZeroBothCounters()
 }
 
 
-
 void printBothTotalCounters()
 {
-    printf("\n### Total Bytes Sent = %llu\n", totalSendCount);
+    printf("### Total Bytes Sent = %llu\n", totalSendCount);
     fflush(stdout);
 
     printf("### Total Bytes Received = %llu\n\n", totalReceivedCount);
     fflush(stdout);
+}
 
 
+void zeroBothSubCounters()
+{
+    subSendCount = 0;
+    subReceivedCount = 0;
+}
+
+
+void printZeroBothSubCounters()
+{
+    printf("£££ Bytes Sent = %llu\n", subSendCount);
+    printf("£££ Bytes Received = %llu\n\n", subReceivedCount);
+    fflush(stdout);
+
+    subSendCount = 0;
+    subReceivedCount = 0;
 }

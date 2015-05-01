@@ -71,6 +71,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 													params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 
+	/*
 	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
 	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
 
@@ -83,10 +84,11 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
+	*/
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Input Prep, Building and Commitment");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Input Prep and Building");
 	fflush(stdout);
 	printAndZeroBothCounters();
 
@@ -102,6 +104,28 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
 	printAndZeroBothCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
+	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
+
+	for(i = 0; i < stat_SecParam; i++)
+	{
+		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
+	}
+
+	commBufferLen = 0;
+	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sending Circuit and Commitments.");
+	fflush(stdout);
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -180,6 +204,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	freeRawCircuit(rawInputCircuit);
 
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
+	printBothTotalCounters();
 
 	free_idAndValueChain(startOfInputChain);
 
@@ -194,8 +219,6 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
-
-	printBothTotalCounters();
 }
 
 
@@ -242,6 +265,20 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	state = seedRandGen();
 	permedInputs = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P2);
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, rawInputCircuit -> numInputs_P2,
+											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+	printAndZeroBothCounters();
+
+
+
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
@@ -268,18 +305,7 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	{
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, circuitsArray[0] -> numInputsExecutor,
-											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
-	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -400,8 +426,8 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 
 	ext_c_1 = clock();
 	ext_t_1 = timestamp();
-
 	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
+	printBothTotalCounters();
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
@@ -427,5 +453,4 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
 
-	printBothTotalCounters();
 }

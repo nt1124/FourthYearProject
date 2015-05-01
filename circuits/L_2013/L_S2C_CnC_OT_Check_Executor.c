@@ -194,7 +194,9 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	struct params_CnC_ECC *OT_params_R;
 	struct otKeyPair_ECC **OT_keyPairs_R;
 
-	
+	// Zero the sub-computation bytes sent/received counters.
+	zeroBothSubCounters();
+
 	params = initBrainpool_256_Curve();
 
 
@@ -211,6 +213,8 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver Prep");
+	printZeroBothSubCounters();
+
 
 	receiveInt(readSocket);
 
@@ -225,6 +229,11 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Receiver Transfer");
+	printZeroBothSubCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	pubInputGroup = receivePublicCommitments(writeSocket, readSocket);
 
@@ -232,6 +241,10 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	{
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Received Sub-circuits etc.");
+	printZeroBothSubCounters();
 
 
 	// OT_Inputs
@@ -254,9 +267,12 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Get Delta and k_0s.");
+	printZeroBothSubCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
+
 	secretsRevealed = executor_decommitToJ_Set(writeSocket, readSocket, circuitsArray, pubInputGroup -> public_inputs,
 							pubInputGroup -> params, J_set, &J_setSize, checkStatSecParam);
 
@@ -268,19 +284,33 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sub-circuit correctness and decommit to J-Set");
+	printZeroBothSubCounters();
 
 	printf("\nSub-circuits Correct = %d\n", circuitsChecked);
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	// Receive the points representing the Builder's input to the evaluation circuits
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	commBufferLen = 0;
 	builderInputs = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &commBufferLen);
 	free(commBuffer);
 
+	// And the permuted input bits for the builder on the evaluation circuits.
 	commBuffer = receiveBoth(readSocket, commBufferLen);
 	setBuilderInputs(builderInputs, commBuffer, J_set, J_setSize, circuitsArray,
 					pubInputGroup -> public_inputs, pubInputGroup -> params);
 	free(commBuffer);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sub-circuit get builder inputs.");
+	printZeroBothSubCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	printf("\nEvaluating Circuits ");
 	for(i = 0; i < checkStatSecParam; i ++)
@@ -293,6 +323,11 @@ struct secCompExecutorOutput *SC_DetectCheatingExecutor(int writeSocket, int rea
 		}
 	}
 	printf("\n");
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Evaluate Sub-circuits.");
+	printZeroBothSubCounters();
 
 
 	output = getMajorityOutput(circuitsArray, checkStatSecParam, J_set);

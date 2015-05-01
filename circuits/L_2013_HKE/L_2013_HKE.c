@@ -56,7 +56,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
-
 	params = initBrainpool_256_Curve();
 
 	C = setup_OT_NP_Sender(params, *state);
@@ -81,6 +80,11 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
 													params, circuitCTXs, stat_SecParam);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits prep/building done.");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -94,6 +98,8 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	printAndZeroBothCounters();
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	commBufferLen = 0;
 	queries_Own = NaorPinkas_OT_Produce_Queries(rawInputCircuit -> numInputs_P1, inputBitsOwn, state, params, cTilde);
@@ -116,7 +122,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits prep/building done. Circuits");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits, queries and Hashed B's sent.");
 	printAndZeroBothCounters();
 
 

@@ -1,0 +1,105 @@
+Running Executor.
+Connected to builder.
+
++++ Received Circuits + Hash tables + Public inputs
++++ CPU time  : 0.010000
++++ Wall time : 4.005081
+::: Bytes Sent = 0
+::: Bytes Received = 1889281
+
+
++++ Setup Tuples
++++ CPU time  : 9.260000
++++ Wall time : 1.159709
+
++++ Parallel ZKPoK
++++ CPU time  : 10.440000
++++ Wall time : 2.799368
+
++++ OT - Receiver
++++ CPU time  : 35.360001
++++ Wall time : 8.990759
+::: Bytes Sent = 135791
+::: Bytes Received = 284040
+
+
++++ Decommit to and receive check circuit secrets.
++++ CPU time  : 0.040000
++++ Wall time : 0.911422
+::: Bytes Sent = 748
+::: Bytes Received = 88488
+
+
+Evaluating Circuits 1, 3, 4, 6, 7, 10, 11, 12, 14, 15, 21, 22, 23, 27, 31, 33, 34, 37, 
++++ Evaluating all circuits
++++ CPU time  : 0.000000
++++ Wall time : 0.007132
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
++++ subOT - Receiver Prep
++++ CPU time  : 21.190001
++++ Wall time : 3.042342
+
++++ subOT - Receiver Transfer
++++ CPU time  : 22.090000
++++ Wall time : 16.013297
+
++++ Get Delta and k_0s.
++++ CPU time  : 0.000000
++++ Wall time : 0.000332
+
++++ Sub-circuit correctness and decommit to J-Set
++++ CPU time  : 7.050000
++++ Wall time : 6.281063
+
+Sub-circuits Correct = 0
+
+Evaluating Circuits 1, 4, 5, 6, 8, 9, 11, 12, 15, 22, 24, 25, 27, 28, 32, 33, 35, 36, 39, 40, 41, 42, 45, 50, 51, 53, 58, 60, 61, 63, 64, 66, 67, 69, 70, 71, 74, 76, 78, 79, 81, 82, 85, 86, 87, 88, 89, 91, 93, 96, 97, 100, 101, 102, 103, 109, 111, 114, 116, 117, 
+
++++ Full sub-computation
++++ CPU time  : 51.130001
++++ Wall time : 34.519529
+::: Bytes Sent = 746955
+::: Bytes Received = 2412286
+
+
+Verified B_Lists = 0
+
++++ Verifying B Lists
++++ CPU time  : 0.010000
++++ Wall time : 0.000608
+::: Bytes Sent = 0
+::: Bytes Received = 1060
+
+Circuits Correct = 0
+
++++ Checking Circuits Correct
++++ CPU time  : 2.930000
++++ Wall time : 2.193534
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
+Consistency check = 0
+
++++ Builder Inputs consistency checked
++++ CPU time  : 9.000000
++++ Wall time : 8.636590
+::: Bytes Sent = 94760
+::: Bytes Received = 18128
+
+
++++ Total time without connection setup
++++ CPU time  : 98.489998
++++ Wall time : 59.265704
+ Majority output binary : 000111111010111010001100100101110
+
+### Total Bytes Sent = 978254
+### Total Bytes Received = 4693283
+
+
+Total Time (Includes connection open/closing)
+CPU time  :     98.529999
+Wall time :     59.276264

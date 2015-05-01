@@ -106,7 +106,12 @@
 
 % -----------------------------------------------------------------------------
 
-% define macro to generate UoB title page
+
+\newcommand{\thickhline}{%
+    \noalign {\ifnum 0=`}\fi \hrule height 1.4pt
+    \futurelet \reserved@a \@xhline
+}
+
 
 \newcommand{\commRightArrow}[1]
 {

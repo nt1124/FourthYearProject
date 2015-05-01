@@ -115,6 +115,9 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	randctx **circuitCTXs = (randctx **) calloc(checkStatSecParam, sizeof(randctx*));
 
 
+	// Zero the counter we'll be using for measuring data sent during sub-computation.
+	zeroBothSubCounters();
+
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		circuitCTXs[i] = (randctx*) calloc(1, sizeof(randctx));
@@ -132,7 +135,8 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Building circuits.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Building sub-circuits.");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -147,6 +151,7 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
+	printZeroBothSubCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -160,11 +165,11 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sending Commitments and Circuits.");
-	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
+	printZeroBothSubCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-
 
 	commBuffer = getK0_AndDelta(circuitsArray, delta, rawInputCircuit -> numInputs_P1, checkStatSecParam, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
@@ -172,10 +177,22 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Send Delta and k_0s");
+	printZeroBothSubCounters();
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	J_set = builder_decommitToJ_Set(writeSocket, readSocket, circuitsArray, secret_inputs, checkStatSecParam, &J_setSize, circuitSeeds);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to check circuits.");
+	printZeroBothSubCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	// Compute and send the input keys repsenting the Builder's input for the evaluation circuits.
 	builderInputs =  computeBuilderInputs(public_inputs, secret_inputs,
@@ -192,6 +209,10 @@ struct secCompBuilderOutput *SC_DetectCheatingBuilder(int writeSocket, int readS
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Send Builder inputs to Eval. Circuits");
+	printZeroBothSubCounters();
 
 	returnStruct = getSecCompReturnStruct_L_2013_B(public_inputs, builderInputs, J_set, J_setSize);
 

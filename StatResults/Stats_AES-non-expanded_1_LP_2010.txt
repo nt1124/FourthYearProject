@@ -1,0 +1,24 @@
+Circuit prep and building.
+& $86.66$ & $56.01$ & $0$ & $0$ \\
+
+
+Sender OT.
+& $321.57$ & $42.12$ & $4,859,037$ & $2,477,191$ \\
+
+
+Circuit prep, building and sending.
+& $1.38$ & $14.81$ & $663,253,047$ & $0$ \\
+
+
+Builder Cut and choose - Correctness etc.
+& $13.03$ & $13.08$ & $751,156$ & $2,214$ \\
+
+
+Proving consistency
+& $27.61$ & $45.59$ & $72,441$ & $319,112$ \\
+
+
+Total time without connection setup
+& $450.26$ & $171.62$ & $668,935,681$ & $2,798,517$ \\
+
+

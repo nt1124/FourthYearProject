@@ -16,7 +16,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage{color}
 \usepackage{graphicx}
-\usepackage{graphicx}
+\usepackage{booktabs}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{geometry}
@@ -855,31 +855,143 @@
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication are both fairly silly examples for Secure Two Party computation as the functions completely leak the other party's input to each party.\\
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication both inherently completely leak the other party's input to each party. However, they are 
+
+				\begin{figure}[!h]
+					\textbf{Lindell-Pinkas 2010}
+
+					\renewcommand{\arraystretch}{1.2}
+					\begin{center}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Builder} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Building Circuits & $13.20$ & $12.88$ & $0$ & $0$ \\
+							\hline
+							OT- Sender & $82.22$ & $11.73$ & $1,214,877$ & $655,111$ \\
+							\hline
+							Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
+							\hline
+							Open Check Circuits & $3.17$ & $3.18$ & $289,396$ & $2,214$ \\
+							\hline
+							Prove Input Consistency & $6.78$ & $10.80$ & $18,112$ & $79,784$ \\
+							\thickhline
+							Total & $105.99$ & $41.02$ & $7,648,076$ & $737,109$ \\
+							\hline
+						\end{tabular}
+
+						\vspace{0.5cm}
+
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Executor} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+							\hline
+							OT Transfer Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+							\hline
+							Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+							\hline
+							Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
+							\hline
+							Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
+							\hline
+							Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
+							\thickhline
+							Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
+							\hline
+						\end{tabular}
+					\end{center}
+					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. \label{table:LP_2010_addition}}
+				\end{figure}
+
+% 
+% 				\subsubsection{Lindell 2013}
+% 				
+% 					\renewcommand{\arraystretch}{1.2}
+% 					\begin{center}
+% 						\begin{tabular}{| p{3.5cm} | c c c c |}
+% 							\hline
+% 							& & \textbf{Builder} & & \\
+% 							\hline
+% 							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+% 							\thickhline
+% 							Building Circuits and Commits & $4.19$ & $4.01$ & $1,889,281$ & $0$ \\
+% 							\hline
+% 							OT- Sender & $37.63$ & $9.07$ & $284,040$ & $135,781$ \\
+% 							\hline
+% 							Sending Circuits and Commitments & $1.00$ & $1.00$ & $89,047$ & $684$ \\
+% 							\hline
+% 							
+% 							\hline
+% 							Sub-computation to detect cheating & $110.48$ & $31.10$ & $2,412,286$ & $746,955$ \\
+% 							\hline
+% 							Send B-Lists & $0.00$ & $0.00$ & $1,060$ & $0$ \\ 
+% 							\hline
+% 							Prove Input Consistency & $8.28$ & $14.20$ & $18,112$ & $97,029$ \\
+% 							\thickhline
+% 							Total & $161.58$ & $59.38$ & $4,693,827$ & $980,450$ \\
+% 							\hline
+% 						\end{tabular}
+% 
+% 						\vspace{0.5cm}
+% 
+% 						\begin{tabular}{| p{3.5cm} | c c c c |}
+% 							\hline
+% 							& & \textbf{Executor} & & \\
+% 							\hline
+% 							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+% 							\thickhline
+% 							OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+% 							\hline
+% 							OT Transfer Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+% 							\hline
+% 							Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+% 							\hline
+% 							Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
+% 							\hline
+% 							Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
+% 							\hline
+% 							Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
+% 							\thickhline
+% 							Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
+% 							\hline
+% 						\end{tabular}
+% 					\end{center}
+
+
+
+
+			\subsection{32-bit multiplication}
+
+				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
+
+				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.\\
 
 				\subsubsection{Lindell-Pinkas 2010}
-				
-					\renewcommand{\arraystretch}{1.2}
+
 					\begin{center}
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						& & \textbf{Builder} & & \\
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Building Circuits & $24.26$ & $14.38$ & $0$ & $0$ \\
 						\hline
+						OT- Sender & $82.14$ & $11.74$ & $1,214,877$ & $655,111$ \\
 						\hline
-						Building Circuits & $13.20$ & $12.88$ & $0$ & $0$ \\
+						Sending Circuits and Commitments & $1.01$ & $4.12$ & $202,012,291$ & $0$ \\
 						\hline
-						OT- Sender & $82.22$ & $11.73$ & $1,214,877$ & $655,111$ \\
+						Open Check Circuits & $3.16$ & $3.20$ & $289,396$ & $2,214$ \\
 						\hline
-						Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
-						\hline
-						Open Check Circuits & $3.17$ & $3.18$ & $289,396$ & $2,214$ \\
-						\hline
-						Prove Input Consistency & $6.78$ & $10.80$ & $18,112$ & $79,784$ \\
-						\hline
-						\hline
-						Total & $105.99$ & $41.02$ & $7,648,076$ & $737,109$ \\
+						Prove Input Consistency & $6.78$ & $11.76$ & $18,113$ & $79,784$ \\
+						\thickhline
+						Total & $117.34$ & $45.20$ & $203,534,677$ & $737,109$ \\
 						\hline
 					\end{tabular}
 
@@ -890,36 +1002,77 @@
 						& & \textbf{Executor} & & \\
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						OT Prep Receiver & $17.57$ & $2.60$ & $0$ & $0$ \\
 						\hline
+						OT Transfer Receiver & $18.62$ & $14.14$ & $655,111$ & $1,214,877$ \\
 						\hline
-						OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+						Receiving Circuits and Commitments & $1.64$ & $1.75$ & $0$ & $202,012,291$ \\
 						\hline
-						OT Transfer Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+						Checking correctness & $12.87$ & $7.62$ & $2,214$ & $289,396$ \\
 						\hline
-						Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,113$ \\
 						\hline
-						Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
-						\hline
-						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
-						\hline
-						Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
-						\hline
-						\hline
-						Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
+						Evaluate Circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
+						\thickhline
+						Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
 						\hline
 					\end{tabular}
 					\end{center}
 
 
-
-
-			\subsection{32-bit multiplication}
-
-				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit. Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much import the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.
-
 			\subsection{AES encryption}
 
 				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
+
+				\subsubsection{Lindell-Pinkas 2010}
+
+					\renewcommand{\arraystretch}{1.2}
+					\begin{center}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Builder} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Building Circuits & $86.66$ & $56.01$ & $0$ & $0$ \\
+							\hline
+							OT- Sender & $321.57$ & $42.12$ & $4,859,037$ & $2,477,191$ \\
+							\hline
+							Sending Circuits and Commitments & $1.38$ & $14.81$ & $663,253,047$ & $0$ \\
+							\hline
+							Open Check Circuits & $13.03$ & $13.08$ & $751,156$ & $2,214$ \\
+							\hline
+							Prove Input Consistency & $27.61$ & $45.59$ & $72,441$ & $319,112$ \\
+							\thickhline
+							Total & $450.26$ & $171.62$ & $668,935,681$ & $2,798,517$ \\
+							\hline
+						\end{tabular}
+
+						\vspace{0.5cm}
+
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Executor} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							OT Prep Receiver & $67.39$ & $9.02$ & $0$ & $0$ \\
+							\hline
+							OT Transfer Receiver & $70.80$ & $51.26$ & $2,477,191$ & $4,859,037$ \\
+							\hline
+							Receiving Circuits and Commitments & $3.16$ & $5.72$ & $0$ & $663,253,047$ \\
+							\hline
+							Checking correctness & $45.58$ & $29.46$ & $2,214$ & $751,156$ \\
+							\hline
+							Verify Input Consistency & $28.06$ & $29.17$ & $319,112$ & $72,441$ \\
+							\hline
+							Evaluate Circuits & $1.14$ & $1.14$ & $0$ & $0$ \\
+							\thickhline
+							Total & $216.86$ & $172.77$ & $2,798,517$ & $668,935,681$ \\
+							\hline
+						\end{tabular}
+					\end{center}
 
 			\subsection{SHA-256 Hashing}
 
