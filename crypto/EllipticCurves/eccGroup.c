@@ -475,40 +475,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 }
 
 
-
 /*
-// Window Exponentation. Raise base to the power of exponent all modulo modularZ,
-// store result in result.
-struct eccPoint *windowedScalarFixedPoint(mpz_t exponent, struct eccPoint *P,
-										struct eccPoint **preComputes, int k,
-										struct eccParams *params)
-{
-	//Get size of exponent in base 2.
-	int i = mpz_sizeinbase(exponent, 2) - 1, u, j;
-	struct eccPoint *Q = init_Identity_ECC_Point();
-
-	while (i >= 0)
-	{
-		//If the i-th bit (of exponent) is a zero, we just square the current result, move to next bit.
-		u = 0;
-		for(j = 0; j < k && i >= 0; j ++)
-		{
-			doublePointInPlace(Q, params);
-
-			u = (u << 1) + mpz_tstbit(exponent, i);
-			i --;
-		}
-
-		if(u)
-		{			
-			groupOp_PlusEqual(Q, preComputes[u], params);
-		}
-	}
-
-	return Q;
-}
-*/
-
 struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize, struct eccParams *params)
 {
 	struct eccPoint **output, *temp;
@@ -531,7 +498,7 @@ struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize,
 
 	return output;
 }
-
+*/
 
 
 struct eccPoint **fixedBasePreComputes(struct eccPoint *base, struct eccParams *params)

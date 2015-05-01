@@ -641,9 +641,6 @@
 
 					\item The output of the sub-computation must be concealed from the Builder, else the Builder might be able to tell whether the Executor received inconsistent results from the main computation circuits. This would open the door to what is effectively a selective failure attack.\\
 
-					We have not implemented a solution to this problem as such it is left open. Our instinct tells us that one could extend the circuit to take a second string from the Executor of the same size as the output and to XOR this additional input with the output.\\
-					
-					This would mean the Builder only learns the XORed result of the circuit but the Executor could use his auxiliary input to recover the true output. As in the scenario where we care about the output being hidden from the Builder we can assume the Executor is honest. In this case the outputs from the Executor's circuits will be consistent and the Builder will only see one output and so gains no depth for the key.\\
 				\end{enumerate}
 
 
@@ -673,8 +670,14 @@
 				\subsubsection{Rolling Back}
 					The reason the aforementioned attack exists is the fact that the Executor can simply set it's input to $1$ and the Builder has no way to tell if this is consistent with the Executor's input to the other circuits.\\
 
-					We therefore take a step back and return to the Builder inputting the first $S$ many bits of $\delta$ and the Executor inputting the first $S$ bits of $\delta'$.
+					We therefore take a step back and return to the Builder inputting the first $S$ many bits of $\delta$ and the Executor inputting the first $S$ bits of $\delta'$. This does not cost us as much as one might think, while it increases the size of the circuit it does so only a little and by a factor that is unaffected by the size of the main computation inputs. This current round of modification to the sub-computation leaves us requiring $|X| \cdot S + 2 \cdot S^2$ many OTs with a circuit size of about $S + 2 \cdot |X|$\\
 
+			\subsection{Hiding output from Builder}
+				We need to ensure that the Builder gains no knowledge from the sub-computation about whether the Executor input $\delta' = \delta$. If the Builder can tell if the sub-computation output all zeroes or $X$ then he knows if the Executor received inconsistent outputs from the main computation circuits. This gives rise to an indirect selective failure attack whereby the Executor will get inconsistent outputs if some condition is met by the Executor's inputs. Thus then if the Builder can discern that the Sub-computation output $X$ he knows the Executor's input satistfies this condition.\\
+
+				This is not an issue in the original Lindell 2013 protocol as the Builder does not evaluate any circuits relating to the sub-computation. However, when we perform the sub-computation with the Huang-Katz-Evans protocol the Builder will be evaluating circuits and takes part in the output determination. To ensure the Builder does not learn anything about the output we further modify the sub-computation circuits to take an extra input from the Executor. This input should be same length as the output and is XORed with the old output.\\
+
+				This would mean the Builder only learns the XORed result of the circuit but the Executor could use his auxiliary input to recover the true output. As in the scenario where we care about the output being hidden from the Builder we can assume the Executor is honest. In this case the outputs from the Executor's circuits will be consistent and the Builder will only see one output and so gains no depth for the key.\\
 
 	\chapter{Implementation Details} \label{sec:ImplementationDetails}
 		We do not have the space to go into depth about our implementation, however we shall touch on some of the high points.
@@ -782,9 +785,27 @@
 
 				 Many of the same tricks that can be applied to integer exponentiation also work here. For example the square-multiply trick (though here it is double-add). Many of these tricks depend on taking advantage of thinking of the binary form of the exponent and using doubling.\\
 
-				 For standard point multiplication we have implemented the Windowed approach. Take a point $P$ and a scalar $n$. This method pre-computes a number of multiplications of P, namely $\{0P, 1P, ..., (2^{w} - 1)P\}$ where $w$ is the size of the windows in bits.\\
+				 For standard point multiplication we have implemented the Windowed approach. Take a point $P$ and a scalar $n$. This method pre-computes a number of multiplications of P, namely $ = \{w_i : w_i = i \cdot P\}_{i = 0}^{2^w - 1}$ where $w$ is the size of the windows in bits. We then consider the exponent in the form of $w$-sized windows
 
-				the exponent is then divided into windows.
+				 \begin{mdframed}
+					\begin{algorithm}[H]
+						$Q = 0$;\\[0.25cm]
+						\For{$i = m$ to $0$}
+						{
+							$Q := 2^w \cdot Q$ (using repeated point doubling);\\[0.25cm]
+							\If{( $d_i > 0$ )}
+							{
+								Q := Q + $d_i \cdot P$;\\[0.25cm]
+								// Compute $d_i \cdot P$ using pre-computed values.
+							}
+						}
+						Return $Q$;\\[0.25cm]
+
+						\caption{Windowed Scalar Elliptic Point Multiplication. }
+					\end{algorithm}
+
+				\end{mdframed}
+
 
 
 		\section{Verifiable Secret Sharing and Multi-precision Polynomials}
@@ -840,7 +861,7 @@
 
 
 		\section{Measurement metrics}
-			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time used and data sent (in terms of bytes).\\
+			We shall be focusing on three main metrics for measuring performance of the protocols for both parties, namely CPU time used, wall clock time (in seconds) used and data sent (in terms of bytes).\\
 
 			We shall break these metrics down further so that we can see measure the performance of each part of the protocol for the purpose of identifying the bottlenecks for each protocol.
 
@@ -852,12 +873,14 @@
 			
 			We give a short précis to each circuit detailing the expected results and a small amount of analysis of the results, further analysis of results comes later. All tests are configured to given a deterrent probability of $1 - 2^{40}$, or put in other terms, a statistical security parameter of $40$.\\
 
-			For each protocol we ran a 100 evaluations on each test circuit, the figures given below are taken from the average of these experiments. For each protocol we took measurements for both parties and further took measurements for the important parts of the protocol. 
+			For each protocol we ran a 100 evaluations on each test circuit, the figures given below are taken from the average of these experiments. For each protocol we took measurements for both parties. We further took measurements for the important parts of the protocol, allowing us to identify which part of a protocol are the most expensive.\\
+
+			The HKE protocol is symmetric therefore there is no purpose is giving measurements for both parties when they are running in identical environments. As such for each measurement we give the average from both parties.\\
 
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication both inherently completely leak the other party's input to each party. However, they are 
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Addition and Multiplication both inherently completely leak the other party's input to each party, however they provide a good test circuit.
 
 				\begin{figure}[!h]
 					\textbf{Lindell-Pinkas 2010}
@@ -891,6 +914,7 @@
 							& & \textbf{Executor} & & \\
 							\hline
 							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							 & (Sec) & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 							\thickhline
 							OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
 							\hline
@@ -908,7 +932,7 @@
 							\hline
 						\end{tabular}
 					\end{center}
-					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. \label{table:LP_2010_addition}}
+					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. Times are given in seconds. \label{table:LP_2010_addition}}
 				\end{figure}
 
 % 
@@ -966,14 +990,12 @@
 % 					\end{center}
 
 
-				\begin{figure}[!h]
+				\begin{figure}[!ht]
 					\textbf{Huang, Katz and Evans 2013}
 
 					\renewcommand{\arraystretch}{1.2}
 					\begin{center}
 						\begin{tabular}{| p{3.5cm} | c c c c |}
-							\hline
-							& & \textbf{Builder} & & \\
 							\hline
 							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 							\thickhline
@@ -1011,62 +1033,100 @@
 
 				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.\\
 
-				\subsubsection{Lindell-Pinkas 2010}
+				\begin{figure}[!ht]
+					\textbf{Lindell-Pinkas 2010}
 
 					\begin{center}
-					\begin{tabular}{| p{3.5cm} | c c c c |}
-						\hline
-						& & \textbf{Builder} & & \\
-						\hline
-						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
-						\thickhline
-						Building Circuits & $24.26$ & $14.38$ & $0$ & $0$ \\
-						\hline
-						OT- Sender & $82.14$ & $11.74$ & $1,214,877$ & $655,111$ \\
-						\hline
-						Sending Circuits and Commitments & $1.01$ & $4.12$ & $202,012,291$ & $0$ \\
-						\hline
-						Open Check Circuits & $3.16$ & $3.20$ & $289,396$ & $2,214$ \\
-						\hline
-						Prove Input Consistency & $6.78$ & $11.76$ & $18,113$ & $79,784$ \\
-						\thickhline
-						Total & $117.34$ & $45.20$ & $203,534,677$ & $737,109$ \\
-						\hline
-					\end{tabular}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Builder} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Building Circuits & $24.26$ & $14.38$ & $0$ & $0$ \\
+							\hline
+							OT- Sender & $82.14$ & $11.74$ & $1,214,877$ & $655,111$ \\
+							\hline
+							Sending Circuits and Commitments & $1.01$ & $4.12$ & $202,012,291$ & $0$ \\
+							\hline
+							Open Check Circuits & $3.16$ & $3.20$ & $289,396$ & $2,214$ \\
+							\hline
+							Prove Input Consistency & $6.78$ & $11.76$ & $18,113$ & $79,784$ \\
+							\thickhline
+							Total & $117.34$ & $45.20$ & $203,534,677$ & $737,109$ \\
+							\hline
+						\end{tabular}
 
-					\vspace{0.5cm}
+						\vspace{0.5cm}
 
-					\begin{tabular}{| p{3.5cm} | c c c c |}
-						\hline
-						& & \textbf{Executor} & & \\
-						\hline
-						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
-						\thickhline
-						OT Prep Receiver & $17.57$ & $2.60$ & $0$ & $0$ \\
-						\hline
-						OT Transfer Receiver & $18.62$ & $14.14$ & $655,111$ & $1,214,877$ \\
-						\hline
-						Receiving Circuits and Commitments & $1.64$ & $1.75$ & $0$ & $202,012,291$ \\
-						\hline
-						Checking correctness & $12.87$ & $7.62$ & $2,214$ & $289,396$ \\
-						\hline
-						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,113$ \\
-						\hline
-						Evaluate Circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
-						\thickhline
-						Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
-						\hline
-					\end{tabular}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Executor} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							OT Prep Receiver & $17.57$ & $2.60$ & $0$ & $0$ \\
+							\hline
+							OT Transfer Receiver & $18.62$ & $14.14$ & $655,111$ & $1,214,877$ \\
+							\hline
+							Receiving Circuits and Commitments & $1.64$ & $1.75$ & $0$ & $202,012,291$ \\
+							\hline
+							Checking correctness & $12.87$ & $7.62$ & $2,214$ & $289,396$ \\
+							\hline
+							Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,113$ \\
+							\hline
+							Evaluate Circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
+							\thickhline
+							Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
+							\hline
+						\end{tabular}
 					\end{center}
+				\end{figure}
 
+					
+				\begin{figure}[!ht]
+					\textbf{Huang, Katz and Evans 2013}
+
+					\renewcommand{\arraystretch}{1.2}
+					\begin{center}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Circuits prep. & $2.36$ & $0.32$ & $0$ & $0$ \\
+							\hline
+							Building circuits & $3.53$ & $0.46$ & $0$ & $0$ \\
+							\hline
+							Sending Circuits and Commitments & $1.15$ & $1.09$ & $62,153,277$ & $62,153,277$ \\
+							\hline
+							Exchange Secret Sharing Schemes & $0.00$ & $0.03$ & $63,456$ & $63,455$ \\
+							\hline
+							OT & $10.92$ & $1.42$ & $136,744$ & $136,744$ \\
+							\hline
+							Make and send commitments & $11.08$ & $1.40$ & $374,062$ & $374,062$ \\
+							\hline
+							Coin flip for J-set & $0.09$ & $0.01$ & $2,532$ & $2,532$ \\
+							\hline
+							Initial J-set checks & $8.90$ & $6.65$ & $256,648$ & $256,648$ \\
+							\hline
+							Logarithm Checks & $0.95$ & $0.13$ & $23,044$ & $23,044$ \\
+							\hline
+							Output Determination & $0.80$ & $0.82$ & $26,154$ & $26,154$ \\
+							\thickhline
+							Total & $40.89$ & $12.64$ & $63,035,917$ & $63,035,916$ \\
+							\hline
+						\end{tabular}
+					\end{center}
+					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.\label{table:HKE_2013_multiplication}}
+				\end{figure}
 
 			\subsection{AES encryption}
 
 				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
 
-				\subsubsection{Lindell-Pinkas 2010}
+				\begin{figure}[!ht]
+					\textbf{Lindell-Pinkas 2010}
 
-					\renewcommand{\arraystretch}{1.2}
 					\begin{center}
 						\begin{tabular}{| p{3.5cm} | c c c c |}
 							\hline
@@ -1112,6 +1172,43 @@
 							\hline
 						\end{tabular}
 					\end{center}
+				\end{figure}
+
+
+				\begin{figure}[!ht]
+					\begin{center}
+						\textbf{Huang, Katz and Evans 2013}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Circuits prep. & $9.42$ & $1.22$ & $0$ & $0$ \\
+							\hline
+							Building circuits & $11.15$ & $1.44$ & $0$ & $0$ \\
+							\hline
+							Sending Circuits and Commitments & $1.87$ & $3.59$ & $204,069,197$ & $204,069,197$ \\
+							\hline
+							Exchange Secret Sharing Schemes & $0.00$ & $0.05$ & $126,864$ & $126,846$ \\
+							\hline
+							OT & $43.04$ & $5.55$ & $546,952$ & $546,952$ \\
+							\hline
+							Make and send commitments & $44.27$ & $5.60$ & $1,495,342$ & $1,495,342$ \\
+							\hline
+							Coin flip for J-set & $0.10$ & $0.01$ & $2,532$ & $2,532$ \\
+							\hline
+							Initial J-set checks & $30.21$ & $25.29$ & $801,288$ & $801,288$ \\
+							\hline
+							Logarithm Checks & $2.85$ & $0.47$ & $92,164$ & $92,164$ \\
+							\hline
+							Output Determination & $1.60$ & $1.64$ & $52,010$ & $52,010$ \\
+							\thickhline
+							Total & $145.70$ & $45.26$ & $207,186,349$ & $207,186,331$ \\
+							\hline
+						\end{tabular}
+					\end{center}
+					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.\label{table:HKE_2013_AES}}
+				\end{figure}
+
 
 			\subsection{SHA-256 Hashing}
 

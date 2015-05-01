@@ -168,11 +168,12 @@
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.3.3}Advantages of symmetrical cut-and-choose}{25}{subsection.4.3.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {4.4}Merging Lindell 2013 and HKE 2013}{25}{section.4.4}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {4.4.1}Problems to address}{25}{subsection.4.4.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{26}{subsection.4.4.2}}
 \citation{Lindell_CnC_2013}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{27}{subsection.4.4.3}}
-\@writefile{toc}{\contentsline {subsubsection}{An attack on the OT optimisation}{27}{section*.27}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{26}{subsection.4.4.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{26}{subsection.4.4.3}}
+\@writefile{toc}{\contentsline {subsubsection}{An attack on the OT optimisation}{26}{section*.27}}
 \@writefile{toc}{\contentsline {subsubsection}{Rolling Back}{27}{section*.28}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4.4}Hiding output from Builder}{27}{subsection.4.4.4}}
 \citation{NigelCircuits}
 \citation{NigelCircuits}
 \citation{SMC_Is_Practical}
@@ -193,18 +194,20 @@
 \@writefile{toc}{\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{29}{section.5.2}}
 \@writefile{lof}{\contentsline {figure}{\numberline {5.1}{\ignorespaces A table showing the key sizes needed to achieve levels of security in both the traditional RSA/Diffie-Hellman groups and in Elliptic Curve groups. Taken from \cite  {NSA_CaseForECC}. }}{29}{figure.5.1}}
 \newlabel{fig:NSA_ECC_Table}{{5.1}{29}{A table showing the key sizes needed to achieve levels of security in both the traditional RSA/Diffie-Hellman groups and in Elliptic Curve groups. Taken from \cite {NSA_CaseForECC}}{figure.5.1}{}}
-\citation{LindellAndPinkas2011}
-\citation{Katz_Symm_CnC_2013}
 \zref@newlabel{mdf@pagelabel-5}{\default{5.2}\page{30}\abspage{30}\mdf@pagevalue{30}}
 \@writefile{loa}{\contentsline {algocf}{\numberline {5.1}{\ignorespaces The group operation of the group of point on an Elliptic Curve defined by $y^2 = x^3 + a \cdot x + b$ in Affine Representation. }}{30}{algocf.5.1}}
 \newlabel{Algo:ECC_GroupOp}{{5.1}{30}{Elliptic Curve implementation}{algocf.5.1}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.2.1}Elliptic Curve point scalar multiplication}{30}{subsection.5.2.1}}
+\citation{LindellAndPinkas2011}
+\citation{Katz_Symm_CnC_2013}
 \citation{NigelCryptoBook}
 \citation{ShamirSecretSharing}
+\zref@newlabel{mdf@pagelabel-6}{\default{5.2.1}\page{31}\abspage{31}\mdf@pagevalue{31}}
+\@writefile{loa}{\contentsline {algocf}{\numberline {5.2}{\ignorespaces Windowed Scalar Elliptic Point Multiplication. }}{31}{algocf.5.2}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{31}{section.5.3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.1}Multi-precision polynomials}{31}{subsection.5.3.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Shamir Secret Sharing}{31}{subsection.5.3.2}}
 \citation{Katz_Symm_CnC_2013}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3.2}Shamir Secret Sharing}{32}{subsection.5.3.2}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {5.3.3}Verifiable Secret Sharing}{32}{subsection.5.3.3}}
 \@writefile{toc}{\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{32}{section.5.4}}
 \citation{NigelCircuits}
@@ -217,17 +220,19 @@
 \@writefile{toc}{\contentsline {section}{\numberline {6.2}Testing Environment}{33}{section.6.2}}
 \@writefile{toc}{\contentsline {section}{\numberline {6.3}Results}{33}{section.6.3}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {6.3.1}32-bit addition}{34}{subsection.6.3.1}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. }}{34}{figure.6.1}}
-\newlabel{table:LP_2010_addition}{{6.1}{34}{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol}{figure.6.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.2}32-bit multiplication}{34}{subsection.6.3.2}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.1}{\ignorespaces These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. Times are given in seconds. }}{34}{figure.6.1}}
+\newlabel{table:LP_2010_addition}{{6.1}{34}{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Note how uneven the computational load is between the Builder and the Executor, this is a general trend with this protocol. Times are given in seconds}{figure.6.1}{}}
+\citation{NigelCircuits}
 \@writefile{lof}{\contentsline {figure}{\numberline {6.2}{\ignorespaces These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.}}{35}{figure.6.2}}
 \newlabel{table:HKE_2013_addition}{{6.2}{35}{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE}{figure.6.2}{}}
-\@writefile{toc}{\contentsline {subsubsection}{Lindell-Pinkas 2010}{35}{section*.30}}
-\citation{NigelCircuits}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.3}AES encryption}{36}{subsection.6.3.3}}
-\@writefile{toc}{\contentsline {subsubsection}{Lindell-Pinkas 2010}{36}{section*.31}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.4}SHA-256 Hashing}{36}{subsection.6.3.4}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {7}Conclusions}{38}{chapter.7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.2}32-bit multiplication}{35}{subsection.6.3.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.3}AES encryption}{35}{subsection.6.3.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3.4}SHA-256 Hashing}{35}{subsection.6.3.4}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.3}{\ignorespaces These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.}}{37}{figure.6.3}}
+\newlabel{table:HKE_2013_multiplication}{{6.3}{37}{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE}{figure.6.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6.4}{\ignorespaces These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.}}{38}{figure.6.4}}
+\newlabel{table:HKE_2013_AES}{{6.4}{38}{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE}{figure.6.4}{}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {7}Conclusions}{39}{chapter.7}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
@@ -262,24 +267,24 @@
 \bibcite{NigelCryptoBook}{29}
 \bibcite{ShamirSecretSharing}{30}
 \bibcite{ISAAC_Implementation}{31}
-\@writefile{toc}{\contentsline {chapter}{\numberline {A}Benchmarking components}{41}{Appendix.1.A}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {A}Benchmarking components}{42}{Appendix.1.A}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {A.1}Communications}{41}{section.1.A.1}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{41}{section.1.A.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.3}Oblivious Transfer}{41}{section.1.A.3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{41}{subsection.1.A.3.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{41}{subsection.1.A.3.2}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{41}{subsection.1.A.3.3}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.4}Circuit Building}{41}{section.1.A.4}}
-\@writefile{toc}{\contentsline {section}{\numberline {A.5}Circuit Evaluation}{42}{section.1.A.5}}
-\@writefile{toc}{\contentsline {chapter}{\numberline {B}Implementation guide}{43}{Appendix.1.B}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.1}Communications}{42}{section.1.A.1}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{42}{section.1.A.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.3}Oblivious Transfer}{42}{section.1.A.3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{42}{subsection.1.A.3.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{42}{subsection.1.A.3.2}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{42}{subsection.1.A.3.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.4}Circuit Building}{42}{section.1.A.4}}
+\@writefile{toc}{\contentsline {section}{\numberline {A.5}Circuit Evaluation}{43}{section.1.A.5}}
+\@writefile{toc}{\contentsline {chapter}{\numberline {B}Implementation guide}{44}{Appendix.1.B}}
 \@writefile{lof}{\addvspace {10\p@ }}
 \@writefile{lot}{\addvspace {10\p@ }}
 \@writefile{loa}{\addvspace {10\p@ }}
-\@writefile{toc}{\contentsline {section}{\numberline {B.1}Building}{43}{section.1.B.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.1.1}Dependencies}{43}{subsection.1.B.1.1}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {B.1.2}Compilation}{43}{subsection.1.B.1.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.2}Running}{43}{section.1.B.2}}
-\@writefile{toc}{\contentsline {section}{\numberline {B.3}Source Code Documentation}{43}{section.1.B.3}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.1}Building}{44}{section.1.B.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1.1}Dependencies}{44}{subsection.1.B.1.1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {B.1.2}Compilation}{44}{subsection.1.B.1.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.2}Running}{44}{section.1.B.2}}
+\@writefile{toc}{\contentsline {section}{\numberline {B.3}Source Code Documentation}{44}{section.1.B.3}}
