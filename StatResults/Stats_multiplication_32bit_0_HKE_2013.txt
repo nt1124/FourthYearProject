@@ -1,3 +1,11 @@
+Circuit building preparation complete
+& $2.36$ & $0.32$ & $0$ & $0$ \\
+
+
+Circuit building complete
+& $3.54$ & $0.47$ & $0$ & $0$ \\
+
+
 Circuits exchanged
 & $1.16$ & $1.12$ & $62,153,277$ & $62,153,277$ \\
 

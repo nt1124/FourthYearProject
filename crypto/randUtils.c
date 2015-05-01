@@ -99,4 +99,5 @@ unsigned char *generateJ_Set_ISAAC(randctx *ctx, int jSetLength)
 	return J_set;
 }
 
+
 #endif

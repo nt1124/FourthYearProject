@@ -317,7 +317,7 @@ void testRawCheckCircuits()
 	struct RawCircuit *circuitTime, *circuitTimeAlt;
 	int i, outputLength = 0;
 
-	// circuitTime = createRawCheckCircuit_No_OT_Opt(128, 40);
+	circuitTimeAlt = createRawCheckCircuit_No_OT_Opt(128, 40);
 	circuitTime = createRawCheckCircuit_No_OT_Opt_Keyed(128, 40);
 
 
@@ -336,8 +336,20 @@ void testRawCheckCircuits()
 	circuitTime -> gates[300] -> outputValue = 1;
 
 
-	evaluateRawCircuit(circuitTime);
+	circuitTimeAlt -> gates[0] -> outputValue = 1;
+	circuitTimeAlt -> gates[1] -> outputValue = 1;
+	circuitTimeAlt -> gates[2] -> outputValue = 1;
+	circuitTimeAlt -> gates[3] -> outputValue = 1;
 
+	circuitTimeAlt -> gates[80] -> outputValue = 1;
+	circuitTimeAlt -> gates[81] -> outputValue = 1;
+	circuitTimeAlt -> gates[82] -> outputValue = 1;
+	circuitTimeAlt -> gates[83] -> outputValue = 1;
+
+
+
+
+	evaluateRawCircuit(circuitTime);
 	temp = getOutputAsHex_Raw(circuitTime, &outputLength);
 
 	for(i = 0; i < outputLength; i ++)
@@ -346,9 +358,8 @@ void testRawCheckCircuits()
 	}
 	printf("\n");
 
-	/*
-	evaluateRawCircuit(circuitTimeAlt);
 
+	evaluateRawCircuit(circuitTimeAlt);
 	temp = getOutputAsHex_Raw(circuitTimeAlt, &outputLength);
 
 	for(i = 0; i < outputLength; i ++)
@@ -356,7 +367,7 @@ void testRawCheckCircuits()
 		printf("%02X", temp[i]);
 	}
 	printf("\n");
-	*/
+
 }
 
 

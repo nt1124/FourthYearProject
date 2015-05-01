@@ -850,7 +850,11 @@
 		\section{Results}
 			We now give results of using each of the Protocol on the test circuits, we have generated a large set of random inputs for each circuit using a simple python script. This allows use to use the same inputs for each Protocol whilst also trying a range of random test inputs.\\
 			
-			We give a short précis to each circuit detailing the expected results and a small amount of analysis of the results, further analysis of results comes later. All tests are configured to given a deterrent probability of $1 - 2^{40}$, or put in other terms, a statistical security parameter of $40$.
+			We give a short précis to each circuit detailing the expected results and a small amount of analysis of the results, further analysis of results comes later. All tests are configured to given a deterrent probability of $1 - 2^{40}$, or put in other terms, a statistical security parameter of $40$.\\
+
+			For each protocol we ran a 100 evaluations on each test circuit, the figures given below are taken from the average of these experiments. For each protocol we took measurements for both parties. We further took measurements for the important parts of the protocol, allowing us to identify which part of a protocol are the most expensive.\\
+
+			The HKE protocol is symmetric therefore there is no purpose is giving measurements for both parties when they are running in identical environments. As such for each measurement we give the average from both parties.\\
 
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
@@ -964,6 +968,43 @@
 % 					\end{center}
 
 
+				\begin{figure}[!h]
+					\textbf{Huang, Katz and Evans 2013}
+
+					\renewcommand{\arraystretch}{1.2}
+					\begin{center}
+						\begin{tabular}{| p{3.5cm} | c c c c |}
+							\hline
+							& & \textbf{Builder} & & \\
+							\hline
+							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+							\thickhline
+							Circuits prep. & $2.34$ & $0.31$ & $0$ & $0$ \\
+							\hline
+							Building circuits & $0.12$ & $0.02$ & $0$ & $0$ \\
+							\hline
+							Sending Circuits and Commitments & $0.27$ & $0.04$ & $1,880,477$ & $1,880,477$ \\
+							\hline
+							Exchange Secret Sharing Schemes & $0.02$ & $0.00$ & $32,737$ & $32,775$ \\
+							\hline
+							OT & $10.80$ & $1.35$ & $136,744$ & $136,744$ \\
+							\hline
+							Make and send commitments & $10.93$ & $1.37$ & $374,062$ & $374,062$ \\
+							\hline
+							Coin flip for J-set & $0.08$ & $0.01$ & $2,532$ & $2,532$ \\
+							\hline
+							Initial J-set checks & $7.83$ & $5.56$ & $231,848$ & $231,848$ \\
+							\hline
+							Logarithm Checks & $0.95$ & $0.13$ & $23,044$ & $23,044$ \\
+							\hline
+							Output Determination & $1.15$ & $0.47$ & $13,630$ & $13,630$ \\
+							\thickhline
+							Total & $34.60$ & $9.26$ & $2,695,074$ & $2,695,112$ \\
+							\hline
+						\end{tabular}
+					\end{center}
+					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.\label{table:HKE_2013_addition}}
+				\end{figure}
 
 
 			\subsection{32-bit multiplication}

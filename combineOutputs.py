@@ -101,6 +101,17 @@ def processOneSet(protocolNum, circuitNum, partyID):
 				Bytes_Received_Dict[truncatedLine].append(getMeasurementFromString(fileAsArray[j + 4]))
 				incrementBy = 5
 			else:
+				if(protocolNum == 2):
+					if(truncatedLine == 'Circuit building complete' or 
+						truncatedLine == 'Circuit building preparation complete'):
+						if truncatedLine not in CPU_Dict:
+							ordering.append(truncatedLine)
+
+						CPU_Dict[truncatedLine].append( float(fileAsArray[j + 1][16:]) )
+						Wall_Dict[truncatedLine].append( float(fileAsArray[j + 2][16:]) )
+						Bytes_Sent_Dict[truncatedLine].append(0)
+						Bytes_Received_Dict[truncatedLine].append(0)
+				
 				incrementBy = 3
 
 			j += incrementBy

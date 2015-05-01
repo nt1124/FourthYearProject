@@ -29,7 +29,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	mpz_t **aList;
 
 
-	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Keyed(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	initRandGen();
 	state = seedRandGen();
@@ -139,18 +139,6 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Committed to inputs");
 	printAndZeroBothCounters();
 
-	/*
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	OT_Inputs = getAllInputKeys(circuitsArray, stat_SecParam);
-	full_CnC_OT_Mod_Sender_ECC(writeSocket, readSocket, rawInputCircuit -> numInputs_P2, OT_Inputs, Xj_checkValues, state, stat_SecParam, 1024);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Sender");
-	printAndZeroBothCounters();
-	*/
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -175,14 +163,15 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	int_c_0 = clock();
 
 	// delta = (unsigned char *) calloc(16, sizeof(unsigned char));
-	SC_DetectCheatingBuilder_HKE(writeSocket, readSocket, rawCheckCircuit,
-								startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
-								queries_Own, C, cTilde,
-								stat_SecParam, state, ctx);
+	SC_DetectCheatingBuilder_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
+									startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
+									queries_Own, C, cTilde,
+									stat_SecParam, state, ctx);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Full Sub-Computation.");
+	fflush(stdout);
 	printAndZeroBothCounters();
 
 
@@ -282,14 +271,24 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	state = seedRandGen();
 
-	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt(rawInputCircuit -> numInputs_P1, lengthDelta);
+	rawCheckCircuit = createRawCheckCircuit_No_OT_Opt_Keyed(rawInputCircuit -> numInputs_P1, lengthDelta);
 
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	permedInputs = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P2);
 	J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, rawInputCircuit -> numInputs_P2,
 											state, startOfInputChain, permedInputs, stat_SecParam, 1024);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -338,20 +337,8 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 		setCircuitsInputs_Values(startOfInputChain, circuitsArray[i], 0x00);
 	}
 
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-
-	// J_set = full_CnC_OT_Mod_Receiver_ECC_Alt(writeSocket, readSocket, &OT_Outputs, rawInputCircuit -> numInputs_P2,
-	// 										state, startOfInputChain, permedInputs, stat_SecParam, 1024);
 
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
-
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "OT - Receiver");
-	printAndZeroBothCounters();
 
 
 	// Here we do the decommit...Getting the information we need for proving consistency later, and the
@@ -390,9 +377,9 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	int_c_0 = clock();
 
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
-	cheatDetectOutput = SC_DetectCheatingExecutor_HKE(writeSocket, readSocket, rawCheckCircuit,
-													rawInputCircuit -> numInputs_P1, deltaPrime, lengthDelta,
-													queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+	cheatDetectOutput = SC_DetectCheatingExecutor_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
+														rawInputCircuit -> numInputs_P1, deltaPrime, lengthDelta,
+														queries_Partner, C, cTilde, stat_SecParam, state, ctx);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
