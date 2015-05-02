@@ -38,6 +38,7 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	int partyID_Partner = 1 - partyID_Own;
 	int result, *resultArray;
 
+
 	for(j = 0; j < numCircuits; j ++)
 	{
 		if(0x01 == J_set[j])
@@ -49,11 +50,10 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 		}
 	}
 
-
 	resultArray = (int * ) calloc(J_setSize, sizeof(int));
 	// Having got all the seeds, now construct our own version of the given circuits, then compare our
 	// versions to the version give by the other party.
-	#pragma omp parallel for default(shared) private(j, k, tempGarbleCircuit)
+	// #pragma omp parallel for default(shared) private(j, k, tempGarbleCircuit)
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
@@ -63,7 +63,8 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 
 		resultArray[j] = compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		// freeTempGarbleCircuit(tempGarbleCircuit);
+
+		freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
 	result = 0;
@@ -84,25 +85,26 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 				unsigned char *inputBitsOwn, unsigned char *J_SetOwn, unsigned char *J_setPartner,
 				int numCircuits, struct DDH_Group *groupPartner, struct eccParams *params, int partyID)
 {
-	// struct eccPoint ***NaorPinkasInputs_Partner;
+	struct eccPoint ***AltNP_Inputs_Partner;
 	unsigned char *commBuffer;
 	int commBufferLen, tempOffset = 0, circuitsCorrect = 0, outputsVerified = 0, validCommitments = 0;
 
 
-	// NaorPinkasInputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder, numCircuits, params, J_SetOwn);
+	AltNP_Inputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder,
+														numCircuits, params, J_SetOwn);
 
 	commBuffer = decommitToCheckCircuitInputs_Builder(commitStruct, inputBitsOwn, J_setPartner, &commBufferLen);
 	sendBoth(writeSocket, commBuffer, commBufferLen);
 	free(commBuffer);
 
 	commBuffer = receiveBoth(readSocket, commBufferLen);
-	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, NaorPinkasInputs_Partner,
+	validCommitments = decommitToCheckCircuitInputs_Exec(partnerCommitStruct, partnerReveals, AltNP_Inputs_Partner,
 														commBuffer, J_SetOwn, numCircuits,
 														circuitsArray_Partner[0] -> numInputsBuilder, &tempOffset);
 	free(commBuffer);
 
 
-	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, NaorPinkasInputs_Partner, partnerReveals,
+	circuitsCorrect = HKE_performCircuitChecks(circuitsArray_Partner, rawInputCircuit, AltNP_Inputs_Partner, partnerReveals,
 											params, J_SetOwn, numCircuits / 2, numCircuits, partyID);
 
 
@@ -196,6 +198,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit building preparation complete");
+	printAndZeroBothCounters();
 
 
 	int_t_0 = timestamp();
@@ -213,6 +216,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit building complete");
+	printAndZeroBothCounters();
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();
@@ -327,16 +331,30 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	int_c_0 = clock();
 
 
+
 	commBufferWrite = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
 									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferWriteLen);
 	sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
 	free(commBufferWrite);
+
 	commBufferRead = receiveBoth(readSocket, commBufferReadLen);
-	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBufferRead, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits);
+	partnerReveals = jSetRevealDeserialise(circuitsArray_Partner, commBufferRead, J_SetOwn, circuitsArray_Partner[0] -> numInputsBuilder,
+										rawInputCircuit -> numOutputs, numCircuits);
 	free(commBufferRead);
 
 
-	NP_Inputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder, numCircuits, params, J_SetOwn);
+	commBufferWrite = serialiseSeeds(circuitSeeds, J_setPartner, numCircuits, &commBufferWriteLen);
+	sendBoth(writeSocket, commBufferWrite, commBufferWriteLen);
+	free(commBufferWrite);
+
+	commBufferRead = receiveBoth(readSocket, commBufferReadLen);
+	partnerReveals -> revealedSeeds = deserialiseSeeds(commBufferRead, J_SetOwn, numCircuits);
+	free(commBufferRead);
+
+
+	NP_Inputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder,
+														numCircuits, params, J_SetOwn);
+
 	jSetChecks = HKE_Step5_Checks(writeSocket, readSocket, rawInputCircuit, circuitsArray_Partner, C, partnerReveals, NaorPinkasInputs, NP_Inputs_Partner,
 								outputStruct_Partner, commitStruct, partnersCommitStruct,
 								inputBitsOwn, J_SetOwn, J_setPartner, numCircuits, groupPartner, params, partyID);

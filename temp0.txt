@@ -1,0 +1,51 @@
+Running Executor.
+Partner has connected to us.
+
++++ Circuit building preparation complete
++++ CPU time  : 3.830000
++++ Wall time : 3.934278
+::: Bytes Sent = 77
+::: Bytes Received = 77
+
+
++++ Circuit building complete
++++ CPU time  : 0.120000
++++ Wall time : 0.111951
+::: Bytes Sent = 0
+::: Bytes Received = 0
+
+
++++ Circuits exchanged
++++ CPU time  : 0.010000
++++ Wall time : 0.067970
+::: Bytes Sent = 1880400
+::: Bytes Received = 1880400
+
+
++++ Exchanging Secret scheme params.
++++ CPU time  : 0.000000
++++ Wall time : 0.000000
+::: Bytes Sent = 30424
+::: Bytes Received = 30104
+
+
++++ OT
++++ CPU time  : 16.590000
++++ Wall time : 16.836631
+::: Bytes Sent = 136744
+::: Bytes Received = 136744
+
+
++++ Commitments made.
++++ CPU time  : 17.130000
++++ Wall time : 17.604294
+::: Bytes Sent = 374062
+::: Bytes Received = 374062
+
+
++++ J set exchange.
++++ CPU time  : 0.010000
++++ Wall time : 0.011995
+::: Bytes Sent = 1508
+::: Bytes Received = 1508
+

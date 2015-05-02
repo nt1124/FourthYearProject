@@ -307,6 +307,16 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	free(commBuffer);
 
 
+	commBuffer = serialiseSeeds(circuitSeeds, J_SetPartner, checkStatSecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	partnerReveals -> revealedSeeds = deserialiseSeeds(commBuffer, J_SetOwn, checkStatSecParam);
+	free(commBuffer);
+
+
+
 	// Having received all that they need to verify check circuits, they now verifiy them.
 	NP_Inputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder,
 													checkStatSecParam, params, J_SetOwn);
@@ -400,11 +410,13 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 		binaryOutput = NULL;
 	}
 
+	/*
 	// Tidy up after ourselves.
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray_Partner[i], 0);
 	}
+	*/
 
 	return binaryOutput;
 }

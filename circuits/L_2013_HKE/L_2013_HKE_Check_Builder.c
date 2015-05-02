@@ -297,6 +297,16 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	free(commBuffer);
 
 
+	commBuffer = serialiseSeeds(circuitSeeds, J_SetPartner, checkStatSecParam, &commBufferLen);
+	sendBoth(writeSocket, commBuffer, commBufferLen);
+	free(commBuffer);
+
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	partnerReveals -> revealedSeeds = deserialiseSeeds(commBuffer, J_SetOwn, checkStatSecParam);
+	free(commBuffer);
+
+
+
 	NP_Inputs_Partner = computeNaorPinkasInputsForJSet(C, partnerReveals -> aListRevealed, circuitsArray_Partner[0] -> numInputsBuilder,
 													checkStatSecParam, params, J_SetOwn);
 

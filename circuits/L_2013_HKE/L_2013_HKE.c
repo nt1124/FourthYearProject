@@ -465,7 +465,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	for(i = 0; i < stat_SecParam; i ++)
 	{
-		freeCircuitStruct(circuitsArray[i], 1);
+		// freeCircuitStruct(circuitsArray[i], 1);
 	}
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);

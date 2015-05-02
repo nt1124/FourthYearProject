@@ -251,13 +251,16 @@ int compareGateOrWirePair(struct gateOrWire *gateA, struct gateOrWire *gateB)
 
 int compareCircuit(struct RawCircuit *baseCircuit, struct Circuit *circuitA, struct Circuit *circuitB)
 {
-	int temp = 0;
+	int temp = 0, temp2;
 	int i, j;
 
 
 	for(i = baseCircuit -> numInputs; i < baseCircuit -> numGates; i ++)
 	{
-		temp |= compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
+		temp2 = compareGateOrWirePair(circuitA -> gates[i], circuitB -> gates[i]);
+		temp |= temp2;
+		// if(0 != temp2)
+			// printf("~~~ %d  ~  %d\n", i, temp2);
 	}
 
 

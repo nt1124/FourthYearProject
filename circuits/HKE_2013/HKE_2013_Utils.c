@@ -6,17 +6,18 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 	int i, j, index;
 
 
-	#pragma omp parallel for default(shared) private(i, j, index, G_a1, invG_a1)
+	// #pragma omp parallel for default(shared) private(i, j, index, G_a1, invG_a1)
 	for(i = 0; i < numCircuits; i ++)
 	{
 
 		if(0x01 == J_set[i])
 		{
 			output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
-			index = 0;
+			// index = 0;
 
 			for(j = 0; j < numInputs; j ++)
 			{
+				index = 2 * j;
 				output[i][index] = fixedPointMultiplication(gPreComputes, aLists[i][index], params);
 
 				G_a1 = fixedPointMultiplication(gPreComputes, aLists[i][index + 1], params);
@@ -26,8 +27,13 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 				clearECC_Point(G_a1);
 				clearECC_Point(invG_a1);
 
-				index += 2;
+				// gmp_printf("%d - %d 0 - %Zd\n", i, j, aLists[i][index]);
+				// gmp_printf("%d - %d 1 - %Zd\n", i, j, aLists[i][index + 1]);
+
+				// index += 2;
 			}
+
+			// printf("\n");
 		}
 	}
 
@@ -133,8 +139,10 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 
 	unsigned char *outputBuffer;
 	int i, j, k, tempOffset = 0;
-	int aListLen = 0, sharesLen = 0, seedLengths = (numCircuits / 2) * 256 * sizeof(ub4);
+	int aListLen = 0, sharesLen = 0, seedLengths = 0;
 	int builderOffset = circuitsArray_Own[0] -> builderInputOffset;
+	ub4 tempUB4;
+
 
 	(*outputLength) = 0;
 
@@ -158,6 +166,7 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 				sharesLen += sizeOfSerialMPZ(outputStruct -> scheme0Array[i] -> shares[j]);
 				sharesLen += sizeOfSerialMPZ(outputStruct -> scheme1Array[i] -> shares[j]);
 			}
+			seedLengths += (256 * sizeof(ub4));
 		}
 		else
 		{
@@ -200,8 +209,26 @@ unsigned char *jSetRevealSerialise(struct Circuit **circuitsArray_Own, struct id
 				serialiseMPZ(outputStruct -> scheme1Array[i] -> shares[j], outputBuffer, &tempOffset);
 			}
 
-			memcpy(outputBuffer + tempOffset, circuitSeeds[j], 256 * sizeof(ub4));
-			tempOffset += 256 * sizeof(ub4);
+			/*
+			printf("~~~ %d  -  %d\n", j, tempOffset);
+			for(i = 0; i < 256; i ++)
+			{
+				printf("%lu\n", circuitSeeds[j][i]);
+			}
+			printf("\n");
+			*/
+
+			/*
+			for(i = 0; i < 256; i ++)
+			{
+				tempUB4 = circuitSeeds[j][i];
+				memcpy(outputBuffer + tempOffset, &tempUB4, sizeof(ub4));
+				tempOffset += sizeof(ub4);
+			}
+			*/
+
+			// memcpy(outputBuffer + tempOffset, circuitSeeds[j], 256 * sizeof(ub4));
+			// tempOffset += (256 * sizeof(ub4));
 		}
 	}
 
@@ -241,6 +268,7 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 	mpz_t *tempMPZ;
 	int i, j, k, tempOffset = 0;
 	int builderOffset = circuitsArray_Partner[0] -> builderInputOffset;
+	ub4 tempUB4;
 
 
 	output -> aListRevealed = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
@@ -287,10 +315,24 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 				k ++;
 			}
 
-			memcpy(output -> revealedSeeds[j], inputBuffer + tempOffset, 256 * sizeof(ub4));
-			tempOffset += 256 * sizeof(ub4);
+			// memcpy(output -> revealedSeeds[j], inputBuffer + tempOffset, 256 * sizeof(ub4));
+			// tempOffset += (256 * sizeof(ub4));
+
+			/*
+			printf("~~~ %d\n", j);
+			for(i = 0; i < 256; i ++)
+			{
+				memcpy(&tempUB4, inputBuffer + tempOffset, sizeof(ub4));
+				output -> revealedSeeds[j][i] = tempUB4;
+				tempOffset += (sizeof(ub4));
+
+				printf("%lu\n", output -> revealedSeeds[j][i]);
+			}
+			printf("\n");
+			*/
 		}
 	}
+
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -309,6 +351,65 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 
 	return output;
 }
+
+
+
+unsigned char *serialiseSeeds(ub4 **circuitSeeds, unsigned char *J_set, int numCircuits, int *outputLength)
+{
+	unsigned char *outputBuffer;
+	int i, tempOffset = 0;
+
+
+	*outputLength = (256 * numCircuits) * sizeof(ub4);
+	outputBuffer = (unsigned char *) calloc(*outputLength, sizeof(unsigned char));
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			memcpy(outputBuffer + tempOffset, circuitSeeds[i], 256 * sizeof(ub4));
+			tempOffset += (256 * sizeof(ub4));
+		}
+	}
+
+	*outputLength = tempOffset;
+
+	return outputBuffer;
+}
+
+
+ub4 **deserialiseSeeds(unsigned char *inputBuffer, unsigned char *J_set, int numCircuits)
+{
+	ub4 **outputSeeds;
+	int i, j, tempOffset = 0;
+	ub4 tempUB4;
+
+
+	outputSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4 *));
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == J_set[i])
+		{
+			outputSeeds[i] = (ub4 *) calloc(256, sizeof(ub4));
+
+			// memcpy(outputSeeds[i], inputBuffer + tempOffset, 256 * sizeof(ub4));
+			for(j = 0; j < 256; j ++)
+			{
+				memcpy(&tempUB4, inputBuffer + tempOffset, sizeof(ub4));
+				outputSeeds[i][j] = tempUB4;
+				tempOffset += sizeof(ub4);
+			}
+			// tempOffset += (256 * sizeof(ub4));
+		}
+	}
+
+
+	return outputSeeds;
+}
+
+
+
 
 
 struct HKE_Output_Struct_Builder *exchangePublicBoxesOfSchemes(int writeSocket, int readSocket, struct HKE_Output_Struct_Builder *ownInput, int numOutputs, int numCircuits)
