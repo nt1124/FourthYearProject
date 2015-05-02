@@ -9,7 +9,7 @@ def runTests(ipAddress, portNum, partyID, protocolNum, circuitName, f):
 	baseOutputFile = "./TestResults/Output_" + circuitName + "_" + str(partyID) + "_" + protocolNames[protocolNum] + "_"
 
 
-	if '1' == partyID:
+	if 1 == partyID:
 		baseInputFile = baseInputFile + ".builder.input."
 	else:
 		baseInputFile = baseInputFile + ".executor.input."
