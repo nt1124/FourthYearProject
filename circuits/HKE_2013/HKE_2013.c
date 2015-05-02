@@ -33,10 +33,10 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 							unsigned char *J_set, int J_setSize, int numCircuits, int partyID_Own)
 {
 	struct Circuit *tempGarbleCircuit;
-	int i, j, temp = 0, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
+	int i, j, k = 0, *idList = (int*) calloc(J_setSize, sizeof(int));
 	randctx **tempCTX = (randctx **) calloc(J_setSize, sizeof(randctx*));
 	int partyID_Partner = 1 - partyID_Own;
-
+	int result, *resultArray;
 
 	for(j = 0; j < numCircuits; j ++)
 	{
@@ -50,9 +50,10 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	}
 
 
+	resultArray = (int * ) calloc(J_setSize, sizeof(int));
 	// Having got all the seeds, now construct our own version of the given circuits, then compare our
 	// versions to the version give by the other party.
-	// #pragma omp parallel for default(shared) private(i, j, k, tempGarbleCircuit) reduction(|:temp) 
+	#pragma omp parallel for default(shared) private(j, k, tempGarbleCircuit)
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
@@ -60,12 +61,18 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 		tempGarbleCircuit = readInCircuit_FromRaw_HKE_2013(tempCTX[j], rawInputCircuit, NaorPinkasInputs[k],
 														revealStruct -> outputWireShares[k], params, partyID_Partner);
 
-		temp |= compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
+		resultArray[j] = compareCircuit(rawInputCircuit, circuitsArrayPartner[k], tempGarbleCircuit);
 
-		freeTempGarbleCircuit(tempGarbleCircuit);
+		// freeTempGarbleCircuit(tempGarbleCircuit);
 	}
 
-	return temp;
+	result = 0;
+	for(j = 0; j < J_setSize; j ++)
+	{
+		result |= resultArray[j];
+	}
+
+	return result;
 }
 
 
@@ -103,8 +110,11 @@ int HKE_Step5_Checks(int writeSocket, int readSocket, struct RawCircuit *rawInpu
 											rawInputCircuit -> numOutputs, groupPartner);
 
 	printf("\nValid Commitment : %d\n", validCommitments);
-	printf("Circuits correct : %d\n", circuitsCorrect);
-	printf("Outputs verified : %d\n", outputsVerified);
+	fflush(stdout);
+	printf("Circuits Correct : %d\n", circuitsCorrect);
+	fflush(stdout);
+	printf("Outputs Verified : %d\n", outputsVerified);
+	fflush(stdout);
 
 
 	return (validCommitments | outputsVerified | circuitsCorrect);

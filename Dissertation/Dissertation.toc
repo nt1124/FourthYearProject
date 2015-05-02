@@ -22,11 +22,11 @@
 \contentsline {paragraph}{Randomisation}{15}{section*.15}
 \contentsline {paragraph}{DDH-Randomise Cryptosystem}{16}{section*.16}
 \contentsline {paragraph}{Dual-mode Cryptosystem based on Randomise}{16}{section*.17}
-\contentsline {section}{\numberline {3.2}Yao's Protocol}{16}{section.3.2}
-\contentsline {subsection}{\numberline {3.2.1}Overview}{16}{subsection.3.2.1}
-\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{16}{subsection.3.2.2}
+\contentsline {section}{\numberline {3.2}Yao's Protocol}{17}{section.3.2}
+\contentsline {subsection}{\numberline {3.2.1}Overview}{17}{subsection.3.2.1}
+\contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{17}{subsection.3.2.2}
 \contentsline {subsubsection}{Free XOR Improvement}{18}{section*.18}
-\contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{18}{subsection.3.2.3}
+\contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{19}{subsection.3.2.3}
 \contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{19}{subsection.3.2.4}
 \contentsline {subsubsection}{Concept}{19}{section*.19}
 \contentsline {subsubsection}{Issues}{19}{section*.20}
@@ -61,23 +61,28 @@
 \contentsline {chapter}{\numberline {6}Experiments}{33}{chapter.6}
 \contentsline {section}{\numberline {6.1}Measurement metrics}{33}{section.6.1}
 \contentsline {section}{\numberline {6.2}Testing Environment}{33}{section.6.2}
-\contentsline {section}{\numberline {6.3}Results}{33}{section.6.3}
-\contentsline {section}{\numberline {6.4}32-bit addition}{34}{section.6.4}
-\contentsline {section}{\numberline {6.5}32-bit multiplication}{34}{section.6.5}
-\contentsline {section}{\numberline {6.6}AES encryption}{34}{section.6.6}
-\contentsline {chapter}{\numberline {7}Conclusions}{41}{chapter.7}
-\contentsline {chapter}{\numberline {A}Benchmarking components}{44}{Appendix.1.A}
-\contentsline {section}{\numberline {A.1}Communications}{44}{section.1.A.1}
-\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{44}{section.1.A.2}
-\contentsline {section}{\numberline {A.3}Oblivious Transfer}{44}{section.1.A.3}
-\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{44}{subsection.1.A.3.1}
-\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{44}{subsection.1.A.3.2}
-\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{44}{subsection.1.A.3.3}
-\contentsline {section}{\numberline {A.4}Circuit Building}{44}{section.1.A.4}
-\contentsline {section}{\numberline {A.5}Circuit Evaluation}{45}{section.1.A.5}
-\contentsline {chapter}{\numberline {B}Implementation guide}{46}{Appendix.1.B}
-\contentsline {section}{\numberline {B.1}Building}{46}{section.1.B.1}
-\contentsline {subsection}{\numberline {B.1.1}Dependencies}{46}{subsection.1.B.1.1}
-\contentsline {subsection}{\numberline {B.1.2}Compilation}{46}{subsection.1.B.1.2}
-\contentsline {section}{\numberline {B.2}Running}{46}{section.1.B.2}
-\contentsline {section}{\numberline {B.3}Source Code Documentation}{46}{section.1.B.3}
+\contentsline {section}{\numberline {6.3}Notes on the form of Experiments}{33}{section.6.3}
+\contentsline {section}{\numberline {6.4}Expectations}{34}{section.6.4}
+\contentsline {subsection}{\numberline {6.4.1}32-bit addition}{34}{subsection.6.4.1}
+\contentsline {subsection}{\numberline {6.4.2}32-bit multiplication}{34}{subsection.6.4.2}
+\contentsline {subsection}{\numberline {6.4.3}AES encryption}{34}{subsection.6.4.3}
+\contentsline {section}{\numberline {6.5}Results}{34}{section.6.5}
+\contentsline {subsection}{\numberline {6.5.1}32-bit addition}{34}{subsection.6.5.1}
+\contentsline {subsection}{\numberline {6.5.2}32-bit multiplication}{37}{subsection.6.5.2}
+\contentsline {subsection}{\numberline {6.5.3}AES encryption}{40}{subsection.6.5.3}
+\contentsline {chapter}{\numberline {7}Conclusions}{43}{chapter.7}
+\contentsline {chapter}{\numberline {A}Benchmarking components}{46}{Appendix.1.A}
+\contentsline {section}{\numberline {A.1}Communications}{46}{section.1.A.1}
+\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{46}{section.1.A.2}
+\contentsline {section}{\numberline {A.3}Oblivious Transfer}{46}{section.1.A.3}
+\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{46}{subsection.1.A.3.1}
+\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{46}{subsection.1.A.3.2}
+\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{46}{subsection.1.A.3.3}
+\contentsline {section}{\numberline {A.4}Circuit Building}{46}{section.1.A.4}
+\contentsline {section}{\numberline {A.5}Circuit Evaluation}{47}{section.1.A.5}
+\contentsline {chapter}{\numberline {B}Implementation guide}{48}{Appendix.1.B}
+\contentsline {section}{\numberline {B.1}Building}{48}{section.1.B.1}
+\contentsline {subsection}{\numberline {B.1.1}Dependencies}{48}{subsection.1.B.1.1}
+\contentsline {subsection}{\numberline {B.1.2}Compilation}{48}{subsection.1.B.1.2}
+\contentsline {section}{\numberline {B.2}Running}{48}{section.1.B.2}
+\contentsline {section}{\numberline {B.3}Source Code Documentation}{48}{section.1.B.3}

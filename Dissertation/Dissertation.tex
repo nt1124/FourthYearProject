@@ -22,6 +22,7 @@
 \usepackage{geometry}
 \usepackage{mdframed}
 \usepackage{appendix}
+\usepackage[section]{placeins}
 
 
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
@@ -861,7 +862,7 @@
 			\item 32-bit Addition,
 			\item 32-bit Multiplication,
 			\item AES encryption,
-			\item SHA-256 hashing.
+			%\item SHA-256 hashing.
 		\end{itemize}
 
 
@@ -873,10 +874,9 @@
 		\section{Testing Environment}
 			All tests were carried out between two test machines each with an i7-3770S CPU clocked at $3.10$ GHz with $8096$ KB of cache and $32$ GB of RAM. These machines both possess dedicated network cards for communications with the other member of the pair. Compilation was performed with g$++$ version 4.4.7. 
 
-		\section{Results}
-			We now give results of using each of the Protocol on the test circuits, we have generated sets of random inputs for each circuit using a Python script.\\
-			
-			We give a short précis to each circuit detailing the expected results and a small amount of analysis of the results, further analysis of results comes later. All tests are configured to given a deterrent probability of $1 - 2^{40}$, or put in other terms, a statistical security parameter of $40$.\\
+
+		\section{Notes on the form of Experiments}
+			All tests are configured to given a deterrent probability of $1 - 2^{40}$, or put in other terms, a statistical security parameter of $40$.\\
 
 			For each protocol we ran a 100 evaluations on each test circuit, the figures given below are taken from the average of these experiments. As already noted we measure performance in terms or Wall/CPU time (in seconds) and in terms of data sent/received (in Bytes).\\
 
@@ -884,14 +884,37 @@
 
 			The HKE protocol is symmetric therefore there is no purpose is giving measurements for both parties when they are running in identical environments. As such for each measurement we give the average from both parties.
 
-			\section{32-bit addition}
+
+		\section{Expectations}
+			Before giving the results of our experiments we shall first give some expectations we had for each circuit and some thoughts on the circuits themselves.
+
+			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
 
 				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to fairly high.
+				
+			\subsection{32-bit multiplication}
+
+				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
+
+				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.
+
+			\subsection{AES encryption}
+
+				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
+
+		\section{Results}
+			We now give results of using each of the Protocol on the test circuits, we have generated sets of random inputs for each circuit using a Python script.
+
+			\FloatBarrier
+			\subsection{32-bit addition}
+				% The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
+
+				% We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to fairly high.
 
 				\renewcommand{\arraystretch}{1.2}
 
-				\begin{figure}[!h]
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell-Pinkas 2010} & & \textbf{Builder} & & \\
@@ -914,7 +937,7 @@
 					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Builder}}
 				\end{figure}
 					
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell-Pinkas 2010} & & \textbf{Executor} & & \\
@@ -939,7 +962,7 @@
 					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Executor}}
 				\end{figure}
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell 2013} & & \textbf{Builder} & & \\
@@ -966,7 +989,7 @@
 					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
 				\end{figure}
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell 2013} & & \textbf{Executor} & & \\
@@ -997,43 +1020,43 @@
 
 
 				\begin{figure}[!ht]
-						\textbf{Huang-Katz-Evans 2013}\\
-						\begin{tabular}{| p{3.5cm} | c c c c |}
-							\hline
-							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
-							\thickhline
-							Circuits prep. & $2.34$ & $0.31$ & $0$ & $0$ \\
-							\hline
-							Building circuits & $0.12$ & $0.02$ & $0$ & $0$ \\
-							\hline
-							Sending Circuits and Commitments & $0.27$ & $0.04$ & $1,880,477$ & $1,880,477$ \\
-							\hline
-							Exchange Secret Sharing Schemes & $0.02$ & $0.00$ & $32,737$ & $32,775$ \\
-							\hline
-							OT & $10.80$ & $1.35$ & $136,744$ & $136,744$ \\
-							\hline
-							Make and send commitments & $10.93$ & $1.37$ & $374,062$ & $374,062$ \\
-							\hline
-							Coin flip for J-set & $0.08$ & $0.01$ & $2,532$ & $2,532$ \\
-							\hline
-							Initial J-set checks & $7.83$ & $5.56$ & $231,848$ & $231,848$ \\
-							\hline
-							Logarithm Checks & $0.95$ & $0.13$ & $23,044$ & $23,044$ \\
-							\hline
-							Output Determination & $1.15$ & $0.47$ & $13,630$ & $13,630$ \\
-							\thickhline
-							Total & $34.60$ & $9.26$ & $2,695,074$ & $2,695,112$ \\
-							\hline
-						\end{tabular}
+					\textbf{Huang-Katz-Evans 2013}\\
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Circuits prep. & $2.34$ & $0.31$ & $0$ & $0$ \\
+						\hline
+						Building circuits & $0.12$ & $0.02$ & $0$ & $0$ \\
+						\hline
+						Sending Circuits and Commitments & $0.27$ & $0.04$ & $1,880,477$ & $1,880,477$ \\
+						\hline
+						Exchange Secret Sharing Schemes & $0.02$ & $0.00$ & $32,737$ & $32,775$ \\
+						\hline
+						OT & $10.80$ & $1.35$ & $136,744$ & $136,744$ \\
+						\hline
+						Make and send commitments & $10.93$ & $1.37$ & $374,062$ & $374,062$ \\
+						\hline
+						Coin flip for J-set & $0.08$ & $0.01$ & $2,532$ & $2,532$ \\
+						\hline
+						Initial J-set checks & $7.83$ & $5.56$ & $231,848$ & $231,848$ \\
+						\hline
+						Logarithm Checks & $0.95$ & $0.13$ & $23,044$ & $23,044$ \\
+						\hline
+						Output Determination & $1.15$ & $0.47$ & $13,630$ & $13,630$ \\
+						\thickhline
+						Total & $34.60$ & $9.26$ & $2,695,074$ & $2,695,112$ \\
+						\hline
+					\end{tabular}
 					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:HKE_2013_Add}}
 				\end{figure}
 
+			\FloatBarrier
+			\subsection{32-bit multiplication}
 
-			\section{32-bit multiplication}
+				%The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
 
-				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
-
-				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.\\
+				%Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.\\
 
 				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
@@ -1059,7 +1082,7 @@
 					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Builder}}
 				\end{figure}
 				
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell-Pinkas 2010} & & \textbf{Executor} & & \\
@@ -1084,7 +1107,7 @@
 					\caption{These tables show the performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
 				\end{figure}
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell 2013} & & \textbf{Builder} & & \\
@@ -1111,7 +1134,7 @@
 					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
 				\end{figure}
 				
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell 2013} & & \textbf{Executor} & & \\
@@ -1172,9 +1195,10 @@
 					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:HKE_2013_Mul}}
 				\end{figure}
 
-			\section{AES encryption}
+			\FloatBarrier
+			\subsection{AES encryption}
 
-				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
+				% AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
 
 				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
@@ -1199,7 +1223,7 @@
 					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
 				\end{figure}
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell-Pinkas 2010} & & \textbf{Executor} & & \\
@@ -1225,7 +1249,7 @@
 				\end{figure}
 
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					% \subsubsection{Lindell 2013}
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
@@ -1253,7 +1277,7 @@
 					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
 				\end{figure}
 
-				\begin{figure}
+				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
 						\textbf{Lindell 2013} & & \textbf{Executor} & & \\
@@ -1284,37 +1308,35 @@
 
 
 				\begin{figure}[!ht]
-					\begin{center}
-						\textbf{Huang, Katz and Evans 2013}\\
-						\begin{tabular}{| p{3.5cm} | c c c c |}
-							\hline
-							\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
-							\thickhline
-							Circuits prep. & $9.42$ & $1.22$ & $0$ & $0$ \\
-							\hline
-							Building circuits & $11.15$ & $1.44$ & $0$ & $0$ \\
-							\hline
-							Sending Circuits and Commitments & $1.87$ & $3.59$ & $204,069,197$ & $204,069,197$ \\
-							\hline
-							Exchange Secret Sharing Schemes & $0.00$ & $0.05$ & $126,864$ & $126,846$ \\
-							\hline
-							OT & $43.04$ & $5.55$ & $546,952$ & $546,952$ \\
-							\hline
-							Make and send commitments & $44.27$ & $5.60$ & $1,495,342$ & $1,495,342$ \\
-							\hline
-							Coin flip for J-set & $0.10$ & $0.01$ & $2,532$ & $2,532$ \\
-							\hline
-							Initial J-set checks & $30.21$ & $25.29$ & $801,288$ & $801,288$ \\
-							\hline
-							Logarithm Checks & $2.85$ & $0.47$ & $92,164$ & $92,164$ \\
-							\hline
-							Output Determination & $1.60$ & $1.64$ & $52,010$ & $52,010$ \\
-							\thickhline
-							Total & $145.70$ & $45.26$ & $207,186,349$ & $207,186,331$ \\
-							\hline
-						\end{tabular}
-					\end{center}
-					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. Being Symmetric there is no `Builder' or `Executor' and both parties need to perform the same computations. As such we only show one table for HKE.\label{table:HKE_2013_AES}}
+					\textbf{Huang, Katz and Evans 2013}\\
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Circuits prep. & $9.42$ & $1.22$ & $0$ & $0$ \\
+						\hline
+						Building circuits & $11.15$ & $1.44$ & $0$ & $0$ \\
+						\hline
+						Sending Circuits and Commitments & $1.87$ & $3.59$ & $204,069,197$ & $204,069,197$ \\
+						\hline
+						Exchange Secret Sharing Schemes & $0.00$ & $0.05$ & $126,864$ & $126,846$ \\
+						\hline
+						OT & $43.04$ & $5.55$ & $546,952$ & $546,952$ \\
+						\hline
+						Make and send commitments & $44.27$ & $5.60$ & $1,495,342$ & $1,495,342$ \\
+						\hline
+						Coin flip for J-set & $0.10$ & $0.01$ & $2,532$ & $2,532$ \\
+						\hline
+						Initial J-set checks & $30.21$ & $25.29$ & $801,288$ & $801,288$ \\
+						\hline
+						Logarithm Checks & $2.85$ & $0.47$ & $92,164$ & $92,164$ \\
+						\hline
+						Output Determination & $1.60$ & $1.64$ & $52,010$ & $52,010$ \\
+						\thickhline
+						Total & $145.70$ & $45.26$ & $207,186,349$ & $207,186,331$ \\
+						\hline
+					\end{tabular}
+					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials.\label{table:HKE_2013_AES}}
 				\end{figure}
 
 
