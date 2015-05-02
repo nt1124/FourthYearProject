@@ -329,22 +329,6 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	printZeroBothSubCounters();
 
 
-	printMajorityOutputAsBinary(circuitsArray_Partner, checkStatSecParam, J_SetOwn);
-
-
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
-							partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam,
-							J_SetOwn, &commBufferLen, partyID);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Output determination");
-	printZeroBothSubCounters();
-
-
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
@@ -366,6 +350,23 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Sub-Log Checks");
+	printZeroBothSubCounters();
+
+
+	// You can uncomment this line to see what the Builder sees output from the sub-computation.
+	// However, it'll be garbage so not very interesting except for checking it's working.
+	// printMajorityOutputAsBinary(circuitsArray_Partner, checkStatSecParam, J_SetOwn);
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+							partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam,
+							J_SetOwn, &commBufferLen, partyID);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Output determination");
 	printZeroBothSubCounters();
 }
 

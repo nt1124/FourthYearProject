@@ -348,19 +348,7 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	printZeroBothSubCounters();
 
 
-	int_t_0 = timestamp();
-	int_c_0 = clock();
-
-	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
-										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_SetOwn, &commBufferLen, partyID);
-
-	int_c_1 = clock();
-	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Output Determination");
-	printZeroBothSubCounters();
-
-
-
+	// Check the Builder's inputs to the evaluation circuits is correct.
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
@@ -383,6 +371,20 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	printZeroBothSubCounters();
 
 
+	// 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
+	binaryOutput = HKE_OutputDetermination(writeSocket, readSocket, state, circuitsArray_Partner, rawInputCircuit, groupPartner,
+										partnerReveals, outputStruct_Own, outputStruct_Partner, checkStatSecParam, J_SetOwn, &commBufferLen, partyID);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Output Determination");
+	printZeroBothSubCounters();
+
+
+	// We now XOR the output with the key we provided, giving us the true output.
 	printf("Sub-Computation Output binary : ");
 	for(i = 0; i < rawInputCircuit -> numOutputs; i ++)
 	{
@@ -392,11 +394,13 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	printf("\n");
 
 
+	// Check, did we enter a correct deltaPrime? If not we know the output is worthless.
 	if(equalityBit == 0)
 	{
 		binaryOutput = NULL;
 	}
 
+	// Tidy up after ourselves.
 	for(i = 0; i < checkStatSecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray_Partner[i], 0);

@@ -48,7 +48,7 @@
 \BOOKMARK [2][-]{subsection.6.3.1}{32-bit addition}{section.6.3}% 48
 \BOOKMARK [2][-]{subsection.6.3.2}{32-bit multiplication}{section.6.3}% 49
 \BOOKMARK [2][-]{subsection.6.3.3}{AES encryption}{section.6.3}% 50
-\BOOKMARK [2][-]{subsection.6.3.4}{SHA-256 Hashing}{section.6.3}% 51
+\BOOKMARK [2][-]{subsection.6.3.4}{SHA-1 Hashing}{section.6.3}% 51
 \BOOKMARK [0][-]{chapter.7}{Conclusions}{}% 52
 \BOOKMARK [0][-]{Appendix.1.A}{Benchmarking components}{}% 53
 \BOOKMARK [1][-]{section.1.A.1}{Communications}{Appendix.1.A}% 54

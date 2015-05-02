@@ -63,9 +63,10 @@
 \contentsline {section}{\numberline {6.2}Testing Environment}{33}{section.6.2}
 \contentsline {section}{\numberline {6.3}Results}{33}{section.6.3}
 \contentsline {subsection}{\numberline {6.3.1}32-bit addition}{34}{subsection.6.3.1}
-\contentsline {subsection}{\numberline {6.3.2}32-bit multiplication}{35}{subsection.6.3.2}
-\contentsline {subsection}{\numberline {6.3.3}AES encryption}{35}{subsection.6.3.3}
-\contentsline {subsection}{\numberline {6.3.4}SHA-256 Hashing}{35}{subsection.6.3.4}
+\contentsline {subsubsection}{Lindell 2013}{35}{section*.30}
+\contentsline {subsection}{\numberline {6.3.2}32-bit multiplication}{36}{subsection.6.3.2}
+\contentsline {subsection}{\numberline {6.3.3}AES encryption}{36}{subsection.6.3.3}
+\contentsline {subsection}{\numberline {6.3.4}SHA-1 Hashing}{36}{subsection.6.3.4}
 \contentsline {chapter}{\numberline {7}Conclusions}{39}{chapter.7}
 \contentsline {chapter}{\numberline {A}Benchmarking components}{42}{Appendix.1.A}
 \contentsline {section}{\numberline {A.1}Communications}{42}{section.1.A.1}
