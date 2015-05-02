@@ -155,6 +155,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit building prep");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -171,6 +172,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits built.");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -195,6 +197,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit and sundry sent.");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -215,6 +218,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Make and exchange commitments");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -229,6 +233,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Exchanged Secret Sharing Schemes");
+	printZeroBothSubCounters();
 
 
 	// THIS SHOULD ONLY BE UNCOMMENTED FOR TESTING, MEANS WE CAN GET AN EASY DELTA = DELTA'
@@ -259,6 +264,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "subOT - Sender");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();
@@ -272,6 +278,7 @@ void SC_DetectCheatingBuilder_HKE_Alt(int writeSocket, int readSocket, struct Ra
 	int_c_1 = clock();
 	int_t_1 = timestamp();
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Coin flip.");
+	printZeroBothSubCounters();
 
 
 	int_t_0 = timestamp();

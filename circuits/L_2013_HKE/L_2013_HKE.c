@@ -211,10 +211,12 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	free_idAndValueChain(startOfInputChain);
 
+	/*
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 0);
 	}
+	*/
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);

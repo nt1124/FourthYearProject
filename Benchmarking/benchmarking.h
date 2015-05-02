@@ -5,7 +5,7 @@
 #include "benchmarkingComms.c"
 #include "benchmarkingECC.c"
 #include "benchmarkingOTs.c"
-#include "benchmarkingBuilding.c"
+#include "benchmarkingCircuits.c"
 
 
 #include "benchmarking.c"

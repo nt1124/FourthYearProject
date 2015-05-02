@@ -513,6 +513,7 @@ void zeroBothSubCounters()
 void printZeroBothSubCounters()
 {
     printf("£££ Bytes Sent = %llu\n", subSendCount);
+    fflush(stdout);
     printf("£££ Bytes Received = %llu\n\n", subReceivedCount);
     fflush(stdout);
 

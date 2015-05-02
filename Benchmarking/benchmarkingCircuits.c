@@ -1,4 +1,4 @@
-void benchmark_LP_2010_CircuitBuilding(struct RawCircuit *rawInputCircuit)
+struct Circuit **benchmark_LP_2010_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 {
 	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
@@ -63,12 +63,14 @@ void benchmark_LP_2010_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 	printf("\nLP_2010 Building %d circuits with %d Builder inputs\n", numCircuits, rawInputCircuit -> numInputs_P1);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	return circuitsArray;
 }
 
 
 
 
-void benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
+struct Circuit **benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 {
 	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
@@ -140,12 +142,14 @@ void benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 	printf("\nL_2013 Building %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	return circuitsArray;
 }
 
 
 
 
-void benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
+struct Circuit **benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 {
 	struct timespec timestamp_0, timestamp_1;
 	clock_t c_0, c_1;
@@ -231,4 +235,6 @@ void benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputCircuit)
 	printf("\nL_2013 Building %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	return circuitsArray;
 }

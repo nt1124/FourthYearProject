@@ -149,8 +149,8 @@
                 \textbf{\LARGE \dissertation@title}                        \\
   \ifcsempty{dissertation@subtitle}{}{{\Large \dissertation@subtitle \\}}
                        \vspace{1cm}
-                 {\Large \dissertation@author}                       \\
-                 {\Large \dissertation@supervisor}                   \\
+                 {\Large Author : \dissertation@author}                    \\[0.25cm]
+                 {\Large Supervisor : \dissertation@supervisor}            \\
 
                        \vspace{1cm}
                 \rule{0.5\textwidth}{0.5pt}

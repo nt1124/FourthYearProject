@@ -45,5 +45,7 @@ void benchmark(struct RawCircuit *rawInputCircuit, char *ipAddress, char *portNu
 			benchmark_LP_2010_CircuitBuilding(rawInputCircuit);
 		else if(8 == testID)
 			benchmark_L_2013_CircuitBuilding(rawInputCircuit);
+		else if(9 == testID)
+			benchmark_HKE_2013_CircuitBuilding(rawInputCircuit);
 	}
 }
