@@ -897,7 +897,9 @@
 
 				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
 
-				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance. We expect to see the costs of OTs to remain the same and for the circuit building/checking times to be marginally affected compared to the addition circuit.
+				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance. We expect to see the costs of OTs to remain the same and for the circuit building/checking times to be marginally affected compared to the addition circuit.\\
+
+				At first one might be surprised by this second expectation, after all the multiplication circuit has around $30$ times more gates. But consider this, the main cost of building circuit once inputs/outputs are generated are the Symmetric encryptions for create the encrypted output tables. With AES-NI these costs are reduced to such a degree that the input/output generation dominates the cost of building circuits.
 
 			\subsection{AES encryption}
 
@@ -988,7 +990,7 @@
 						Total & $160.96$ & $59.00$ & $4,693,827$ & $980,461$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1017,7 +1019,7 @@
 						Total & $96.32$ & $59.01$ & $980,461$ & $4,693,827$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Executor}}
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Executor}}
 				\end{figure}
 
 
@@ -1050,9 +1052,69 @@
 						Total & $34.60$ & $9.26$ & $2,695,074$ & $2,695,112$ \\
 						\hline
 					\end{tabular}
-					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:HKE_2013_Add}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:HKE_2013_Add}}
 				\end{figure}
 
+				
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L_HKE 2015} & & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						\hline
+						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						\hline
+						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						\hline
+						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						\hline
+						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						\hline
+						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						\hline
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						\thickhline
+						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
+				\end{figure}
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{Lindell 2013} & & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						\hline
+						Receiving circuits and commitments & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						\hline
+						Receiving Commitents & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						\hline
+						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						\hline
+						Verify B-List 
+						\hline
+						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						\hline
+						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						\thickhline
+						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
+				\end{figure}
 			\FloatBarrier
 			\subsection{32-bit multiplication}
 
@@ -1081,7 +1143,7 @@
 						\hline
 					\end{tabular}
 
-					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Builder}}
+					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Builder}}
 				\end{figure}
 				
 				\begin{figure}[!ht]
@@ -1106,7 +1168,7 @@
 						Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
+					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1133,7 +1195,7 @@
 						Total & $164.86$ & $60.53$ & $64,968,494$ & $979,994$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
 				\end{figure}
 				
 				\begin{figure}[!ht]
@@ -1162,7 +1224,7 @@
 						Total & $99.33$ & $60.55$ & $979,994$ & $64,968,494$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:L_2013_Mul_Executor} }
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:L_2013_Mul_Executor} }
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1194,7 +1256,7 @@
 						Total & $40.89$ & $12.64$ & $63,035,917$ & $63,035,916$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:HKE_2013_Mul}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:HKE_2013_Mul}}
 				\end{figure}
 
 			\FloatBarrier
@@ -1222,7 +1284,7 @@
 						Total & $450.26$ & $171.62$ & $668,935,681$ & $2,798,517$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
+					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1247,7 +1309,7 @@
 						Total & $216.86$ & $172.77$ & $2,798,517$ & $668,935,681$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Executor}}
+					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Executor}}
 				\end{figure}
 
 
@@ -1276,7 +1338,7 @@
 						Total & $360.51$ & $187.81$ & $210,543,597$ & $1,613,443$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1305,7 +1367,7 @@
 						Total & $255.11$ & $187.83$ & $1,613,443$ & $210,543,597$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
 				\end{figure}
 
 
@@ -1338,7 +1400,7 @@
 						Total & $145.70$ & $45.26$ & $207,186,349$ & $207,186,331$ \\
 						\hline
 					\end{tabular}
-					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials.\label{table:HKE_2013_AES}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials.\label{table:HKE_2013_AES}}
 				\end{figure}
 
 

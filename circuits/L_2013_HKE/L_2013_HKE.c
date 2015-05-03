@@ -343,6 +343,9 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	setInputsFromCharArray(circuitsArray, OT_Outputs, stat_SecParam);
 
 
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	// Here we do the decommit...Getting the information we need for proving consistency later, and the
 	// inputs for the builder's wires in the evaluation circuits.
 	secretsRevealed = executor_ToJ_Set_L_2013_HKE(writeSocket, readSocket, circuitsArray, params, J_set, &J_setSize, stat_SecParam);
@@ -351,6 +354,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	setBuilderInputs_L_2013_HKE(circuitsArray, secretsRevealed -> builderInputsEval, commBuffer,
 								J_set, stat_SecParam, rawInputCircuit -> numInputs_P1);
+
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Decommit to J_set.");
+	printAndZeroBothCounters();
+
 
 	int_t_0 = timestamp();
 	int_c_0 = clock();

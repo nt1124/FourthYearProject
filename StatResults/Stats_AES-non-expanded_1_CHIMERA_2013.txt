@@ -1,0 +1,36 @@
+Circuits prep/building done.
+& $16.95$ & $7.28$ & $77$ & $77$ \\
+
+
+OT - Sender
+& $141.22$ & $33.10$ & $1,120,488$ & $476,290$ \\
+
+
+Circuits, queries and Hashed B's sent.
+& $0.40$ & $1.82$ & $204,082,568$ & $0$ \\
+
+
+Committed to inputs
+& $43.09$ & $5.41$ & $1,495,342$ & $0$ \\
+
+
+Decommit to J_set.
+& $0.22$ & $0.03$ & $414,602$ & $681$ \\
+
+
+Full Sub-Computation.
+& $164.85$ & $60.78$ & $6,544,033$ & $6,436,539$ \\
+
+
+Decommit to B List
+& $0.00$ & $0.00$ & $4,100$ & $0$ \\
+
+
+Main Logarithm Checks
+& $0.00$ & $0.00$ & $92,486$ & $0$ \\
+
+
+Total time without connection setup
+& $366.74$ & $108.42$ & $213,753,697$ & $6,913,588$ \\
+
+

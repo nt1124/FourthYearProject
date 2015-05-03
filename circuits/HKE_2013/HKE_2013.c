@@ -392,26 +392,18 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	}
 	printf("\n");
 
-	// printf("\nEvaluating Circuits ");
-	// fflush(stdout);
+	printf("\nEvaluating Circuits ");
+	fflush(stdout);
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_SetOwn[i])
 		{
-			// printf("%d, ", i);
-			// fflush(stdout);
+			printf("%d, ", i);
+			fflush(stdout);
 			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
-
-			binaryOutput = getOutputAsBinary(circuitsArray_Partner[i], &tempLength);
-			printf("Candidate Output binary : ");
-			for(j = 0; j < tempLength; j ++)
-			{
-				printf("%X", binaryOutput[j]);
-			}
-			printf("\n");
 		}
 	}
-	// printf("\n");
+	printf("\n");
 
 
 	int_t_0 = timestamp();

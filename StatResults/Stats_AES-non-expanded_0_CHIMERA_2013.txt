@@ -1,0 +1,36 @@
+OT - Receiver
+& $137.88$ & $40.37$ & $476,367$ & $1,120,565$ \\
+
+
+Receiving Circuits and auxiliary stuff.
+& $0.77$ & $1.87$ & $0$ & $204,078,468$ \\
+
+
+Receiving commitments.
+& $0.02$ & $5.40$ & $0$ & $1,499,442$ \\
+
+
+Evaluating all circuits
+& $0.37$ & $0.37$ & $681$ & $414,602$ \\
+
+
+Full Sub-Computation
+& $164.11$ & $60.40$ & $6,436,539$ & $6,544,033$ \\
+
+
+Verifying B Lists
+& $0.00$ & $0.00$ & $0$ & $4,100$ \\
+
+
+Checking Circuits Correct
+& $8.94$ & $3.85$ & $0$ & $0$ \\
+
+
+Main Logarithms.
+& $2.88$ & $0.44$ & $0$ & $92,486$ \\
+
+
+Total time without connection setup
+& $314.98$ & $112.72$ & $6,913,588$ & $213,753,697$ \\
+
+

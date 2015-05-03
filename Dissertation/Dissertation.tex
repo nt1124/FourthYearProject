@@ -96,6 +96,7 @@
 
 		For many years Yao's protocol \cite{YaoOriginal} has been the most attractive avenue of theoretical research, mainly due to its conceptual simplicity and constant round nature. In particular recent work has endeavoured to produce variants of Yao's protocol that can provide security in the presence of malicious adversaries (\cite{LindellAndPinkas2007}, \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013}, \cite{Katz_Symm_CnC_2013}, \cite{OnCommittedInputs}, \cite{LEGO_Paper}, \cite{MiniLEGO}) and to improve the efficiency of the original protocol itself (\cite{SMC_Is_Practical}, \cite{FreeXOR}).\\
 
+		The purpose of this Dissertation is to provide practical implementations for several of the more recent protocols, in some cases to first implementations, in order to run experiment to measure and compare the performance of the protcols.
 
 		% Perhaps mention here the Lindell talk where he lists off the time taken to compute certain functions and how it's improved.
 
@@ -199,11 +200,12 @@
 		Here we detail two of the two main common components of a Yao Garbled Circuits based system. The Yao Garbled Circuits themselves and Oblivious transfer.
 
 		\section{Oblivious Transfer} \label{sec:OT_Intro}
-			Oblivious Transfers are vitally important for SMC and in particular Yao's Protocol that we shall be looking at later. Oblivious Transfers protocols allow for one party(called the receiver) to get exactly one out-of two (and can be extended to k-out-of-n for $k < n$) values from another party (called the Sender). The receiver is oblivious to the other value(s), and the Sender is oblivious to which value the receiver received.\\
+			Oblivious Transfers are vitally important for SMC and in particular Yao's Protocol that we shall be looking at later. Oblivious Transfers protocols allow for one party(the Receiver) to get one out-of two values from another party (the Sender). The Receiver is oblivious to the other value, and the Sender is oblivious to which value the Receiver received.\\
 
 			We shall first talk abstractly about what functionality Oblivious Transfers should have before then giving two concrete examples of how to perform Oblivious Transfer.\\
 
-			Oblivious Transfers were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. Oblivious Transfers are vital to Yao Garbled Circuits, used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
+			Oblivious Transfers were first suggested by Rabin in \cite{Rabin81}. We define the functionality of a 1-out-of-2 OT protocol in Figure \ref{fig:OTformalDef}. As we shall see later, Oblivious Transfers are vital to Yao Garbled Circuits. 
+			% used to give the circuit Executor data it needs to evaluate the circuit under their input without revealing to the circuit Builder what those inputs were.\\
 
 			\begin{figure}[!htb]
 				\centering
@@ -226,8 +228,6 @@
 			The security of Oblivious Transfers is defined in a similar way to that of SMC, the focus is on Semi-honest(passive) and Malicious(active) adversaries. Security against these adversaries is usually either computational or statistical.\\
 
 			A protocol is considered secure with regards to Semi-honest adversaries if neither a Semi-honest adversary in the sender role cannot learn anything about which value the receiver requested, nor can a Semi-honest adversary in the role of the Receiver learn anything about values other than the one it requested. The protocol being secure against Malicious adversaries is defined by the obvious extension of the Semi-honest case.\\
-
-			At first glance the very concept of Oblivious Transfer seems fantastical, as such we provide a discussion of two approaches to the problem. Specifically we consider the two OTs which form the basis of the OTs used in the protocols we shall be implementing.\\
 
 			We primarily use OTs based on the Peikert-Vaikuntanathan-Waters OT (PVW-OT) from \cite{PVW_OT_2008} or more precisely the modifications of the PVW-OT suggested in \cite{LindellAndPinkas2011} and expanded on in \cite{Lindell_CnC_2013}. However, we also use the Naor-Pinkas (NP-OT) from \cite{NaorPinkasOT2001} for the protocol in \cite{Katz_Symm_CnC_2013}.
 
@@ -990,7 +990,7 @@
 						Total & $160.96$ & $59.00$ & $4,693,827$ & $980,461$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1019,7 +1019,7 @@
 						Total & $96.32$ & $59.01$ & $980,461$ & $4,693,827$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Executor}}
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Executor}}
 				\end{figure}
 
 
@@ -1052,8 +1052,70 @@
 						Total & $34.60$ & $9.26$ & $2,695,074$ & $2,695,112$ \\
 						\hline
 					\end{tabular}
-					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:HKE_2013_Add}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:HKE_2013_Add}}
 				\end{figure}
+
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						\hline
+						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						\hline
+						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						\hline
+						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						\hline
+						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						\hline
+						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						\hline
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						\thickhline
+						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Builder}}
+				\end{figure}
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						\hline
+						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						\hline
+						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						\hline
+						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						\hline
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						\hline
+						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						\hline
+						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						\thickhline
+						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Executor}}
+				\end{figure}
+
 
 			\FloatBarrier
 			\subsection{32-bit multiplication}
@@ -1083,7 +1145,7 @@
 						\hline
 					\end{tabular}
 
-					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Builder}}
+					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Builder}}
 				\end{figure}
 				
 				\begin{figure}[!ht]
@@ -1108,7 +1170,7 @@
 						Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
+					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1135,7 +1197,7 @@
 						Total & $164.86$ & $60.53$ & $64,968,494$ & $979,994$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
 				\end{figure}
 				
 				\begin{figure}[!ht]
@@ -1164,7 +1226,7 @@
 						Total & $99.33$ & $60.55$ & $979,994$ & $64,968,494$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:L_2013_Mul_Executor} }
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:L_2013_Mul_Executor} }
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1196,7 +1258,68 @@
 						Total & $40.89$ & $12.64$ & $63,035,917$ & $63,035,916$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:HKE_2013_Mul}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:HKE_2013_Mul}}
+				\end{figure}
+
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						\hline
+						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						\hline
+						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						\hline
+						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						\hline
+						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						\hline
+						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						\hline
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						\thickhline
+						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Builder}}
+				\end{figure}
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						\hline
+						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						\hline
+						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						\hline
+						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						\hline
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						\hline
+						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						\hline
+						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						\thickhline
+						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Executor}}
 				\end{figure}
 
 			\FloatBarrier
@@ -1224,7 +1347,7 @@
 						Total & $450.26$ & $171.62$ & $668,935,681$ & $2,798,517$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
+					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1249,7 +1372,7 @@
 						Total & $216.86$ & $172.77$ & $2,798,517$ & $668,935,681$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Executor}}
+					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Executor}}
 				\end{figure}
 
 
@@ -1278,7 +1401,7 @@
 						Total & $360.51$ & $187.81$ & $210,543,597$ & $1,613,443$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
+					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1307,7 +1430,7 @@
 						Total & $255.11$ & $187.83$ & $1,613,443$ & $210,543,597$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Executor in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
+					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
 				\end{figure}
 
 
@@ -1340,7 +1463,68 @@
 						Total & $145.70$ & $45.26$ & $207,186,349$ & $207,186,331$ \\
 						\hline
 					\end{tabular}
-					\caption{This table shows the performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials.\label{table:HKE_2013_AES}}
+					\caption{The performance of the Huang-Katz-Evans 2013 protocol evaluating the AES encryption circuit averaged over 100 trials.\label{table:HKE_2013_AES}}
+				\end{figure}
+
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Builder} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						\hline
+						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						\hline
+						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						\hline
+						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						\hline
+						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						\hline
+						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						\hline
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						\thickhline
+						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Builder}}
+				\end{figure}
+
+				\begin{figure}[!ht]
+					\begin{tabular}{| p{3.5cm} | c c c c |}
+						\hline
+						\textbf{L-HKE 2015} & & \textbf{Executor} & & \\
+						\hline
+						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
+						\thickhline
+						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						\hline
+						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						\hline
+						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						\hline
+						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						\hline
+						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						\hline
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						\hline
+						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						\hline
+						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						\thickhline
+						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						\hline
+					\end{tabular}
+					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Executor}}
 				\end{figure}
 
 

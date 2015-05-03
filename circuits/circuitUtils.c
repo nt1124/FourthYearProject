@@ -137,11 +137,10 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 
 			for(j = 0; j < curLength; j ++)
 			{
-				printf("%d", curBinaryStr[j]);
-
+				// printf("%d", curBinaryStr[j]);
 				outputBitCounts[curBinaryStr[j]][j] ++; 
 			}
-			printf("\n");
+			// printf("\n");
 			free(curBinaryStr);
 		}
 	}

@@ -317,19 +317,6 @@ struct jSetRevealHKE *jSetRevealDeserialise(struct Circuit **circuitsArray_Partn
 
 			// memcpy(output -> revealedSeeds[j], inputBuffer + tempOffset, 256 * sizeof(ub4));
 			// tempOffset += (256 * sizeof(ub4));
-
-			/*
-			printf("~~~ %d\n", j);
-			for(i = 0; i < 256; i ++)
-			{
-				memcpy(&tempUB4, inputBuffer + tempOffset, sizeof(ub4));
-				output -> revealedSeeds[j][i] = tempUB4;
-				tempOffset += (sizeof(ub4));
-
-				printf("%lu\n", output -> revealedSeeds[j][i]);
-			}
-			printf("\n");
-			*/
 		}
 	}
 
