@@ -159,12 +159,14 @@ struct public_builderPRS_Keys *computePublicInputs(struct secret_builderPRS_Keys
 
 	public_inputs = init_public_input_keys(secret_inputs -> numKeyPairs, secret_inputs -> stat_SecParam);
 
+	#pragma omp parallel for default(shared) private(i) schedule(auto)
 	for(i = 0; i < secret_inputs -> numKeyPairs; i ++)
 	{
 		public_inputs -> public_keyPairs[i][0] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_keyPairs[i][0], params);
 		public_inputs -> public_keyPairs[i][1] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_keyPairs[i][1], params);
 	}
 
+	#pragma omp parallel for default(shared) private(i) schedule(auto)
 	for(i = 0; i < secret_inputs -> stat_SecParam; i ++)
 	{
 		public_inputs -> public_circuitKeys[i] = fixedPointMultiplication(gPreComputes, secret_inputs -> secret_circuitKeys[i], params);
@@ -401,6 +403,7 @@ struct eccPoint ***getAllConsistentInputsAsPoints(mpz_t *circuitSecrets, struct 
 	int i, j, k;
 
 
+	#pragma omp parallel for default(shared) private(i, j, k) schedule(auto)
 	for(i = 0; i < numCircuits; i ++)
 	{
 		outputPoints[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
@@ -424,6 +427,8 @@ struct eccPoint ***getAllConsistentInputsAsPoints(mpz_t *circuitSecrets, struct 
 	struct eccPoint ***outputPoints = (struct eccPoint ***) calloc(numCircuits, sizeof(struct eccPoint **));
 	int i, j, k;
 
+
+	#pragma omp parallel for default(shared) private(i, j, k) schedule(auto)
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x01 == J_set[i])

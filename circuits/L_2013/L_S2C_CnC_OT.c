@@ -67,29 +67,21 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
 	}
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Input Prep");
+	printAndZeroBothCounters();
+
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, *state, stat_SecParam, bLists[0], bLists[1],
 													params, secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
-
-	/*
-	// Send all the public_builder_PRS_keys, thus commiting the Builder to the soon to follow circuits.
-	sendPublicCommitments(writeSocket, readSocket, public_inputs, params);
-
-	for(i = 0; i < stat_SecParam; i++)
-	{
-		sendCircuit(writeSocket, readSocket, circuitsArray[i]);
-	}
-
-	commBufferLen = 0;
-	commBuffer = serialise3D_UChar_Array(hashedB_Lists, rawInputCircuit -> numOutputs, 16, &commBufferLen);
-	sendBoth(writeSocket, commBuffer, commBufferLen);
-	free(commBuffer);
-	*/
-
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Input Prep and Building");
-	fflush(stdout);
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Building");
 	printAndZeroBothCounters();
 
 
@@ -432,6 +424,10 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
 
+
+	// If the secure computation to detect cheating returned NULL it means everything is fine.
+	// Just use the normal majority output. Else the Secure Comp. to detect cheating returned X.
+	// Then we use the Raw Binary Circuit to compute the true answer. 
 	if(NULL == SC_ReturnStruct -> output)
 	{
 		printMajorityOutputAsBinary(circuitsArray, stat_SecParam, J_set);
@@ -444,12 +440,13 @@ void runExecutor_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 		printOutputHexString_Raw(rawInputCircuit);
 	}
 
-	// testAES_FromRandom();
-
+	
+	/*
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		freeCircuitStruct(circuitsArray[i], 1);
 	}
+	*/
 	freeRawCircuit(rawInputCircuit);
 	free_idAndValueChain(startOfInputChain);
 

@@ -56,13 +56,21 @@ void runBuilder_LP_2010_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndV
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, numCircuits, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Input generation.");
+	printAndZeroBothCounters();
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
+
 	inputArray = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
 	circuitsArray = buildAllCircuits(rawInputCircuit, startOfInputChain, *state, numCircuits, params,
 									secret_inputs, public_inputs, circuitCTXs, circuitSeeds);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit prep and building.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuit Building.");
 	printAndZeroBothCounters();
 
 

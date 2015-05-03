@@ -76,13 +76,20 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 		Xj_checkValues[i] = generateRandBytes(16, 16);
 	}
 
+	int_c_1 = clock();
+	int_t_1 = timestamp();
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits Input Generation.");
+	printAndZeroBothCounters();
+
+	int_t_0 = timestamp();
+	int_c_0 = clock();
 
 	circuitsArray = buildAllCircuitsConsistentOutput(rawInputCircuit, startOfInputChain, NP_consistentInputs, bLists[0], bLists[1],
 													params, circuitCTXs, stat_SecParam);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
-	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits prep/building done.");
+	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Circuits Building Done.");
 	printAndZeroBothCounters();
 
 
@@ -304,6 +311,12 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 		circuitsArray[i] = receiveFullCircuit(writeSocket, readSocket);
 	}
 
+	// Executor receives the Hashed b Lists
+	commBufferLen = 0;
+	bufferOffset = 0;
+	commBuffer = receiveBoth(readSocket, commBufferLen);
+	outputHashTable = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
+	free(commBuffer);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -313,14 +326,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 
 	int_c_0 = clock();
 	int_t_0 = timestamp();
-
-	// Executor receives the Hashed b Lists
-	commBufferLen = 0;
-	bufferOffset = 0;
-	commBuffer = receiveBoth(readSocket, commBufferLen);
-	outputHashTable = deserialise3D_UChar_Array(commBuffer, rawInputCircuit -> numOutputs, 16, &bufferOffset);
-	free(commBuffer);
-
 
 	commBufferLen = 0;
 	bufferOffset = 0;
@@ -450,11 +455,6 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	printTiming(&int_t_0, &int_t_1, int_c_0, int_c_1, "Main Logarithms.");
 	printAndZeroBothCounters();
 
-	ext_c_1 = clock();
-	ext_t_1 = timestamp();
-
-	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
-
 
 	if(NULL == cheatDetectOutput)
 	{
@@ -467,6 +467,11 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 		evaluateRawCircuit(rawInputCircuit);
 		printOutputHexString_Raw(rawInputCircuit);
 	}
+
+	ext_c_1 = clock();
+	ext_t_1 = timestamp();
+
+	printTiming(&ext_t_0, &ext_t_1, ext_c_0, ext_c_1, "Total time without connection setup");
 
 
 	close_client_socket(readSocket);

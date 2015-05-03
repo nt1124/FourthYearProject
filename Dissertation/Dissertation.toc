@@ -27,62 +27,65 @@
 \contentsline {subsection}{\numberline {3.2.2}Yao Garbled Circuits}{17}{subsection.3.2.2}
 \contentsline {subsubsection}{Free XOR Improvement}{18}{section*.18}
 \contentsline {subsection}{\numberline {3.2.3}Security of Yao Garbled Circuits}{18}{subsection.3.2.3}
-\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{18}{subsection.3.2.4}
-\contentsline {subsubsection}{Concept}{18}{section*.19}
+\contentsline {subsection}{\numberline {3.2.4}Cut and Choose - Security against Malicious and Covert Adversaries}{19}{subsection.3.2.4}
+\contentsline {subsubsection}{Concept}{19}{section*.19}
 \contentsline {subsubsection}{Issues}{19}{section*.20}
-\contentsline {chapter}{\numberline {4}Protocols}{21}{chapter.4}
+\contentsline {chapter}{\numberline {4}Summary of Protocols to be implemented}{21}{chapter.4}
 \contentsline {section}{\numberline {4.1}Lindell and Pinkas 2011}{21}{section.4.1}
-\contentsline {subsubsection}{Cut and Choose Oblivious Transfer}{21}{section*.22}
-\contentsline {subsubsection}{Consistency of building party's inputs}{22}{section*.23}
-\contentsline {section}{\numberline {4.2}Lindell 2013}{22}{section.4.2}
-\contentsline {subsubsection}{Secure Computation to detect cheating}{22}{section*.25}
-\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{23}{section.4.3}
-\contentsline {subsection}{\numberline {4.3.1}Consistency of party's inputs}{23}{subsection.4.3.1}
-\contentsline {subsection}{\numberline {4.3.2}Output determination}{24}{subsection.4.3.2}
-\contentsline {subsection}{\numberline {4.3.3}Advantages of symmetrical cut-and-choose}{25}{subsection.4.3.3}
-\contentsline {section}{\numberline {4.4}Merging Lindell 2013 and HKE 2013}{25}{section.4.4}
-\contentsline {subsection}{\numberline {4.4.1}Problems to address}{25}{subsection.4.4.1}
-\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{26}{subsection.4.4.2}
-\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{26}{subsection.4.4.3}
-\contentsline {subsubsection}{An attack on the OT optimisation}{26}{section*.27}
-\contentsline {subsubsection}{Rolling Back}{27}{section*.28}
-\contentsline {subsection}{\numberline {4.4.4}Hiding output from Builder}{27}{subsection.4.4.4}
-\contentsline {chapter}{\numberline {5}Implementation Details}{28}{chapter.5}
-\contentsline {section}{\numberline {5.1}Yao Garbled Circuits implementation}{28}{section.5.1}
-\contentsline {subsection}{\numberline {5.1.1}Tillich-Smart Circuit Files}{28}{subsection.5.1.1}
-\contentsline {subsection}{\numberline {5.1.2}Creating binary circuits}{29}{subsection.5.1.2}
-\contentsline {section}{\numberline {5.2}Elliptic Curve implementation}{29}{section.5.2}
-\contentsline {subsection}{\numberline {5.2.1}Elliptic Curve point scalar multiplication}{30}{subsection.5.2.1}
-\contentsline {section}{\numberline {5.3}Verifiable Secret Sharing and Multi-precision Polynomials}{31}{section.5.3}
-\contentsline {subsection}{\numberline {5.3.1}Multi-precision polynomials}{31}{subsection.5.3.1}
-\contentsline {subsection}{\numberline {5.3.2}Shamir Secret Sharing}{32}{subsection.5.3.2}
-\contentsline {subsection}{\numberline {5.3.3}Verifiable Secret Sharing}{32}{subsection.5.3.3}
-\contentsline {section}{\numberline {5.4}Peikert, Vaikuntanathan and Waters OT}{32}{section.5.4}
-\contentsline {chapter}{\numberline {6}Experiments}{33}{chapter.6}
-\contentsline {section}{\numberline {6.1}Measurement metrics}{33}{section.6.1}
-\contentsline {section}{\numberline {6.2}Testing Environment}{33}{section.6.2}
-\contentsline {section}{\numberline {6.3}Notes on the form of Experiments}{33}{section.6.3}
-\contentsline {section}{\numberline {6.4}Expectations}{34}{section.6.4}
-\contentsline {subsection}{\numberline {6.4.1}32-bit addition}{34}{subsection.6.4.1}
-\contentsline {subsection}{\numberline {6.4.2}32-bit multiplication}{34}{subsection.6.4.2}
-\contentsline {subsection}{\numberline {6.4.3}AES encryption}{34}{subsection.6.4.3}
-\contentsline {section}{\numberline {6.5}Results}{34}{section.6.5}
-\contentsline {subsection}{\numberline {6.5.1}32-bit addition}{34}{subsection.6.5.1}
-\contentsline {subsection}{\numberline {6.5.2}32-bit multiplication}{38}{subsection.6.5.2}
-\contentsline {subsection}{\numberline {6.5.3}AES encryption}{42}{subsection.6.5.3}
-\contentsline {chapter}{\numberline {7}Conclusions}{46}{chapter.7}
-\contentsline {chapter}{\numberline {A}Benchmarking components}{49}{Appendix.1.A}
-\contentsline {section}{\numberline {A.1}Communications}{49}{section.1.A.1}
-\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{49}{section.1.A.2}
-\contentsline {section}{\numberline {A.3}Oblivious Transfer}{49}{section.1.A.3}
-\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{49}{subsection.1.A.3.1}
-\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{49}{subsection.1.A.3.2}
-\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{49}{subsection.1.A.3.3}
-\contentsline {section}{\numberline {A.4}Circuit Building}{49}{section.1.A.4}
-\contentsline {section}{\numberline {A.5}Circuit Evaluation}{50}{section.1.A.5}
-\contentsline {chapter}{\numberline {B}Implementation guide}{51}{Appendix.1.B}
-\contentsline {section}{\numberline {B.1}Building}{51}{section.1.B.1}
-\contentsline {subsection}{\numberline {B.1.1}Dependencies}{51}{subsection.1.B.1.1}
-\contentsline {subsection}{\numberline {B.1.2}Compilation}{51}{subsection.1.B.1.2}
-\contentsline {section}{\numberline {B.2}Running}{51}{section.1.B.2}
-\contentsline {section}{\numberline {B.3}Source Code Documentation}{51}{section.1.B.3}
+\contentsline {subsection}{\numberline {4.1.1}Overview}{21}{subsection.4.1.1}
+\contentsline {subsection}{\numberline {4.1.2}Cut and Choose Oblivious Transfer}{21}{subsection.4.1.2}
+\contentsline {subsection}{\numberline {4.1.3}Consistency of building party's inputs}{22}{subsection.4.1.3}
+\contentsline {subsubsection}{Extended Diffie-Hellman Tuples}{22}{section*.21}
+\contentsline {section}{\numberline {4.2}Lindell 2013}{23}{section.4.2}
+\contentsline {subsection}{\numberline {4.2.1}Overview}{23}{subsection.4.2.1}
+\contentsline {subsection}{\numberline {4.2.2}Secure Computation to detect cheating}{23}{subsection.4.2.2}
+\contentsline {subsubsection}{The Oblivious Transfer Optimisation}{24}{section*.22}
+\contentsline {section}{\numberline {4.3}Huang, Katz and Evans 2013}{24}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Consistency of party's inputs}{25}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Output determination}{25}{subsection.4.3.2}
+\contentsline {subsection}{\numberline {4.3.3}Advantages of symmetrical cut-and-choose}{26}{subsection.4.3.3}
+\contentsline {section}{\numberline {4.4}Merging Lindell 2013 and HKE 2013}{26}{section.4.4}
+\contentsline {subsection}{\numberline {4.4.1}Problems to address}{27}{subsection.4.4.1}
+\contentsline {subsection}{\numberline {4.4.2}Consistency of Builder's inputs}{27}{subsection.4.4.2}
+\contentsline {subsection}{\numberline {4.4.3}Ensuring consistency of Executor's inputs}{28}{subsection.4.4.3}
+\contentsline {subsubsection}{An attack on the OT optimisation}{28}{section*.24}
+\contentsline {subsubsection}{Rolling Back}{28}{section*.25}
+\contentsline {subsection}{\numberline {4.4.4}Hiding output from Builder}{28}{subsection.4.4.4}
+\contentsline {chapter}{\numberline {5}Experiments}{30}{chapter.5}
+\contentsline {section}{\numberline {5.1}Measurement metrics}{30}{section.5.1}
+\contentsline {section}{\numberline {5.2}Testing Environment}{30}{section.5.2}
+\contentsline {section}{\numberline {5.3}Notes on the form of Experiments}{30}{section.5.3}
+\contentsline {section}{\numberline {5.4}Expectations}{31}{section.5.4}
+\contentsline {subsection}{\numberline {5.4.1}32-bit addition}{31}{subsection.5.4.1}
+\contentsline {subsection}{\numberline {5.4.2}32-bit multiplication}{31}{subsection.5.4.2}
+\contentsline {subsection}{\numberline {5.4.3}AES encryption}{31}{subsection.5.4.3}
+\contentsline {section}{\numberline {5.5}Results}{31}{section.5.5}
+\contentsline {subsection}{\numberline {5.5.1}32-bit addition}{31}{subsection.5.5.1}
+\contentsline {subsection}{\numberline {5.5.2}32-bit multiplication}{35}{subsection.5.5.2}
+\contentsline {subsection}{\numberline {5.5.3}AES encryption}{39}{subsection.5.5.3}
+\contentsline {chapter}{\numberline {6}Conclusions}{43}{chapter.6}
+\contentsline {chapter}{\numberline {A}Benchmarking components}{46}{Appendix.1.A}
+\contentsline {section}{\numberline {A.1}Communications}{46}{section.1.A.1}
+\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{46}{section.1.A.2}
+\contentsline {section}{\numberline {A.3}Oblivious Transfer}{46}{section.1.A.3}
+\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{46}{subsection.1.A.3.1}
+\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{46}{subsection.1.A.3.2}
+\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{46}{subsection.1.A.3.3}
+\contentsline {section}{\numberline {A.4}Circuit Building}{46}{section.1.A.4}
+\contentsline {section}{\numberline {A.5}Circuit Evaluation}{47}{section.1.A.5}
+\contentsline {chapter}{\numberline {B}Implementation usage guide}{48}{Appendix.1.B}
+\contentsline {section}{\numberline {B.1}Building}{48}{section.1.B.1}
+\contentsline {subsection}{\numberline {B.1.1}Dependencies}{48}{subsection.1.B.1.1}
+\contentsline {subsection}{\numberline {B.1.2}Compilation}{48}{subsection.1.B.1.2}
+\contentsline {section}{\numberline {B.2}Running}{48}{section.1.B.2}
+\contentsline {chapter}{\numberline {C}Implementation Details}{49}{Appendix.1.C}
+\contentsline {section}{\numberline {C.1}Yao Garbled Circuits implementation}{49}{section.1.C.1}
+\contentsline {subsection}{\numberline {C.1.1}Tillich-Smart Circuit Files}{49}{subsection.1.C.1.1}
+\contentsline {subsection}{\numberline {C.1.2}Creating binary circuits}{50}{subsection.1.C.1.2}
+\contentsline {section}{\numberline {C.2}Elliptic Curve implementation}{50}{section.1.C.2}
+\contentsline {subsection}{\numberline {C.2.1}Elliptic Curve point scalar multiplication}{51}{subsection.1.C.2.1}
+\contentsline {subsubsection}{Fixed Point Scalar Multiplication}{52}{section*.28}
+\contentsline {section}{\numberline {C.3}Verifiable Secret Sharing and Multi-precision Polynomials}{52}{section.1.C.3}
+\contentsline {subsection}{\numberline {C.3.1}Multi-precision polynomials}{53}{subsection.1.C.3.1}
+\contentsline {subsection}{\numberline {C.3.2}Shamir Secret Sharing}{53}{subsection.1.C.3.2}
+\contentsline {subsection}{\numberline {C.3.3}Verifiable Secret Sharing}{53}{subsection.1.C.3.3}
