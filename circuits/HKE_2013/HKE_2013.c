@@ -53,7 +53,7 @@ int HKE_performCircuitChecks(struct Circuit **circuitsArrayPartner, struct RawCi
 	resultArray = (int * ) calloc(J_setSize, sizeof(int));
 	// Having got all the seeds, now construct our own version of the given circuits, then compare our
 	// versions to the version give by the other party.
-	// #pragma omp parallel for default(shared) private(j, k, tempGarbleCircuit)
+	#pragma omp parallel for default(shared) private(j, k, tempGarbleCircuit)
 	for(j = 0; j < J_setSize; j ++)
 	{
 		k = idList[j];
@@ -326,11 +326,8 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printAndZeroBothCounters();
 
 
-
 	int_t_0 = timestamp();
 	int_c_0 = clock();
-
-
 
 	commBufferWrite = jSetRevealSerialise(circuitsArray_Own, startOfInputChain, NaorPinkasInputs, aList, inputBitsOwn, outputStruct_Own, circuitSeeds, J_setPartner,
 									circuitsArray_Own[0] -> numInputsBuilder, rawInputCircuit -> numOutputs, numCircuits, &commBufferWriteLen);
@@ -389,18 +386,32 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printAndZeroBothCounters();
 
 
-	printf("\nEvaluating Circuits ");
-	fflush(stdout);
+	for(j = 0; j < circuitsArray_Own[0] -> numInputsBuilder; j ++)
+	{
+		printf("%d", inputBitsOwn[j]);
+	}
+	printf("\n");
+
+	// printf("\nEvaluating Circuits ");
+	// fflush(stdout);
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == J_SetOwn[i])
 		{
-			printf("%d, ", i);
-			fflush(stdout);
+			// printf("%d, ", i);
+			// fflush(stdout);
 			runCircuitExec( circuitsArray_Partner[i], 0, 0 );
+
+			binaryOutput = getOutputAsBinary(circuitsArray_Partner[i], &tempLength);
+			printf("Candidate Output binary : ");
+			for(j = 0; j < tempLength; j ++)
+			{
+				printf("%X", binaryOutput[j]);
+			}
+			printf("\n");
 		}
 	}
-	printf("\n");
+	// printf("\n");
 
 
 	int_t_0 = timestamp();

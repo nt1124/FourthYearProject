@@ -889,7 +889,7 @@
 			Before giving the results of our experiments we shall first give some expectations we had for each circuit and some thoughts on the circuits themselves.
 
 			\subsection{32-bit addition}
-				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as 32-bit integers.\\
+				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as a 33-bit integers (allowing for overflow).\\
 
 				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to fairly high.
 				
@@ -897,14 +897,18 @@
 
 				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
 
-				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance.
+				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance. We expect to see the costs of OTs to remain the same and for the circuit building/checking times to be marginally affected compared to the addition circuit.\\
+
+				At first one might be surprised by this second expectation, after all the multiplication circuit has around $30$ times more gates. But consider this, the main cost of building circuit once inputs/outputs are generated are the Symmetric encryptions for create the encrypted output tables. With AES-NI these costs are reduced to such a degree that the input/output generation dominates the cost of building circuits.
 
 			\subsection{AES encryption}
 
-				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates.
+				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates, 128 inputs for each party and 128 outputs. One party inputs a message, the other inputs a key.\\
+
+				We considered experimenting with the alternative circuit provided by \cite{NigelCircuits} which takes in an expanded key schedule reducing the circuit size in exchange for an increase in the number of inputs by a factor of $10$ for the Executor. However, while the reduction in circuit size would reduce building, checking and evaluation time this would be more than nullified by the increase in the number of inputs, not only in terms of OTs but also in terms of generating consistent inputs.
 
 		\section{Results}
-			We now give results of using each of the Protocol on the test circuits, we have generated sets of random inputs for each circuit using a Python script.
+			We now give results of using each of the Protocol on the test circuits with some comments on the results for each table, these comments will not focus overly much on the comparison between the protocols that will be saved for later.
 
 			\FloatBarrier
 			\subsection{32-bit addition}
@@ -912,7 +916,7 @@
 
 				% We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to fairly high.
 
-				\renewcommand{\arraystretch}{1.2}
+				\renewcommand{\arraystretch}{1.1}
 
 				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
@@ -934,7 +938,7 @@
 						Total & $105.99$ & $41.02$ & $7,648,076$ & $737,109$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Builder}}
+					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:LP_2010_Add_Builder}}
 				\end{figure}
 					
 				\begin{figure}[!ht]
@@ -959,7 +963,7 @@
 						Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
 						\hline
 					\end{tabular}
-					\caption{These tables show the performance of the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Executor}}
+					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Executor}}
 				\end{figure}
 
 				\begin{figure}[!ht]
