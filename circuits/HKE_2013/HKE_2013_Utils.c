@@ -6,14 +6,13 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 	int i, j, index;
 
 
-	// #pragma omp parallel for default(shared) private(i, j, index, G_a1, invG_a1)
+	#pragma omp parallel for default(shared) private(i, j, index, G_a1, invG_a1)
 	for(i = 0; i < numCircuits; i ++)
 	{
 
 		if(0x01 == J_set[i])
 		{
 			output[i] = (struct eccPoint **) calloc(2 * numInputs, sizeof(struct eccPoint *));
-			// index = 0;
 
 			for(j = 0; j < numInputs; j ++)
 			{
@@ -26,14 +25,7 @@ struct eccPoint ***computeNaorPinkasInputsForJSet(struct eccPoint *C, mpz_t **aL
 				output[i][index + 1] = groupOp(C, invG_a1, params);
 				clearECC_Point(G_a1);
 				clearECC_Point(invG_a1);
-
-				// gmp_printf("%d - %d 0 - %Zd\n", i, j, aLists[i][index]);
-				// gmp_printf("%d - %d 1 - %Zd\n", i, j, aLists[i][index + 1]);
-
-				// index += 2;
 			}
-
-			// printf("\n");
 		}
 	}
 
