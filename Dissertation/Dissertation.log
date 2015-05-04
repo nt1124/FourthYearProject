@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  4 MAY 2015 18:01
+This is pdfTeX, Version 3.1415926-2.5-1.40.14 (TeX Live 2013/Debian) (format=pdflatex 2015.3.11)  4 MAY 2015 20:23
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1968,334 +1968,327 @@ Underfull \hbox (badness 10000) in paragraph at lines 811--812
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 841--841
+Underfull \hbox (badness 10000) in paragraph at lines 833--833
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 829--850
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 823--842
 [][] 
  []
 
 [32]
-Underfull \hbox (badness 5064) in paragraph at lines 864--864
+Underfull \hbox (badness 5064) in paragraph at lines 854--854
 []\OT1/cmr/m/n/10.95 Receiving Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 854--875
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 846--865
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 889--889
+Underfull \hbox (badness 10000) in paragraph at lines 868--869
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 870--871
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 881--881
 []\OT1/cmr/m/n/10.95 Building Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 893--893
+Underfull \hbox (badness 10000) in paragraph at lines 885--885
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 895--895
+Underfull \hbox (badness 10000) in paragraph at lines 887--887
 []\OT1/cmr/m/n/10.95 Partially Open Check
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 897--897
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 881--906
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 875--898
 [][] 
  []
 
 
-Underfull \hbox (badness 5064) in paragraph at lines 918--918
+Underfull \hbox (badness 5064) in paragraph at lines 908--908
 []\OT1/cmr/m/n/10.95 Receiving Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 920--920
+Underfull \hbox (badness 10000) in paragraph at lines 910--910
 []\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 924--924
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 902--925
+[][] 
  []
 
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 910--935
+[33]
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 931--958
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 949--949
-[]\OT1/cmr/m/n/10.95 Sending Cir-cuits and
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 940--968
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 979--979
+Underfull \hbox (badness 10000) in paragraph at lines 968--968
 []\OT1/cmr/m/n/10.95 Building Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 983--983
+Underfull \hbox (badness 10000) in paragraph at lines 972--972
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 987--987
+Underfull \hbox (badness 10000) in paragraph at lines 976--976
 []\OT1/cmr/m/n/10.95 Partially Open Check
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 989--989
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 973--998
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 964--987
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1010--1010
+Underfull \hbox (badness 10000) in paragraph at lines 997--997
 []\OT1/cmr/m/n/10.95 Receiving cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1014--1014
+Underfull \hbox (badness 10000) in paragraph at lines 1001--1001
 []\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1018--1018
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1002--1029
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 991--1016
 [][] 
  []
 
-[33] [34] [35]
-Underfull \hbox (badness 10000) in paragraph at lines 1053--1053
+[34]
+Underfull \hbox (badness 10000) in paragraph at lines 1036--1036
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1041--1062
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1026--1045
 [][] 
  []
 
 
-Underfull \hbox (badness 5064) in paragraph at lines 1077--1077
+Underfull \hbox (badness 5064) in paragraph at lines 1058--1058
 []\OT1/cmr/m/n/10.95 Receiving Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1067--1088
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1050--1069
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1100--1100
+Underfull \hbox (badness 10000) in paragraph at lines 1081--1081
 []\OT1/cmr/m/n/10.95 Building Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1104--1104
+Underfull \hbox (badness 10000) in paragraph at lines 1085--1085
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1106--1106
+Underfull \hbox (badness 10000) in paragraph at lines 1087--1087
 []\OT1/cmr/m/n/10.95 Partially Open Check
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1108--1108
+Underfull \hbox (badness 1297) in paragraph at lines 1089--1089
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1092--1117
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1075--1098
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1129--1129
+Underfull \hbox (badness 10000) in paragraph at lines 1108--1108
 []\OT1/cmr/m/n/10.95 Receiving cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1131--1131
+Underfull \hbox (badness 10000) in paragraph at lines 1110--1110
 []\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1135--1135
+Underfull \hbox (badness 1297) in paragraph at lines 1114--1114
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1121--1146
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1102--1125
+[][] 
+ []
+
+[35]
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1131--1158
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1159--1159
-[]\OT1/cmr/m/n/10.95 Sending Cir-cuits and
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1150--1178
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1189--1189
+Underfull \hbox (badness 10000) in paragraph at lines 1168--1168
 []\OT1/cmr/m/n/10.95 Building Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1193--1193
+Underfull \hbox (badness 10000) in paragraph at lines 1172--1172
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1176--1176
+[]\OT1/cmr/m/n/10.95 Partially Open Check
+ []
+
+
+Underfull \hbox (badness 1297) in paragraph at lines 1178--1178
+[]\OT1/cmr/m/n/10.95 Sub-computation to de-
+ []
+
+
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1164--1187
+[][] 
  []
 
 
 Underfull \hbox (badness 10000) in paragraph at lines 1197--1197
-[]\OT1/cmr/m/n/10.95 Partially Open Check
- []
-
-
-Underfull \hbox (badness 1297) in paragraph at lines 1199--1199
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1183--1208
-[][] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1220--1220
 []\OT1/cmr/m/n/10.95 Receiving cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1224--1224
+Underfull \hbox (badness 10000) in paragraph at lines 1201--1201
 []\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1228--1228
+Underfull \hbox (badness 1297) in paragraph at lines 1205--1205
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1212--1239
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1191--1216
 [][] 
  []
 
-[36
-
-] [37] [38]
-Underfull \hbox (badness 10000) in paragraph at lines 1260--1260
+[36]
+Underfull \hbox (badness 10000) in paragraph at lines 1237--1237
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1248--1269
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1227--1246
 [][] 
  []
 
 
-Underfull \hbox (badness 5064) in paragraph at lines 1283--1283
+Underfull \hbox (badness 5064) in paragraph at lines 1258--1258
 []\OT1/cmr/m/n/10.95 Receiving Cir-cuits and
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1273--1294
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1250--1269
 [][] 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1313--1313
+[37]
+Underfull \hbox (badness 10000) in paragraph at lines 1286--1286
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1315--1315
+Underfull \hbox (badness 10000) in paragraph at lines 1288--1288
 []\OT1/cmr/m/n/10.95 Partially Open Check
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1317--1317
+Underfull \hbox (badness 1297) in paragraph at lines 1290--1290
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1301--1326
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1276--1299
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1338--1338
+Underfull \hbox (badness 10000) in paragraph at lines 1309--1309
 []\OT1/cmr/m/n/10.95 Receiving cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1340--1340
+Underfull \hbox (badness 10000) in paragraph at lines 1311--1311
 []\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1344--1344
+Underfull \hbox (badness 1297) in paragraph at lines 1315--1315
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
 
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1330--1355
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1303--1326
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1369--1369
-[]\OT1/cmr/m/n/10.95 Sending Cir-cuits and
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1333--1360
+[][] 
  []
 
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1360--1388
-[] 
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1399--1399
+[38]
+Underfull \hbox (badness 10000) in paragraph at lines 1370--1370
 []\OT1/cmr/m/n/10.95 Building Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1403--1403
+Underfull \hbox (badness 10000) in paragraph at lines 1374--1374
 []\OT1/cmr/m/n/10.95 Sending Cir-cuits and
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1407--1407
+Underfull \hbox (badness 10000) in paragraph at lines 1378--1378
 []\OT1/cmr/m/n/10.95 Partially Open Check
  []
 
 
-Underfull \hbox (badness 1297) in paragraph at lines 1409--1409
+Underfull \hbox (badness 1297) in paragraph at lines 1380--1380
+[]\OT1/cmr/m/n/10.95 Sub-computation to de-
+ []
+
+
+Overfull \hbox (10.51613pt too wide) in paragraph at lines 1366--1389
+[][] 
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1399--1399
+[]\OT1/cmr/m/n/10.95 Receiving cir-cuits and
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1403--1403
+[]\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
+ []
+
+
+Underfull \hbox (badness 1297) in paragraph at lines 1407--1407
 []\OT1/cmr/m/n/10.95 Sub-computation to de-
  []
 
@@ -2304,85 +2297,105 @@ Overfull \hbox (10.51613pt too wide) in paragraph at lines 1393--1418
 [][] 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1430--1430
-[]\OT1/cmr/m/n/10.95 Receiving cir-cuits and
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1434--1434
-[]\OT1/cmr/m/n/10.95 Receive par-tial cir-cuit
- []
-
-
-Underfull \hbox (badness 1297) in paragraph at lines 1438--1438
-[]\OT1/cmr/m/n/10.95 Sub-computation to de-
- []
-
-
-Overfull \hbox (10.51613pt too wide) in paragraph at lines 1422--1449
-[][] 
- []
-
-[39
-
-] [40] [41]
+[39] [40]
 Chapter 6.
-[42
+[41
 
 ]
-Underfull \hbox (badness 10000) in paragraph at lines 1513--1516
+Underfull \hbox (badness 10000) in paragraph at lines 1482--1485
 \OT1/cmtt/m/n/10.95 Programs / PROgramming _ Computation _ on _ EncryptEd _ Dat
 a _ %28PROCEED % 29 .
  []
 
-[43
+[42
 
 ]
-Underfull \hbox (badness 3209) in paragraph at lines 1579--1583
+Underfull \hbox (badness 3209) in paragraph at lines 1548--1552
 []\OT1/cmr/m/n/10.95 N. Sul-li-van, \OT1/cmr/m/it/10.95 A (rel-a-tively easy to
  un-der-stand) primer on el-lip-tic curve
  []
 
 
-Underfull \hbox (badness 4120) in paragraph at lines 1579--1583
+Underfull \hbox (badness 4120) in paragraph at lines 1548--1552
 \OT1/cmr/m/it/10.95 cryp-tog-ra-phy\OT1/cmr/m/n/10.95 , Oc-to-ber 2013, []$\OT1
 /cmtt/m/n/10.95 http : / / arstechnica . com / security / 2013 / 10 /
  []
 
 
-Overfull \hbox (19.8932pt too wide) in paragraph at lines 1579--1583
+Overfull \hbox (19.8932pt too wide) in paragraph at lines 1548--1552
 \OT1/cmtt/m/n/10.95 a-[]relatively-[]easy-[]to-[]understand-[]primer-[]on-[]ell
 iptic-[]curve-[]cryptography/$[]\OT1/cmr/m/n/10.95 . 
  []
 
-[44]
+[43]
 Appendix A.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1632--1633
+Underfull \hbox (badness 10000) in paragraph at lines 1601--1602
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1634--1635
+Underfull \hbox (badness 10000) in paragraph at lines 1603--1604
 
  []
 
-[45
+[44
 
-] [46]
+] [45]
 Appendix B.
 
-Underfull \hbox (badness 10000) in paragraph at lines 1669--1670
+Underfull \hbox (badness 10000) in paragraph at lines 1638--1639
+
+ []
+
+[46
+
+]
+Appendix C.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1668--1669
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1673--1674
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1675--1676
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1685--1686
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1687--1688
 
  []
 
 [47
 
 ]
-Appendix C.
+Underfull \hbox (badness 10000) in paragraph at lines 1689--1690
 
-Underfull \hbox (badness 10000) in paragraph at lines 1699--1700
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1694--1695
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1696--1697
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1702--1703
 
  []
 
@@ -2397,90 +2410,98 @@ Underfull \hbox (badness 10000) in paragraph at lines 1706--1707
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1716--1717
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1718--1719
-
- []
-
-[48
-
-]
-Underfull \hbox (badness 10000) in paragraph at lines 1720--1721
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1725--1726
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1727--1728
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1733--1734
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1735--1736
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1737--1738
-
- []
-
-
-Overfull \hbox (13.24185pt too wide) in paragraph at lines 1740--1757
+Overfull \hbox (13.24185pt too wide) in paragraph at lines 1709--1726
 [][] 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1761--1762
+Underfull \hbox (badness 10000) in paragraph at lines 1730--1731
+
+ []
+
+[48]
+Underfull \hbox (badness 10000) in paragraph at lines 1732--1733
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1738--1739
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1740--1741
+
+ []
+
+Package mdframed Info: mdframed works in twoside mode on input line 1744.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1768--1769
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1770--1771
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1772--1773
 
  []
 
 [49]
-Underfull \hbox (badness 10000) in paragraph at lines 1763--1764
+Package mdframed Info: mdframed works in twoside mode on input line 1777.
+
+Underfull \hbox (badness 10000) in paragraph at lines 1796--1797
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1769--1770
+Underfull \hbox (badness 10000) in paragraph at lines 1798--1799
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1771--1772
-
- []
-
-Package mdframed Info: mdframed works in twoside mode on input line 1775.
-
-Underfull \hbox (badness 10000) in paragraph at lines 1799--1800
+Underfull \hbox (badness 10000) in paragraph at lines 1805--1806
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1801--1802
+Underfull \hbox (badness 10000) in paragraph at lines 1807--1808
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1803--1804
+Underfull \hbox (badness 10000) in paragraph at lines 1809--1810
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1811--1812
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1816--1817
 
  []
 
 [50]
-Package mdframed Info: mdframed works in twoside mode on input line 1808.
+Underfull \hbox (badness 10000) in paragraph at lines 1818--1819
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1823--1824
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 1825--1826
+
+ []
+
 
 Underfull \hbox (badness 10000) in paragraph at lines 1827--1828
 
@@ -2492,79 +2513,29 @@ Underfull \hbox (badness 10000) in paragraph at lines 1829--1830
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1836--1837
+Underfull \hbox (badness 10000) in paragraph at lines 1831--1832
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 1838--1839
+Underfull \hbox (badness 10000) in paragraph at lines 1835--1836
 
  []
 
-
-Underfull \hbox (badness 10000) in paragraph at lines 1840--1841
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1842--1843
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1847--1848
-
- []
-
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1847.
 [51]
-Underfull \hbox (badness 10000) in paragraph at lines 1849--1850
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1854--1855
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1856--1857
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1858--1859
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1860--1861
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1862--1863
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 1866--1867
-
- []
-
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 1878.
-[52]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 1878.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 1847.
  (./Dissertation.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1878.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1878.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 1847.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 1847.
 
 Package rerunfilecheck Info: File `Dissertation.out' has not changed.
 (rerunfilecheck)             Checksum: 3ABCB881162996854F84F19364D63130;5536.
  ) 
 Here is how much of TeX's memory you used:
- 18536 strings out of 495028
- 308470 string characters out of 6181497
- 548941 words of memory out of 5000000
+ 18535 strings out of 495028
+ 308463 string characters out of 6181497
+ 539941 words of memory out of 5000000
  21196 multiletter control sequences out of 15000+600000
  12540 words of font info for 46 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
@@ -2583,10 +2554,10 @@ amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/
 share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb></usr/share/
 texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on Dissertation.pdf (52 pages, 461719 bytes).
+Output written on Dissertation.pdf (51 pages, 460505 bytes).
 PDF statistics:
- 924 PDF objects out of 1000 (max. 8388607)
- 843 compressed objects within 9 object streams
- 223 named destinations out of 1000 (max. 500000)
+ 919 PDF objects out of 1000 (max. 8388607)
+ 839 compressed objects within 9 object streams
+ 222 named destinations out of 1000 (max. 500000)
  598 words of extra memory for PDF output out of 10000 (max. 10000000)
 
