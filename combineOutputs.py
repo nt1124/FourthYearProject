@@ -147,7 +147,7 @@ infoTags = ['#', ':', '+']
 protocolNameList = ["LP_2010", "L_2013", "HKE_2013", "CHIMERA_2013"]
 circuitNameList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 
-protocolNum = 1
+protocolNum = 2
 circuitNum = 0
 partyID = 0
 

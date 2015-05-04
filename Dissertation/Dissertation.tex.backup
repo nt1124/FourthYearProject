@@ -598,7 +598,7 @@
 
 				Lindell uses a Secure Computation to determine the output that will produce the correct output if even only one of the evaluation circuits produces the correct output.\\
 
-				This means that to successfully cheat a malicious builder will need guess \emph{exactly} which circuits will be selected as check circuits. If the guess made by the malicious builder is wrong on even one circuit the cheating will either be detected (if it corrupts a check circuit) or mitigated (if it fails to corrupt every evaluation circuit).\\
+				This means that to successfully cheat a malicious builder will need to corrupt every evaluation circuit guess \emph{exactly} which circuits will be selected as check circuits. If the guess made by the malicious builder is wrong on even one circuit the cheating will either be detected (if it corrupts a check circuit) or mitigated (if it fails to corrupt every evaluation circuit).\\
 
 				Lindell suggest this Secure Computation be carried out using the protocol he authored with Pinkas in \cite{LindellAndPinkas2011} using a small circuit he provides. The hope is that, especially for large circuits, this small secure computation will be relatively cheap.\\
 
@@ -615,9 +615,9 @@
 					
 				The parties then perform a Secure Computation to detect cheating (here on in, the Sub-computation) where the Builder inputs $x$ (its original input to the main computation) and the Executor inputs $b$. The Secure Computation returns $x$ to the Executor if its input $b$ indicates it knows both $b_i^0$ and $b_i^1$ for some $i$, otherwise it returns garbage.\\
 
-				Clearly we need to be sure that the Builder inputs the same $x$ to the Sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.l\\
+				We need to be sure the Builder inputs the same $x$ to the sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.\\
 
-				Lindell suggests using the Lindell-Pinkas protocol for this secure computation and gives several iterations of optimisations for the circuit to compute the function. We shall take these optimisations in one bound, for the full history of optimisation see Lindell's paper.\\
+				Lindell suggests using the Lindell-Pinkas protocol for this secure computation and gives several iterations of optimisations for the circuit to compute the function. We skip some of these optimisations, particularly those rendered obsolete by later optimisation. For the full history of optimisation see Lindell's paper.\\
 
 				First let the builder choose $\{b_i^0, b_i^1\}$ and some $\delta \in \{0, 1\}^{128}$ such that $b_i^0 \oplus b_i^1 = \delta$ for all $i$. We can then check if they Executor knows $\delta$ in rather than checking to see if they know $b_i^0$ and $b_i^1$ for each pair, reducing the size of hte circuit (and bandwidth for sending it) significantly. Given only one of the pair the Executor gains no knowledge of $\delta$ so security is maintained. The Executor's input to the sub-computation is then $\delta'$.\\
 
@@ -767,8 +767,7 @@
 		\begin{itemize}
 			\item 32-bit Addition,
 			\item 32-bit Multiplication,
-			\item AES encryption,
-			%\item SHA-256 hashing.
+			\item AES encryption.
 		\end{itemize}
 
 
@@ -797,24 +796,24 @@
 			\subsection{32-bit addition}
 				The 32-bit addition circuit is the smallest circuit we consider, consisting of only 349 gates. Each party inputs 32-bits and the circuit outputs the addition of the inputs considered as a 33-bit integers (allowing for overflow).\\
 
-				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to be fairly high.
+				We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers (and other input size dependant part of the protocol) to be fairly high relative to the rest.
 
 			\subsection{32-bit multiplication}
 
-				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this will affect the time taken to run output determination for the HKE protocol.\\
+				The 32-bit multiplication circuit is significantly larger than addition yet smaller than AES, providing a good mid-way stepping stone to the AES circuit in terms of number of gates. Additionally, as the number of outputs is larger and this should affect the time taken to run output determination for the HKE protocol.\\
 
-				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance. We expect to see the costs of OTs to remain the same and for the circuit building/checking times to be marginally affected compared to the addition circuit.\\
-
-				At first one might be surprised by this second expectation, after all the multiplication circuit has around $30$ times more gates. But consider this, the main cost of building circuit once inputs/outputs are generated are the Symmetric encryptions for create the encrypted output tables. With AES-NI these costs are reduced to such a degree that the input/output generation dominates the cost of building circuits.
+				Furthermore, as the inputs sizes are the same for both parties the number of OTs is the same as in the Addition circuit, meaning we get so see how much importance the `depth' (size of circuit discounting inputs) of the circuit has with regards to performance. We expect to see the costs of OTs to remain the same and for the circuit building/checking times to increase.\\
+				
+				However, whilst the multiplication circuit has around $30$ times more gates than the addition circuit we do not expect to see an increase in run time of $30$ times, rather much less. As the circuits are bigger building circuits in parallel will yield more fruit as the overhead of parallelism lessen compared to actual work being done.\\
 
 			\subsection{AES encryption}
 
 				AES encryption is a classic benchmark for Secure two part computations. We will be considering the version without The RTL circuit provided from \cite{NigelCircuits} for this computation has $\sim 39,000$ gates, 128 inputs for each party and 128 outputs. One party inputs a message, the other inputs a key.\\
 
-				We considered experimenting with the alternative circuit provided by \cite{NigelCircuits} which takes in an expanded key schedule reducing the circuit size in exchange for an increase in the number of inputs by a factor of $10$ for the Executor. However, while the reduction in circuit size would reduce building, checking and evaluation time this would be more than nullified by the increase in the number of inputs, not only in terms of OTs but also in terms of generating consistent inputs.
+				We considered experimenting with the alternative circuit provided by \cite{NigelCircuits} which takes in an expanded key schedule reducing the circuit size in exchange for an increase in the number of inputs by a factor of $10$ for the Executor. However, while the reduction in circuit size would reduce building, checking and evaluation time this would be more than nullified by the increase in the number of inputs and the increase in the number of OTs involved.
 
 		\section{Results}
-			We now give results of using each of the Protocol on the test circuits with some comments on the results for each table, these comments will not focus overly much on the comparison between the protocols that will be saved for later.
+			We now give results of using each of the Protocol on the test circuits with some comments on the results for each table, these comments will not focus overly much on the comparison between the protocols. That will be saved for later.
 
 			\FloatBarrier
 			\subsection{32-bit addition}
@@ -822,7 +821,7 @@
 
 				% We expected to see a poor showing from the Lindell 2013 protocol due to the circuits small size increasing the relative cost of the sub-computation. Due to the relatively high input wire to gate ratio we expect the cost of Oblivious Transfers to fairly high.
 
-				\renewcommand{\arraystretch}{1.1}
+				\renewcommand{\arraystretch}{1.0}
 
 				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
@@ -831,17 +830,19 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits & $13.20$ & $12.88$ & $0$ & $0$ \\
+						Input Generation & $0.18$ & $0.02$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $82.22$ & $11.73$ & $1,214,877$ & $655,111$ \\
+						Building Circuits & $20.39$ & $2.69$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $82.75$ & $11.80$ & $1,214,877$ & $655,111$ \\
 						\hline
 						Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
 						\hline
-						Open Check Circuits & $3.17$ & $3.18$ & $289,396$ & $2,214$ \\
+						Open Check Circuits & $3.19$ & $3.20$ & $289,396$ & $2,214$ \\
 						\hline
-						Prove Input Consistency & $6.78$ & $10.80$ & $18,112$ & $79,784$ \\
+						Prove Input Consistency & $6.82$ & $7.27$ & $18,110$ & $79,784$ \\
 						\thickhline
-						Total & $105.99$ & $41.02$ & $7,648,076$ & $737,109$ \\
+						Total & $113.96$ & $27.41$ & $7,648,074$ & $737,109$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:LP_2010_Add_Builder}}
@@ -854,19 +855,19 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT Prep Receiver & $17.20$ & $2.59$ & $0$ & $0$ \\
+						OT Prep Receiver & $17.60$ & $2.60$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $18.62$ & $14.11$ & $655,111$ & $1,214,877$ \\
+						OT Transfer Receiver & $18.93$ & $14.18$ & $655,111$ & $1,214,877$ \\
 						\hline
 						Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
 						\hline
-						Checking correctness & $7.27$ & $6.67$  & $2,214$ & $289,396$\\
+						Checking correctness & $11.57$ & $3.20$ & $2,214$ & $289,396$ \\
 						\hline
-						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,112$ \\
+						Verify Input Consistency & $6.87$ & $7.28$ & $79,784$ & $18,110$ \\
 						\hline
 						Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
 						\thickhline
-						Total & $52.28$ & $41.06$ & $737,109$ & $7,648,076$ \\
+						Total & $55.90$ & $27.45$ & $737,109$ & $7,648,074$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit addition circuit averaged over 100 trials.\label{table:LP_2010_Add_Executor}}
@@ -879,21 +880,23 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits and Commits & $4.05$ & $3.96$ & $0$ & $0$ \\
+						Input generation & $0.09$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $37.59$ & $8.93$ & $284,040$ & $135,781$ \\
+						Building Circuits and Commits & $6.49$ & $0.81$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $37.83$ & $8.98$ & $284,040$ & $135,781$ \\
 						\hline
 						Sending Circuits and Commits & $0.00$ & $0.02$ & $1,889,281$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.99$ & $0.99$ & $89,050$ & $684$ \\
+						Partially Open Check Circuits & $0.99$ & $0.99$ & $88,982$ & $692$ \\
 						\hline
-						Sub-computation to detect cheating & $110.10$ & $30.95$ & $2,412,286$ & $746,955$ \\
+						Sub-computation to detect cheating & $117.53$ & $21.85$ & $2,412,286$ & $746,955$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\ 
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
 						\hline
-						Prove Input Consistency & $8.22$ & $14.15$ & $18,109$ & $97,040$ \\
+						Prove Input Consistency & $8.27$ & $9.37$ & $18,112$ & $96,764$ \\
 						\thickhline
-						Total & $160.96$ & $59.00$ & $4,693,827$ & $980,461$ \\
+						Total & $171.21$ & $42.03$ & $4,693,761$ & $980,193$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Builder}}
@@ -906,23 +909,23 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT - Receiver & $35.29$ & $12.88$ & $135,781$ & $284,040$ \\
+						OT - Receiver & $35.46$ & $9.79$ & $135,781$ & $284,040$ \\
 						\hline
-						Receiving circuits and commitments & $0.01$ & $0.03$ & $0$ & $1,889,281$ \\
+						Receiving Circuits and commitments & $0.01$ & $0.03$ & $0$ & $1,889,281$ \\
 						\hline
-						Receive partial circuit openings & $0.03$ & $0.99$ & $684$ & $89,050$ \\
+						Receive partial circuit openings & $0.03$ & $0.99$ & $692$ & $88,982$ \\
 						\hline
 						Evaluate Circuits & $0.01$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $49.06$ & $34.31$ & $746,955$ & $2,412,286$ \\
+						Sub-computation to detect cheating & $53.37$ & $21.85$ & $746,955$ & $2,412,286$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
 						\hline
-						Checking correctness & $2.74$ & $2.00$ & $0$ & $0$ \\
+						Checking correctness & $3.63$ & $0.58$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $9.16$ & $8.79$ & $97,040$ & $18,109$ \\
+						Verify input consistency & $9.16$ & $8.79$ & $96,764$ & $18,112$ \\
 						\thickhline
-						Total & $96.32$ & $59.01$ & $980,461$ & $4,693,827$ \\
+						Total & $101.69$ & $42.05$ & $980,193$ & $4,693,761$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit addition averaged over 100 trials. \label{table:L_2013_Add_Executor}}
@@ -1037,17 +1040,19 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits & $24.26$ & $14.38$ & $0$ & $0$ \\
+						Input Generation & $0.18$ & $0.02$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $82.14$ & $11.74$ & $1,214,877$ & $655,111$ \\
+						Building Circuits & $31.53$ & $4.21$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Commitments & $1.01$ & $4.12$ & $202,012,291$ & $0$ \\
+						OT- Sender & $82.70$ & $11.82$ & $1,214,877$ & $655,111$ \\
 						\hline
-						Open Check Circuits & $3.16$ & $3.20$ & $289,396$ & $2,214$ \\
+						Sending Circuits and Commitments & $1.01$ & $4.10$ & $202,012,291$ & $0$ \\
 						\hline
-						Prove Input Consistency & $6.78$ & $11.76$ & $18,113$ & $79,784$ \\
+						Open Check Circuits & $3.19$ & $3.22$ & $289,396$ & $2,214$ \\
+						\hline
+						Prove Input Consistency & $6.82$ & $7.27$ & $18,109$ & $79,784$ \\
 						\thickhline
-						Total & $117.34$ & $45.20$ & $203,534,677$ & $737,109$ \\
+						Total & $125.43$ & $30.65$ & $203,534,673$ & $737,109$ \\
 						\hline
 					\end{tabular}
 
@@ -1061,19 +1066,19 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT Prep Receiver & $17.57$ & $2.60$ & $0$ & $0$ \\
+						OT Prep Receiver & $17.59$ & $2.60$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $18.62$ & $14.14$ & $655,111$ & $1,214,877$ \\
+						OT Transfer Receiver & $18.69$ & $14.20$ & $655,111$ & $1,214,877$ \\
 						\hline
-						Receiving Circuits and Commitments & $1.64$ & $1.75$ & $0$ & $202,012,291$ \\
+						Receiving Circuits and Commitments & $1.65$ & $1.75$ & $0$ & $202,012,291$ \\
 						\hline
-						Checking correctness & $12.87$ & $7.62$ & $2,214$ & $289,396$ \\
+						Checking correctness & $17.14$ & $3.19$ & $2,214$ & $289,396$ \\
 						\hline
-						Verify Input Consistency & $7.64$ & $7.32$ & $79,784$ & $18,113$ \\
+						Verify Input Consistency & $6.86$ & $7.28$ & $79,784$ & $18,109$ \\
 						\hline
 						Evaluate Circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
 						\thickhline
-						Total & $59.94$ & $46.05$ & $737,109$ & $203,534,677$ \\
+						Total & $63.53$ & $31.50$ & $737,109$ & $203,534,673$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the 32-bit multiplication averaged over 100 trials. \label{table:LP_2010_Mul_Executor}}
@@ -1086,21 +1091,23 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits and Commits & $7.49$ & $4.43$ & $0$ & $0$ \\
+						Input generation & $0.09$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $37.60$ & $8.95$ & $284,040$ & $135,784$ \\
+						Building Circuits and Commits & $9.76$ & $1.24$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $37.80$ & $8.99$ & $284,040$ & $135,780$ \\
 						\hline
 						Sending Circuits and Commits & $0.12$ & $0.52$ & $62,163,073$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.97$ & $1.00$ & $88,931$ & $698$ \\
+						Partially Open Check Circuits & $1.01$ & $1.04$ & $89,081$ & $681$ \\
 						\hline
-						Sub-computation to detect cheating & $110.49$ & $31.23$ & $2,412,286$ & $746,955$ \\
+						Sub-computation to detect cheating & $117.91$ & $22.38$ & $2,412,286$ & $746,955$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $2,052$ & $0$ \\ 
+						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $2,052$ & $0$ \\
 						\hline
-						Prove Input Consistency & $8.18$ & $14.40$ & $18,112$ & $96,557$ \\
+						Prove Input Consistency & $8.31$ & $9.67$ & $18,111$ & $97,167$ \\
 						\thickhline
-						Total & $164.86$ & $60.53$ & $64,968,494$ & $979,994$ \\
+						Total & $175.00$ & $43.86$ & $64,968,644$ & $980,583$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L_2013_Mul_Builder} }
@@ -1113,23 +1120,23 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT - Receiver & $35.30$ & $13.37$ & $135,784$ & $284,040$ \\
+						OT - Receiver & $35.46$ & $10.23$ & $135,780$ & $284,040$ \\
 						\hline
 						Receiving circuits and commitments & $0.28$ & $0.56$ & $0$ & $62,163,073$ \\
 						\hline
-						Receive partial circuit openings & $0.04$ & $0.97$ & $698$ & $88,931$ \\
+						Receive partial circuit openings & $0.03$ & $1.01$ & $681$ & $89,081$ \\
 						\hline
 						Evaluate Circuits & $0.26$ & $0.26$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $49.44$ & $34.31$ & $746,955$ & $2,412,286$ \\
+						Sub-computation to detect cheating & $53.44$ & $22.13$ & $746,955$ & $2,412,286$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $2,052$ \\
 						\hline
-						Checking correctness & $4.85$ & $2.32$ & $0$ & $0$ \\
+						Checking correctness & $5.58$ & $0.85$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency& $9.12$ & $8.75$ & $96,557$ & $18,112$ \\
+						Verify input consistency & $9.19$ & $8.82$ & $97,167$ & $18,111$ \\
 						\thickhline
-						Total & $99.33$ & $60.55$ & $979,994$ & $64,968,494$ \\
+						Total & $104.28$ & $43.88$ & $980,583$ & $64,968,644$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials.\label{table:L_2013_Mul_Executor} }
@@ -1240,17 +1247,19 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits & $86.66$ & $56.01$ & $0$ & $0$ \\
+						Input generation & $0.36$ & $0.05$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $321.57$ & $42.12$ & $4,859,037$ & $2,477,191$ \\
+						Building Circuits & $114.32$ & $15.39$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Commitments & $1.38$ & $14.81$ & $663,253,047$ & $0$ \\
+						OT- Sender & $323.83$ & $42.42$ & $4,859,037$ & $2,477,191$ \\
 						\hline
-						Open Check Circuits & $13.03$ & $13.08$ & $751,156$ & $2,214$ \\
+						Sending Circuits and Commitments & $1.37$ & $14.81$ & $663,253,047$ & $0$ \\
 						\hline
-						Prove Input Consistency & $27.61$ & $45.59$ & $72,441$ & $319,112$ \\
+						Open Check Circuits & $13.12$ & $13.17$ & $751,156$ & $2,214$ \\
+						\hline
+						Prove Input Consistency & $27.82$ & $29.15$ & $72,444$ & $319,112$ \\
 						\thickhline
-						Total & $450.26$ & $171.62$ & $668,935,681$ & $2,798,517$ \\
+						Total & $480.82$ & $114.98$ & $668,935,684$ & $2,798,517$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Builder}}
@@ -1263,48 +1272,51 @@
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT Prep Receiver & $67.39$ & $9.02$ & $0$ & $0$ \\
+						OT Prep Receiver & $67.53$ & $9.03$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $70.80$ & $51.26$ & $2,477,191$ & $4,859,037$ \\
+						OT Transfer Receiver & $70.98$ & $51.55$ & $2,477,191$ & $4,859,037$ \\
 						\hline
 						Receiving Circuits and Commitments & $3.16$ & $5.72$ & $0$ & $663,253,047$ \\
 						\hline
-						Checking correctness & $45.58$ & $29.46$ & $2,214$ & $751,156$ \\
+						Checking correctness & $56.90$ & $13.15$ & $2,214$ & $751,156$ \\
 						\hline
-						Verify Input Consistency & $28.06$ & $29.17$ & $319,112$ & $72,441$ \\
+						Verify Input Consistency & $27.45$ & $29.14$ & $319,112$ & $72,444$ \\
 						\hline
-						Evaluate Circuits & $1.14$ & $1.14$ & $0$ & $0$ \\
+						Evaluate Circuits & $1.15$ & $1.15$ & $0$ & $0$ \\
 						\thickhline
-						Total & $216.86$ & $172.77$ & $2,798,517$ & $668,935,681$ \\
+						Total & $227.91$ & $116.15$ & $2,798,517$ & $668,935,684$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell-Pinkas 2010 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:LP_2010_AES_Executor}}
 				\end{figure}
 
-
+				\FloatBarrier
+				\textbf{Lindell 2013}
 				\begin{figure}[!ht]
 					% \subsubsection{Lindell 2013}
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
-						\textbf{Lindell 2013} & & \textbf{Builder} & & \\
+						 & & \textbf{Builder} & & \\
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						Building Circuits and Commits & $26.96$ & $17.23$ & $0$ & $0$ \\
+						Input generation & $0.27$ & $0.03$ & $0$ & $0$ \\
 						\hline
-						OT- Sender & $141.30$ & $33.06$ & $1,120,488$ & $476,291$ \\
+						Building Circuits & $36.24$ & $4.58$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $142.05$ & $33.20$ & $1,120,488$ & $476,292$ \\
 						\hline
 						Sending Circuits and Commits & $0.33$ & $1.75$ & $204,095,057$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $4.13$ & $4.17$ & $233,204$ & $675$ \\
+						Partially Open Check Circuits & $4.01$ & $4.05$ & $227,146$ & $701$ \\
 						\hline
-						Sub-computation to detect cheating & $154.62$ & $75.20$ & $5,018,302$ & $746,955$ \\
+						Sub-computation to detect cheating & $183.19$ & $37.52$ & $5,018,302$ & $746,955$ \\
 						\hline
 						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $4,100$ & $0$ \\
 						\hline
-						Prove Input Consistency & $33.17$ & $56.40$ & $72,445$ & $389,522$ \\
+						Prove Input Consistency & $33.18$ & $38.11$ & $72,444$ & $385,743$ \\
 						\thickhline
-						Total & $360.51$ & $187.81$ & $210,543,597$ & $1,613,443$ \\
+						Total & $399.27$ & $119.25$ & $210,537,538$ & $1,609,692$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Builder}}
@@ -1313,27 +1325,27 @@
 				\begin{figure}[!ht]
 					\begin{tabular}{| p{3.5cm} | c c c c |}
 						\hline
-						\textbf{Lindell 2013} & & \textbf{Executor} & & \\
+						 & & \textbf{Executor} & & \\
 						\hline
 						\textbf{Step} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Received} \\
 						\thickhline
-						OT - Receiver & $137.87$ & $50.28$ & $476,291$ & $1,120,488$ \\
+						OT - Receiver & $138.36$ & $37.80$ & $476,292$ & $1,120,488$ \\
 						\hline
-						Receiving circuits and commitments & $0.77$ & $1.81$ & $0$ & $204,095,057$ \\
+						Receiving circuits and commitments & $0.77$ & $1.80$ & $0$ & $204,095,057$ \\
 						\hline
-						Receive partial circuit openings & $0.04$ & $4.14$ & $675$ & $233,204$ \\
+						Receive partial circuit openings & $0.04$ & $4.02$ & $701$ & $227,146$ \\
 						\hline
-						Evaluate Circuits & $0.37$ & $0.37$ & $0$ & $0$ \\
+						Evaluate Circuits & $0.35$ & $0.35$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $67.46$ & $87.36$ & $746,955$ & $5,018,302$ \\
+						Sub-computation to detect cheating & $78.95$ & $37.20$ & $746,955$ & $5,018,302$ \\
 						\hline
-						Verify B-List & $0.03$ & $0.00$ & $0$ & $4,100$ \\
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $4,100$ \\
 						\hline
-						Checking correctness & $14.16$ & $8.65$ & $0$ & $0$ \\
+						Checking correctness & $18.36$ & $3.13$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $34.33$ & $35.22$ & $389,522$ & $72,445$ \\
+						Verify input consistency & $34.05$ & $34.96$ & $385,743$ & $72,444$ \\
 						\thickhline
-						Total & $255.11$ & $187.83$ & $1,613,443$ & $210,543,597$ \\
+						Total & $270.99$ & $119.27$ & $1,609,692$ & $210,537,538$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the Lindell 2013 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L_2013_AES_Executor}}
