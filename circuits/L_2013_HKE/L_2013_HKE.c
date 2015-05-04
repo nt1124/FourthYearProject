@@ -7,7 +7,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	struct Circuit **circuitsArray;
 	struct RawCircuit *rawCheckCircuit;
 	int i, arrayLen, commBufferLen = 0, J_setSize = 0;
-	const int lengthDelta = 40;
+	const int lengthDelta = 40, check_stat_secParam = stat_SecParam + 6;
 
 	struct timespec ext_t_0, ext_t_1;
 	struct timespec int_t_0, int_t_1;
@@ -58,6 +58,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 
 	params = initBrainpool_256_Curve();
 
+	// Setup the Cs, then use these to create some consistent input for the main comp.
 	C = setup_OT_NP_Sender(params, *state);
 	cTilde = exchangeC_ForNaorPinkas(writeSocket, readSocket, C);
 	aList = getNaorPinkasInputs(rawInputCircuit -> numInputs_P1, stat_SecParam, *state, params);
@@ -173,7 +174,7 @@ void runBuilder_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValue
 	SC_DetectCheatingBuilder_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
 									startOfInputChain, rawInputCircuit -> numInputs_P1, delta, lengthDelta,
 									queries_Own, C, cTilde,
-									stat_SecParam, state, ctx);
+									check_stat_secParam, state, ctx);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();
@@ -241,7 +242,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	struct sockaddr_in serv_addr_write, serv_addr_read;
 	int writeSocket, readSocket;
 	int readPort = atoi(portNumStr), writePort = readPort + 1;
-	const int lengthDelta = 40;
+	const int lengthDelta = 40, check_stat_secParam = stat_SecParam + 6;
 	int i, consistency;
 
 	struct RawCircuit *rawCheckCircuit;
@@ -395,7 +396,7 @@ void runExecutor_L_2013_HKE(struct RawCircuit *rawInputCircuit, struct idAndValu
 	deltaPrime = expandDeltaPrim(circuitsArray, J_set, stat_SecParam);
 	cheatDetectOutput = SC_DetectCheatingExecutor_HKE_Alt(writeSocket, readSocket, rawCheckCircuit,
 														rawInputCircuit -> numInputs_P1, deltaPrime, lengthDelta,
-														queries_Partner, C, cTilde, stat_SecParam, state, ctx);
+														queries_Partner, C, cTilde, check_stat_secParam, state, ctx);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

@@ -615,9 +615,9 @@
 					
 				The parties then perform a Secure Computation to detect cheating (here on in, the Sub-computation) where the Builder inputs $x$ (its original input to the main computation) and the Executor inputs $b$. The Secure Computation returns $x$ to the Executor if its input $b$ indicates it knows both $b_i^0$ and $b_i^1$ for some $i$, otherwise it returns garbage.\\
 
-				Clearly we need to be sure that the Builder inputs the same $x$ to the Sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.l\\
+				We need to be sure the Builder inputs the same $x$ to the sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.\\
 
-				Lindell suggests using the Lindell-Pinkas protocol for this secure computation and gives several iterations of optimisations for the circuit to compute the function. We shall take these optimisations in one bound, for the full history of optimisation see Lindell's paper.\\
+				Lindell suggests using the Lindell-Pinkas protocol for this secure computation and gives several iterations of optimisations for the circuit to compute the function. We skip some of these optimisations, particularly those rendered obsolete by later optimisation. For the full history of optimisation see Lindell's paper.\\
 
 				First let the builder choose $\{b_i^0, b_i^1\}$ and some $\delta \in \{0, 1\}^{128}$ such that $b_i^0 \oplus b_i^1 = \delta$ for all $i$. We can then check if they Executor knows $\delta$ in rather than checking to see if they know $b_i^0$ and $b_i^1$ for each pair, reducing the size of hte circuit (and bandwidth for sending it) significantly. Given only one of the pair the Executor gains no knowledge of $\delta$ so security is maintained. The Executor's input to the sub-computation is then $\delta'$.\\
 
@@ -767,8 +767,7 @@
 		\begin{itemize}
 			\item 32-bit Addition,
 			\item 32-bit Multiplication,
-			\item AES encryption,
-			%\item SHA-256 hashing.
+			\item AES encryption.
 		\end{itemize}
 
 
