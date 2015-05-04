@@ -1,9 +1,9 @@
 Receiver OT prep.
-& $67.39$ & $9.02$ & $0$ & $0$ \\
+& $67.53$ & $9.03$ & $0$ & $0$ \\
 
 
 Receiver OT Transfer.
-& $70.80$ & $51.26$ & $2,477,191$ & $4,859,037$ \\
+& $70.98$ & $51.55$ & $2,477,191$ & $4,859,037$ \\
 
 
 Received Circuits + public commitments etc.
@@ -11,18 +11,18 @@ Received Circuits + public commitments etc.
 
 
 Executor Cut and choose - Correctness etc
-& $45.58$ & $29.46$ & $2,214$ & $751,156$ \\
+& $56.90$ & $13.15$ & $2,214$ & $751,156$ \\
 
 
 Proving consistency
-& $28.06$ & $29.17$ & $319,112$ & $72,441$ \\
+& $27.45$ & $29.14$ & $319,112$ & $72,444$ \\
 
 
 Circuit Evaluation
-& $1.14$ & $1.14$ & $0$ & $0$ \\
+& $1.15$ & $1.15$ & $0$ & $0$ \\
 
 
 Total time without connection setup
-& $216.86$ & $172.77$ & $2,798,517$ & $668,935,681$ \\
+& $227.91$ & $116.15$ & $2,798,517$ & $668,935,684$ \\
 
 

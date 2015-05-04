@@ -1,17 +1,25 @@
-Circuit Input Prep, Building and Commitment
-& $4.19$ & $4.01$ & $1,889,281$ & $0$ \\
+Circuit Input Prep
+& $0.09$ & $0.01$ & $0$ & $0$ \\
+
+
+Circuit Building
+& $6.49$ & $0.81$ & $0$ & $0$ \\
 
 
 OT - Sender
-& $37.63$ & $9.07$ & $284,040$ & $135,781$ \\
+& $37.83$ & $8.98$ & $284,040$ & $135,781$ \\
+
+
+Sending Circuit and Commitments.
+& $0.00$ & $0.02$ & $1,889,281$ & $0$ \\
 
 
 Decommit to J_Sets secrets
-& $1.00$ & $1.00$ & $89,047$ & $684$ \\
+& $0.99$ & $0.99$ & $88,982$ & $692$ \\
 
 
 Full cheating detection sub-computation
-& $110.48$ & $31.10$ & $2,412,286$ & $746,955$ \\
+& $117.53$ & $21.85$ & $2,412,286$ & $746,955$ \\
 
 
 Sending bLists
@@ -19,10 +27,10 @@ Sending bLists
 
 
 Proving consistency
-& $8.28$ & $14.20$ & $18,112$ & $97,064$ \\
+& $8.27$ & $9.37$ & $18,112$ & $96,764$ \\
 
 
 Total time without connection setup
-& $161.59$ & $59.38$ & $4,693,835$ & $980,484$ \\
+& $171.21$ & $42.03$ & $4,693,761$ & $980,193$ \\
 
 

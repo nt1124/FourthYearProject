@@ -258,17 +258,25 @@ unsigned char *decommitToCheckCircuitInputs_Builder(struct builderInputCommitStr
 int decommitToCheckCircuitInputs_Exec(struct builderInputCommitStruct *commitStruct, struct jSetRevealHKE *partnerReveals, struct eccPoint ***NaorPinkasInputs_Partner,
 									unsigned char *inputBuffer, unsigned char *jSetOwn, int numCircuits, int numInputs, int *inputOffset)
 {
-	unsigned char permedBit, **permutations = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *)), *x0, *x1;
-	int i, j, k, tempOffset = *inputOffset, validCommitments = 0;
+	unsigned char permedBit, **permedBits;
+	unsigned char **permutations = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *)), *x0, *x1;
+	int i, j, k, tempOffset = *inputOffset, validCommitments0 = 0, validCommitments1 = 0;
 	int tempBytesCount = numInputs * sizeof(unsigned char);
 	mpz_t *tempR0, *tempR1;
+	mpz_t **tempR0List, **tempR1List, **tempR_List;
 
+
+	tempR0List = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
+	tempR1List = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
+	tempR_List = (mpz_t **) calloc(numCircuits, sizeof(mpz_t *));
 
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x01 == jSetOwn[i])
 		{
-			k = 0;
+			tempR0List[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+			tempR1List[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+
 			permutations[i] = (unsigned char *) calloc(numInputs, sizeof(unsigned char));
 			memcpy(permutations[i], inputBuffer + tempOffset, tempBytesCount);
 			tempOffset += tempBytesCount;
@@ -276,59 +284,98 @@ int decommitToCheckCircuitInputs_Exec(struct builderInputCommitStruct *commitStr
 			for(j = 0; j < numInputs; j ++)
 			{
 				tempR0 = deserialiseMPZ(inputBuffer, &tempOffset);
-				x0 = hashECC_Point(NaorPinkasInputs_Partner[i][k], 16);
-				k ++;
+				mpz_init_set(tempR0List[i][j], *tempR0);
 
 				tempR1 = deserialiseMPZ(inputBuffer, &tempOffset);
+				mpz_init_set(tempR1List[i][j], *tempR1);
+
+				mpz_clear(*tempR0);
+				free(tempR0);
+				mpz_clear(*tempR1);
+				free(tempR1);
+			}
+		}
+	}
+
+	// This could be optimised by removing the branching.
+	#pragma omp parallel for default(shared) private(i, j, k, x0, x1) schedule(auto) reduction(|:validCommitments0)
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x01 == jSetOwn[i])
+		{
+			k = 0;
+
+			for(j = 0; j < numInputs; j ++)
+			{
+				x0 = hashECC_Point(NaorPinkasInputs_Partner[i][k], 16);
+				k ++;
 				x1 = hashECC_Point(NaorPinkasInputs_Partner[i][k], 16);
 				k ++;
 
 				if(0x00 == permutations[i][j])
 				{
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x0, *tempR0, 16);
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x1, *tempR1, 16);
+					validCommitments0 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j],
+																	x0, tempR0List[i][j], 16);
+					validCommitments0 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j],
+																	x1, tempR1List[i][j], 16);
 				}
 				else
 				{
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x1, *tempR0, 16);
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x0, *tempR1, 16);
+					validCommitments0 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j],
+																	x1, tempR0List[i][j], 16);
+					validCommitments0 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], 
+																	x0, tempR1List[i][j], 16);
 				}
 
-				mpz_clear(*tempR0);
-				free(tempR0);
+				mpz_clear(tempR0List[i][j]);
+				mpz_clear(tempR1List[i][j]);
 				free(x0);
-
-				mpz_clear(*tempR1);
-				free(tempR1);
 				free(x1);
 			}
 		}
 	}
 
 
+	permedBits = (unsigned char **) calloc(numCircuits, sizeof(unsigned char *));
 	// Now check that the 
+	for(i = 0; i < numCircuits; i ++)
+	{
+		if(0x00 == jSetOwn[i])
+		{
+			tempR_List[i] = (mpz_t *) calloc(numInputs, sizeof(mpz_t));
+			permedBits[i] = (unsigned char *) calloc(numInputs, sizeof(unsigned char));
+			for(j = 0; j < numInputs; j ++)
+			{
+				permedBits[i][j] = inputBuffer[tempOffset ++];
+
+				// x0 = hashECC_Point(partnerReveals -> builderInputsEval[i][j], 16);
+				tempR0 = deserialiseMPZ(inputBuffer, &tempOffset);
+				mpz_init_set(tempR_List[i][j], *tempR0);
+
+				mpz_clear(*tempR0);
+				free(tempR0);
+			}
+		}
+	}
+
+	#pragma omp parallel for default(shared) private(i, j, x0) schedule(auto) reduction(|:validCommitments1)
 	for(i = 0; i < numCircuits; i ++)
 	{
 		if(0x00 == jSetOwn[i])
 		{
 			for(j = 0; j < numInputs; j ++)
 			{
-				permedBit = inputBuffer[tempOffset ++];
-
 				x0 = hashECC_Point(partnerReveals -> builderInputsEval[i][j], 16);
-				tempR0 = deserialiseMPZ(inputBuffer, &tempOffset);
-
-				if(0x00 == permedBit)
+				if(0x00 == permedBits[i][j])
 				{
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j], x0, *tempR0, 16);
+					validCommitments1 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_0[i][j],
+																	x0, tempR_List[i][j], 16);
 				}
 				else
 				{
-					validCommitments |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j], x0, *tempR0, 16);
+					validCommitments1 |= single_decommit_raw_elgamal_R(commitStruct -> params, commitStruct -> c_boxes_1[i][j],
+																	x0, tempR_List[i][j], 16);
 				}
-
-				mpz_clear(*tempR0);
-				free(tempR0);
 			}
 		}
 	}
@@ -337,5 +384,5 @@ int decommitToCheckCircuitInputs_Exec(struct builderInputCommitStruct *commitStr
 	*inputOffset = tempOffset;
 
 
-	return validCommitments;
+	return (validCommitments0 | validCommitments1);
 }

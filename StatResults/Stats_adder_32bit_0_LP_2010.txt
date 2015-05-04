@@ -1,126 +1,28 @@
 Receiver OT prep.
-CPU Time
-Mean    : 17.56
-Std Dev : 0.59
-
-Wall Time
-Mean    : 2.59
-Std Dev : 0.10
-
-Bytes Sent
-Mean    : 0.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 0.00
-Std Dev : 0.00
+& $17.60$ & $2.60$ & $0$ & $0$ \\
 
 
 Receiver OT Transfer.
-CPU Time
-Mean    : 18.62
-Std Dev : 0.52
-
-Wall Time
-Mean    : 14.11
-Std Dev : 0.10
-
-Bytes Sent
-Mean    : 655111.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 1214877.00
-Std Dev : 0.00
+& $18.93$ & $14.18$ & $655,111$ & $1,214,877$ \\
 
 
 Received Circuits + public commitments etc.
-CPU Time
-Mean    : 0.40
-Std Dev : 0.03
-
-Wall Time
-Mean    : 0.05
-Std Dev : 0.01
-
-Bytes Sent
-Mean    : 0.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 6125691.00
-Std Dev : 0.00
+& $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
 
 
 Executor Cut and choose - Correctness etc
-CPU Time
-Mean    : 7.27
-Std Dev : 0.06
-
-Wall Time
-Mean    : 6.66
-Std Dev : 0.02
-
-Bytes Sent
-Mean    : 2214.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 289396.00
-Std Dev : 0.00
+& $11.57$ & $3.20$ & $2,214$ & $289,396$ \\
 
 
 Proving consistency
-CPU Time
-Mean    : 7.64
-Std Dev : 0.02
-
-Wall Time
-Mean    : 7.32
-Std Dev : 0.02
-
-Bytes Sent
-Mean    : 79784.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 18111.36
-Std Dev : 14.12
+& $6.87$ & $7.28$ & $79,784$ & $18,110$ \\
 
 
 Circuit Evaluation
-CPU Time
-Mean    : 0.03
-Std Dev : 0.00
-
-Wall Time
-Mean    : 0.03
-Std Dev : 0.00
-
-Bytes Sent
-Mean    : 0.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 0.00
-Std Dev : 0.00
+& $0.03$ & $0.03$ & $0$ & $0$ \\
 
 
 Total time without connection setup
-CPU Time
-Mean    : 52.28
-Std Dev : 1.08
-
-Wall Time
-Mean    : 41.06
-Std Dev : 0.11
-
-Bytes Sent
-Mean    : 737109.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 7648075.36
-Std Dev : 14.12
+& $55.90$ & $27.45$ & $737,109$ & $7,648,074$ \\
 
 

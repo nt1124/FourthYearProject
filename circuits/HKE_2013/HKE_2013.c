@@ -386,12 +386,6 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	printAndZeroBothCounters();
 
 
-	for(j = 0; j < circuitsArray_Own[0] -> numInputsBuilder; j ++)
-	{
-		printf("%d", inputBitsOwn[j]);
-	}
-	printf("\n");
-
 	printf("\nEvaluating Circuits ");
 	fflush(stdout);
 	for(i = 0; i < numCircuits; i ++)

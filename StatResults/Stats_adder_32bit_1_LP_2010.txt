@@ -1,108 +1,28 @@
-Circuit prep and building.
-CPU Time
-Mean    : 13.20
-Std Dev : 0.02
+Input generation.
+& $0.18$ & $0.02$ & $0$ & $0$ \\
 
-Wall Time
-Mean    : 12.88
-Std Dev : 0.01
 
-Bytes Sent
-Mean    : 0.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 0.00
-Std Dev : 0.00
+Circuit Building.
+& $20.39$ & $2.69$ & $0$ & $0$ \\
 
 
 Sender OT.
-CPU Time
-Mean    : 82.22
-Std Dev : 0.31
-
-Wall Time
-Mean    : 11.73
-Std Dev : 0.06
-
-Bytes Sent
-Mean    : 1214877.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 655111.00
-Std Dev : 0.00
+& $82.75$ & $11.80$ & $1,214,877$ & $655,111$ \\
 
 
 Circuit and commitment sending.
-CPU Time
-Mean    : 0.63
-Std Dev : 0.02
-
-Wall Time
-Mean    : 2.43
-Std Dev : 0.09
-
-Bytes Sent
-Mean    : 6125691.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 0.00
-Std Dev : 0.00
+& $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
 
 
 Builder Cut and choose - Correctness etc.
-CPU Time
-Mean    : 3.17
-Std Dev : 0.01
-
-Wall Time
-Mean    : 3.18
-Std Dev : 0.01
-
-Bytes Sent
-Mean    : 289396.00
-Std Dev : 0.00
-
-Bytes Received
-Mean    : 2214.00
-Std Dev : 0.00
+& $3.19$ & $3.20$ & $289,396$ & $2,214$ \\
 
 
 Proving consistency
-CPU Time
-Mean    : 6.78
-Std Dev : 0.02
-
-Wall Time
-Mean    : 10.80
-Std Dev : 0.03
-
-Bytes Sent
-Mean    : 18111.36
-Std Dev : 14.12
-
-Bytes Received
-Mean    : 79784.00
-Std Dev : 0.00
+& $6.82$ & $7.27$ & $18,110$ & $79,784$ \\
 
 
 Total time without connection setup
-CPU Time
-Mean    : 105.99
-Std Dev : 0.31
-
-Wall Time
-Mean    : 41.02
-Std Dev : 0.11
-
-Bytes Sent
-Mean    : 7648075.36
-Std Dev : 14.12
-
-Bytes Received
-Mean    : 737109.00
-Std Dev : 0.00
+& $113.96$ & $27.41$ & $7,648,074$ & $737,109$ \\
 
 
