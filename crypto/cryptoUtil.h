@@ -7,9 +7,8 @@
 
 #include "cryptoUtil.c"
 #include "gmpUtils.c"
-#include "rsa.c"
 #include "DDH_Primitive.h"
-#include "Hashing/sha256_good.c"
+#include "Hashing/sha256.c"
 
 #include "EllipticCurves/ecc.h"
 
@@ -17,7 +16,6 @@ struct eccPoint **gPreComputes;
 
 #include "ZeroKnowledgeProofs/ZKPoK_Ext/ZKPoK_ExtDH_Tuple_1OutOf1.c"
 
-// #include "OT/otToy.c"
 #include "OT/otPVW/otPVW_DDH.h"
 #include "OT/otPVW_ECC/otPVW_ECC.h"
 #include "OT/otLP_CnC/ot_LP_CnC.h"
@@ -39,8 +37,8 @@ struct eccPoint **gPreComputes;
 
 #include "SecureCoinToss/secureCoinToss.c"
 
-
 #include "ConsistencyChecks/builder_keys.h"
+
 
 
 const int wireKeysLengths = 16;

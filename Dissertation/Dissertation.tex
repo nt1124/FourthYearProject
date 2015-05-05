@@ -1487,24 +1487,23 @@
 			\subsection{Comparison of protocols}
 				\subsubsection{Overall}
 
-				These results show a very large difference in performance between the Huang, Katz and Evans protocol and the rest.
+					These results show a very large difference in performance between the Huang, Katz and Evans protocol and the rest. This is hardly surprising in the case of comparing Lindell-Pinkas 2010 to HKE as HKE requires (including the log factor) $92$ circuits to achieve a deterrent probability of $1 - 2^{-40}$. In comparison LP-2010 needs $130$ circuits (though with the improvements suggested in \cite{ShelatAndShen} this can be reduced to $126$.\\
+
+					Conversely it is quite surprising, at least at a high level, to see HKE out perform Lindell-2013 by such a margin. To achieve the same level of security Lindell 2013 needs only $40$ circuits of the same size and $\sim 120-126$ very small sub-circuits. Yet even if we were to completely remove the sub-computation the Lindell 2013 protocol is still out-performed by HKE.\\
+
+					It is tempting to put this down to implementation quality, perhaps we have coded badly such that idle time is a significant factor in Lindell-2013. But this possibility does not seem to hold up to the CPU times, HKE also uses considerably less CPU time not just wall time.
 
 				\subsubsection{Comparison of sub-computations}
 					Lastly we turn our attention to comparing the two variants on the sub-computation of the Lindell 2013 protocol. 
-			
-				
-% 			\subsection{SHA-1 Hashing}
-% 
-% 				The SHA-1 Hashing circuit is the largest we shall be testing upon with more than $100,000$ gates (around 3 times larger than AES. The circuit takes a 512 bit input from one of the parties and outputs the SHA-1 hash of this input.\\
-% 
-% 				This test should heavily favour Lindell's 2013 protocol over the Lindell-Pinkas 2010 protocol due to the size of the circuit. Of particular interest is the comparison of the HKE protocol versus the both variants of Lindell's 2013 protocol.\\
-
-				
 
 
 	\chapter{Conclusions}
 
-		
+		\section{Future Work}
+			Our work gives us an idea of how good several recently proposed protocols really are and which are worth further research and optimisation.
+
+			We have pointed the reader to several areas where we believe our implementation could be improved (notably)
+
 
 	\begin{thebibliography}{99}
 
@@ -1725,7 +1724,7 @@
 						\item AES-NI, again this is optional but preferred for performance.
 					\end{itemize}
 
-				\subsection{Compilation}
+				\subsection{Compilation} \label{sub:CompilationInstructs}
 					Compilation can be performed with the command
 					\begin{center}
 						\texttt{g++ circuitEvaluator.c -O3 -fopenmp -ffast-math -maes -lgmp -lrt}
@@ -1735,9 +1734,25 @@
 
 
 			\section{Running}
-				.
+				We assume you ran the command given in \ref{sub:CompilationInstructs} and the output file was \texttt{a.out}, if this is not the case then replace \texttt{a.out} with the relevant executable file. Then you can run our implementation with the following command,\\
 
-		
+				\texttt{./a.out [Circuit] [IP] [PortNum] [PartyInput] [ProtocolNum] [PartyID]}
+
+				\begin{itemize}
+					\item Circuit = Path to the file containing the raw binary circuit to be evaluated.
+					\item IP = The IP of the other party.
+					\item PortNum = The port on which the parties will communicate. Note this takes PortNum AND PortNum + 1.
+					\item PartyInput = Path to file containing the party's input to the computation.
+					\item Protocol Num = The protocol to run with where,
+						\subitem 0 = Lindell-Pinkas 2010
+						\subitem 1 = Lindell 2013
+						\subitem 2 = Huang-Katz-Evans 2013
+						\subitem 3 = L-HKE 2015
+						\subitem $4+$ = Benchmarking.
+					\item PartyID = 1 means the local party is $P_1$, 0 means the local party is $P_2$.
+				\end{itemize}
+
+
 		\chapter{Implementation Details} \label{sec:ImplementationDetails}
 			The final implementation is quite large and as such it would be thoroughly to go through all of it in any great detail. Furthermore a blow by blow account of the implementation of how we implement such primitives as Yao Garbled Circuits would detract from the purpose of this Dissertation, namely a comparison of several recent protocols, not a rehash of how to implement primitives.\\
 
