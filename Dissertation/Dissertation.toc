@@ -72,31 +72,31 @@
 \contentsline {subsection}{\numberline {5.5.4}L-HKE 2015}{33}{subsection.5.5.4}
 \contentsline {subsection}{\numberline {5.5.5}Comparison of protocols}{36}{subsection.5.5.5}
 \contentsline {subsubsection}{Overall}{36}{section*.31}
-\contentsline {subsubsection}{Comparison of sub-computations}{37}{section*.32}
-\contentsline {chapter}{\numberline {6}Conclusions}{38}{chapter.6}
-\contentsline {section}{\numberline {6.1}Future Work}{38}{section.6.1}
-\contentsline {chapter}{\numberline {A}Benchmarking components}{41}{Appendix.1.A}
-\contentsline {section}{\numberline {A.1}Communications}{41}{section.1.A.1}
-\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{41}{section.1.A.2}
-\contentsline {section}{\numberline {A.3}Oblivious Transfer}{41}{section.1.A.3}
-\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{41}{subsection.1.A.3.1}
-\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{41}{subsection.1.A.3.2}
-\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{41}{subsection.1.A.3.3}
-\contentsline {section}{\numberline {A.4}Circuit Building}{41}{section.1.A.4}
-\contentsline {section}{\numberline {A.5}Circuit Evaluation}{42}{section.1.A.5}
-\contentsline {chapter}{\numberline {B}Implementation usage guide}{43}{Appendix.1.B}
-\contentsline {section}{\numberline {B.1}Building}{43}{section.1.B.1}
-\contentsline {subsection}{\numberline {B.1.1}Dependencies}{43}{subsection.1.B.1.1}
-\contentsline {subsection}{\numberline {B.1.2}Compilation}{43}{subsection.1.B.1.2}
-\contentsline {section}{\numberline {B.2}Running}{43}{section.1.B.2}
-\contentsline {chapter}{\numberline {C}Implementation Details}{45}{Appendix.1.C}
-\contentsline {section}{\numberline {C.1}Yao Garbled Circuits implementation}{45}{section.1.C.1}
-\contentsline {subsection}{\numberline {C.1.1}Tillich-Smart Circuit Files}{45}{subsection.1.C.1.1}
-\contentsline {subsection}{\numberline {C.1.2}Creating binary circuits}{46}{subsection.1.C.1.2}
-\contentsline {section}{\numberline {C.2}Elliptic Curve implementation}{46}{section.1.C.2}
-\contentsline {subsection}{\numberline {C.2.1}Elliptic Curve point scalar multiplication}{47}{subsection.1.C.2.1}
-\contentsline {subsubsection}{Fixed Point Scalar Multiplication}{48}{section*.35}
-\contentsline {section}{\numberline {C.3}Verifiable Secret Sharing and Multi-precision Polynomials}{48}{section.1.C.3}
-\contentsline {subsection}{\numberline {C.3.1}Multi-precision polynomials}{49}{subsection.1.C.3.1}
-\contentsline {subsection}{\numberline {C.3.2}Shamir Secret Sharing}{49}{subsection.1.C.3.2}
-\contentsline {subsection}{\numberline {C.3.3}Verifiable Secret Sharing}{49}{subsection.1.C.3.3}
+\contentsline {subsubsection}{Comparison of sub-computations}{36}{section*.32}
+\contentsline {chapter}{\numberline {6}Conclusions}{37}{chapter.6}
+\contentsline {section}{\numberline {6.1}Future Work}{37}{section.6.1}
+\contentsline {chapter}{\numberline {A}Benchmarking components}{40}{Appendix.1.A}
+\contentsline {section}{\numberline {A.1}Communications}{40}{section.1.A.1}
+\contentsline {section}{\numberline {A.2}Elliptic Curve Group Operations}{40}{section.1.A.2}
+\contentsline {section}{\numberline {A.3}Oblivious Transfer}{40}{section.1.A.3}
+\contentsline {subsection}{\numberline {A.3.1}Cut and Choose Oblivious Transfer}{40}{subsection.1.A.3.1}
+\contentsline {subsection}{\numberline {A.3.2}Modified Cut and Choose Oblivious Transfer}{40}{subsection.1.A.3.2}
+\contentsline {subsection}{\numberline {A.3.3}Naor Pinkas Oblivious Transfer}{40}{subsection.1.A.3.3}
+\contentsline {section}{\numberline {A.4}Circuit Building}{40}{section.1.A.4}
+\contentsline {section}{\numberline {A.5}Circuit Evaluation}{41}{section.1.A.5}
+\contentsline {chapter}{\numberline {B}Implementation usage guide}{42}{Appendix.1.B}
+\contentsline {section}{\numberline {B.1}Building}{42}{section.1.B.1}
+\contentsline {subsection}{\numberline {B.1.1}Dependencies}{42}{subsection.1.B.1.1}
+\contentsline {subsection}{\numberline {B.1.2}Compilation}{42}{subsection.1.B.1.2}
+\contentsline {section}{\numberline {B.2}Running}{42}{section.1.B.2}
+\contentsline {chapter}{\numberline {C}Implementation Details}{44}{Appendix.1.C}
+\contentsline {section}{\numberline {C.1}Yao Garbled Circuits implementation}{44}{section.1.C.1}
+\contentsline {subsection}{\numberline {C.1.1}Tillich-Smart Circuit Files}{44}{subsection.1.C.1.1}
+\contentsline {subsection}{\numberline {C.1.2}Creating binary circuits}{45}{subsection.1.C.1.2}
+\contentsline {section}{\numberline {C.2}Elliptic Curve implementation}{45}{section.1.C.2}
+\contentsline {subsection}{\numberline {C.2.1}Elliptic Curve point scalar multiplication}{46}{subsection.1.C.2.1}
+\contentsline {subsubsection}{Fixed Point Scalar Multiplication}{47}{section*.35}
+\contentsline {section}{\numberline {C.3}Verifiable Secret Sharing and Multi-precision Polynomials}{47}{section.1.C.3}
+\contentsline {subsection}{\numberline {C.3.1}Multi-precision polynomials}{48}{subsection.1.C.3.1}
+\contentsline {subsection}{\numberline {C.3.2}Shamir Secret Sharing}{48}{subsection.1.C.3.2}
+\contentsline {subsection}{\numberline {C.3.3}Verifiable Secret Sharing}{48}{subsection.1.C.3.3}

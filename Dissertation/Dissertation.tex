@@ -1314,23 +1314,25 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $2.34$ & $0.30$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Circuit Building & $0.12$ & $0.02$ & $0$ & $0$ \\
+						\hline
+						OT- Sender & $37.65$ & $8.93$ & $284,040$ & $135,784$ \\
 						\hline
 						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Make/Send commits & $10.83$ & $1.38$ & $374,062$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Partially Open J-Sets & $0.05$ & $0.01$ & $134,368$ & $683$ \\
 						\hline
-						Sub-computation & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Sub-computation & $94.77$ & $14.80$ & $3,294,892$ & $3,162,854$ \\
 						\hline
 						Send B-Lists & $0.00$ & $0.00$ & $1,060$ & $0$ \\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,067$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $145.77$ & $25.47$ & $5,995,366$ & $3,299,399$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Builder}}
@@ -1341,25 +1343,25 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $35.29$ & $9.23$ & $135,861$ & $284,117$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,883,800$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.00$ & $1.39$ & $0$ & $374,062$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.00$ & $0.00$ & $683$ & $134,368$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate Circuits & $0.01$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						Sub-computation & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation & $94.53$ & $14.79$ & $3,162,854$ & $3,294,892$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $1.74$ & $0.24$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $0.93$ & $0.12$ & $0$ & $23,067$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $132.51$ & $25.83$ & $3,299,399$ & $5,995,366$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Executor}}
@@ -1373,26 +1375,28 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $2.36$ & $0.30$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Circuit Building & $3.53$ & $0.46$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						OT- Sender & $37.59$ & $8.94$ & $284,040$ & $135,783$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Sending Circuits and Hash List & $0.14$ & $0.54$ & $62,157,592$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Make/Send commits & $10.83$ & $1.38$ & $374,062$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Partially Open J-set & $0.06$ & $0.01$ & $134,507$ & $685$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						Sub-computation to detect cheating & $95.10$ & $14.66$ & $3,294,887$ & $3,162,882$\\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Send B-Lists & $0.00$ & $0.00$ & $2,052$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $22,986$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $149.61$ & $26.28$ & $66,270,204$ & $3,299,428$ \\
 						\hline
 					\end{tabular}
-					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Builder}}
+					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1400,25 +1404,25 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $35.29$ & $9.69$ & $135,860$ & $284,117$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.28$ & $0.58$ & $0$ & $62,157,592$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.00$ & $1.35$ & $0$ & $374,062$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.00$ & $0.00$ & $685$ & $134,507$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate Circuits & $0.26$ & $0.27$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation to detect cheating & $94.49$ & $14.39$ & $3,162,882$ & $3,294,887$ \\
 						\hline
-						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $2,052$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $3.79$ & $0.52$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $0.93$ & $0.12$ & $0$ & $22,986$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $135.05$ & $26.92$ & $3,299,428$ & $66,270,204$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Executor}}
@@ -1432,23 +1436,25 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $9.39$ & $1.18$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Building Circuits & $11.18$ & $1.44$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						OT- Sender & $141.29$ & $33.36$ & $1,120,488$ & $476,293$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Sending Circuits and Hash List & $0.40$ & $1.82$ & $204,082,568$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Make/Send commits & $43.23$ & $5.44$ & $1,495,342$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Partially open J-set & $0.22$ & $0.03$ & $414,781$ & $684$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						Sub-computation to detect cheating & $212.13$ & $34.95$ & $7,516,036$ & $7,391,121$ \\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Send B-Lists & $0.00$ & $0.00$ & $4,100$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $92,025$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $417.84$ & $78.22$ & $214,725,419$ & $7,868,176$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Builder}}
@@ -1459,25 +1465,25 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $136.87$ & $35.96$ & $476,370$ & $1,120,565$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.76$ & $1.88$ & $0$ & $204,082,568$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.02$ & $5.43$ & $0$ & $1,495,342$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.01$ & $0.01$ & $684$ & $414,781$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate Circuits & $0.37$ & $0.37$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation to detect cheating & $211.41$ & $34.57$ & $7,391,121$ & $7,516,036$ \\
 						\hline
-						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $4,100$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $11.14$ & $1.80$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $2.89$ & $0.47$ & $0$ & $92,025$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $363.46$ & $80.49$ & $7,868,176$ & $214,725,419$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Executor}}

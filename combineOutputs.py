@@ -80,7 +80,7 @@ def processOneSet(protocolNum, circuitNum, partyID):
 
 	for i in range(0, numTests):
 		outputNumber = str(i).zfill(4)
-		OutputFile = "../TestResultsBackup/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
+		OutputFile = "../MORE_RESULTS/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
 
 		fileAsArray = getFileAsStringArray(OutputFile)
 		
@@ -147,7 +147,7 @@ infoTags = ['#', ':', '+']
 protocolNameList = ["LP_2010", "L_2013", "HKE_2013", "CHIMERA_2013"]
 circuitNameList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 
-protocolNum = 2
+protocolNum = 3
 circuitNum = 0
 partyID = 0
 
