@@ -1,3 +1,4 @@
+// Initialise an Elliptic Curve Point struct
 struct eccPoint *initECC_Point()
 {
 	struct eccPoint *output = (struct eccPoint *) calloc(1, sizeof(struct eccPoint));
@@ -11,6 +12,7 @@ struct eccPoint *initECC_Point()
 }
 
 
+// Initialise the identity ECC point 
 struct eccPoint *init_Identity_ECC_Point()
 {
 	struct eccPoint *output = (struct eccPoint *) calloc(1, sizeof(struct eccPoint));
@@ -24,6 +26,7 @@ struct eccPoint *init_Identity_ECC_Point()
 }
 
 
+// Take in an X and a Y and initialise an ECC point at (X, Y)
 struct eccPoint *initAndSetECC_Point(mpz_t x, mpz_t y, unsigned char identity)
 {
 	struct eccPoint *output = (struct eccPoint *) calloc(1, sizeof(struct eccPoint));
@@ -38,6 +41,7 @@ struct eccPoint *initAndSetECC_Point(mpz_t x, mpz_t y, unsigned char identity)
 }
 
 
+// Copy and ECC Point
 struct eccPoint *copyECC_Point(struct eccPoint *toCopy)
 {
 	struct eccPoint *output = (struct eccPoint *) calloc(1, sizeof(struct eccPoint));
@@ -51,7 +55,7 @@ struct eccPoint *copyECC_Point(struct eccPoint *toCopy)
 }
 
 
-
+// Clear an ECC Point memory.
 void clearECC_Point(struct eccPoint *toClear)
 {
 	mpz_clear(toClear -> x);
@@ -61,6 +65,7 @@ void clearECC_Point(struct eccPoint *toClear)
 }
 
 
+// Ronseal
 void printPoint(struct eccPoint *P)
 {
 	if(0 == P -> pointAtInf)
@@ -74,6 +79,7 @@ void printPoint(struct eccPoint *P)
 }
 
 
+// Init ECC Params generally
 struct eccParams *initECC_Params()
 {
 	struct eccParams *output = (struct eccParams *) calloc(1, sizeof(struct eccParams));
@@ -88,6 +94,7 @@ struct eccParams *initECC_Params()
 }
 
 
+// Init ECC Params with given inputs.
 struct eccParams *initAndSetECC_Params(mpz_t p, mpz_t a, mpz_t b, struct eccPoint *g, mpz_t n)
 {
 	struct eccParams *output = (struct eccParams *) calloc(1, sizeof(struct eccParams));
@@ -105,6 +112,7 @@ struct eccParams *initAndSetECC_Params(mpz_t p, mpz_t a, mpz_t b, struct eccPoin
 }
 
 
+// Init an ECC Ciphertext
 struct ecc_Ciphertext *initECC_Ciphertext()
 {
 	struct ecc_Ciphertext *output = (struct ecc_Ciphertext *) calloc(1, sizeof(struct ecc_Ciphertext));
@@ -133,6 +141,7 @@ struct ECC_PK *initPK_For_Use()
 }
 
 
+// How big (in uchars) is this input point serialised 
 int sizeOfSerial_ECCPoint(struct eccPoint *P)
 {
 	int totalLength = sizeof(int) * 2 + 1;
@@ -144,7 +153,7 @@ int sizeOfSerial_ECCPoint(struct eccPoint *P)
 }
 
 
-
+// Serialise the input ECC point placing the output into outputBuffer starting at outputOffset.
 void serialise_ECC_Point(struct eccPoint *P, unsigned char *outputBuffer, int *outputOffset)
 {
 
@@ -159,6 +168,7 @@ void serialise_ECC_Point(struct eccPoint *P, unsigned char *outputBuffer, int *o
 }
 
 
+// Deserialise the input ECC point placing the output into outputBuffer starting at outputOffset. 
 struct eccPoint *deserialise_ECC_Point(unsigned char *inputBuffer, int *inputOffset)
 {
 	struct eccPoint *output = initECC_Point();

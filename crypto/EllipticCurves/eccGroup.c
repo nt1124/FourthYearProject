@@ -1,3 +1,10 @@
+// See this link for how we do Elliptic curve additions and doubles.
+// http://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
+
+
+
+
+// Double a point in place
 void doubleGroupOpInPlace(struct eccPoint *P, struct eccParams *params)
 {
 	mpz_t topHalf, lowerHalf, lowerHalf_inv, temp1, temp2, fractionPart, unmoddedX, unmoddedY;
@@ -37,6 +44,7 @@ void doubleGroupOpInPlace(struct eccPoint *P, struct eccParams *params)
 	mpz_mod(P -> y, unmoddedY, params -> p);
 
 
+	// Housekeeping
 	mpz_clear(topHalf);
 	mpz_clear(lowerHalf);
 	mpz_clear(lowerHalf_inv);
@@ -48,6 +56,7 @@ void doubleGroupOpInPlace(struct eccPoint *P, struct eccParams *params)
 }
 
 
+// Double a point, Not in place.
 struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccParams *params)
 {
 	mpz_t topHalf, lowerHalf, lowerHalf_inv, temp1, temp2, fractionPart, unmodded;
@@ -71,7 +80,6 @@ struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccParams *params)
 	mpz_invert(lowerHalf_inv, lowerHalf, params -> p);
 	mpz_mul(fractionPart, topHalf, lowerHalf_inv);
 	mpz_mul(temp2, fractionPart, fractionPart);
-	// mpz_powm_ui(temp2, fractionPart, 2, params -> p);
 
 	mpz_mul_ui(temp1, P -> x, 2);
 	mpz_sub(unmodded, temp2, temp1);
@@ -96,6 +104,7 @@ struct eccPoint *doubleGroupOp(struct eccPoint *P, struct eccParams *params)
 }
 
 
+// Add the ECC points P and Q together.
 struct eccPoint *addEC_Point(struct eccPoint *P, struct eccPoint *Q, struct eccParams *params)
 {
 	mpz_t topHalf, lowerHalf, lowerHalf_inv, temp1, temp2, unmodded, lambda, lambdaSq;
@@ -109,7 +118,6 @@ struct eccPoint *addEC_Point(struct eccPoint *P, struct eccPoint *Q, struct eccP
 	mpz_init(unmodded);
 	mpz_init(lambda);
 	mpz_init(lambdaSq);
-
 
 	mpz_sub(topHalf, Q -> y, P -> y);
 	mpz_sub(lowerHalf, Q -> x, P -> x);
@@ -140,6 +148,7 @@ struct eccPoint *addEC_Point(struct eccPoint *P, struct eccPoint *Q, struct eccP
 }
 
 
+// Add two ECC points (P and Q) together and put the result in P.
 void addEC_Point_PlusEqual(struct eccPoint *P, struct eccPoint *Q, struct eccParams *params)
 {
 	mpz_t topHalf, lowerHalf, lowerHalf_inv, temp1, temp2, unmodded, lambda, lambdaSq;
@@ -181,7 +190,6 @@ void addEC_Point_PlusEqual(struct eccPoint *P, struct eccPoint *Q, struct eccPar
 	mpz_clear(lambda);
 	mpz_clear(lambdaSq);
 }
-
 
 
 struct eccPoint *doublePoint(struct eccPoint *P, struct eccParams *params)
@@ -259,6 +267,7 @@ struct eccPoint *groupOp(struct eccPoint *P, struct eccPoint *Q, struct eccParam
 }
 
 
+// 
 void groupOp_PlusEqual(struct eccPoint *P, struct eccPoint *Q, struct eccParams *params)
 {
 	if(Q -> pointAtInf != 0x01)
@@ -292,6 +301,7 @@ void groupOp_PlusEqual(struct eccPoint *P, struct eccPoint *Q, struct eccParams 
 }
 
 
+// Invert an Affine point.
 struct eccPoint *invertPoint(struct eccPoint *P, struct eccParams *params)
 {
 	struct eccPoint *invP = initECC_Point();
@@ -300,10 +310,12 @@ struct eccPoint *invertPoint(struct eccPoint *P, struct eccParams *params)
 	mpz_set(invP -> x, P -> x);
 	mpz_sub(invP -> y, params -> p, P -> y);
 
+
 	return invP;
 }
 
 
+// Perform Scalar multiplication using Double and add algorithm
 struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccParams *params)
 {
 	struct eccPoint *Q = init_Identity_ECC_Point();
@@ -326,6 +338,7 @@ struct eccPoint *doubleAndAdd_ScalarMul(mpz_t k, struct eccPoint *P, struct eccP
 }
 
 
+// Map a single MPZ to an ECC point. Note it might not be a VALID point on the curve.
 struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 {
 	struct eccPoint *pointOutput = initECC_Point();
@@ -345,7 +358,6 @@ struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 	// mpz_mod(temp2, temp1, params -> p);
 
 	quadratic_residue(pointOutput -> y, temp1, params -> p);
-	// quadratic_residue_alt(pointOutput -> y, temp1, params -> p);
 
 	// z ^ ((p+1)/4) (mod p)
 	mpz_clear(temp1);
@@ -358,9 +370,7 @@ struct eccPoint *mapMPZ_To_Point(mpz_t msg, struct eccParams *params)
 
 
 
-
-
-
+// Initialise a Params struct with the Brainpool 160 bit curve. (80 bit security)
 struct eccParams *initBrainpool_160_Curve()
 {
 	const char *pStr = "E95E4A5F737059DC60DFC7AD95B3D8139515620F";
@@ -385,7 +395,8 @@ struct eccParams *initBrainpool_160_Curve()
 }
 
 
-// Ask Nigel about whether Brainpool is `trusted'
+
+// Initialise a Params struct with the Brainpool 256 bit curve. (128 bits security)
 struct eccParams *initBrainpool_256_Curve()
 {
 	const char *pStr = "A9FB57DBA1EEA9BC3E660A909D838D726E3BF623D52620282013481D1F6E5377";
@@ -446,6 +457,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 	//Precompute the values for base to power of all possible windows. 
 	preComputes = preComputePoints(P, twoPowerK, params);
 
+	// We now run through the exponent from most significant bit.
 	while (i >= 0)
 	{
 		//If the i-th bit (of exponent) is a zero, we just square the current result, move to next bit.
@@ -458,6 +470,7 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 			i --;
 		}
 
+		// If the window is not 0
 		if(u)
 		{			
 			groupOp_PlusEqual(Q, preComputes[u], params);
@@ -475,36 +488,12 @@ struct eccPoint *windowedScalarPoint(mpz_t exponent, struct eccPoint *P, struct 
 }
 
 
-/*
-struct eccPoint **slidingWindowPreCompute(struct eccPoint *base, int windowSize, struct eccParams *params)
-{
-	struct eccPoint **output, *temp;
-	int i;
-
-
-	output = (struct eccPoint **) calloc(windowSize, sizeof(struct eccPoint*));
-	temp = copyECC_Point(base);
-	for(i = 1; i < windowSize / 2; i ++)
-	{
-		doublePointInPlace(temp, params);
-	}
-
-	output[windowSize / 2] = temp;
-	for(i = windowSize / 2 + 1; i < windowSize; i ++)
-	{
-		output[i] = groupOp(output[i-1], base, params);
-	}
-
-
-	return output;
-}
-*/
-
-
+// Take a base point g, compute 2^i * g for all i giving a valid exponent 
 struct eccPoint **fixedBasePreComputes(struct eccPoint *base, struct eccParams *params)
 {
 	struct eccPoint **outputs;
 	int i, bitSize = mpz_sizeinbase(params -> n, 2);
+
 
 	outputs = (struct eccPoint **) calloc(bitSize + 1, sizeof(struct eccPoint *));
 
@@ -520,6 +509,7 @@ struct eccPoint **fixedBasePreComputes(struct eccPoint *base, struct eccParams *
 }
 
 
+// Perform a fixed based scalar multiplication.
 struct eccPoint *fixedPointMultiplication(struct eccPoint **precomputes, mpz_t exponent, struct eccParams *params)
 {
 	struct eccPoint *output = init_Identity_ECC_Point();
@@ -530,6 +520,7 @@ struct eccPoint *fixedPointMultiplication(struct eccPoint **precomputes, mpz_t e
 	mpz_init(moddedExp);
 	mpz_mod(moddedExp, exponent, params -> n);
 
+	//For each bit in the exponent, add in the relevant pre-computed point.
 	for(i = 1; i <= bitSize; i ++)
 	{
 		if( 1 == mpz_tstbit(moddedExp, i - 1) )
