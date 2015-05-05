@@ -13,6 +13,9 @@ struct Circuit **benchmark_LP_2010_CircuitBuilding(struct RawCircuit *rawInputCi
 
 	int numCircuits = 16;
 	int i;
+
+	unsigned char *inputBits;
+	struct idAndValue *startOfInputChain;
 	
 	ub4 **circuitSeeds = (ub4 **) calloc(numCircuits, sizeof(ub4*));
 	randctx **circuitCTXs = (randctx **) calloc(numCircuits, sizeof(randctx*));
@@ -64,6 +67,30 @@ struct Circuit **benchmark_LP_2010_CircuitBuilding(struct RawCircuit *rawInputCi
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
+
+	inputBits = (unsigned char *) calloc(rawInputCircuit -> numInputs, sizeof(unsigned char));
+	for(i = 0; i < rawInputCircuit -> numInputs; i ++)
+	{
+		inputBits[i] = rand() % 2;
+	}
+	startOfInputChain = convertArrayToChain(inputBits, rawInputCircuit -> numInputs, 0);
+
+	c_0 = clock();
+	timestamp_0= timestamp();
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		setCircuitsInputs_Hardcode(startOfInputChain, circuitsArray[i], 0xFF);
+		runCircuitExec(circuitsArray[i], 0, 0 );
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nLP_2010 Running %d circuits %d many gates\n", numCircuits, rawInputCircuit -> numGates);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
 	return circuitsArray;
 }
 
@@ -82,6 +109,9 @@ struct Circuit **benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCir
 	struct public_builderPRS_Keys *public_inputs;
 	struct secret_builderPRS_Keys *secret_inputs;
 	struct eccParams *params;
+
+	unsigned char *inputBits;
+	struct idAndValue *startOfInputChain;
 
 	unsigned char *delta, ***bLists, ***hashedB_Lists;
 
@@ -123,7 +153,14 @@ struct Circuit **benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCir
 
 	printf("\nL_2013 input generation for %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+
+	inputBits = (unsigned char *) calloc(rawInputCircuit -> numInputs, sizeof(unsigned char));
+	for(i = 0; i < rawInputCircuit -> numInputs; i ++)
+	{
+		inputBits[i] = rand() % 2;
+	}
+	startOfInputChain = convertArrayToChain(inputBits, rawInputCircuit -> numInputs, 0);
 
 
 	c_0 = clock();
@@ -143,6 +180,31 @@ struct Circuit **benchmark_L_2013_CircuitBuilding(struct RawCircuit *rawInputCir
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
+
+	inputBits = (unsigned char *) calloc(rawInputCircuit -> numInputs, sizeof(unsigned char));
+	for(i = 0; i < rawInputCircuit -> numInputs; i ++)
+	{
+		inputBits[i] = rand() % 2;
+	}
+	startOfInputChain = convertArrayToChain(inputBits, rawInputCircuit -> numInputs, 0);
+
+	c_0 = clock();
+	timestamp_0= timestamp();
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		setCircuitsInputs_Hardcode(startOfInputChain, circuitsArray[i], 0xFF);
+		runCircuitExec(circuitsArray[i], 0, 0 );
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nL_2013 Running %d circuits %d many gates\n", numCircuits, rawInputCircuit -> numGates);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+
 	return circuitsArray;
 }
 
@@ -161,6 +223,9 @@ struct Circuit **benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputC
 
 	struct HKE_Output_Struct_Builder *outputStruct_Own;
 	struct DDH_Group *groupOwn;
+
+	unsigned char *inputBits;
+	struct idAndValue *startOfInputChain;
 
 	gmp_randstate_t *state;
 
@@ -204,11 +269,9 @@ struct Circuit **benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputC
 	aList = getNaorPinkasInputs(numOwnInputs, numCircuits, *state, params);
 	NaorPinkasInputs = computeNaorPinkasInputs(cTilde, aList, numOwnInputs, numCircuits, params);
 
-	// Build the circuits that you own.
-	// circuitsArray = buildAll_HKE_Circuits(rawInputCircuit, startOfInputChain, C, NaorPinkasInputs, outputStruct_Own, params,
-	// 										circuitCTXs, circuitSeeds, numCircuits, partyID);
-
-	printf("\nL_2013 input generation for %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
+	c_1 = clock();
+	timestamp_1 = timestamp();
+	printf("\nHKE_2013 input generation for %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
 	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
@@ -220,7 +283,7 @@ struct Circuit **benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputC
 	for(i = 0; i < numCircuits; i ++)
 	{
 		outputKeysLocals = getOutputKeys(outputStruct_Own, rawInputCircuit -> numOutputs, i);
-		circuitsArray[j] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[i], rawInputCircuit, NaorPinkasInputs[i], outputKeysLocals, params, partyID);
+		circuitsArray[i] = readInCircuit_FromRaw_HKE_2013(circuitCTXs[i], rawInputCircuit, NaorPinkasInputs[i], outputKeysLocals, params, partyID);
 
 		for(j = 0; j < 2 * rawInputCircuit -> numOutputs; j ++)
 		{
@@ -232,9 +295,33 @@ struct Circuit **benchmark_HKE_2013_CircuitBuilding(struct RawCircuit *rawInputC
 	c_1 = clock();
 	timestamp_1 = timestamp();
 
-	printf("\nL_2013 Building %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
+	printf("\nHKE_2013 Building %d circuits with %d Builder inputs and %d Outputs\n", numCircuits, rawInputCircuit -> numInputs_P1, rawInputCircuit -> numOutputs);
 	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+	printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+	inputBits = (unsigned char *) calloc(rawInputCircuit -> numInputs, sizeof(unsigned char));
+	for(i = 0; i < rawInputCircuit -> numInputs; i ++)
+	{
+		inputBits[i] = rand() % 2;
+	}
+	startOfInputChain = convertArrayToChain(inputBits, rawInputCircuit -> numInputs, 0);
+
+	c_0 = clock();
+	timestamp_0= timestamp();
+
+	for(i = 0; i < numCircuits; i ++)
+	{
+		setCircuitsInputs_Hardcode(startOfInputChain, circuitsArray[i], 0xFF);
+		runCircuitExec(circuitsArray[i], 0, 0 );
+	}
+
+	c_1 = clock();
+	timestamp_1 = timestamp();
+
+	printf("\nHKE_2013 Running %d circuits %d many gates\n", numCircuits, rawInputCircuit -> numGates);
+	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+	printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
 
 	return circuitsArray;
 }

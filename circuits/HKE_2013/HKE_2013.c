@@ -150,7 +150,7 @@ void run_HKE_2013_CnC_OT(int writeSocket, int readSocket, struct RawCircuit *raw
 	struct HKE_Output_Struct_Builder *outputStruct_Own, *outputStruct_Partner;
 	struct jSetRevealHKE *partnerReveals;
 	struct DDH_Group *groupOwn, *groupPartner;
-	int numCircuits = stat_SecParam + 6; // Hardcoded laziness.
+	int numCircuits = stat_SecParam + 6; // Hardcoded laziness for S = 40.
 	int tempLength = 0, bufferOffset = 0;
 	int jSetChecks = 0, logChecks, numOwnInputs;
 

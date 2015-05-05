@@ -18,7 +18,7 @@
 \BOOKMARK [2][-]{subsection.3.2.2}{Yao Garbled Circuits}{section.3.2}% 18
 \BOOKMARK [2][-]{subsection.3.2.3}{Security of Yao Garbled Circuits}{section.3.2}% 19
 \BOOKMARK [2][-]{subsection.3.2.4}{Cut and Choose - Security against Malicious and Covert Adversaries}{section.3.2}% 20
-\BOOKMARK [0][-]{chapter.4}{Summary of Protocols to be implemented}{}% 21
+\BOOKMARK [0][-]{chapter.4}{Summary of Actively Secure Protocols to be implemented}{}% 21
 \BOOKMARK [1][-]{section.4.1}{Lindell and Pinkas 2011}{chapter.4}% 22
 \BOOKMARK [2][-]{subsection.4.1.1}{Overview}{section.4.1}% 23
 \BOOKMARK [2][-]{subsection.4.1.2}{Cut and Choose Oblivious Transfer}{section.4.1}% 24
@@ -35,42 +35,43 @@
 \BOOKMARK [2][-]{subsection.4.4.2}{Consistency of Builder's inputs}{section.4.4}% 35
 \BOOKMARK [2][-]{subsection.4.4.3}{Ensuring consistency of Executor's inputs}{section.4.4}% 36
 \BOOKMARK [2][-]{subsection.4.4.4}{Hiding output from Builder}{section.4.4}% 37
-\BOOKMARK [0][-]{chapter.5}{Experiments}{}% 38
-\BOOKMARK [1][-]{section.5.1}{Measurement metrics}{chapter.5}% 39
-\BOOKMARK [1][-]{section.5.2}{Testing Environment}{chapter.5}% 40
-\BOOKMARK [1][-]{section.5.3}{Notes on the form of Experiments}{chapter.5}% 41
-\BOOKMARK [1][-]{section.5.4}{Expectations}{chapter.5}% 42
-\BOOKMARK [2][-]{subsection.5.4.1}{32-bit addition}{section.5.4}% 43
-\BOOKMARK [2][-]{subsection.5.4.2}{32-bit multiplication}{section.5.4}% 44
-\BOOKMARK [2][-]{subsection.5.4.3}{AES encryption}{section.5.4}% 45
-\BOOKMARK [1][-]{section.5.5}{Results}{chapter.5}% 46
-\BOOKMARK [2][-]{subsection.5.5.1}{Lindell-Pinkas 2010}{section.5.5}% 47
-\BOOKMARK [2][-]{subsection.5.5.2}{Lindell 2013}{section.5.5}% 48
-\BOOKMARK [2][-]{subsection.5.5.3}{Huang-Katz-Evans 2013}{section.5.5}% 49
-\BOOKMARK [2][-]{subsection.5.5.4}{L-HKE 2015}{section.5.5}% 50
-\BOOKMARK [2][-]{subsection.5.5.5}{Comparison of protocols}{section.5.5}% 51
-\BOOKMARK [0][-]{chapter.6}{Conclusions}{}% 52
-\BOOKMARK [0][-]{Appendix.1.A}{Benchmarking components}{}% 53
-\BOOKMARK [1][-]{section.1.A.1}{Communications}{Appendix.1.A}% 54
-\BOOKMARK [1][-]{section.1.A.2}{Elliptic Curve Group Operations}{Appendix.1.A}% 55
-\BOOKMARK [1][-]{section.1.A.3}{Oblivious Transfer}{Appendix.1.A}% 56
-\BOOKMARK [2][-]{subsection.1.A.3.1}{Cut and Choose Oblivious Transfer}{section.1.A.3}% 57
-\BOOKMARK [2][-]{subsection.1.A.3.2}{Modified Cut and Choose Oblivious Transfer}{section.1.A.3}% 58
-\BOOKMARK [2][-]{subsection.1.A.3.3}{Naor Pinkas Oblivious Transfer}{section.1.A.3}% 59
-\BOOKMARK [1][-]{section.1.A.4}{Circuit Building}{Appendix.1.A}% 60
-\BOOKMARK [1][-]{section.1.A.5}{Circuit Evaluation}{Appendix.1.A}% 61
-\BOOKMARK [0][-]{Appendix.1.B}{Implementation usage guide}{}% 62
-\BOOKMARK [1][-]{section.1.B.1}{Building}{Appendix.1.B}% 63
-\BOOKMARK [2][-]{subsection.1.B.1.1}{Dependencies}{section.1.B.1}% 64
-\BOOKMARK [2][-]{subsection.1.B.1.2}{Compilation}{section.1.B.1}% 65
-\BOOKMARK [1][-]{section.1.B.2}{Running}{Appendix.1.B}% 66
-\BOOKMARK [0][-]{Appendix.1.C}{Implementation Details}{}% 67
-\BOOKMARK [1][-]{section.1.C.1}{Yao Garbled Circuits implementation}{Appendix.1.C}% 68
-\BOOKMARK [2][-]{subsection.1.C.1.1}{Tillich-Smart Circuit Files}{section.1.C.1}% 69
-\BOOKMARK [2][-]{subsection.1.C.1.2}{Creating binary circuits}{section.1.C.1}% 70
-\BOOKMARK [1][-]{section.1.C.2}{Elliptic Curve implementation}{Appendix.1.C}% 71
-\BOOKMARK [2][-]{subsection.1.C.2.1}{Elliptic Curve point scalar multiplication}{section.1.C.2}% 72
-\BOOKMARK [1][-]{section.1.C.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{Appendix.1.C}% 73
-\BOOKMARK [2][-]{subsection.1.C.3.1}{Multi-precision polynomials}{section.1.C.3}% 74
-\BOOKMARK [2][-]{subsection.1.C.3.2}{Shamir Secret Sharing}{section.1.C.3}% 75
-\BOOKMARK [2][-]{subsection.1.C.3.3}{Verifiable Secret Sharing}{section.1.C.3}% 76
+\BOOKMARK [2][-]{subsection.4.4.5}{Performance expectations}{section.4.4}% 38
+\BOOKMARK [0][-]{chapter.5}{Experiments}{}% 39
+\BOOKMARK [1][-]{section.5.1}{Measurement metrics}{chapter.5}% 40
+\BOOKMARK [1][-]{section.5.2}{Testing Environment}{chapter.5}% 41
+\BOOKMARK [1][-]{section.5.3}{Notes on the form of Experiments}{chapter.5}% 42
+\BOOKMARK [1][-]{section.5.4}{Expectations}{chapter.5}% 43
+\BOOKMARK [2][-]{subsection.5.4.1}{32-bit addition}{section.5.4}% 44
+\BOOKMARK [2][-]{subsection.5.4.2}{32-bit multiplication}{section.5.4}% 45
+\BOOKMARK [2][-]{subsection.5.4.3}{AES encryption}{section.5.4}% 46
+\BOOKMARK [1][-]{section.5.5}{Results}{chapter.5}% 47
+\BOOKMARK [2][-]{subsection.5.5.1}{Lindell-Pinkas 2010}{section.5.5}% 48
+\BOOKMARK [2][-]{subsection.5.5.2}{Lindell 2013}{section.5.5}% 49
+\BOOKMARK [2][-]{subsection.5.5.3}{Huang-Katz-Evans 2013}{section.5.5}% 50
+\BOOKMARK [2][-]{subsection.5.5.4}{L-HKE 2015}{section.5.5}% 51
+\BOOKMARK [2][-]{subsection.5.5.5}{Comparison of protocols}{section.5.5}% 52
+\BOOKMARK [0][-]{chapter.6}{Conclusions}{}% 53
+\BOOKMARK [0][-]{Appendix.1.A}{Benchmarking components}{}% 54
+\BOOKMARK [1][-]{section.1.A.1}{Communications}{Appendix.1.A}% 55
+\BOOKMARK [1][-]{section.1.A.2}{Elliptic Curve Group Operations}{Appendix.1.A}% 56
+\BOOKMARK [1][-]{section.1.A.3}{Oblivious Transfer}{Appendix.1.A}% 57
+\BOOKMARK [2][-]{subsection.1.A.3.1}{Cut and Choose Oblivious Transfer}{section.1.A.3}% 58
+\BOOKMARK [2][-]{subsection.1.A.3.2}{Modified Cut and Choose Oblivious Transfer}{section.1.A.3}% 59
+\BOOKMARK [2][-]{subsection.1.A.3.3}{Naor Pinkas Oblivious Transfer}{section.1.A.3}% 60
+\BOOKMARK [1][-]{section.1.A.4}{Circuit Building}{Appendix.1.A}% 61
+\BOOKMARK [1][-]{section.1.A.5}{Circuit Evaluation}{Appendix.1.A}% 62
+\BOOKMARK [0][-]{Appendix.1.B}{Implementation usage guide}{}% 63
+\BOOKMARK [1][-]{section.1.B.1}{Building}{Appendix.1.B}% 64
+\BOOKMARK [2][-]{subsection.1.B.1.1}{Dependencies}{section.1.B.1}% 65
+\BOOKMARK [2][-]{subsection.1.B.1.2}{Compilation}{section.1.B.1}% 66
+\BOOKMARK [1][-]{section.1.B.2}{Running}{Appendix.1.B}% 67
+\BOOKMARK [0][-]{Appendix.1.C}{Implementation Details}{}% 68
+\BOOKMARK [1][-]{section.1.C.1}{Yao Garbled Circuits implementation}{Appendix.1.C}% 69
+\BOOKMARK [2][-]{subsection.1.C.1.1}{Tillich-Smart Circuit Files}{section.1.C.1}% 70
+\BOOKMARK [2][-]{subsection.1.C.1.2}{Creating binary circuits}{section.1.C.1}% 71
+\BOOKMARK [1][-]{section.1.C.2}{Elliptic Curve implementation}{Appendix.1.C}% 72
+\BOOKMARK [2][-]{subsection.1.C.2.1}{Elliptic Curve point scalar multiplication}{section.1.C.2}% 73
+\BOOKMARK [1][-]{section.1.C.3}{Verifiable Secret Sharing and Multi-precision Polynomials}{Appendix.1.C}% 74
+\BOOKMARK [2][-]{subsection.1.C.3.1}{Multi-precision polynomials}{section.1.C.3}% 75
+\BOOKMARK [2][-]{subsection.1.C.3.2}{Shamir Secret Sharing}{section.1.C.3}% 76
+\BOOKMARK [2][-]{subsection.1.C.3.3}{Verifiable Secret Sharing}{section.1.C.3}% 77
