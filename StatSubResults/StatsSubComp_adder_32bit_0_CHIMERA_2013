@@ -1,0 +1,44 @@
+Prep for building Own Circuits
+& $6.20$ & $0.82$ & $0$ & $0$ \\
+
+
+Building Own Circuits
+& $0.10$ & $0.01$ & $0$ & $0$ \\
+
+
+Exchanging Circuits + delta commit.
+& $0.31$ & $0.04$ & $1,181,510$ & $1,315,834$ \\
+
+
+Make commitments.
+& $28.39$ & $4.00$ & $967,406$ & $967,406$ \\
+
+
+Exchange Secret Sharing Schemes.
+& $0.00$ & $0.00$ & $36,284$ & $36,290$ \\
+
+
+subOT - Receiver
+& $0.11$ & $0.02$ & $353,024$ & $350,732$ \\
+
+
+Coin flips
+& $0.07$ & $0.01$ & $2,532$ & $2,532$ \\
+
+
+Initial J-Set checks
+& $28.46$ & $4.99$ & $549,252$ & $549,252$ \\
+
+
+Sub-Log checks
+& $2.03$ & $0.41$ & $59,620$ & $59,620$ \\
+
+
+Output Determination
+& $1.24$ & $0.77$ & $13,226$ & $13,226$ \\
+
+
+Full Sub-Computation
+& $94.53$ & $14.79$ & $3,162,854$ & $3,294,892$ \\
+
+

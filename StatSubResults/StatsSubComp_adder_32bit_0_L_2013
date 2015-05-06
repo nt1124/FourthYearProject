@@ -1,0 +1,28 @@
+subOT - Receiver Prep
+& $20.09$ & $2.89$ & $0$ & $0$ \\
+
+
+subOT - Receiver Transfer
+& $22.10$ & $16.01$ & $744,911$ & $1,401,757$ \\
+
+
+Received Sub-circuits etc.
+& $0.03$ & $0.00$ & $0$ & $741,341$ \\
+
+
+Get Delta and k_0s.
+& $0.00$ & $0.00$ & $0$ & $2,052$ \\
+
+
+Sub-circuit correctness and decommit to J-Set
+& $10.39$ & $1.59$ & $2,044$ & $125,044$ \\
+
+
+Sub-circuit get builder inputs.
+& $0.75$ & $1.36$ & $0$ & $142,092$ \\
+
+
+Full sub-computation
+& $53.37$ & $21.85$ & $746,955$ & $2,412,286$ \\
+
+

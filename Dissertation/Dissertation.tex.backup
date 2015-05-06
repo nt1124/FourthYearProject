@@ -829,17 +829,17 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Input Generation & $0.18$ & $0.02$ & $0$ & $0$ \\
+						Input generation & $0.18$ & $0.02$ & $0$ & $0$ \\
 						\hline
-						Building Circuits & $20.39$ & $2.69$ & $0$ & $0$ \\
+						Building circuits & $20.39$ & $2.69$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $82.75$ & $11.80$ & $1,214,877$ & $655,111$ \\
 						\hline
-						Sending Circuits and Commitments & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
+						Sending circuits/commits & $0.63$ & $2.43$ & $6,125,691$ & $0$ \\
 						\hline
-						Open Check Circuits & $3.19$ & $3.20$ & $289,396$ & $2,214$ \\
+						Open check circuits & $3.19$ & $3.20$ & $289,396$ & $2,214$ \\
 						\hline
-						Prove Input Consistency & $6.82$ & $7.27$ & $18,110$ & $79,784$ \\
+						Prove input consistency & $6.82$ & $7.27$ & $18,110$ & $79,784$ \\
 						\thickhline
 						Total & $113.96$ & $27.41$ & $7,648,074$ & $737,109$ \\
 						\hline
@@ -852,17 +852,17 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT Prep Receiver & $17.60$ & $2.60$ & $0$ & $0$ \\
+						OT prep receiver & $17.60$ & $2.60$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $18.93$ & $14.18$ & $655,111$ & $1,214,877$ \\
+						OT transfer receiver & $18.93$ & $14.18$ & $655,111$ & $1,214,877$ \\
 						\hline
-						Receiving Circuits and Commitments & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
+						Receive circuits/commits & $0.40$ & $0.05$ & $0$ & $6,125,691$ \\
 						\hline
 						Checking correctness & $11.57$ & $3.20$ & $2,214$ & $289,396$ \\
 						\hline
-						Verify Input Consistency & $6.87$ & $7.28$ & $79,784$ & $18,110$ \\
+						Verify input consistency & $6.87$ & $7.28$ & $79,784$ & $18,110$ \\
 						\hline
-						Evaluate Circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
+						Evaluate circuits & $0.03$ & $0.03$ & $0$ & $0$ \\
 						\thickhline
 						Total & $55.90$ & $27.45$ & $737,109$ & $7,648,074$ \\
 						\hline
@@ -871,9 +871,9 @@
 				\end{figure}
 				\FloatBarrier
 
-				As expected the Oblivious Transfers dominate the Wall time of the protocol on such a small circuit with relatively many input wires. In particular for the Executing party as they do not bear the burden of building all the circuits.\\
+				As expected the Oblivious Transfers dominates the running time of the protocol on such a small circuit with relatively many input wires, especially for the Executing party as it does not bear the burden of building all the circuits.\\
 
-				Also as expected the bandwidth usage is dominated by the sending of circuits. As such in future our implementation could be significantly improved by using the circuit hash trick for proving circuit correctness.\\
+				The communication costs are dominated by sending circuits. In future our implementation could be significantly improved by using the circuit hash trick for circuit correctness.\\
 
 
 				\FloatBarrier
@@ -883,17 +883,17 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Input Generation & $0.18$ & $0.02$ & $0$ & $0$ \\
+						Input generation & $0.18$ & $0.02$ & $0$ & $0$ \\
 						\hline
-						Building Circuits & $31.53$ & $4.21$ & $0$ & $0$ \\
+						Building circuits & $31.53$ & $4.21$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $82.70$ & $11.82$ & $1,214,877$ & $655,111$ \\
 						\hline
-						Sending Circuits and Commitments & $1.01$ & $4.10$ & $202,012,291$ & $0$ \\
+						Sending circuits/commits & $1.01$ & $4.10$ & $202,012,291$ & $0$ \\
 						\hline
-						Open Check Circuits & $3.19$ & $3.22$ & $289,396$ & $2,214$ \\
+						Open check circuits & $3.19$ & $3.22$ & $289,396$ & $2,214$ \\
 						\hline
-						Prove Input Consistency & $6.82$ & $7.27$ & $18,109$ & $79,784$ \\
+						Prove input consistency & $6.82$ & $7.27$ & $18,109$ & $79,784$ \\
 						\thickhline
 						Total & $125.43$ & $30.65$ & $203,534,673$ & $737,109$ \\
 						\hline
@@ -907,17 +907,17 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT Prep Receiver & $17.59$ & $2.60$ & $0$ & $0$ \\
+						OT prep receiver & $17.59$ & $2.60$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $18.69$ & $14.20$ & $655,111$ & $1,214,877$ \\
+						OT transfer receiver & $18.69$ & $14.20$ & $655,111$ & $1,214,877$ \\
 						\hline
-						Receiving Circuits and Commitments & $1.65$ & $1.75$ & $0$ & $202,012,291$ \\
+						Receive circuits/commits & $1.65$ & $1.75$ & $0$ & $202,012,291$ \\
 						\hline
 						Checking correctness & $17.14$ & $3.19$ & $2,214$ & $289,396$ \\
 						\hline
-						Verify Input Consistency & $6.86$ & $7.28$ & $79,784$ & $18,109$ \\
+						Verify input consistency & $6.86$ & $7.28$ & $79,784$ & $18,109$ \\
 						\hline
-						Evaluate Circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
+						Evaluate circuits & $0.84$ & $0.84$ & $0$ & $0$ \\
 						\thickhline
 						Total & $63.53$ & $31.50$ & $737,109$ & $203,534,673$ \\
 						\hline
@@ -939,15 +939,15 @@
 						\thickhline
 						Input generation & $0.36$ & $0.05$ & $0$ & $0$ \\
 						\hline
-						Building Circuits & $114.32$ & $15.39$ & $0$ & $0$ \\
+						Building circuits & $114.32$ & $15.39$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $323.83$ & $42.42$ & $4,859,037$ & $2,477,191$ \\
 						\hline
-						Sending Circuits and Commitments & $1.37$ & $14.81$ & $663,253,047$ & $0$ \\
+						Sending circuits/commits & $1.37$ & $14.81$ & $663,253,047$ & $0$ \\
 						\hline
-						Open Check Circuits & $13.12$ & $13.17$ & $751,156$ & $2,214$ \\
+						Open check circuits & $13.12$ & $13.17$ & $751,156$ & $2,214$ \\
 						\hline
-						Prove Input Consistency & $27.82$ & $29.15$ & $72,444$ & $319,112$ \\
+						Prove input consistency & $27.82$ & $29.15$ & $72,444$ & $319,112$ \\
 						\thickhline
 						Total & $480.82$ & $114.98$ & $668,935,684$ & $2,798,517$ \\
 						\hline
@@ -960,17 +960,17 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT Prep Receiver & $67.53$ & $9.03$ & $0$ & $0$ \\
+						OT prep receiver & $67.53$ & $9.03$ & $0$ & $0$ \\
 						\hline
-						OT Transfer Receiver & $70.98$ & $51.55$ & $2,477,191$ & $4,859,037$ \\
+						OT transfer receiver & $70.98$ & $51.55$ & $2,477,191$ & $4,859,037$ \\
 						\hline
-						Receiving Circuits and Commitments & $3.16$ & $5.72$ & $0$ & $663,253,047$ \\
+						Receive circuits/commits & $3.16$ & $5.72$ & $0$ & $663,253,047$ \\
 						\hline
 						Checking correctness & $56.90$ & $13.15$ & $2,214$ & $751,156$ \\
 						\hline
-						Verify Input Consistency & $27.45$ & $29.14$ & $319,112$ & $72,444$ \\
+						Verify input consistency & $27.45$ & $29.14$ & $319,112$ & $72,444$ \\
 						\hline
-						Evaluate Circuits & $1.15$ & $1.15$ & $0$ & $0$ \\
+						Evaluate circuits & $1.15$ & $1.15$ & $0$ & $0$ \\
 						\thickhline
 						Total & $227.91$ & $116.15$ & $2,798,517$ & $668,935,684$ \\
 						\hline
@@ -983,14 +983,16 @@
 
 			\noindent\textbf{Summary}\\
 
-				Overall most components seem to grow linearly with their input sizes. It is worth noting that the computational costs are heavily imbalanced with the Builder  using around twice as much CPU time as the Executor in all three experiments. Most of this additional CPU time seems to be spent on the Oblivious Transfers, though a goodly amount is also used for the building of circuits.\\
+				Overall most components seem to grow linearly with their input sizes. It is worth noting that the computational costs are heavily imbalanced with the Builder  using around twice as much CPU time as the Executor in all three experiments.\\
 
-				Bandwidth wise the amount of data sent/received is dominated by the circuits, and so is skewed heavily towards the Builder sending.\\
+				Most of this additional CPU time seems to be spent on the Oblivious Transfers. Communication costs are dominated by the circuits, and so is skewed heavily towards the Builder Sending. This could be greatly reduced using the Hashed circuits trick.\\
 
-				Lastly we make a side notes with an eye to improving our implementation. The main obvious area for improvement would be the consistency proving stage. At the moment it takes one input at a time and therefore does not make use of any extra cores available. This should not be overly taxing however time constraints have prevented us from attempting it.
+				Whilst further experimentation would be needed to check this, it appears the cost of the protocol is primarily linked to the number of Inputs. Further experiments could also test which input size (Builder's or Executor's) has the greatest impact, I suggest it will be the Builders due to the consistency proof.\\
+
+				Lastly we make a side notes with an eye to improving our implementation. The main obvious area for improvement would be the consistency proving stage. At the moment it takes one input wire at a time and therefore does not make use of any extra cores available. This should not be overly taxing however time constraints have prevented us from attempting it. Preliminary investigation (comparing to the ZKPoK in the modified CnC OT) suggest this will speed up the consistency proof by a factor of 4.
 
 			\subsection{Lindell 2013}
-				We do not provide a breakdown of the measurements for the components of the sub-computation here, we save that for later when we shall compare the performance of the sub-computation for Lindell 2013 in detail with our variant.\\
+				We do not provide a breakdown of the sub-computation here, this comes later when comparing the sub-computation performance for Lindell 2013 and our variant.\\
 
 				\FloatBarrier
 				\noindent \textbf{32-bit Addition}
@@ -1001,11 +1003,11 @@
 						\thickhline
 						Input generation & $0.09$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						Building circuits and commits & $6.49$ & $0.81$ & $0$ & $0$ \\
+						Build circuits/commits & $6.49$ & $0.81$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $37.83$ & $8.98$ & $284,040$ & $135,781$ \\
 						\hline
-						Send circuits and commits & $0.00$ & $0.02$ & $1,889,281$ & $0$ \\
+						Send circuits/commits & $0.00$ & $0.02$ & $1,889,281$ & $0$ \\
 						\hline
 						Partially open J-set & $0.99$ & $0.99$ & $88,982$ & $692$ \\
 						\hline
@@ -1028,7 +1030,7 @@
 						\thickhline
 						OT - Receiver & $35.46$ & $9.79$ & $135,781$ & $284,040$ \\
 						\hline
-						Receive circuits \& Commits & $0.01$ & $0.03$ & $0$ & $1,889,281$ \\
+						Receive circuits/commits & $0.01$ & $0.03$ & $0$ & $1,889,281$ \\
 						\hline
 						Partially open J-set & $0.03$ & $0.99$ & $692$ & $88,982$ \\
 						\hline
@@ -1049,7 +1051,7 @@
 				\end{figure}
 				\FloatBarrier
 
-				As predicted the Sub-computation dominates the running time, whilst not predicted it is also fairly unsurprising that it also is the biggest single factor in the communication costs. The verification of the B-Lists against the Hashed B-list has a negligible cost and in future this measurement could be folded into the correctness check.\\
+				As predicted the Sub-computation dominates the running time. We also that for such a small circuit the sub-computation is also the biggest single factor in the communication costs, this will not hold as the circuit size increases. The verification of the B-Lists against the Hashed B-list has a negligible cost and in future this measurement could be folded into the correctness check.\\
 
 				We should now note that we expect the running time of the sub-computation to be about the same for the multiplication circuit as here, and only slightly increased for the AES circuit.\\
 
@@ -1062,15 +1064,15 @@
 						\thickhline
 						Input generation & $0.09$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						Building circuits and Commits & $9.76$ & $1.24$ & $0$ & $0$ \\
+						Build circuits/commits & $9.76$ & $1.24$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $37.80$ & $8.99$ & $284,040$ & $135,780$ \\
 						\hline
-						Sending circuits and commits & $0.12$ & $0.52$ & $62,163,073$ & $0$ \\
+						Sending circuits/commits & $0.12$ & $0.52$ & $62,163,073$ & $0$ \\
 						\hline
 						Partially Open J-sets & $1.01$ & $1.04$ & $89,081$ & $681$ \\
 						\hline
-						Sub-computation to detect cheating & $117.91$ & $22.38$ & $2,412,286$ & $746,955$ \\
+						Sub-computation & $117.91$ & $22.38$ & $2,412,286$ & $746,955$ \\
 						\hline
 						Send B-Lists & $0.00$ & $0.00$ & $2,052$ & $0$ \\
 						\hline
@@ -1089,13 +1091,13 @@
 						\thickhline
 						OT - Receiver & $35.46$ & $10.23$ & $135,780$ & $284,040$ \\
 						\hline
-						Receiving circuits and commitments & $0.28$ & $0.56$ & $0$ & $62,163,073$ \\
+						Receiving circuits/commitments & $0.28$ & $0.56$ & $0$ & $62,163,073$ \\
 						\hline
 						Partially open J-set & $0.03$ & $1.01$ & $681$ & $89,081$ \\
 						\hline
 						Evaluate circuits & $0.26$ & $0.26$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $53.44$ & $22.13$ & $746,955$ & $2,412,286$ \\
+						Sub-computation & $53.44$ & $22.13$ & $746,955$ & $2,412,286$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $2,052$ \\
 						\hline
@@ -1110,9 +1112,11 @@
 				\end{figure}
 				\FloatBarrier
 
-				Once again we see the cost of the Oblivious Transfers remaining steady when moving from the addition circuit to the multiplication circuit and a slight increase in the time taken to build the circuits.\\
+				Once again we see the cost of the Oblivious Transfers remaining steady when moving from the addition circuit to the multiplication circuit and a slight increase in the time taken to build the circuits. \\
 
-				Also noteworthy is that the running time of the sub-computation has not significantly change when compared to the addition circuit as none of its input sizes have changed.\\
+				The costs of the sub-computation have not significantly changed when compared to the addition circuit, this was  as none of its input sizes have changed. In fact the overall running time has barely changed, this suggests that this protocol will be of most use when evaluating large circuit that have few inputs.\\
+
+				This is hardly a big revelation though, this is more of a trend with Yao based protocols in general that we see with other protocols too.\\
 
 
 				\FloatBarrier
@@ -1124,15 +1128,15 @@
 						\thickhline
 						Input generation & $0.27$ & $0.03$ & $0$ & $0$ \\
 						\hline
-						Building circuits & $36.24$ & $4.58$ & $0$ & $0$ \\
+						Build circuits/commits & $36.24$ & $4.58$ & $0$ & $0$ \\
 						\hline
 						OT- Sender & $142.05$ & $33.20$ & $1,120,488$ & $476,292$ \\
 						\hline
-						Sending circuits and Commits & $0.33$ & $1.75$ & $204,095,057$ & $0$ \\
+						Sending circuits/ommits & $0.33$ & $1.75$ & $204,095,057$ & $0$ \\
 						\hline
 						Partially open J-set & $4.01$ & $4.05$ & $227,146$ & $701$ \\
 						\hline
-						Sub-computation to detect cheating & $183.19$ & $37.52$ & $5,018,302$ & $746,955$ \\
+						Sub-computation & $183.19$ & $37.52$ & $5,018,302$ & $746,955$ \\
 						\hline
 						Send B-Lists & $0.00$ & $0.00$ & $4,100$ & $0$ \\
 						\hline
@@ -1151,13 +1155,13 @@
 						\thickhline
 						OT - Receiver & $138.36$ & $37.80$ & $476,292$ & $1,120,488$ \\
 						\hline
-						Receiving circuits and commitments & $0.77$ & $1.80$ & $0$ & $204,095,057$ \\
+						Receive circuits/commits & $0.77$ & $1.80$ & $0$ & $204,095,057$ \\
 						\hline
 						Partially open J-Set & $0.04$ & $4.02$ & $701$ & $227,146$ \\
 						\hline
 						Evaluate circuits & $0.35$ & $0.35$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $78.95$ & $37.20$ & $746,955$ & $5,018,302$ \\
+						Sub-computation & $78.95$ & $37.20$ & $746,955$ & $5,018,302$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $4,100$ \\
 						\hline
@@ -1176,13 +1180,15 @@
 
 				\noindent\textbf{Summary}\\
 
-					It appears that Lindell's suggestion that this protocol is ill-suited to small circuits is entirely correct, but also that as the circuits get bigger the relative cost of the sub-computation falls and this protocol becomes more useful.\\
+					It appears that Lindell's suggestion that this protocol is ill-suited to small circuits is entirely correct. As the circuits get bigger the relative cost of the sub-computation falls and this protocol becomes more useful.\\
 
-					The sub-computation is very expensive (even on the AES circuit around $\frac{1}{3}$ of running time is spent in the sub-computation) so this is an area of the protocol rip[e for optimisation.\\
+					The sub-computation is very expensive (even on the AES circuit around $\frac{1}{3}$ of running time is spent in the sub-computation) so this is an area of the protocol ripe for optimisation.\\
 
-					As in the Lindell-Pinkas 2010 protocol the computational load is heavier on the Builder and the Builder sends more data than the Executor. When originally thinking about circuits with differing inputs sizes for the two parties we expected we would be aiming to minimise the Executor's inputs to reduce the number of Oblivious Transfers.\\
+					The obvious avenue for further optimisation will be exchanging the protocol used for the sub-computation, something we have attempted by using the HKE protocol for the sub-computation. This said this method can only take use so far, after all any protocol used for the sub-computation could simply be used for the main computation instead. A method of recovering the Builder's input without having to run a full Yao-Circuit computation would be preferable. \\
 
-					The opposite is true here, due to the expensive proofs for builder input consistency we should aim to minimise the number of inputs for the Builder. \textcolor{red}{[RUN PRELIM EXPERIMENTS WITH AES TO PROVE THIS POINT!]}\\
+					As is usual in asymmetric Yao based protocols the computational load is heavier on the Builder and the Builder sends more data than the Executor. When originally thinking about circuits with differing inputs sizes for the two parties we expected we would be aiming to minimise the Executor's inputs to reduce the number of Oblivious Transfers.\\
+
+					The opposite is true here, due to the expensive proofs for builder input consistency we should aim to minimise the number of inputs for the Builder.
 
 
 			\subsection{Huang-Katz-Evans 2013}
@@ -1300,11 +1306,11 @@
 
 				\noindent\textbf{Summary}\\
 
-				The Huang-Katz-Evans protocol shows great promise with good performance which does not seem overly affected by an increase in circuit size nor the number of outputs.\\
+				The Huang-Katz-Evans protocol shows great promise with good performance which does not seem overly affected by an increase in circuit size nor the number of outputs. Input size affects the running time of the Oblivious Transfer and Commitments, but the impact of increasing the input sizes on performance it seems to be fairly linear.\\
 
-				Input size has a greater impact on performance but its affect seems to be fairly linear. However, we suggest that further experimentation should be carried out, focusing on parties with unequal computational power.\\
+				In a few places our implementation could be improved, mainly the communications code, in several communication rounds we have taken the easy route of $P_1$ going first and having $P_2$ wait till it receives till serialising its own input. This should be changed so the parties serialise symmetrically then take turns to send.\\
 
-				
+				We suggest that further experimentation should be carried out, focusing on parties with unequal computational power but also on circuits with unequal input sizes. Further measurements should also be taken, breaking down the step `Initial J-set Checks'. Whilst we have inferred the most expensive component is likely the opening of commitments this claim needs to be supported by hard data.
 
 			\subsection{L-HKE 2015}
 				\FloatBarrier
@@ -1314,23 +1320,25 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $2.34$ & $0.30$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Circuit Building & $0.12$ & $0.02$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						OT- Sender & $37.65$ & $8.93$ & $284,040$ & $135,784$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Sending circuits, queries and hashes & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Make/Send commits & $10.83$ & $1.38$ & $374,062$ & $0$ \\
 						\hline
-						Sub-computation & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Partially Open J-Sets & $0.05$ & $0.01$ & $134,368$ & $683$ \\
+						\hline
+						Sub-computation & $94.77$ & $14.80$ & $3,294,892$ & $3,162,854$ \\
 						\hline
 						Send B-Lists & $0.00$ & $0.00$ & $1,060$ & $0$ \\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Prove Input Consistency & $0.00$ & $0.00$ & $23,067$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $145.77$ & $25.47$ & $5,995,366$ & $3,299,399$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Builder}}
@@ -1341,30 +1349,38 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $35.29$ & $9.23$ & $135,861$ & $284,117$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,883,800$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.00$ & $1.39$ & $0$ & $374,062$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.00$ & $0.00$ & $683$ & $134,368$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate Circuits & $0.01$ & $0.01$ & $0$ & $0$ \\
 						\hline
-						Sub-computation & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation & $94.53$ & $14.79$ & $3,162,854$ & $3,294,892$ \\
 						\hline
 						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $1.74$ & $0.24$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $0.93$ & $0.12$ & $0$ & $23,067$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $132.51$ & $25.83$ & $3,299,399$ & $5,995,366$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Add_Executor}}
 				\end{figure}
+				\FloatBarrier
 
+				The sub-computation again dominates both running time and communications for a small circuit. The main computation circuits form the next biggest communication cost. We fully expect that as the circuit and input sizes increase the circuit sending we become the largest communication cost.\\
+
+				The logarithm calculation stage for the builder has such a small cost in terms of CPU/Wall time our timing code does not register the time spent. This is not all that odd as for the Builder this is just computing a few subtractions.\\
+
+				It is notable that the major computational costs here are dependant on the size of one the party's input. The Oblivious Transfers depend on the Executor's input size whilst the sub-computation depends on the Builder's input size, together these two components account for $>90\%$ of the running time on the addition circuit. If this trend holds then this protocol would be well suited to large circuits with small input sizes.\\
+
+				Also noteworthy is that the computational costs of the protocol are fairly well balanced, with only a slight skewing towards the Builder. Similarly for the communications, however as already stated we expect the main computation circuits sending to unbalance this as the circuit sizes increase.\\
 
 				\FloatBarrier
 				\noindent \textbf{32-bit Multiplication}
@@ -1373,26 +1389,28 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $2.36$ & $0.30$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Circuit Building & $3.53$ & $0.46$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						OT- Sender & $37.59$ & $8.94$ & $284,040$ & $135,783$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Sending Circuits and Hash List & $0.14$ & $0.54$ & $62,157,592$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Make/Send commits & $10.83$ & $1.38$ & $374,062$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Partially Open J-set & $0.06$ & $0.01$ & $134,507$ & $685$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						Sub-computation & $95.10$ & $14.66$ & $3,294,887$ & $3,162,882$\\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Send B-Lists & $0.00$ & $0.00$ & $2,052$ & $0$ \\
+						\hline
+						Prove Input Consistency & $0.00$ & $0.00$ & $22,986$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $149.61$ & $26.28$ & $66,270,204$ & $3,299,428$ \\
 						\hline
 					\end{tabular}
-					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit addition circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Builder}}
+					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Builder}}
 				\end{figure}
 
 				\begin{figure}[!ht]
@@ -1400,30 +1418,34 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $35.29$ & $9.69$ & $135,860$ & $284,117$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.28$ & $0.58$ & $0$ & $62,157,592$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.00$ & $1.35$ & $0$ & $374,062$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.00$ & $0.00$ & $685$ & $134,507$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate Circuits & $0.26$ & $0.27$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation & $94.49$ & $14.39$ & $3,162,882$ & $3,294,887$ \\
 						\hline
-						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $2,052$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $3.79$ & $0.52$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $0.93$ & $0.12$ & $0$ & $22,986$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $135.05$ & $26.92$ & $3,299,428$ & $66,270,204$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the 32-bit multiplication circuit averaged over 100 trials. \label{table:L-HKE_2015_Mul_Executor}}
 				\end{figure}
+				\FloatBarrier
 
+				These results give further evidence to support the claim that size of the circuit is a small factor in the running time compared to the input sizes. Despite an increase in the circuit size by a factor of $30$ the running time increase by about $5\%$.\\
+
+				The communications costs are where the most change occurs. As we thought the communications costs of sending the circuits has risen to dominate the sub-computation
 
 				\FloatBarrier
 				\noindent \textbf{AES Encryption}
@@ -1432,23 +1454,25 @@
 						\hline
 						\textbf{Builder} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						Building Circuits and Commits & $1.57$ & $1.48$ & $77$ & $77$ \\
+						Input generation & $9.39$ & $1.18$ & $77$ & $77$ \\
 						\hline
-						OT- Sender & $37.65$ & $8.95$ & $284,040$ & $135,782$ \\
+						Building circuits & $11.18$ & $1.44$ & $0$ & $0$ \\
 						\hline
-						Sending Circuits and Hash List & $0.02$ & $0.03$ & $1,883,800$ & $0$ \\
+						OT- Sender & $141.29$ & $33.36$ & $1,120,488$ & $476,293$ \\
 						\hline
-						Make and Send Commitments & $10.79$ & $1.39$ & $374,062$ & $0$ \\
+						Sending circuits and Hash List & $0.40$ & $1.82$ & $204,082,568$ & $0$ \\
 						\hline
-						Partially Open Check Circuits & $0.05$ & $0.01$ & $132,979$ & $660$ \\
+						Make/Send commits & $43.23$ & $5.44$ & $1,495,342$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $73.02$ & $26.12$ & $2,867,854$ & $2,753,334$ \\
+						Partially open J-set & $0.22$ & $0.03$ & $414,781$ & $684$ \\
 						\hline
-						Send B-Lists (Fully Open Check circuits) & $0.00$ & $0.00$ & $1,060$ & $0$ \\
+						Sub-computation & $212.13$ & $34.95$ & $7,516,036$ & $7,391,121$ \\
 						\hline
-						Prove Input Consistency & $0.00$ & $0.00$ & $23,873$ & $0$ \\
+						Send B-Lists & $0.00$ & $0.00$ & $4,100$ & $0$ \\
+						\hline
+						Prove input consistency & $0.00$ & $0.00$ & $92,025$ & $0$ \\
 						\thickhline
-						Total & $123.10$ & $37.98$ & $5,567,746$ & $2,889,855$ \\
+						Total & $417.84$ & $78.22$ & $214,725,419$ & $7,868,176$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Builder in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Builder}}
@@ -1459,39 +1483,85 @@
 						\hline
 						\textbf{Executor} & \textbf{CPU Time} & \textbf{Wall Time} & \textbf{Bytes Sent} & \textbf{Bytes Recv} \\
 						\thickhline
-						OT - Receiver & $35.25$ & $10.42$ & $135,859$ & $284,117$ \\
+						OT - Receiver & $136.87$ & $35.96$ & $476,370$ & $1,120,565$ \\
 						\hline
-						Receiving circuits and Hashed List & $0.01$ & $0.05$ & $0$ & $1,882,740$ \\
+						Receiving circuits and Hashed List & $0.76$ & $1.88$ & $0$ & $204,082,568$ \\
 						\hline
-						Receiving Commitments & $0.00$ & $1.39$ & $0$ & $375,122$ \\
+						Receiving commits & $0.02$ & $5.43$ & $0$ & $1,495,342$ \\
 						\hline
-						Receive partial circuit openings & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Partially open J-set & $0.01$ & $0.01$ & $684$ & $414,781$ \\
 						\hline
-						Evaluate Circuits & $0.01$ & $0.01$ & $660$ & $132,979$ \\
+						Evaluate circuits & $0.37$ & $0.37$ & $0$ & $0$ \\
 						\hline
-						Sub-computation to detect cheating & $72.47$ & $26.11$ & $2,753,334$ & $2,867,854$ \\
+						Sub-computation & $211.41$ & $34.57$ & $7,391,121$ & $7,516,036$ \\
 						\hline
-						Verify B-List & $0.00$ & $0.00$ & $0$ & $1,060$ \\
+						Verify B-List & $0.00$ & $0.00$ & $0$ & $4,100$ \\
 						\hline
-						Checking correctness & $0.78$ & $0.72$ & $0$ & $0$ \\
+						Checking correctness & $11.14$ & $1.80$ & $0$ & $0$ \\
 						\hline
-						Verify input consistency & $0.94$ & $0.12$ & $0$ & $23,873$ \\
+						Verify input consistency & $2.89$ & $0.47$ & $0$ & $92,025$ \\
 						\thickhline
-						Total & $109.46$ & $38.82$ & $2,889,855$ & $5,567,746$ \\
+						Total & $363.46$ & $80.49$ & $7,868,176$ & $214,725,419$ \\
 						\hline
 					\end{tabular}
 					\caption{The performance of the Executor in the L-HKE 2015 protocol evaluating the AES encryption circuit averaged over 100 trials. \label{table:L-HKE_2015_AES_Executor}}
 				\end{figure}
+				\FloatBarrier
+
+				Here we see fairly conclusive proof of the irrelevancy of circuit size compared to input size for the modified protocol. The Oblivious Transfer and Sub-computation continue to take the lion's share of the running time. The most interesting result though is the change in the balance between the Oblivious Transfer and sub-computation.\\
+
+				We see the cost of the Oblivious Transfer has increased almost exactly linear with the Executor's input size. On the other hand while the running time of the Sub-computation has increased significantly, by a factor of $\sim 2.4$, this increase is less than the input size increase by a factor of $4$.\\
+
+
+				\noindent \textbf{Summary}\\
+					We have seen that for our modified version of the Lindell 2013 protocol that the most important factor is the size of the inputs. Furthermore we see that the size of the Executor's inputs has a greater impact on running time then the size of the Builder's inputs.\\
+
+					The main area for improvement will be the sub-computation, particularly we feel that attempting to reconcile HKE with some of the Lindell optimisations we were forced to remove will yield the most improvement.
 
 			\FloatBarrier
-			\subsection{Comparison of protocols}
+			\section{Comparison of protocols}
 				\subsubsection{Overall}
 
-					These results show a very large difference in performance between the Huang, Katz and Evans protocol and the rest. This is hardly surprising in the case of comparing Lindell-Pinkas 2010 to HKE as HKE requires (including the log factor) $92$ circuits to achieve a deterrent probability of $1 - 2^{-40}$. In comparison LP-2010 needs $130$ circuits (though with the improvements suggested in \cite{ShelatAndShen} this can be reduced to $126$.\\
+					\paragraph{Huang-Katz-Evans versus all} These results show a very large difference in performance between the Huang, Katz and Evans protocol and the rest. This is hardly surprising in the case of comparing Lindell-Pinkas 2010 to HKE as HKE requires (including the log factor) $92$ circuits to achieve a deterrent probability of $1 - 2^{-40}$. In comparison LP-2010 needs $130$ circuits (though with the improvements suggested in \cite{ShelatAndShen} this can be reduced to $126$.\\
 
-					Conversely it is quite surprising, at least at a high level, to see HKE out perform Lindell-2013 by such a margin. To achieve the same level of security Lindell 2013 needs only $40$ circuits of the same size and $\sim 120-126$ very small sub-circuits.
+					Conversely it is quite surprising, at least at a high level, to see HKE out perform Lindell-2013 by such a margin. To achieve the same level of security Lindell 2013 needs only $40$ circuits of the same size and $\sim 120$ very small sub-circuits. Yet even if we were to completely remove the sub-computation the Lindell 2013 protocol is still decisively out-performed by HKE.\\
 
-				\subsubsection{Comparison of sub-computations}
+					It is tempting to put this down to implementation quality, perhaps we have coded badly such that idle time is a significant factor in Lindell-2013. But this possibility does not seem to hold up to the CPU times, HKE also uses considerably less CPU time not just wall time for all protocols.\\
+
+					There are two key areas where HKE make improvements. Namely in the proving of the consistency of the Builder's inputs and in the Oblivious Transfer. The modified CnC-OT takes just over $33$ seconds ($\sim 0.25$ seconds per input wire) on the AES circuit, whilst the OT step in the HKE protocol on the same circuit takes just under $7$ seconds ($\sim 0.05$ seconds per input wire). For significantly less CPU time and bandwidth to boot.\\
+
+					The Extended DH tuple zero knowledge proof is a little more difficult to gauge as we have already noted we believe this could be implemented better. However at present proving the consistency of the Builder's inputs takes around $34$ seconds ($\sim 0.25$ seconds per input wire) on the AES circuit. In comparison the HKE approach using logarithms takes less than $2$ seconds.
+
+					\paragraph{Lindell 2013 over Lindell-Pinkas 2010} The performance of Lindell 2013 compared to Lindell-Pinkas 2010 is one of the more disappointing results. At a high level it sounds very good, after all we reduce the number of circuits needed by a factor of $\frac{1}{0.311}$.\\
+
+					We believe there are two main reasons for L-2013 not outperforming LP-2010 at this level. First, we have not run big enough experiments. With a bigger circuit we will probably see L-2013 outperform LP-2010. In fact we think we are very close to the tipping point at which L-2013 will win as the running times are very nearly even and L-2013's running time grows at a slower rate.\\
+
+					Secondly, one of the main costs apart from the OT and the sub-computation is the proof of the Builder's inputs consistency. The running time of this proof varies over two inputs, the number of Builder input wires and the number of circuits.\\
+
+					One would hope then this would be significantly improved by reducing the number of circuits.
+					Instead the L-2013 protocol actually increases the second as in addition to the main computation inputs it must prove the consistency of the sub-computation inputs. The increased cost is not very large but it is not a decrease is cost with is the main thing.\\
+
+					Therefore the main saving is made in the Oblivious Transfers, which runs just less than  $60\%$ of the time the unmodified OT needs (with a smaller number of circuits but this is fair as the modifications allow the reduction in the number of circuit). It is roughly at the point where this saving exceeds the cost of the sub-computation the L-2013 protocol will outperform the old LP-2010 protocol.\\
+
+				\paragraph{L-HKE - Modifying Lindell-2013} We now compare the overall performance of our modified version of the L-2013 protocol against the original protocol proposed by Lindell and against the Lindell-Pinkas protocol. The first thing to note is in terms of running times L-HKE outperforms both the other protocols on all three circuits.\\
+
+				On the addition circuit L-HKE runs faster than LP-2010 by a very thin margin, only 2 seconds and at the cost of using significantly more CPU time and a minor increase in bandwidth used. When considering the multiplication circuit we see L-HKE very slightly increase its lead in running time. Furthermore we see the result of the main computation circuits taking dominance over bandwidth as L-HKE uses just over $\frac{1}{3}$ the bandwidth LP-2010 does. However, the CPU time used by L-HKE is still very high in comparison.\\
+
+				As is to be expected though the AES circuit gives L-HKE its best relative performance. It runs $30$ seconds quicker than LP-2010, uses only $10\%$ more CPU time and again about $\frac{1}{3}$ the bandwidth. Here we can clearly see how as the circuit and input sizes get bigger the cost of the sub-computation is reduced relative to the other costs of the protocol.\\
+
+				Another point to make is that the computational load is much more evenly balanced. This is neither an unambiguous positive or negative, in some settings one party having more computational work to do might be more practical (e.g. Mobile device paired with server).\ 
+
+				The picture of L-HKE versus L-2013 is much more interesting and complex. L-HKE runs on the addition circuit considerably quicker (about $13$ seconds faster) and uses about the same amount of CPU time. In exchange requires $2,000,000$ additional bytes of communication.\\
+
+				The performance gains are made only partly in the sub-computation. While it is true that the modified sub-computation is $6$ seconds faster, the main gain is in replacing the Extended DH tuple proof of consistency with the HKE logarithm based approach.\\
+
+				Running the protocols on the multiplication circuit yields little change, CPU time usage remains about even, the Wall time difference increases very slightly. The only really interesting result is the absolute difference in bandwidth usage is steady.\\
+
+				The AES circuit gives much more food for thought. L-HKE runs in $80$ seconds, about $40$ seconds faster than L-2013, however the difference in running times for the sub-computations is reduced to only a few seconds. This is as the cost of the modified sub-computation grows much faster than the original sub-computation due to the additional work involved with the `key' that hides the output from the Builder.\\
+
+				As such almost the entirety of the improvement in running time is from the proof of the Builder's inputs consistency. It would be interesting to run further experiments to see if the additional sub-computation costs every outweigh the savings in the consistency proof.
+
+				\subsection{Comparison of sub-computations}
 					Lastly we turn our attention to comparing the two variants on the sub-computation of the Lindell 2013 protocol. 
 
 
@@ -1499,6 +1569,13 @@
 
 		\section{Future Work}
 			Our work gives us an idea of how good several recently proposed protocols really are and which are worth further research and optimisation.
+
+			We have pointed the reader to several areas where we believe our implementation could be improved (notably the Zero Knowledge Proof of Builder's input consistency). Additionally there are some corner cases we have not addresses, in particular the case where one party has input size zero. This is a somewhat dubious corner case though as if a party has no inputs to the computation there is little reason for a secure computation.\\
+
+			
+
+			There are also several further experiments we believe would be very helpful, in particular running in cases where the Builder and Executor have differing input sizes and on very large circuits with small input sizes. 
+
 
 	\begin{thebibliography}{99}
 

@@ -1,0 +1,24 @@
+Building sub-circuits.
+& $18.98$ & $2.39$ & $0$ & $0$ \\
+
+
+subOT - Sender
+& $94.94$ & $13.76$ & $1,401,757$ & $744,911$ \\
+
+
+Sending Commitments and Circuits.
+& $0.07$ & $0.01$ & $741,341$ & $0$ \\
+
+
+Send Delta and k_0s
+& $0.00$ & $0.00$ & $2,052$ & $0$ \\
+
+
+Decommit to check circuits.
+& $0.56$ & $2.71$ & $125,044$ & $2,044$ \\
+
+
+Full cheating detection sub-computation
+& $117.53$ & $21.85$ & $2,412,286$ & $746,955$ \\
+
+

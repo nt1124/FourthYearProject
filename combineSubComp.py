@@ -59,15 +59,17 @@ def getFileAsStringArray(filepath):
 	splitFile = content.split("\n")
 	filteredReturn = filter(None, splitFile)
 
+
 	for line in filteredReturn:
-		if(line[0] in infoTags):
+		if(line[0] in infoTags or '\xc2\xa3' in line):
 			toReturn.append(line)
 
 	return toReturn
 
 
 def processOneSet(protocolNum, circuitNum, partyID):
-	numTests = 5
+	numTests = 100
+	inSubFlag = 0
 	ordering = []
 	protocolName = protocolNameList[protocolNum]
 	circuitName = circuitNameList[circuitNum]
@@ -80,7 +82,7 @@ def processOneSet(protocolNum, circuitNum, partyID):
 
 	for i in range(0, numTests):
 		outputNumber = str(i).zfill(4)
-		OutputFile = "../BackupResults/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
+		OutputFile = "../FullTestResults/Output_" + circuitName + "_" + str(partyID) + "_" + protocolName + "_" + outputNumber + ".txt"
 
 		fileAsArray = getFileAsStringArray(OutputFile)
 		
@@ -91,48 +93,46 @@ def processOneSet(protocolNum, circuitNum, partyID):
 			truncatedLine = line[4:]
 
 
-			print truncatedLine
-			print fileAsArray[j + 3]
 
-			if(fileAsArray[j + 3][0] in commTags):
-
+			if("Bytes" in fileAsArray[j + 3]):
 				if truncatedLine not in CPU_Dict:
-					ordering.append(truncatedLine)
+					if("\xc2\xa3" in fileAsArray[j + 3]):
+						inSubFlag = 1
+					elif("Full" in truncatedLine):
+						inSubFlag = 0
+						ordering.append(truncatedLine)
+
+					if(1 == inSubFlag and "Eval" not in truncatedLine):
+						ordering.append(truncatedLine)
+	
 				CPU_Dict[truncatedLine].append( float(fileAsArray[j + 1][16:]) )
 				Wall_Dict[truncatedLine].append( float(fileAsArray[j + 2][16:]) )
 				Bytes_Sent_Dict[truncatedLine].append(getMeasurementFromString(fileAsArray[j + 3]))
 				Bytes_Received_Dict[truncatedLine].append(getMeasurementFromString(fileAsArray[j + 4]))
+
 				incrementBy = 5
 			else:
-				if(protocolNum == 2):
-					if(truncatedLine == 'Circuit building complete' or 
-						truncatedLine == 'Circuit building preparation complete'):
-						if truncatedLine not in CPU_Dict:
-							ordering.append(truncatedLine)
-
-						CPU_Dict[truncatedLine].append( float(fileAsArray[j + 1][16:]) )
-						Wall_Dict[truncatedLine].append( float(fileAsArray[j + 2][16:]) )
-						Bytes_Sent_Dict[truncatedLine].append(0)
-						Bytes_Received_Dict[truncatedLine].append(0)
-				
 				incrementBy = 3
+				
 
 			j += incrementBy
 
 
-	outputFile = "./StatResults/StatsSubComp_" + circuitName + "_" + str(partyID) + "_" + protocolName
+	outputFile = "./StatSubResults/StatsSubComp_" + circuitName + "_" + str(partyID) + "_" + protocolName
 
-	# f = open(outputFile, 'w')
+	f = open(outputFile, 'w')
 
-	# for key in ordering:
-		# f.write(key + "\n")
+	for key in ordering:
+		# print key
+		# printMeanAndStdDev(CPU_Dict[key])
+		f.write(key + "\n")
 
-		# writeLatexTableRowToFile(f, key, CPU_Dict, Wall_Dict, Bytes_Sent_Dict, Bytes_Received_Dict)
+		writeLatexTableRowToFile(f, key, CPU_Dict, Wall_Dict, Bytes_Sent_Dict, Bytes_Received_Dict)
 
-		# f.write("\n\n")
+		f.write("\n\n")
 
 
-	# f.close()
+	f.close()
 
 
 
@@ -141,15 +141,15 @@ infoTags = ['#', ':', '+']
 protocolNameList = ["L_2013", "CHIMERA_2013"]
 circuitNameList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
 
-protocolNum = 0
+protocolNum = 1
 circuitNum = 0
 partyID = 0
 
-'''
-for partyID in range(0, 2):
-	for circuitNum in range(0, 3):
-		processOneSet(protocolNum, circuitNum, partyID)
-'''
+for protocolNum in range(0, 2):
+	for partyID in range(0, 2):
+		for circuitNum in range(0, 3):
+			processOneSet(protocolNum, circuitNum, partyID)
 
-processOneSet(protocolNum, circuitNum, partyID)
+
+# processOneSet(protocolNum, circuitNum, partyID)
 

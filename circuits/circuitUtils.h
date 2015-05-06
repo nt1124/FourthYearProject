@@ -2,7 +2,7 @@
 #define	CIRCUIT_UTILS
 
 
-const int stat_SecParam = 8;
+const int stat_SecParam = 4;
 
 typedef struct idAndValue
 {
@@ -35,11 +35,10 @@ struct gateOrWire **readInCircuit(char* filepath, int numGates);
 
 
 #include "circuitUtils.c"
-#include "circuitExecutor.c"
-#include "circuitBuilder.c"
-#include "circuitCheckerUtils.c"
+#include "circuitCommunication.c"
+#include "circuitCorrectnessChecks.c"
 
-#include "Naive_SH/SH_Circuits.c"
+
 #include "LP_2010/LP_S2C_CnC_OT.h"
 #include "L_2013/L_S2C_CnC_OT.h"
 #include "HKE_2013/HKE_2013.h"

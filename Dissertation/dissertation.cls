@@ -24,7 +24,7 @@
 }
 
 \ProcessPgfOptions{/dissertation}
-\LoadClass[11pt, a4paper, twoside]{report}
+\LoadClass[10.7pt, a4paper, twoside]{report}
 % \renewcommand{\baselinestretch}{1.4}
 
 % see http://www.ctan.org/tex-archive/macros/latex/required/graphics
@@ -133,13 +133,13 @@
   \newpage
   \thispagestyle{empty}
 
-  \ifcsempty{dissertation@type}{}{
-    \adjustbox{padding={5pt},frame={1pt},right}{Dissertation Type: \dissertation@type}
-  }
+  %\ifcsempty{dissertation@type}{}{
+  %  \adjustbox{padding={5pt},frame={1pt},right}{Dissertation Type: \dissertation@type}
+  %}
 
   \vspace*{\fill}
   \begin{center}
-          \includegraphics[scale=0.2]{bristolunilogo}\\
+          \includegraphics[scale=0.28]{bristolunilogo}\\
 			\vspace{1cm}
 			{\Large UNIVERSITY OF BRISTOL}\\
 			\vspace{0.5cm}

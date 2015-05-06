@@ -1,3 +1,21 @@
+// Run the circuit, executor style.
+void runCircuitExec( struct Circuit *inputCircuit, int writeSocket, int readSocket )
+{
+	int i, gateID;
+
+	for(i = 0; i < inputCircuit -> numGates; i ++)
+	{
+		gateID = inputCircuit -> execOrder[i];
+
+		// Check there is a gate to be 
+		if( NULL != inputCircuit -> gates[gateID] -> gatePayload )
+		{
+			evaulateGate(inputCircuit -> gates[gateID], inputCircuit -> gates);
+		}
+	}
+}
+
+
 unsigned char *getOutputAsBinary(struct Circuit *inputCircuit, int *binaryLength)
 {
 	int i, j = 0, k;
@@ -21,68 +39,6 @@ unsigned char *getOutputAsBinary(struct Circuit *inputCircuit, int *binaryLength
 	*binaryLength = j;
 
 	return binaryOutput;
-}
-
-// unsigned char *getOutputAsHex(struct Circuit *inputCircuit, int *outputLength)
-unsigned char *getOutputAsHex(unsigned char *binaryStr, int numOutputs, int *outputLength)
-{
-	unsigned char *binaryOutput, *hexOutput;
-	unsigned char tempBit, tempHex;
-	int i, j = 0, k, binaryLength = 0;
-
-
-	//binaryOutput = getOutputAsBinary(inputCircuit, &binaryLength);
-
-	hexOutput = (unsigned char*) calloc( (numOutputs / 8) + 2, sizeof(unsigned char) );
-
-	j = 0;
-	k = 7;
-	tempHex = 0;
-	for(i = 0; i < numOutputs; i ++)
-	{
-		hexOutput[j] += (binaryStr[i] << k);
-		k --;
-
-		if(7 == i % 8)
-		{
-			j++;
-			k = 7;
-		}
-	}
-	*outputLength = j;
-
-	return hexOutput;
-}
-
-
-// Prints all outputs as a hex string, taking gates in ascending position in the gates table.
-void printOutputHexString(struct Circuit *inputCircuit)
-{
-	unsigned char *binaryOutput;
-	unsigned char *hexOutput;
-	int i, outputLength;
-	
-	binaryOutput = getOutputAsBinary(inputCircuit, &outputLength);
-	/*
-	printf("Candidate output as binary: ");
-	for(i = 0; i < outputLength; i ++)
-	{
-		printf("%d", binaryOutput[i]);
-	}
-	printf("\n");
-	*/
-
-	hexOutput = getOutputAsHex(binaryOutput, inputCircuit -> numOutputs, &outputLength);
-
-	printf("Candidate output as Hex: ");
-	for(i = 0; i < outputLength; i ++)
-	{
-		printf("%02X", hexOutput[i]);
-	}
-	printf("\n");
-
-	free(binaryOutput);
-	free(hexOutput);
 }
 
 
@@ -117,12 +73,15 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 	outputBitCounts[0] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
 	outputBitCounts[1] = (int*) calloc(circuitsArray[0] -> numOutputs, sizeof(int));
 
+
+	// For every evaluation circuit
 	for(i = 0; i < securityParam; i ++)
 	{
 		if(0x00 == J_set[i])
 		{
 			curBinaryStr = getOutputAsBinary(circuitsArray[i], &curLength);
 
+			// If the circuits have different output lengths something is wrong.
 			if(curLength != circuitsArray[0] -> numOutputs)
 			{
 				printf("Circuits have differing number of outputs.");
@@ -137,15 +96,14 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 
 			for(j = 0; j < curLength; j ++)
 			{
-				// printf("%d", curBinaryStr[j]);
 				outputBitCounts[curBinaryStr[j]][j] ++; 
 			}
-			// printf("\n");
 			free(curBinaryStr);
 		}
 	}
 
 
+	// For each output wire we see which (0 or 1) is more common across all eval circuits.
 	curBinaryStr = (unsigned char*) calloc(circuitsArray[0] -> numOutputs, sizeof(unsigned char));
 
 	for(j = 0; j < curLength; j ++)
@@ -154,7 +112,7 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 	}
 
 	*outputLength = curLength;
-	// finalOutput = getOutputAsHex(curBinaryStr, curLength, outputLength);
+
 
 	free(outputBitCounts[0]);
 	free(outputBitCounts[1]);
@@ -166,7 +124,7 @@ unsigned char *majorityOutput(struct Circuit **circuitsArray, int securityParam,
 
 
 
-// Prints all outputs as a hex string, taking gates in ascending position in the gates table.
+// Prints all outputs as a binary string, taking gates in ascending position in the gates table.
 void printMajorityOutputAsBinary(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
 {
 	unsigned char *binaryOutput;
@@ -193,50 +151,24 @@ void printMajorityOutputAsBinary(struct Circuit **circuitsArray, int securityPar
 }
 
 
-// Prints all outputs as a hex string, taking gates in ascending position in the gates table.
-void printMajorityOutputAsHex(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
-{
-	unsigned char *hexOutput;
-	int i, outputLength;
-	
-	if(1 < securityParam)
-	{
-		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
-	}
-	else
-	{
-		unsigned char *binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
-		hexOutput = getOutputAsHex(binaryOutput, circuitsArray[0] -> numOutputs, &outputLength);
-	}
-
-	printf(" Majority output as Hex: ");
-	for(i = 0; i < outputLength; i ++)
-	{
-		printf("%02X", hexOutput[i]);
-	}
-	printf("\n");
-
-	free(hexOutput);
-}
-
-
 unsigned char *getMajorityOutput(struct Circuit **circuitsArray, int securityParam, unsigned char *J_set)
 {
-	unsigned char *hexOutput;
+	unsigned char *hexOutput, *binaryOutput;
 	int outputLength;
+
 
 	if(1 < securityParam)
 	{
-		hexOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
+		binaryOutput = majorityOutput(circuitsArray, securityParam, &outputLength, J_set);
 	}
 	else
 	{
-		unsigned char *binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
-		hexOutput = getOutputAsHex(binaryOutput, circuitsArray[0] -> numOutputs, &outputLength);
+		binaryOutput = getOutputAsBinary(circuitsArray[0], &outputLength);
 	}
 
-	return hexOutput;
+	return binaryOutput;
 }
+
 
 
 // Run the circuit assuming we have the values for all input wires.
@@ -324,6 +256,7 @@ void freeTempGarbleCircuit(struct Circuit *tempGarbleCircuit)
 }
 
 
+
 // Function that gets the OT inputs as an array from the circuits.
 unsigned char ***getAllInputKeys(struct Circuit **circuitsArray, int numCircuits)
 {
@@ -391,7 +324,7 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 	numInputsExecutor = circuitsArray[0] -> numInputsExecutor;
 	output = (unsigned char *) calloc(numInputsExecutor, sizeof(unsigned char));
 
-	// For each input gate not owned by the builder, un-perm
+	// For each input gate not owned by the builder, un-perm the wirePermedValue.
 	for(i = 0; i < numInputsBuilder + numInputsExecutor; i ++)
 	{
 		if(0x00 == circuitsArray[0] -> gates[i] -> outputWire -> wireOwner)
@@ -401,7 +334,6 @@ unsigned char *getPermedInputValuesExecutor(struct Circuit **circuitsArray)
 			outputIndex ++;
 		}
 	}
-	// printf("\n");
 
 
 	return output;
