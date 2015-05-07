@@ -57,7 +57,12 @@ Here we give a short summary of each folder/file included in our implementation 
 
 		+ HKE_2013 : Folder containing all the source code directly relating to the implementation of the Huang-Katz-Evans 2013 protocol.
 
-			-  : 
+			- HKE_2013.h : Header binding it alltogether.
+
+			- HKE_2013_Commitments.c : Source code for the commitments of the party's inputs to their own circuis.
+
+			- HKE_2013_OT.c : Source code for running all the OT functionality for the HKE protocol using the Naor-Pinkas OT.
+
 
 
 		+ L_2013_HKE : Folder containing all the source code directly relating to the implementation of the modification of the Lindell 2013 protcol to use the Huang-Katz-Evans protocol for the sub-computation.

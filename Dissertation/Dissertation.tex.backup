@@ -34,7 +34,7 @@
 	\maketitle
 	\chapter*{Declaration}
 
-		This dissertation is submitted to the University of Bristol in accordance 
+		This thesis is submitted to the University of Bristol in accordance 
 		with the requirements of the degree of \textbf{GG1K} in the Faculty 
 		of Engineering.  It has not been submitted for any other degree or diploma 
 		of any examining body.  Except where specifically acknowledged, it is all 
@@ -48,15 +48,18 @@
 	\chapter*{Prelude}
 		\section*{Executive Summary}
 			\subsubsection*{Abstract}
-			  We present implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparison. We also give and implement a novel variant combining two of the aforementioned protocols.\\
+			  We present prototype implementations of several recently proposed Secure Two Party Computation protocols and perform experiments for the purpose of comparison. We also give and prototype a novel variant combining two of the aforementioned protocols.\\
 
 			  For several of these protocols our implementation is, to the best of our knowledge, the first. As such until now we have had only theoretical comparisons of these protocols, making it difficult to know which approach is the most promising and deserving of further research.\\
 
 			  In particular we have implemented the protocols described in \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013} and \cite{Katz_Symm_CnC_2013} and additionally we experiment with modifying \cite{Lindell_CnC_2013} to use \cite{Katz_Symm_CnC_2013} instead of \cite{LindellAndPinkas2011} as a sub-protocol.\\
 
-			  We found that the Huang-Katz-Evans protocol using Symmetric cut and choose was by far and away more efficient in terms of computational resources needed. The Lindell 2013 protocol, while considerably slower than that of Huang et al. had lower bandwidth usage.\\
+			  We had limited success with modifying the Lindell 2013 protocol's sub-computation on circuits with small input sizes. Whilst our modified protocol ran on the AES circuit in about $\frac{2}{3}$ of the time taken by Lindell 2013 we believe most of this is due another improvement, also inspired by the Huang et al. paper.\\
 
-			  We had limited success with modifying the Lindell 2013 protocol's sub-computation. Whilst our modified protocol ran on the AES circuit in about $\frac(2}{3}$ of the time taken by Lindell 2013 we beleive most of this is due to
+			  We found that the Huang-Katz-Evans protocol using Symmetric cut and choose was by far and away more efficient in terms of computational resources needed. The Lindell 2013 protocol, while considerably slower than that of Huang et al. had lower bandwidth usage and the computational costs were heavily skewed towards the Builder.\\
+
+			  We also found the Cut and Choose Oblivious Transfer is of dubious value. Whilst it removes the need for a set of potentially expensive commitments it adds in a set of even more expensive Zero Knowledge Proofs. 
+
 
 			\subsubsection*{Summary of Achievements}
 				\begin{itemize}
@@ -91,6 +94,11 @@
 
 			We abbreviate to the protocol put forward by Lindell and Pinkas in \cite{LindellAndPinkas2011} as LP-2010. Similarly we abbreviate Lindell's protocol from \cite{Lindell_CnC_2013} to L-2013 and abbreviate the protocol given by Huang, Katz and Evans in \cite{Katz_Symm_CnC_2013} to HKE.
 
+		\section*{Disclaimer}
+			Here we give a disclaimer. Our implementations are prototypes for the purposes of comparing the performance of the protocols. Whilst we have implemented the protocols faithfully we have not dealt with some non-protocol related issues such as establishing a secure authenticated communication channel between parties.\\
+
+			As such we \emph{cannot} condone use of our implementation in `real-life' situations where actual security is required and in fact strongly advise against it.
+
 	% \mainmatter
 	% CONTENTS.
 	\tableofcontents
@@ -105,13 +113,15 @@
 
 		For many years Yao's protocol \cite{YaoOriginal} has been the most attractive avenue of theoretical research, mainly due to its conceptual simplicity and constant round nature. In particular recent work has endeavoured to produce variants of Yao's protocol that can provide security in the presence of malicious adversaries (\cite{LindellAndPinkas2007}, \cite{LindellAndPinkas2011}, \cite{Lindell_CnC_2013}, \cite{Katz_Symm_CnC_2013}, \cite{OnCommittedInputs}, \cite{LEGO_Paper}, \cite{MiniLEGO}) and to improve the efficiency of the original protocol itself (\cite{SMC_Is_Practical}, \cite{FreeXOR}).\\
 
-		The purpose of this Dissertation is to provide practical implementations for several of the more recent protocols, in some cases to first implementations, in order to run experiment to measure and compare the performance of the protocols.\\
+		We provide implementations for several of the more recent protocols, in order to run experiments to measure and compare their performance. For two of the three published protocols we provide the first ever implementation, the fourth protocol is of our own devising, so again we provide the first implementation.\\
+
+		As important as theoretical comparisons are they can only tell us so much. For example in \cite{Lindell_CnC_2013} Lindell explicitly compares the Lindell 2013 protocol with the Lindell-Pinkas 2010 protocol. He notes how the L-2013 protocol trades off more exponentiations for fewer symmetric encryptions and less bandwidth usage. However this theoretical comparison does not tell us if this trade off is worth it. Answering questions like this is the primary purpose of this thesis.\\
 
 		Our contributions are as follows,
 
 		\begin{itemize}
 			\item To the best of our knowledge we provide the first implementations of the protocols of \cite{LindellAndPinkas2011} and \cite{Lindell_CnC_2013}.
-			\item We also provide an implementation of the protocol described in \cite{Katz_Symm_CnC_2013}.
+			\item We also provide an implementation of the protocol described in \cite{Katz_Symm_CnC_2013}. 
 			\item We put forward and implement a modification of \cite{Lindell_CnC_2013} using our implementation of \cite{Katz_Symm_CnC_2013} for the sub-computation rather than \cite{LindellAndPinkas2011} as originally proposed. Further we informally argue this modification maintains security.
 			\item We measure the performance of each protocol on several of the classic SMC benchmark computations and give analysis of the results.
 
@@ -135,12 +145,12 @@
 
 			We compare any protocol to the \emph{ideal} execution, in which the parties submit their inputs to a universally trusted and incorruptible external party via secure channels. This trusted party then computes the value of the function and returns the output to the relevant parties.\\
 
-			Informally we say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve against the ideal model.\\
+			Informally we say that the protocol is secure if no adversary can attack the protocol with more success than they can achieve against the ideal model. Formal security proofs are based upon the notion of simulation.
 
-			It is worth noting that some functions inherently leak information about the inputs of the other parties. For example in a two-party addition both parties can easily recover the other party's input after the computation has been run by subtracting their own input from the result. In these cases SMC is not at fault so we do not concern ourselves.\\
+			Astute readers may have already noticed that some functions inherently leak information about the inputs of the other parties. For example in a two-party addition both parties can easily recover the other party's input after the computation has been run by subtracting their own input from the output. In these cases SMC is not at fault so we do not concern ourselves.\\
 
 			% Alice-Bob-Trevor could go here.
-			% Occasionally a fourth property is proposed, namely \emph{fairness}, meaning if one party gets their output then all parties get their output. However, generally this is ignored due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
+			Occasionally a fourth property is proposed, namely \emph{fairness}, meaning if one party gets their output then all parties get their output. However, generally this is ignored due being thought to be impossible outside a synchronous communication model as any party can stop participating in the protocol at any time.
 
 		\section{Security levels}\label{sub:SecurityLevels}
 			Having established the goals of the adversary and how we can measure if said adversary has a valid attack, we next deal with the capabilities of the adversary. We use three main models to describe the capability of the adversary.
@@ -178,6 +188,9 @@
 
 					In this case a sufficiently high deterrent probability will mean the chance of being caught is so high that the risk of being caught outweighs the benefits to be gained by cheating.
 
+			\subsection{Actively Secure}
+				We refer to the second and third adversary as `Active', denoting the fact that they can take an active role in trying to subvert the security of the computation. We call protocols that are secure in the presence of such active adversaries `Actively Secure'.
+
 		\section{Applications of SMC} \label{sub:Applications}
 			Here we take time to motivate the study of SMC by giving several actual or proposed applications.
 
@@ -202,7 +215,6 @@
 				The PROCEED program is not restricted to SMC, it also considers Fully Homomorphic Encryption. At present DARPA claim that SMC slows the computation by at least 2 orders of magnitude whilst FHE slows it by nearly 10 orders of magnitude \cite{DARPAPROceed}. 
 
 
-	
 	\chapter{Technical Background}
 		Here we detail two of the two main common components of a Yao Garbled Circuits based system. The Yao Garbled Circuits themselves and Oblivious transfer.
 
@@ -533,13 +545,17 @@
 
 				\noindent \textbf{Checking Circuit Correctness} Given all keys for the inputs wires how does one go about check the correctness of a circuit? The simplest method is for the Builder to seed the randomness used for each circuit differently and then send the seed for each circuit to be opened. The Executor can then fully re-build each check circuit using this seed and the full inputs sets and check that the resulting circuit is equal to the check circuit.\\
 
+				At this point we should mention a bandwidth/memory optimisation first put forward in \cite{HashCheckOpt}. Goyal et al. observed that instead of sending the full set of circuits the Builder could instead send a hash of each circuit.\\
+
+				Then when checking correctness, the Executor could construct the circuit as use, hash it and compare this to the hash given by the Builder. This means that then the Builder only needs to send the evaluation circuits in full, reducing bandwidth usage significantly. This is not an optimisation we have implemented.\\
+
 				\noindent \textbf{Output Determination} How should the Executor react to differing outputs from the evaluation circuits? Whilst it is tempting to simply abort immediately this opens the Executor up to an attack referred to as a \emph{selective failure} attack. This is where the Builder crafts one (or more) of the circuits to fail in some way if the input from the Executor fulfils some condition (e.g. if the first bit is 1). Then the Executor aborting due to differing outputs from Evaluation Circuits leaks information about whether the Executor input satisfies the condition or not.\\
 
 				This leaves the Executor needing to determine what output to give in this situation? The answer to this question affects how many circuits are needed to achieve a certain level of statistical security. One approach to this has the Executor return the majority output on each output wire.\\
 				
 				Then if we have $S$ many circuits, $t$ of which are selected as check circuits the Builder will need to submit at least $\frac{S - t}{2}$ many corrupted circuits else the bad circuits will certainly be outvoted when it comes to decided the majority output. However, the Builder also requires that none of the corrupted circuits are selected as Check circuits, else their cheating will be detected.\\
 
-				\noindent \textbf{An aside} The Builder cannot hardcode its input anymore. Whilst assessing the correctness of the check circuits the Executor is given both keys for each input wire, including those belonging to the Builder. So if the Builder has hardcoded the keys the Executor can tell which key he was given hardcoded and know the Builder's input. Instead the Builder must wait until after the check-set is revealed to send its inputs for only the evaluation circuits.
+				\noindent \textbf{An aside} The Builder cannot hardcode its input anymore. Whilst assessing the correctness of the check circuits the Executor is given both keys for each input wire, including those belonging to the Builder. So if the Builder has hardcoded the keys the Executor can tell which key it was given hardcoded and know the Builder's input. Instead the Builder must wait until after the check-set is revealed to send its inputs for only the evaluation circuits.
 
 	\chapter{Summary of Actively Secure Protocols to be implemented} \label{sec:Protocols}
 		We now give an overview of each of the protocols we have implemented. This is not intended to be a full blow-by-blow explanation of the protocols, instead we intend on giving the reader a high-level intuition of the key points of each protocol. We will dig a little deeper into a few points of each protocol, particularly where we feel the original papers were not as clear as they could be.
@@ -585,8 +601,13 @@
 
 					The Parties then engage in a Zero Knowledge Proof that either $(g, g^{a_i^0}, U, V)$ is an Extended DH tuple or $(g, g^{a_i^1}, U, V)$ is.\\
 
-					Lindell and Pinkas provide a pre-processing step that reduces the Extended DH tuple problem to a standard DH tuple problem. 
+					Lindell and Pinkas provide a pre-processing step that reduces the Extended DH tuple problem to a standard DH tuple problem. The pre-processing is as follows,
 
+					The Verifying party(V) generates $\{\delta_i\}_{i = 1}^{l}$ random exponents and sends them to the Proving party(P). P then computes,
+					
+					$$\tilde u = \prod^{l}_{i = 1} u_i^{\delta_i}, \tilde v = \prod^{l}_{i = 1} v_i^{\delta_i}$$
+
+					Then note that if $(g, h, U, V)$ is an Extended DH tuple then $(g, h, \tilde u, \tilde v)$ will be a standard DH tuple. Thus we reduce the number of Zero Knowledge proofs from $l$ to 1.
 
 		\section{Lindell 2013}
 			\subsection{Overview}
@@ -595,7 +616,7 @@
 
 				Lindell uses a Secure Computation to determine the output that will produce the correct output if even only one of the evaluation circuits produces the correct output.\\
 
-				This means that to successfully cheat a malicious builder will need to corrupt every evaluation circuit guess \emph{exactly} which circuits will be selected as check circuits. If the guess made by the malicious builder is wrong on even one circuit the cheating will either be detected (if it corrupts a check circuit) or mitigated (if it fails to corrupt every evaluation circuit).\\
+				This means that to successfully cheat a malicious builder will need to corrupt every evaluation circuit guessing \emph{exactly} which circuits will be selected as check circuits. If the guess made by the malicious builder is wrong on even one circuit the cheating will either be detected (if it corrupts a check circuit) or ignored (if it fails to corrupt every evaluation circuit).\\
 
 				Lindell suggest this Secure Computation be carried out using the protocol he authored with Pinkas in \cite{LindellAndPinkas2011} using a small circuit he provides. The hope is that, especially for large circuits, this small secure computation will be relatively cheap.\\
 
@@ -611,6 +632,8 @@
 				Then if any of the circuits evaluated by the Executor give different outputs on any output wire (say output wire $i$) the executor will obtain both $b_i^0$ and $b_i^1$, these will then be used as input to the cheating detection. If all circuits produce the same output then the Executor randomly generates this input to the cheating detection.\\
 					
 				The parties then perform a Secure Computation to detect cheating (here on in, the Sub-computation) where the Builder inputs $x$ (its original input to the main computation) and  we call the Executor's inputs $b$. The Secure Computation returns $x$ to the Executor if its input $b$ indicates it knows both $b_i^0$ and $b_i^1$ for some $i$, otherwise it returns garbage.\\
+
+				This can be achieved with a circuit that takes each $b_i^0 \Vert b_i^1$ as hardcoded inputs, the Executor then inputs some $b$ as above. The circuit then checks $b$ against each $b_i^0 \Vert b_i^1$ using NXOR gates, ANDs the results for each $i$ before ORing all the results. This will yield a $1$ if $b$ is equal to some $b_i^0 \Vert b_i^1$ and $0$ otherwise. This circuit will work, but it is very large and as such impractical, we will see optimisations later.\\
 
 				We need to be sure the Builder inputs the same $x$ to the sub-computation as the main computation. This can be done by using the same consistent input style as in the Lindell-Pinkas 2010 protocol.\\
 
@@ -700,14 +723,14 @@
 
 
 		\section{Merging Lindell 2013 and HKE 2013}
-			In the Lindell 2013 protocol the Sub-computation is carried out using the Lindell-Pinkas 2010 protocol. This raises the question, given the HKE protocol requires fewer circuits to achieve the same level of statistical security as Lindell-Pinkas, can we alter the sub-computation to use HKE?\\
+			In the Lindell 2013 protocol the Sub-computation is carried out using the Lindell-Pinkas 2010 protocol. The natural question, given the HKE protocol requires fewer circuits to achieve the same level of statistical security as Lindell-Pinkas, is can we alter the sub-computation to use HKE?\\
 
 			This is very simple conceptually, but we must be careful of a few subtle problems, indeed the solutions to these require us to modify the behaviour of the protocol outside the sub-computation.\\
 
-			At this point it should be noted that while I will argue \emph{informally} that my merging of Lindell 2013 and HKE I give no formal proof, as such this should not be used seriously till such a formal proof exists.
+			At this point it should be noted that while I will argue \emph{informally} that my merging of Lindell 2013 and HKE is secure I give no formal proof, as such this should not be used seriously till such a formal proof exists.
 
 			\subsection{Problems to address}
-				At first this seems like a trivial matter, merely change the sub-computation implementation to call HKE instead of Lindell-Pinkas. However, consider the following questions, several of which arise due to the symmetrical nature of HKE.
+				At first this seems like a trivial matter, merely change the sub-computation implementation to use HKE instead of Lindell-Pinkas. However, consider the following questions, all of which arise due to the symmetrical nature of HKE.
 
 				\begin{enumerate}
 					\item The consistency of the Builder's input to the main computation and the sub-computation must be assured, but now it must also be assured in the sub-computation circuit built by the Executor.
@@ -722,15 +745,15 @@
 
 
 			\subsection{Consistency of Builder's inputs}
-				Recall in the Lindell-Pinkas / Lindell protocols consistency of the builder's inputs can be assured by the use of a `base key' for each bit value on each input wire. By using a common starting point and then adding in some randomness for each circuit the Builder creates keys that are still indistinguishable to the Executor. They can then run a Zero Knowledge proof that the keys used by the Builder are an Extended Diffie-Hellman Tuple based on the same `base key'.\\
+				Recall in the Lindell-Pinkas / Lindell protocols consistency of the builder's inputs can be assured by the use of a `base key' for each bit value on each input wire. By using a common starting point and then adding in some randomness for each circuit the Builder creates keys that are still indistinguishable to the Executor. They can then run a Zero Knowledge proof that the keys used by the Builder are an Extended Diffie-Hellman Tuple derived on the same `base key'.\\
 
 				Clearly we could extend this to be used for the Builder's inputs to the Builder's sub-computation circuits. However, I see no way for this to be extended to the builder's inputs to the Executor's sub-computation circuits. Fundamentally the Zero Knowledge Proof proves that,
 				
 				$$\forall j (g, g^{r_j}, g^{a_i^0}, k_{i,j}) \in DH \textnormal{ OR } \forall j (g, g^{r_j}, g^{a_i^1}, k_{i,j}) \in DH$$
-				
+
 				This causes serious problems because both parties need to know $k_{i,j}$, and as the Executor generated $k_{i,j}$ if the Builder tells the Executor which one to use for the proof then the Executor learns the Builder's input bit. Whilst there are probably ways to alter the Zero Knowledge Proof to account for this I propose a simpler and more efficient solution by using the HKE approach to consistency.\\
 
-				Suppose the Builder's inputs to the main circuit are produced so to be in the same form as given in Subsection \ref{sub:HKE_Consistency}. Furthermore the Builder's inputs to the sub-computation circuits he builds are also of this form. Both sets of inputs use the same $\tilde C$.\\
+				Suppose the Builder's inputs to the main circuit are produced so to be in the same form as given in Subsection \ref{sub:HKE_Consistency}. Furthermore the Builder's inputs to the sub-computation circuits it builds are also of this form. Both sets of inputs use the same $\tilde C$.\\
 
 				The Builder obtains his inputs for the sub-computation circuits sent by the Executor by Naor-Pinkas Oblivious Transfer as is usual in the HKE protocol. Then the Builder can prove the consistency of his input to all three sets of circuits using knowledge of logarithm trick used in the HKE protocol.\\
 
@@ -740,7 +763,7 @@
 				\subsubsection{An attack on the OT optimisation}
 					In the final optimisation suggested in \cite{Lindell_CnC_2013} the sub-circuit is reduced so that the Executor only inputs a single bit, indicating knowledge of $\delta$. The 0-value key for this wire is given freely to the Executor. The Executor then obtains the 1-value in a series of cut-and-choose OTs where the Executor only learns the value by.\\
 
-					This approach cannot be used when we are using a symmetric paradigm for the sub-computation because the Builder cannot verify that the consistency of the Executor's inputs beyond each circuit set. Suppose then that the Builder is honest the Executor therefore has not obtained $\delta$. Then his input to the circuits created by the Builder will have to be $0$. However, no such restriction exists on his input to the circuit he created.\\
+					This approach cannot be used when we are using a symmetric paradigm for the sub-computation because the Builder cannot verify that the consistency of the Executor's inputs beyond each circuit set. Suppose then that the Builder is honest the Executor therefore has not obtained $\delta$. Then his input to the circuits created by the Builder will have to be $0$. However, no such restriction exists on his input to the circuit it created.\\
 
 					Therefore the circuits evaluated by the Builder will output $X$ (where $X$ is his input to the main computation). The circuits evaluated by the Executor will output $00...0$. So when it comes to the Secure Equality testing the parties will abort on the first bit where $X$ is $1$, leaking information about the Builder's input to the computation.\\
 
@@ -750,7 +773,7 @@
 					We therefore take a step back and return to the Builder inputting the first $S$ many bits of $\delta$ and the Executor inputting the first $S$ bits of $\delta'$. This does not cost us as much as one might think, while it increases the size of the circuit it does so only a little and by a factor that is unaffected by the size of the main computation inputs. This current round of modification to the sub-computation leaves us requiring $|X| \cdot S + 2 \cdot S^2$ many OTs with a circuit size of about $S + 2 \cdot |X|$.
 
 			\subsection{Hiding output from Builder}
-				We need to ensure that the Builder gains no knowledge from the sub-computation about whether the Executor input $\delta' = \delta$. If the Builder can tell if the sub-computation output all zeroes or $X$ then he knows if the Executor received inconsistent outputs from the main computation circuits. This gives rise to an indirect selective failure attack whereby the Builder crafts the main computation circuits so the Executor will get inconsistent outputs if some condition is met by the Executor's inputs. Thus if the Builder can discern that the Sub-computation output $X$ he knows the Executor's input satisfies this condition.\\
+				We need to ensure that the Builder gains no knowledge from the sub-computation about whether the Executor input $\delta' = \delta$. If the Builder can tell if the sub-computation output all zeroes or $X$ then it knows if the Executor received inconsistent outputs from the main computation circuits. This gives rise to an indirect selective failure attack whereby the Builder crafts the main computation circuits so the Executor will get inconsistent outputs if some condition is met by the Executor's inputs. Thus if the Builder can discern that the Sub-computation output $X$ it knows the Executor's input satisfies this condition.\\
 
 				This is not an issue in the original Lindell 2013 protocol as the Builder does not evaluate any circuits relating to the sub-computation. However, when we perform the sub-computation with the Huang-Katz-Evans protocol the Builder will be evaluating circuits and takes part in the output determination. To ensure the Builder does not learn anything about the output we further modify the sub-computation circuits to take an extra input from the Executor. This input should be same length as the output and is XORed with the old output.\\
 
@@ -1549,15 +1572,17 @@
 
 					Therefore the main saving is made in the Oblivious Transfers, which runs just less than  $60\%$ of the time the unmodified OT needs (with a smaller number of circuits but this is fair as the modifications allow the reduction in the number of circuit). It is roughly at the point where this saving exceeds the cost of the sub-computation the L-2013 protocol will outperform the old LP-2010 protocol.\\
 
+					All the same it is tempting to be disappointed L-2013 did not perform better, however, in \cite{Lindell_CnC_2013} Lindell calculates theoretical measures of L-2013's performance versus those for LP-2010 and notes that his protocol exchanges more group exponentiations for less symmetric encryptions and less bandwidth. In our test environment AES-NI reduces the cost of the additional symmetric encryptions, whilst the network setup of the Diffie and Hellman de-emphasise communication costs. Further experiments should be run in an environment where communication costs are higher.\\ 
+
 					\noindent \textbf{L-HKE - Modifying Lindell-2013} We now compare the overall performance of our modified version of the L-2013 protocol against the original protocol proposed by Lindell and against the Lindell-Pinkas protocol. The first thing to note is in terms of running times L-HKE outperforms both the other protocols on all three circuits.\\
 
 					On the addition circuit L-HKE runs faster than LP-2010 by a very thin margin, only 2 seconds and at the cost of using significantly more CPU time and a minor increase in bandwidth used. When considering the multiplication circuit we see L-HKE very slightly increase its lead in running time. Furthermore we see the result of the main computation circuits taking dominance over bandwidth as L-HKE uses just over $\frac{1}{3}$ the bandwidth LP-2010 does. However, the CPU time used by L-HKE is still very high in comparison.\\
 
-					As is to be expected though the AES circuit gives L-HKE its best relative performance. It runs $30$ seconds quicker than LP-2010, uses only $10\%$ more CPU time and again about $\frac{1}{3}$ the bandwidth. Here we can clearly see how as the circuit and input sizes get bigger the cost of the sub-computation is reduced relative to the other costs of the protocol.\\
+					As expected the AES circuit gives L-HKE its best relative performance. It runs $30$ seconds quicker than LP-2010, uses only $10\%$ more CPU time and again about $\frac{1}{3}$ the bandwidth. Here we can clearly see how as the circuit and input sizes get bigger the cost of the sub-computation is reduced relative to the other costs of the protocol.\\
 
 					Another point to make is that the computational load is much more evenly balanced. This is neither an unambiguous positive or negative, in some settings one party having more computational work to do might be more practical (e.g. Mobile device paired with server).\ 
 
-					The picture of L-HKE versus L-2013 is much more interesting and complex. L-HKE runs on the addition circuit considerably quicker (about $13$ seconds faster) and uses about the same amount of CPU time. In exchange requires $2,000,000$ additional bytes of communication.\\
+					The picture of L-HKE versus L-2013 is much more complex. L-HKE runs on the addition circuit considerably quicker (about $13$ seconds faster) and uses about the same amount of CPU time. In exchange requires $2,000,000$ additional bytes of communication.\\
 
 					The performance gains are made only partly in the sub-computation. While it is true that the modified sub-computation is $6$ seconds faster, the main gain is in replacing the Extended DH tuple proof of consistency with the HKE logarithm based approach.\\
 
@@ -1734,22 +1759,34 @@
 
 						The second key point is the change to the \emph{main} computations proof of consistency. Recall that when modifying the sub-computation we changed the proof of consistency of the Builder's inputs to use the logarithm based approach used in HKE. This change reduces the cost of the consistency proof by a significant amount ($\sim 30$ seconds on the AES circuit).\\
 
-						That said at present I can think of no reason this optimisation cannot be applied to the Lindell protocol directly, though it would require committing to the inputs as in the HKE protocol. If this can be done then the key advantage of the L-HKE protocol over large input circuits is nullified.\\
+						That said at present I can think of no reason this optimisation cannot be applied to the Lindell protocol directly. If this can be done then the key advantage of the L-HKE protocol over large input circuits is nullified.\\
 
-						We conclude that while the L-HKE sub-computation shows promise it needs improvement before it can compete with the Lindell sub-computation on large circuits. It's primary problem is its sensitivity to variations in the Builder's input size.
+						We conclude that the L-HKE sub-computation shows promise but it needs improvement before it can compete with the Lindell sub-computation on large circuits. It's primary problem is its sensitivity to variations in the Builder's input size.\\
+
+						As such practical implementations built on the Lindell-2013 protocol could implement a check on the Builder's input size at the start of the computation and chose the sub-computation accordingly.
 
 
 	\chapter{Conclusions}
-		Our work provides the first practical implementation of two protocols, a new variant on one of those protocols and an implementation of a protocol for which only preliminary experiments have been performed. As such we provide the first practical comparison of these four protocols.\\
+		Our work provides the first practical implementation of two protocols, a new variant on one of those protocols and an implementation of a protocol for which only preliminary experiments have been performed. As such we provide the first practical comparison of these four protocols. We are also the first to be able to see how some of the new primitives suggested in \cite{LindellAndPinkas2011} and \cite{Lindell_CnC_2013} work in practise.\\
 
-		As important as theoretical comparisons are they can only tell us so much. For example in \cite{Lindell_CnC_2013} Lindell explicitly compares the Lindell 2013 protocol with the Lindell-Pinkas 2010 protocol. He notes how the L-2013 protocol trades off more exponentiations for fewer symmetric encryptions and less bandwidth usage. However this theoretical comparison does not tell us if this trade off is worth it.\\
+		All four protocols we have implemented compare very favourably to Lindell and Pinkas's previous protocol in \cite{LindellAndPinkas2007} (LP-2010), we base this statement on informal consideration of the results from the implementation of the latter given in \cite{LindellPinkasSmart2008}. The Lindell-Pinkas-Smart LP-2007 takes $135$ seconds to evaluate the function $x > y$ for 16-bit inputs. All of our implementation of protocol can evaluate an AES encryption in less time.\\
+
+		Whilst some of this is no doubt due to differences in hardware the AES circuit is vastly more complex with 8 times more inputs and hundreds of times more gates.\\
+
+		We also see that the number of input wires (both Builder and Executor) has a greater impact on the running time of a secure computation than the size of the circuit in terms of gates. This was expected, however more surprisingly we saw that in the asymmetric protocols the size of the \emph{Builder's} inputs had more impact then the size of the Executor's inputs.\\
+
+		We see that HKE is by far and away the best protocol in terms of running time, however due to being symmetrical it will suffer performance degradation if the function outputs something to only $P_2$. In the cases where the Builder should not see $P_2$'s output and the input sizes are large it may be better to run the Lindell-2013 protocol.\\
+
+		One of the most significant areas HKE is better than the other protocols is in proving the consistency of the Builder's inputs. Even when done in parallel the Extended Diffie-Hellman Tuple proof approach takes considerably longer then the logarithm approach.\\
+
+		To the best of our knowledge we provide the first implementation of Cut and Choose Oblivious Transfer, both the original and modified versions. While CnC OT sounds good on paper, allowing us to fold the commitments to the input keys into the OT itself, in practise the Zero Knowledge proofs are very expensive and their cost outweigh the gains of removing the commitments.\\
 
 		
 
 		\section{Future Work}
 			We have pointed the reader to several areas where we believe our implementation could be improved, notably the Zero Knowledge Proof of Builder's input consistency. But also optimisations such as the garbled row reduction, hashed circuit checks and the Free-XOR communication reduction.\\
 
-			Additionally there are some corner cases we have not addresses, in particular the case where one party has input size zero. This is a somewhat dubious corner case though as if a party has no inputs to the computation there is little reason for a secure computation.\\
+			Additionally there are some corner cases our prototype implementation has not addressed, in particular the case where one party has input size zero. This is a somewhat dubious corner case though as if a party has no inputs to the computation there is little reason for a secure computation.\\
 
 			There are also several further experiments we believe would be very helpful, a few particular ones are listed below,
 
@@ -1760,9 +1797,11 @@
 				\item In an environment where communication costs are high.
 			\end{itemize}
 			
-			Whilst we only had limited success with modifying the sub-computation of the Lindell-2013 protocol the results we obtained were promising. Further work could be done into the modified version of the Lindell-2013 protocol that we put forward, in particular into the problem of hiding the output of the sub-computation in a way that does not inflate the input size.\\
+			Whilst we only had limited success with modifying the sub-computation of the Lindell-2013 protocol the results we obtained were promising.\\
 
-			Another area for investigation is 
+			Further work could be done into the modified version of the Lindell-2013 protocol that we put forward, in particular into the problem of hiding the output of the sub-computation in a way that does not inflate the input size. This work would not just benefit our modified protocol, but also Symmetric Cut and Choose in general.\\
+
+			Furthermore work should be done into modifying both the Lindell-Pinkas 2010 and Lindell 2013 protocols to use the logarithm based proof of Builder's consistency.
 
 	\begin{thebibliography}{99}
 
@@ -1865,6 +1904,13 @@
 		\bibitem{NaorPinkasOT2001}
 			Naor and B. Pinkas, \emph{Efficient Oblivious Transfer Protocols}, Proceedings of SODA 2001 (SIAM Symposium on Discrete Algorithms), 2001.
 
+		\bibitem{HashCheckOpt}
+			V. Goyal, P. Mohassel, and A. Smith.
+			Efficient two party and multi party computation against covert adversaries.
+			In Advances in Cryptology — Eurocrypt 2008, volume 4965 of LNCS,
+			pages 289–306. Springer,
+			2008.
+
 		\bibitem{PseudoRandomSynth}
 			M. Naor and O. Reingold.
 			\emph{Synthesizers and Their Application to the Parallel Construction of Psuedo-Random Functions.}
@@ -1925,47 +1971,6 @@
 
 	\begin{appendices}
 
-		\chapter{Benchmarking components}
-			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
-
-			\section{Communications}
-
-				We benchmark our communications between Diffie and Hellman. We focus on sending elements of the 256-bit ECC group and sending raw bytes in varying sizes and numbers of blocks.\\
-
-				Communication benchmarks will probably will elicit the most interest from readers intending on implementing these protocols themselves as the nature of our test environment de-emphasise the communication costs due to the close proximity of the two test machines.\\
-
-		% 				\begin{figure}
-		% 					\begin{tabular}{ c | c | c }
-		% 						Block Size & Time Taken (seconds) &  \\
-		% 						\hline
-		% 						$100,000$ & 0 &  \\
-		% 						$10,000,000$ & 0 &  \\
-		% 					\end{tabular}
-		% 				\end{figure}
-
-			\section{Elliptic Curve Group Operations}
-
-				We benchmark point addition, point doubling, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
-
-			\section{Oblivious Transfer}
-				We benchmark all the Oblivious transfers we use, in each case we include the setup of the OTs in the measurements and we also state the communication costs (number of bytes exchanged). We vary the inputs relating to the number of input pairs and the number circuits.
-
-				\subsection{Cut and Choose Oblivious Transfer}
-
-				\subsection{Modified Cut and Choose Oblivious Transfer}
-
-				\subsection{Naor Pinkas Oblivious Transfer}
-
-					.
-
-			\section{Circuit Building}
-
-				Circuit building can be an expensive operation, furthermore as we take the re-building approach to circuit correctness checking it is carried out for each check circuit. We do not include preliminary operations (e.g. generating consistent inputs for circuits).
-
-			\section{Circuit Evaluation}
-
-				Once a party has the inputs for a Yao Garbled Circuit the circuit must be evaluated. We show benchmarks for each binary circuit we shall be testing. Additionally we demonstrate the difference that AES-NI makes and the Free-XOR optimisations. 
-
 		\chapter{Implementation usage guide}
 			This chapter deals with how to build and use the implementation provided. If you are the Bristol markers the implementation source code was submitted on SAFE in a zip file. Else you can download the source code from github. The project can be found at \url{https://github.com/nt1124/FourthYearProject}.\\
 			
@@ -2011,9 +2016,38 @@
 					\item PartyID = 1 means the local party is $P_1$, 0 means the local party is $P_2$.
 				\end{itemize}
 
+		\chapter{Benchmarking components}
+			Here I give some benchmarks of key components in my implementation such as communication, ECC encryption and circuit evaluation. I include these measurements so that others intending to implement these protocols with more efficient (e.g. library supplied) components can get a rough idea of what performance improvement they can expect.
+
+			\section{Communications}
+
+				We benchmark our communications between Diffie and Hellman. We focus on sending elements of the 256-bit ECC group and sending raw bytes in varying sizes and numbers of blocks.\\
+
+				Communication benchmarks will probably will elicit the most interest from readers intending on implementing these protocols themselves as the nature of our test environment de-emphasise the communication costs due to the close proximity of the two test machines.\\
+
+		% 				\begin{figure}
+		% 					\begin{tabular}{ c | c | c }
+		% 						Block Size & Time Taken (seconds) &  \\
+		% 						\hline
+		% 						$100,000$ & 0 &  \\
+		% 						$10,000,000$ & 0 &  \\
+		% 					\end{tabular}
+		% 				\end{figure}
+
+			\section{Elliptic Curve Group Operations}
+
+				We benchmark point addition, point doubling, point multiplication and fixed point multiplication. The fixed point multiplication includes the pre-computation of the relevant windows.
+
+
+			\section{Circuit Building}
+
+				Circuit building can be an expensive operation, furthermore as we take the re-building approach to circuit correctness checking it is carried out for each check circuit. We do not include preliminary operations (e.g. generating consistent inputs for circuits).
+
+			
+
 
 		\chapter{Implementation Details} \label{sec:ImplementationDetails}
-			The final implementation is quite large and as such it would be thoroughly to go through all of it in any great detail. Furthermore a blow by blow account of the implementation of how we implement such primitives as Yao Garbled Circuits would detract from the purpose of this Dissertation, namely a comparison of several recent protocols, not a rehash of how to implement primitives.\\
+			The final implementation is quite large and as such it would be thoroughly to go through all of it in any great detail. Furthermore a blow by blow account of the implementation of how we implement such primitives as Yao Garbled Circuits would detract from the purpose of this thesis, namely a comparison of several recent protocols, not a rehash of how to implement primitives.\\
 
 			However, this said we shall touch on some of the high points and some of the more interesting primitives. We also comment on the purpose of this implementation and suggest a few places where we feel the implementation could be improved.
 
@@ -2188,8 +2222,7 @@
 					$$p_0 = g^a, p_1 = g^{f_1}, p_2 = g^{f_2}, ..., p_t = g^{f_t}.$$
 					
 					As the name suggests these public commitments are sent to all parties. Then given a share $c$ and an index for the share $i$ any party can verify that $c$ is the valid $i^{th}$ share by computing $\prod_{j=0}^{t} p_0 ^ {i ^ j}$ and testing this equals $g ^ c$. If it does it is a valid share, else it is not.
-		
-			
+
 	\end{appendices}
 
 \end{document}
