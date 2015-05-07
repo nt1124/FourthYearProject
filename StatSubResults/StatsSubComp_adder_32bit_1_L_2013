@@ -18,6 +18,10 @@ Decommit to check circuits.
 & $0.56$ & $2.71$ & $125,044$ & $2,044$ \\
 
 
+Send Builder inputs to Eval. Circuits
+& $2.94$ & $2.94$ & $142,092$ & $0$ \\
+
+
 Full cheating detection sub-computation
 & $117.53$ & $21.85$ & $2,412,286$ & $746,955$ \\
 

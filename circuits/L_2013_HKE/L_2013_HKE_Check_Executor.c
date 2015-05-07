@@ -259,8 +259,6 @@ unsigned char *SC_DetectCheatingExecutor_HKE_Alt(int writeSocket, int readSocket
 	OT_Outputs = NaorPinkas_OT_Receiver_Transfer(writeSocket, readSocket, rawInputCircuit -> numInputs_P2,
 												keyPlusDeltaPrime, state, checkStatSecParam, deltaPrimeQueries, params, cTilde);
 
-	int_t_0 = timestamp();
-	int_c_0 = clock();
 
 	deltaFromPartner = receiveBoth(readSocket, commBufferLen);
 	if(0 == memcmp(deltaFromPartner, deltaPrime, lengthDelta))

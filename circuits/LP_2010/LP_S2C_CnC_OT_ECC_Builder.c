@@ -181,6 +181,7 @@ struct eccPoint **computeBuilderInputs(struct public_builderPRS_Keys *public_inp
 
 	output = (struct eccPoint**) calloc(numInputs * (numEvalCircuits - J_setSize), sizeof(struct eccPoint *));
 
+
 	for(i = 0; i < numInputs; i ++)
 	{
 		inputBit = curValue -> value;

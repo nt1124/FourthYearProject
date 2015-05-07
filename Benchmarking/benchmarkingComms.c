@@ -1,5 +1,3 @@
-int numBlocks = 1000;
-int blockSize = 100000;
 
 
 void benchmarkRawCommSender(char *portNumStr)
@@ -13,43 +11,53 @@ void benchmarkRawCommSender(char *portNumStr)
 
 	randctx *isaacCTX;
 	unsigned char **inputs;
-	int i;
+	int i, j, k;
 
-	int numBlocks = 1000, blockSize = 100000;
+	int numBlocks = 100, blockSize = 1000, baseBlockSize = 1000;
 
 
 	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(isaacCTX);
 
-	inputs = (unsigned char **) calloc(numBlocks, sizeof(unsigned char *));
-	for(i = 0; i < numBlocks; i ++)
+	inputs = (unsigned char **) calloc(numBlocks * 100, sizeof(unsigned char *));
+	for(i = 0; i < numBlocks * 100; i ++)
 	{
-		inputs[i] = generateIsaacRandBytes(isaacCTX, blockSize, blockSize);
+		inputs[i] = generateIsaacRandBytes(isaacCTX, blockSize * 100, blockSize * 100);
 	}
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-	c_0 = clock();
-	timestamp_0 = timestamp();
-
-	for(i = 0; i < numBlocks; i ++)
+	for(i = 0; i < 2; i ++)
 	{
-		sendBoth(writeSocket, inputs[i], blockSize);
+		blockSize = baseBlockSize;
+
+		for(j = 0; j < 3; j ++)
+		{
+			c_0 = clock();
+			timestamp_0 = timestamp();
+
+			for(k = 0; k < numBlocks; k ++)
+			{
+				sendBoth(writeSocket, inputs[k], blockSize);
+			}
+
+			c_1 = clock();
+			timestamp_1 = timestamp();
+
+			printf("\nSending %d blocks of size %d\n", numBlocks, blockSize);
+			printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+			printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+			fflush(stdout);
+
+			blockSize *= 10;
+		}
+		numBlocks *= 10;
 	}
-
-	c_1 = clock();
-	timestamp_1 = timestamp();
-
-	printf("\nSending %d blocks of size %d\n", numBlocks, blockSize);
-	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
 
-	// printBytesSent();
-	// printBytesReceived();
 }
 
 
@@ -64,10 +72,9 @@ void benchmarkRawCommReceiver(char *ipAddress, char *portNumStr)
 
 	randctx *isaacCTX;
 	unsigned char *commBuffer;
-	int commBufferLen, i, j;
+	int commBufferLen, i, j, k;
 
-	int numBlocks = 1000, blockSize = 100000;
-
+	int numBlocks = 100, blockSize = 1000, baseBlockSize = 1000;
 
 	isaacCTX = (randctx*) calloc(1, sizeof(randctx));
 	getIsaacContext(isaacCTX);
@@ -76,21 +83,33 @@ void benchmarkRawCommReceiver(char *ipAddress, char *portNumStr)
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
-	c_0 = clock();
-	timestamp_0 = timestamp();
-
-	for(i = 0; i < numBlocks; i ++)
+	for(i = 0; i < 2; i ++)
 	{
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		free(commBuffer);
+		blockSize = baseBlockSize;
+
+		for(j = 0; j < 3; j ++)
+		{
+			c_0 = clock();
+			timestamp_0 = timestamp();
+
+			for(k = 0; k < numBlocks; k ++)
+			{
+				commBuffer = receiveBoth(readSocket, commBufferLen);
+				free(commBuffer);
+			}
+
+			c_1 = clock();
+			timestamp_1 = timestamp();
+
+			printf("\nReceiving %d blocks of size %d\n", numBlocks, blockSize);
+			printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+			printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+			fflush(stdout);
+
+			blockSize *= 10;
+		}
+		numBlocks *= 10;
 	}
-
-	c_1 = clock();
-	timestamp_1 = timestamp();
-
-	printf("\nReceiving %d blocks of size %d\n", numBlocks, blockSize);
-	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);
@@ -118,9 +137,9 @@ void benchmark_ECC_PointSender(char *portNumStr)
 	unsigned char *commBuffer;
 	struct eccPoint **inputPoints, **preComputes;
 	mpz_t tempExp;
-	int i, commBufferLen;
+	int i, j, k, commBufferLen;
 
-	int numBlocks = 100, numPointPerBlock = 100;
+	int numBlocks = 100, pointsPerBlock = 100, basePointsPerBlock = 100;
 
 
 	mpz_init(tempExp);
@@ -132,34 +151,47 @@ void benchmark_ECC_PointSender(char *portNumStr)
 
 
 
-	inputPoints = (struct eccPoint **) calloc(numPointPerBlock * 100, sizeof(struct eccPoint *));
-	for(i = 0; i < numPointPerBlock * 100; i ++)
+	inputPoints = (struct eccPoint **) calloc(pointsPerBlock * 100, sizeof(struct eccPoint *));
+	for(i = 0; i < pointsPerBlock * 100; i ++)
 	{
 		mpz_urandomm(tempExp, *state, params -> n);
 		inputPoints[i] = fixedPointMultiplication(localPreComputes, tempExp, params);
 	}
 
+	printf("Points generated\n");
 
 	set_up_server_socket(destWrite, writeSocket, mainWriteSock, writePort);
 	set_up_server_socket(destRead, readSocket, mainReadSock, readPort);
 
-	c_0 = clock();
-	timestamp_0 = timestamp();
-
-	for(i = 0; i < numBlocks; i ++)
+	for(i = 0; i < 3; i ++)
 	{
-		commBufferLen = 0;
-		commBuffer = serialise_ECC_Point_Array(inputPoints, numPointPerBlock, &commBufferLen);
-		sendBoth(writeSocket, commBuffer, commBufferLen);
-		free(commBuffer);
+		pointsPerBlock = basePointsPerBlock;
+
+		for(j = 0; j < 3; j ++)
+		{
+			c_0 = clock();
+			timestamp_0 = timestamp();
+
+			for(k = 0; k < numBlocks; k ++)
+			{
+				commBufferLen = 0;
+				commBuffer = serialise_ECC_Point_Array(inputPoints, pointsPerBlock, &commBufferLen);
+				sendBoth(writeSocket, commBuffer, commBufferLen);
+				free(commBuffer);
+			}
+
+			c_1 = clock();
+			timestamp_1 = timestamp();
+
+			printf("\nSending %d blocks of %d points\n", numBlocks, pointsPerBlock);
+			printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+			printf("Wall time :     %lf\n\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+
+			pointsPerBlock *= 10;
+		}
+
+		numBlocks *= 10;
 	}
-
-	c_1 = clock();
-	timestamp_1 = timestamp();
-
-	printf("\nSending %d blocks of %d points\n", numBlocks, numPointPerBlock);
-	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
 	close_server_socket(writeSocket, mainWriteSock);
 	close_server_socket(readSocket, mainReadSock);
@@ -178,32 +210,46 @@ void benchmark_ECC_PointReceiver(char *ipAddress, char *portNumStr)
 
 	struct eccPoint **outputPoints;
 	unsigned char *commBuffer;
-	int commBufferLen, bufferOffset = 0, arrayLen = 0, i;
+	int commBufferLen, bufferOffset = 0, arrayLen = 0, i, j, k;
 
-	int numBlocks = 100, numPointPerBlock = 100;
+	int numBlocks = 100, pointsPerBlock = 100, basePointsPerBlock = 100;
 
 
 	set_up_client_socket(readSocket, ipAddress, readPort, serv_addr_read);
 	set_up_client_socket(writeSocket, ipAddress, writePort, serv_addr_write);
 
-	c_0 = clock();
-	timestamp_0 = timestamp();
-
-	for(i = 0; i < numBlocks; i ++)
+	for(i = 0; i < 3; i ++)
 	{
-		bufferOffset = 0;
-		arrayLen = 0;
-		commBuffer = receiveBoth(readSocket, commBufferLen);
-		outputPoints = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &bufferOffset);
-		free(commBuffer);
+		pointsPerBlock = basePointsPerBlock;
+
+		for(j = 0; j < 3; j ++)
+		{
+
+			c_0 = clock();
+			timestamp_0 = timestamp();
+
+			for(k = 0; k < numBlocks; k ++)
+			{
+				bufferOffset = 0;
+				arrayLen = 0;
+				commBuffer = receiveBoth(readSocket, commBufferLen);
+				outputPoints = deserialise_ECC_Point_Array(commBuffer, &arrayLen, &bufferOffset);
+				free(commBuffer);
+			}
+
+			c_1 = clock();
+			timestamp_1 = timestamp();
+
+			printf("\nReceiving %d blocks of %d points\n", numBlocks, pointsPerBlock);
+			printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
+			printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
+			
+			pointsPerBlock *= 10;
+		}
+		numBlocks *= 10;
 	}
 
-	c_1 = clock();
-	timestamp_1 = timestamp();
 
-	printf("\nReceiving %d blocks of %d points\n", numBlocks, numPointPerBlock);
-	printf("CPU time  :     %f\n", (float) (c_1 - c_0)/CLOCKS_PER_SEC);
-	printf("Wall time :     %lf\n", seconds_timespecDiff(&timestamp_0, &timestamp_1));
 
 	close_client_socket(readSocket);
 	close_client_socket(writeSocket);

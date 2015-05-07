@@ -33,6 +33,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	Xj_checkValues = (unsigned char **) calloc(stat_SecParam, sizeof(unsigned char *));
 
 
+	// Some initialisation of randomness and input arrays.
 	inputArray = convertChainIntoArray(startOfInputChain, rawInputCircuit -> numInputs_P1);
 	for(i = 0; i < stat_SecParam; i ++)
 	{
@@ -54,6 +55,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	// Input/Output generation
 	params = initBrainpool_256_Curve();
 	secret_inputs = generateSecrets(rawInputCircuit -> numInputs_P1, stat_SecParam, params, *state);
 	public_inputs = computePublicInputs(secret_inputs, params);
@@ -62,6 +64,7 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	bLists = generateConsistentOutputs(delta, rawInputCircuit -> numOutputs);
 	hashedB_Lists = generateConsistentOutputsHashTables(bLists, rawInputCircuit -> numOutputs);
 
+	// Check values for use in the modified CnC OT.
 	for(i = 0; i < stat_SecParam; i ++)
 	{
 		Xj_checkValues[i] = generateRandBytes(16, 16);		
@@ -153,9 +156,10 @@ void runBuilder_L_2013_CnC_OT(struct RawCircuit *rawInputCircuit, struct idAndVa
 	int_t_0 = timestamp();
 	int_c_0 = clock();
 
+	// Run the sub-computation with 3 * S many circuits.
 	SC_ReturnStruct = SC_DetectCheatingBuilder(writeSocket, readSocket, rawCheckCircuit,
 											startOfInputChain, delta, lengthDelta,
-	 										checkSecretInputs, 3 * stat_SecParam, state);
+	 										checkSecretInputs, (3 * stat_SecParam), state);
 
 	int_c_1 = clock();
 	int_t_1 = timestamp();

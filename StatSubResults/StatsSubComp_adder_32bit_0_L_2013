@@ -22,6 +22,10 @@ Sub-circuit get builder inputs.
 & $0.75$ & $1.36$ & $0$ & $142,092$ \\
 
 
+Evaluate Sub-circuits.
+& $0.00$ & $0.00$ & $0$ & $0$ \\
+
+
 Full sub-computation
 & $53.37$ & $21.85$ & $746,955$ & $2,412,286$ \\
 

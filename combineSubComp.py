@@ -96,13 +96,14 @@ def processOneSet(protocolNum, circuitNum, partyID):
 
 			if("Bytes" in fileAsArray[j + 3]):
 				if truncatedLine not in CPU_Dict:
-					if("\xc2\xa3" in fileAsArray[j + 3]):
+					if(0 == inSubFlag and "\xc2\xa3" in fileAsArray[j + 3]):
 						inSubFlag = 1
+						ordering.append(truncatedLine)
 					elif("Full" in truncatedLine):
 						inSubFlag = 0
 						ordering.append(truncatedLine)
 
-					if(1 == inSubFlag and "Eval" not in truncatedLine):
+					if(1 == inSubFlag):
 						ordering.append(truncatedLine)
 	
 				CPU_Dict[truncatedLine].append( float(fileAsArray[j + 1][16:]) )
@@ -122,7 +123,7 @@ def processOneSet(protocolNum, circuitNum, partyID):
 
 	f = open(outputFile, 'w')
 
-	for key in ordering:
+	for key in ordering[1:]:
 		# print key
 		# printMeanAndStdDev(CPU_Dict[key])
 		f.write(key + "\n")
@@ -139,17 +140,17 @@ def processOneSet(protocolNum, circuitNum, partyID):
 commTags = ['#', ':']
 infoTags = ['#', ':', '+']
 protocolNameList = ["L_2013", "CHIMERA_2013"]
-circuitNameList = ["adder_32bit", "multiplication_32bit", "AES-non-expanded"]
+circuitNameList = ["adder_32bit", "AES-non-expanded"]
 
-protocolNum = 1
+protocolNum = 0
 circuitNum = 0
 partyID = 0
 
+
 for protocolNum in range(0, 2):
 	for partyID in range(0, 2):
-		for circuitNum in range(0, 3):
+		for circuitNum in range(0, 2):
 			processOneSet(protocolNum, circuitNum, partyID)
-
 
 # processOneSet(protocolNum, circuitNum, partyID)
 

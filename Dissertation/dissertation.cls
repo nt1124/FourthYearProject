@@ -24,7 +24,7 @@
 }
 
 \ProcessPgfOptions{/dissertation}
-\LoadClass[10.7pt, a4paper, twoside]{report}
+\LoadClass[10pt, a4paper, twoside]{report}
 % \renewcommand{\baselinestretch}{1.4}
 
 % see http://www.ctan.org/tex-archive/macros/latex/required/graphics
